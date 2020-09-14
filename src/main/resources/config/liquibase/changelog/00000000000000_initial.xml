@@ -145,7 +145,20 @@
     <changeSet author="fne (generated)" id="1600088858955-23">
         <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="student" constraintName="FKnwsufvlvlnsxqv60ltj06bbfx" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
     </changeSet>
-
+    <changeSet author="jhipster" id="1600088858955-23-1" context="test">
+        <createTable tableName="jhi_date_time_wrapper">
+            <column  name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_date_time_wrapperPK"/>
+            </column>
+            <column name="instant" type="timestamp"/>
+            <column name="local_date_time" type="timestamp"/>
+            <column name="offset_date_time" type="timestamp"/>
+            <column name="zoned_date_time" type="timestamp"/>
+            <column name="local_time" type="time"/>
+            <column name="offset_time" type="time"/>
+            <column name="local_date" type="date"/>
+        </createTable>
+    </changeSet>
     <changeSet id="1600064851921-24" author="fne">
         <loadData
             file="config/liquibase/data/authority.csv"
