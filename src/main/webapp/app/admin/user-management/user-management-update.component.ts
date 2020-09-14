@@ -31,8 +31,8 @@ export class UserManagementUpdateComponent implements OnInit {
     lastName: ['', [Validators.maxLength(50)]],
     email: ['', [Validators.minLength(5), Validators.maxLength(254), Validators.email]],
     activated: [],
-    langKey: [],
-    authorities: [],
+    langKey: ['', [Validators.required]],
+    authorities: ['', [Validators.required]]
   });
 
   constructor(private userService: UserService, private route: ActivatedRoute, private fb: FormBuilder) {}

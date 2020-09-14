@@ -1,0 +1,9 @@
+{
+  "roles" : {
+    "ROLE_ADMIN": "Administrator",
+    "ROLE_INSTRUCTOR" : "LVA-Leiter",
+    "ROLE_STUDENT": "Student",
+    "ROLE_TUTOR": "Tutor",
+    "ROLE_USER": "Benutzer"
+  }
+}

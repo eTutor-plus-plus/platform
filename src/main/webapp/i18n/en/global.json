@@ -134,7 +134,8 @@
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
-    }
+    },
+    "emptycollection" : "The mandatory list is empty!"
   },
   "footer": "This is your footer"
 }

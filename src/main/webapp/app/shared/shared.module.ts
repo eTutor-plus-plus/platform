@@ -5,14 +5,16 @@ import { AlertComponent } from './alert/alert.component';
 import { AlertErrorComponent } from './alert/alert-error.component';
 import { LoginModalComponent } from './login/login.component';
 import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
+import {TranslateRolePipe} from "app/shared/language/translate-role.pipe";
 
 @NgModule({
   imports: [EtutorPlusPlusSharedLibsModule],
-  declarations: [FindLanguageFromKeyPipe, AlertComponent, AlertErrorComponent, LoginModalComponent, HasAnyAuthorityDirective],
+  declarations: [FindLanguageFromKeyPipe, TranslateRolePipe, AlertComponent, AlertErrorComponent, LoginModalComponent, HasAnyAuthorityDirective],
   entryComponents: [LoginModalComponent],
   exports: [
     EtutorPlusPlusSharedLibsModule,
     FindLanguageFromKeyPipe,
+    TranslateRolePipe,
     AlertComponent,
     AlertErrorComponent,
     LoginModalComponent,

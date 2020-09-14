@@ -41,7 +41,7 @@
                     <td>{{ user.langKey }}</td>
                     <td>
                         <div *ngFor="let authority of user.authorities">
-                            <span class="badge badge-info">{{ authority }}</span>
+                            <span class="badge badge-info">{{ authority | translateRole | translate }}</span>
                         </div>
                     </td>
                     <td>{{ user.createdDate | date:'dd/MM/yy HH:mm' }}</td>

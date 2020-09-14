@@ -133,7 +133,8 @@
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
-    }
+    },
+    "emptycollection" : "Die verpflichtende Liste ist leer!"
   },
   "footer": "Dies ist Ihre Fußzeile"
 }

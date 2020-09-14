@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.MailService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
+import at.jku.dke.etutor.web.rest.errors.CollectionRequiredEntryException;
 import at.jku.dke.etutor.web.rest.errors.EmailAlreadyUsedException;
 import at.jku.dke.etutor.web.rest.errors.LoginAlreadyUsedException;
 
@@ -96,6 +97,8 @@ public class UserResource {
 
         if (userDTO.getId() != null) {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+        } else if (userDTO.getAuthorities() == null || userDTO.getAuthorities().isEmpty()) {
+            throw new CollectionRequiredEntryException();
             // Lowercase the user login before comparing with database
         } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
             throw new LoginAlreadyUsedException();
@@ -122,6 +125,11 @@ public class UserResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
+
+        if (userDTO.getAuthorities() == null || userDTO.getAuthorities().isEmpty())  {
+            throw new CollectionRequiredEntryException();
+        }
+
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new EmailAlreadyUsedException();
