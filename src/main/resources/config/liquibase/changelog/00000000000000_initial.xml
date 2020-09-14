@@ -1,0 +1,182 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <changeSet author="fne (generated)" id="1600066854955-1">
+        <createSequence incrementBy="50" sequenceName="sequence_generator" startValue="1"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-2">
+        <createTable tableName="administrator">
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="administratorPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-3">
+        <createTable tableName="instructor">
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="instructorPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-4">
+        <createTable tableName="jhi_authority">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_authorityPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-5">
+        <createTable tableName="jhi_persistent_audit_event">
+            <column autoIncrement="true" name="event_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_persistent_audit_eventPK"/>
+            </column>
+            <column name="event_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="event_type" type="VARCHAR(255)"/>
+            <column name="principal" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-6">
+        <createTable tableName="jhi_persistent_audit_evt_data">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-7">
+        <createTable tableName="jhi_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="activated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activation_key" type="VARCHAR(20)"/>
+            <column name="email" type="VARCHAR(254)"/>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="image_url" type="VARCHAR(256)"/>
+            <column name="lang_key" type="VARCHAR(10)"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="login" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reset_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-8">
+        <createTable tableName="jhi_user_authority">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-9">
+        <createTable tableName="person">
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="personPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-10">
+        <createTable tableName="student">
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="studentPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-11">
+        <createTable tableName="tutor">
+            <column name="person_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tutorPK"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-12">
+        <addUniqueConstraint columnNames="email" constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-13">
+        <addUniqueConstraint columnNames="login" constraintName="UC_JHI_USERLOGIN_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-14">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="administrator" constraintName="FK1lapeuo6sq36uluybgd2c6rxn" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-15">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="jhi_user_authority" constraintName="FK290okww5jujghp4el5i7mgwu0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-16">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="jhi_persistent_audit_evt_data" constraintName="FK2ehnyx2si4tjd2nt4q7y40v8m" deferrable="false" initiallyDeferred="false" referencedColumnNames="event_id" referencedTableName="jhi_persistent_audit_event" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-17">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="jhi_user_authority" constraintName="FK4psxl0jtx6nr7rhqbynr6itoc" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="jhi_authority" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-18">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="tutor" constraintName="FKawyxuhlhrg9s1n68ncpddjou4" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-19">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="person" constraintName="FKe9y2rjb98wsg2nnk3eyrvc2ss" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-20">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="instructor" constraintName="FKepiyf7221ie55wbd0jqrq8t5k" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600066854955-21">
+        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="student" constraintName="FKnwsufvlvlnsxqv60ltj06bbfx" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    </changeSet>
+
+    <changeSet id="1600064851921-22" author="fne">
+        <loadData
+            file="config/liquibase/data/authority.csv"
+            separator=";"
+            tableName="jhi_authority">
+            <column name="name" type="string"/>
+        </loadData>
+        <loadData
+            file="config/liquibase/data/user.csv"
+            separator=";"
+            tableName="jhi_user">
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+            <column name="id" type="numeric" />
+        </loadData>
+        <loadData
+            file="config/liquibase/data/user_authority.csv"
+            separator=";"
+            tableName="jhi_user_authority">
+            <column name="user_id" type="numeric"/>
+        </loadData>
+        <sql dbms="oracle, postgresql">
+            UPDATE jhi_user SET created_date = CURRENT_TIMESTAMP, last_modified_date = CURRENT_TIMESTAMP
+            <comment>Creation and last modification date update</comment>
+        </sql>
+        <loadData
+            file="config/liquibase/data/person.csv"
+            separator=";"
+            tableName="person">
+            <column name="person_id" type="numeric" />
+            <column name="user_id" type="numeric" />
+        </loadData>
+        <loadData
+            file="config/liquibase/data/administrator.csv"
+            separator=";"
+            tableName="administrator">
+            <column name="person_id" type="numeric" />
+        </loadData>
+    </changeSet>
+</databaseChangeLog>
