@@ -1,16 +1,12 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.config.Constants;
-import at.jku.dke.etutor.domain.Authority;
-import at.jku.dke.etutor.domain.User;
-import at.jku.dke.etutor.repository.AuthorityRepository;
-import at.jku.dke.etutor.repository.UserRepository;
+import at.jku.dke.etutor.domain.*;
+import at.jku.dke.etutor.repository.*;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.dto.UserDTO;
-
 import io.github.jhipster.security.RandomUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -34,16 +33,39 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
+    //region Repositories
+    private final UserRepository userRepository;
     private final AuthorityRepository authorityRepository;
+    private final AdministratorRepository administratorRepository;
+    private final InstructorRepository instructorRepository;
+    private final StudentRepository studentRepository;
+    private final TutorRepository tutorRepository;
+    //endregion
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+
+    /**
+     * Constructor.
+     *
+     * @param userRepository          the injected user repository
+     * @param passwordEncoder         the injected password encoder
+     * @param authorityRepository     the injected authority repository
+     * @param administratorRepository the injected administrator repository
+     * @param instructorRepository    the injected instructor repository
+     * @param studentRepository       the inject student repository
+     * @param tutorRepository         the inject tutor repository
+     */
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository,
+                       AdministratorRepository administratorRepository, InstructorRepository instructorRepository,
+                       StudentRepository studentRepository, TutorRepository tutorRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.administratorRepository = administratorRepository;
+        this.instructorRepository = instructorRepository;
+        this.studentRepository = studentRepository;
+        this.tutorRepository = tutorRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -80,6 +102,14 @@ public class UserService {
             });
     }
 
+    /**
+     * Registers a new user based on the given user dto and password.
+     *
+     * @param userDTO  the base dto
+     * @param password the password
+     * @return the new user
+     */
+    @Transactional
     public User registerUser(UserDTO userDTO, String password) {
         userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
@@ -112,20 +142,28 @@ public class UserService {
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
-        userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+        saveUserRoles(newUser, userDTO);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
     private boolean removeNonActivatedUser(User existingUser) {
         if (existingUser.getActivated()) {
-             return false;
+            return false;
         }
         userRepository.delete(existingUser);
         userRepository.flush();
         return true;
     }
 
+    /**
+     * Creates a new user entity based on the given user dto.
+     *
+     * @param userDTO the base dto for the new user
+     * @return the new user entity
+     */
+    @Transactional
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
@@ -153,9 +191,56 @@ public class UserService {
                 .collect(Collectors.toSet());
             user.setAuthorities(authorities);
         }
-        userRepository.save(user);
+        user = userRepository.save(user);
+        saveUserRoles(user, userDTO);
         log.debug("Created Information for User: {}", user);
         return user;
+    }
+
+    /**
+     * Saves the new user roles based on the user's authorities.
+     *
+     * @param user    the user entity
+     * @param userDTO the corresponding user dto
+     */
+    private void saveUserRoles(User user, UserDTO userDTO) {
+        if (user == null) {
+            throw new IllegalArgumentException("The parameter 'user' must not be null!");
+        }
+        if (userDTO == null) {
+            throw new IllegalArgumentException("The parameter 'userDTO' must not be null!");
+        }
+
+        if (userDTO.getAuthorities() != null) {
+            if (userDTO.getAuthorities().contains(AuthoritiesConstants.ADMIN)) {
+                Administrator admin = new Administrator();
+                admin.setUser(user);
+                admin.setId(user.getId());
+                admin = administratorRepository.save(admin);
+                user.addPerson(admin);
+            }
+            if (userDTO.getAuthorities().contains(AuthoritiesConstants.INSTRUCTOR)) {
+                Instructor instructor = new Instructor();
+                instructor.setUser(user);
+                instructor.setId(user.getId());
+                instructor = instructorRepository.save(instructor);
+                user.addPerson(instructor);
+            }
+            if (userDTO.getAuthorities().contains(AuthoritiesConstants.STUDENT)) {
+                Student student = new Student();
+                student.setUser(user);
+                student.setId(user.getId());
+                student = studentRepository.save(student);
+                user.addPerson(student);
+            }
+            if (userDTO.getAuthorities().contains(AuthoritiesConstants.TUTOR)) {
+                Tutor tutor = new Tutor();
+                tutor.setUser(user);
+                tutor.setId(user.getId());
+                tutor = tutorRepository.save(tutor);
+                user.addPerson(tutor);
+            }
+        }
     }
 
     /**
@@ -271,11 +356,11 @@ public class UserService {
 
     /**
      * Gets a list of all the authorities.
+     *
      * @return a list of all the authorities.
      */
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
-        return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
+        return authorityRepository.getClientAuthorities();
     }
-
 }

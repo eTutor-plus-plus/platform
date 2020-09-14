@@ -25,8 +25,8 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "userSequenceGenerator")
+    @SequenceGenerator(name = "userSequenceGenerator", initialValue = 3, allocationSize = 20)
     private Long id;
 
     @NotNull
@@ -88,6 +88,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "id")
     private List<Person> associatedPersons = new ArrayList<>();
 
