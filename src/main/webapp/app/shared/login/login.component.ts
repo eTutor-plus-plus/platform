@@ -1,9 +1,10 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import {FormBuilder, Validators} from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 
 import { LoginService } from 'app/core/login/login.service';
+import {LOGIN_PATTERN} from "app/shared/constants/user.constants";
 
 @Component({
   selector: 'jhi-login-modal',
@@ -16,8 +17,8 @@ export class LoginModalComponent implements AfterViewInit {
   authenticationError = false;
 
   loginForm = this.fb.group({
-    username: [''],
-    password: [''],
+    username: ['', [Validators.required, Validators.pattern(LOGIN_PATTERN)]],
+    password: ['', [Validators.required]],
     rememberMe: [false],
   });
 

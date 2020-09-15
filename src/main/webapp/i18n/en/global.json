@@ -118,7 +118,7 @@
       "pattern": "This field should follow pattern for {{ pattern }}.",
       "number": "This field should be a number.",
       "datetimelocal": "This field should be a date and time.",
-      "patternLogin": "This field can only contain letters, digits and e-mail addresses."
+      "patternLogin": "This field must only contain JKU ak or matriculation numbers."
     }
   },
   "error": {
@@ -135,7 +135,8 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
-    "emptycollection" : "The mandatory list is empty!"
+    "emptycollection" : "The mandatory list is empty!",
+    "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!"
   },
   "footer": "This is your footer"
 }

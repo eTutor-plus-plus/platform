@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 @Transactional
 public class UserServiceIT {
 
-    private static final String DEFAULT_LOGIN = "johndoe";
+    private static final String DEFAULT_LOGIN = "k123123456";
 
     private static final String DEFAULT_EMAIL = "johndoe@localhost";
 

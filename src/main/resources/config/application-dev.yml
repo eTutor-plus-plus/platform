@@ -20,6 +20,8 @@ logging:
     at.jku.dke.etutor: DEBUG
 
 spring:
+  main:
+    banner-mode: "off"
   profiles:
     active: dev
     include:

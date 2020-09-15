@@ -109,6 +109,11 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     }
 
     @ExceptionHandler
+    public ResponseEntity<Problem> handleLoginPatternFailedException(LoginPatternFailedException ex, NativeWebRequest request) {
+        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    }
+
+    @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidPasswordException(at.jku.dke.etutor.service.InvalidPasswordException ex, NativeWebRequest request) {
         return create(new InvalidPasswordException(), request);
     }

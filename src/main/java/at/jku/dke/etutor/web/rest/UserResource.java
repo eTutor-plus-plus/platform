@@ -7,10 +7,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.MailService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.UserDTO;
-import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
-import at.jku.dke.etutor.web.rest.errors.CollectionRequiredEntryException;
-import at.jku.dke.etutor.web.rest.errors.EmailAlreadyUsedException;
-import at.jku.dke.etutor.web.rest.errors.LoginAlreadyUsedException;
+import at.jku.dke.etutor.web.rest.errors.*;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -89,6 +86,8 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
+     * @throws LoginPatternFailedException if the login doesn't match the jku pattern
+     * @throws CollectionRequiredEntryException if the list of authorities is empty
      */
     @PostMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
@@ -97,6 +96,8 @@ public class UserResource {
 
         if (userDTO.getId() != null) {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+        } else if (!Constants.LOGIN_PATTERN.matcher(userDTO.getLogin()).matches()) {
+            throw new LoginPatternFailedException();
         } else if (userDTO.getAuthorities() == null || userDTO.getAuthorities().isEmpty()) {
             throw new CollectionRequiredEntryException();
             // Lowercase the user login before comparing with database
@@ -173,7 +174,7 @@ public class UserResource {
      * @param login the login of the user to find.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @GetMapping("/users/{login:" + Constants.COMMON_LOGIN_REGEX + "}")
     public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
         return ResponseUtil.wrapOrNotFound(
@@ -187,7 +188,7 @@ public class UserResource {
      * @param login the login of the user to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @DeleteMapping("/users/{login:" + Constants.COMMON_LOGIN_REGEX + "}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);

@@ -117,7 +117,8 @@
       "maxbytes": "Dieses Feld sollte nicht mehr als {{max}} bytes haben.",
       "pattern": "Dieses Feld muss das Muster {{pattern}} erfüllen.",
       "number": "Dieses Feld muss eine Zahl sein.",
-      "datetimelocal": "Dieses Feld muss eine Datums- und Zeitangabe enthalten."
+      "datetimelocal": "Dieses Feld muss eine Datums- und Zeitangabe enthalten.",
+      "patternLogin": "Dieses Feld darf nur JKU AK- und Matrikelnummern enthalten."
     }
   },
   "error": {
@@ -134,7 +135,8 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
-    "emptycollection" : "Die verpflichtende Liste ist leer!"
+    "emptycollection" : "Die verpflichtende Liste ist leer!",
+    "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!"
   },
   "footer": "Dies ist Ihre Fußzeile"
 }

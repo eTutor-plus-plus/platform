@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LANGUAGES } from 'app/core/language/language.constants';
 import { User } from 'app/core/user/user.model';
 import { UserService } from 'app/core/user/user.service';
+import { LOGIN_PATTERN } from "app/shared/constants/user.constants";
 
 @Component({
   selector: 'jhi-user-mgmt-update',
@@ -24,7 +25,7 @@ export class UserManagementUpdateComponent implements OnInit {
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(50),
-        Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
+        Validators.pattern(LOGIN_PATTERN),
       ],
     ],
     firstName: ['', [Validators.maxLength(50)]],
