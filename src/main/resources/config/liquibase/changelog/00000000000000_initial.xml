@@ -1,33 +1,36 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
-    <changeSet author="fne (generated)" id="1600088858955-1">
+    <changeSet author="fne (generated)" id="1600172280401-1">
+        <createSequence incrementBy="20" sequenceName="person_sequence_generator" startValue="2"/>
+    </changeSet>
+    <changeSet author="fne (generated)" id="1600172280401-2">
         <createSequence incrementBy="50" sequenceName="sequence_generator" startValue="1"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-2">
+    <changeSet author="fne (generated)" id="1600172280401-3">
         <createSequence incrementBy="20" sequenceName="user_sequence_generator" startValue="3"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-3">
+    <changeSet author="fne (generated)" id="1600172280401-4">
         <createTable tableName="administrator">
-            <column name="person_id" type="BIGINT">
+            <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="administratorPK"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-4">
+    <changeSet author="fne (generated)" id="1600172280401-5">
         <createTable tableName="instructor">
-            <column name="person_id" type="BIGINT">
+            <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="instructorPK"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-5">
+    <changeSet author="fne (generated)" id="1600172280401-6">
         <createTable tableName="jhi_authority">
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_authorityPK"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-6">
+    <changeSet author="fne (generated)" id="1600172280401-7">
         <createTable tableName="jhi_persistent_audit_event">
             <column autoIncrement="true" name="event_id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_persistent_audit_eventPK"/>
@@ -39,7 +42,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-7">
+    <changeSet author="fne (generated)" id="1600172280401-8">
         <createTable tableName="jhi_persistent_audit_evt_data">
             <column name="event_id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
@@ -50,7 +53,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-8">
+    <changeSet author="fne (generated)" id="1600172280401-9">
         <createTable tableName="jhi_user">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_userPK"/>
@@ -80,7 +83,7 @@
             <column name="reset_key" type="VARCHAR(20)"/>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-9">
+    <changeSet author="fne (generated)" id="1600172280401-10">
         <createTable tableName="jhi_user_authority">
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
@@ -90,62 +93,59 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-10">
+    <changeSet author="fne (generated)" id="1600172280401-11">
         <createTable tableName="person">
-            <column name="person_id" type="BIGINT">
+            <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="personPK"/>
             </column>
             <column name="user_id" type="BIGINT"/>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-11">
+    <changeSet author="fne (generated)" id="1600172280401-12">
         <createTable tableName="student">
-            <column name="person_id" type="BIGINT">
+            <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="studentPK"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-12">
+    <changeSet author="fne (generated)" id="1600172280401-13">
         <createTable tableName="tutor">
-            <column name="person_id" type="BIGINT">
+            <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="tutorPK"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-13">
+    <changeSet author="fne (generated)" id="1600172280401-14">
         <addUniqueConstraint columnNames="email" constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-14">
+    <changeSet author="fne (generated)" id="1600172280401-15">
         <addUniqueConstraint columnNames="login" constraintName="UC_JHI_USERLOGIN_COL" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-15">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="administrator" constraintName="FK1lapeuo6sq36uluybgd2c6rxn" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
-    </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-16">
+    <changeSet author="fne (generated)" id="1600172280401-16">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="jhi_user_authority" constraintName="FK290okww5jujghp4el5i7mgwu0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-17">
+    <changeSet author="fne (generated)" id="1600172280401-17">
         <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="jhi_persistent_audit_evt_data" constraintName="FK2ehnyx2si4tjd2nt4q7y40v8m" deferrable="false" initiallyDeferred="false" referencedColumnNames="event_id" referencedTableName="jhi_persistent_audit_event" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-18">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="person" constraintName="FK3ihe3y18rcck4r19v01bb8re9" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    <changeSet author="fne (generated)" id="1600172280401-18">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="instructor" constraintName="FK3kn07geu5htjuxelo7gucv7x8" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-19">
+    <changeSet author="fne (generated)" id="1600172280401-19">
         <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="jhi_user_authority" constraintName="FK4psxl0jtx6nr7rhqbynr6itoc" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="jhi_authority" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-20">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="tutor" constraintName="FKawyxuhlhrg9s1n68ncpddjou4" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    <changeSet author="fne (generated)" id="1600172280401-20">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="administrator" constraintName="FKal7apt0upmj104giewnf79mt0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-21">
+    <changeSet author="fne (generated)" id="1600172280401-21">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="person" constraintName="FKe9y2rjb98wsg2nnk3eyrvc2ss" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-22">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="instructor" constraintName="FKepiyf7221ie55wbd0jqrq8t5k" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    <changeSet author="fne (generated)" id="1600172280401-22">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="tutor" constraintName="FKs5kvxap3nbwywuplcy7t04keg" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
-    <changeSet author="fne (generated)" id="1600088858955-23">
-        <addForeignKeyConstraint baseColumnNames="person_id" baseTableName="student" constraintName="FKnwsufvlvlnsxqv60ltj06bbfx" deferrable="false" initiallyDeferred="false" referencedColumnNames="person_id" referencedTableName="person" validate="true"/>
+    <changeSet author="fne (generated)" id="1600172280401-23">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="student" constraintName="FKslayvtom01idjdexcxh76k935" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="person" validate="true"/>
     </changeSet>
-    <changeSet author="jhipster" id="1600088858955-23-1" context="test">
+    <changeSet author="jhipster" id="1600172280401-23-1" context="test">
         <createTable tableName="jhi_date_time_wrapper">
             <column  name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="jhi_date_time_wrapperPK"/>
@@ -159,7 +159,7 @@
             <column name="local_date" type="date"/>
         </createTable>
     </changeSet>
-    <changeSet id="1600064851921-24" author="fne">
+    <changeSet id="1600172280401-24" author="fne">
         <loadData
             file="config/liquibase/data/authority.csv"
             separator=";"
@@ -188,14 +188,14 @@
             file="config/liquibase/data/person.csv"
             separator=";"
             tableName="person">
-            <column name="person_id" type="numeric" />
+            <column name="id" type="numeric" />
             <column name="user_id" type="numeric" />
         </loadData>
         <loadData
             file="config/liquibase/data/administrator.csv"
             separator=";"
             tableName="administrator">
-            <column name="person_id" type="numeric" />
+            <column name="id" type="numeric" />
         </loadData>
     </changeSet>
 </databaseChangeLog>

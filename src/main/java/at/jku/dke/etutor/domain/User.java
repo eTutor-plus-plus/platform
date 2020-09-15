@@ -89,7 +89,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Set<Authority> authorities = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "id")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "user")
     private List<Person> associatedPersons = new ArrayList<>();
 
     /**
@@ -371,6 +371,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
         person.setUser(null);
     }
 
+    /**
+     * See {@link Object#equals(Object)}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -382,9 +385,12 @@ public class User extends AbstractAuditingEntity implements Serializable {
         return id != null && id.equals(((User) o).id);
     }
 
+    /**
+     * See {@link Object#hashCode()}
+     */
     @Override
     public int hashCode() {
-        return 31;
+        return Objects.hash(id);
     }
 
     // prettier-ignore

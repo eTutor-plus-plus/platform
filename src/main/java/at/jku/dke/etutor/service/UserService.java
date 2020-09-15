@@ -161,28 +161,24 @@ public class UserService {
             if (userDTO.getAuthorities().contains(AuthoritiesConstants.ADMIN)) {
                 Administrator admin = new Administrator();
                 admin.setUser(user);
-                admin.setId(user.getId());
                 admin = administratorRepository.save(admin);
                 user.addPerson(admin);
             }
             if (userDTO.getAuthorities().contains(AuthoritiesConstants.INSTRUCTOR)) {
                 Instructor instructor = new Instructor();
                 instructor.setUser(user);
-                instructor.setId(user.getId());
                 instructor = instructorRepository.save(instructor);
                 user.addPerson(instructor);
             }
             if (userDTO.getAuthorities().contains(AuthoritiesConstants.STUDENT)) {
                 Student student = new Student();
                 student.setUser(user);
-                student.setId(user.getId());
                 student = studentRepository.save(student);
                 user.addPerson(student);
             }
             if (userDTO.getAuthorities().contains(AuthoritiesConstants.TUTOR)) {
                 Tutor tutor = new Tutor();
                 tutor.setUser(user);
-                tutor.setId(user.getId());
                 tutor = tutorRepository.save(tutor);
                 user.addPerson(tutor);
             }

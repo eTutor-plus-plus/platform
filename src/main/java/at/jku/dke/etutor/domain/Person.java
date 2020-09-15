@@ -16,11 +16,12 @@ public abstract class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "personId")
-    private long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "personSequenceGenerator")
+    @SequenceGenerator(name = "personSequenceGenerator", initialValue = 2, allocationSize = 20)
+    private Long id;
 
     @ManyToOne
-    @PrimaryKeyJoinColumn(name = "personId", referencedColumnName = "id")
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     private User user;
 
     /**
@@ -28,7 +29,7 @@ public abstract class Person implements Serializable {
      *
      * @return the person's id to return
      */
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -37,7 +38,7 @@ public abstract class Person implements Serializable {
      *
      * @param id the id to set
      */
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
