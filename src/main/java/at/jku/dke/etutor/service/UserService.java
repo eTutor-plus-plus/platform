@@ -7,6 +7,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import io.github.jhipster.security.RandomUtil;
+import one.util.streamex.StreamEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -16,8 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,8 +55,8 @@ public class UserService {
      * @param authorityRepository     the injected authority repository
      * @param administratorRepository the injected administrator repository
      * @param instructorRepository    the injected instructor repository
-     * @param studentRepository       the inject student repository
-     * @param tutorRepository         the inject tutor repository
+     * @param studentRepository       the injected student repository
+     * @param tutorRepository         the injected tutor repository
      */
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository,
                        AdministratorRepository administratorRepository, InstructorRepository instructorRepository,
@@ -186,6 +189,38 @@ public class UserService {
     }
 
     /**
+     * Manages the user associated roles.
+     *
+     * @param user the user to update
+     */
+    private void updateUserRoles(User user) {
+        var associatedAuthorities = StreamEx.of(user.getAuthorities()).map(x -> AuthoritiesConstants.getClassNameByRoleConstant(x.getName())).nonNull().toList();
+        Iterator<Person> personIt = user.getAssociatedPersons().iterator();
+
+        //Remove non existing roles.
+        while (personIt.hasNext()) {
+            Person p = personIt.next();
+            if (!associatedAuthorities.contains(p.getClass().getName())) {
+                personIt.remove();
+            }
+        }
+
+        //Add new roles
+        var roleList = StreamEx.of(user.getAssociatedPersons()).map(x -> x.getClass().getName()).toList();
+        for (var authority : associatedAuthorities) {
+            if (!roleList.contains(authority)) {
+                try {
+                    Person newPerson = (Person) Class.forName(authority).getDeclaredConstructor().newInstance();
+
+                    user.addPerson(newPerson);
+                } catch (Exception e) {
+                    log.error("An exception occurred - should not happen!", e);
+                }
+            }
+        }
+    }
+
+    /**
      * Update all information for a specific user, and return the modified user.
      *
      * @param userDTO user to update.
@@ -213,6 +248,7 @@ public class UserService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
+                updateUserRoles(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
