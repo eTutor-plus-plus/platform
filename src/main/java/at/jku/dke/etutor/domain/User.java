@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.domain;
 
 import at.jku.dke.etutor.config.Constants;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
@@ -324,6 +323,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
      * @param authorities the associated authorities to set
      */
     public void setAuthorities(Set<Authority> authorities) {
+        if (authorities == null) {
+            throw new IllegalArgumentException("The parameter 'authorities' must not be null!");
+        }
         this.authorities = authorities;
     }
 
@@ -342,6 +344,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
      * @param associatedPersons the associated persons list to set
      */
     public void setAssociatedPersons(List<Person> associatedPersons) {
+        if (associatedPersons == null) {
+            throw new IllegalArgumentException("The parameter 'associatedPersons' must not be null!");
+        }
         this.associatedPersons = associatedPersons;
     }
 

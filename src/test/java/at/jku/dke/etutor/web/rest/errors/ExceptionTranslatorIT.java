@@ -8,6 +8,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.shaded.org.bouncycastle.pqc.crypto.ExchangePair;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -107,4 +108,39 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.title").value("Internal Server Error"));
     }
 
+    @Test
+    public void testEmailAlreadyUsed() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/email-already-used"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.emailexists"))
+            .andExpect(jsonPath("$.title").value("Email is already in use!"));
+    }
+
+    @Test
+    public void testUsernameAlreadyUsed() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/username-already-used"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.userexists"))
+            .andExpect(jsonPath("$.title").value("Login name already used!"));
+    }
+
+    @Test
+    public void testCollectionRequiredEntry() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/collection-required-entry"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.emptycollection"))
+            .andExpect(jsonPath("$.title").value("At least one entry is required!"));
+    }
+
+    @Test
+    public void testLoginPatternFailed() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/login-pattern-failed"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.loginPatternFailed"))
+            .andExpect(jsonPath("$.title").value("The given login is not a valid JKU ak or matriculation number!"));
+    }
 }

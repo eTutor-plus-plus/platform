@@ -1,5 +1,7 @@
 package at.jku.dke.etutor.web.rest.errors;
 
+import at.jku.dke.etutor.service.EmailAlreadyUsedException;
+import at.jku.dke.etutor.service.UsernameAlreadyUsedException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -7,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -48,6 +51,26 @@ public class ExceptionTranslatorTestController {
     @GetMapping("/internal-server-error")
     public void internalServerError() {
         throw new RuntimeException();
+    }
+
+    @GetMapping("/email-already-used")
+    public void emailAlreadyUsed() {
+        throw new EmailAlreadyUsedException();
+    }
+
+    @GetMapping("/username-already-used")
+    public void usernameAlreadyUsed() {
+        throw new UsernameAlreadyUsedException();
+    }
+
+    @GetMapping("/collection-required-entry")
+    public void collectionRequiredEntry() {
+        throw new CollectionRequiredEntryException();
+    }
+
+    @GetMapping("/login-pattern-failed")
+    public void loginPatternFailed() {
+        throw new LoginPatternFailedException();
     }
 
     public static class TestDTO {

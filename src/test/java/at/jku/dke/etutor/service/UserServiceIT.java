@@ -3,11 +3,11 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.Constants;
 import at.jku.dke.etutor.domain.User;
-import at.jku.dke.etutor.repository.UserRepository;
+import at.jku.dke.etutor.repository.*;
+import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.UserDTO;
-
+import at.jku.dke.etutor.service.mapper.UserMapper;
 import io.github.jhipster.security.RandomUtil;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -50,6 +51,14 @@ public class UserServiceIT {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TutorRepository tutorRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private InstructorRepository instructorRepository;
+    @Autowired
+    private AdministratorRepository administratorRepository;
 
     @Autowired
     private UserService userService;
@@ -201,4 +210,42 @@ public class UserServiceIT {
             .isTrue();
     }
 
+    @Test
+    @Transactional
+    public void assertThatRoleEntitiesAreAdded() {
+        UserDTO userDTO = new UserMapper().userToUserDTO(user);
+        userDTO.setAuthorities(Set.of(new String[]{AuthoritiesConstants.ADMIN, AuthoritiesConstants.TUTOR,
+            AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT}));
+        userService.createUser(userDTO);
+
+        assertThat(userRepository.count()).isEqualTo(3);
+        assertThat(tutorRepository.count()).isEqualTo(1);
+        assertThat(studentRepository.count()).isEqualTo(1);
+        assertThat(instructorRepository.count()).isEqualTo(0);
+        assertThat(administratorRepository.count()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    public void assertThatRoleEntitiesAreChanged() {
+        UserDTO userDTO = new UserMapper().userToUserDTO(user);
+        userDTO.setAuthorities(Set.of(new String[]{AuthoritiesConstants.ADMIN, AuthoritiesConstants.INSTRUCTOR}));
+        long id = userService.createUser(userDTO).getId();
+
+        assertThat(userRepository.count()).isEqualTo(3);
+        assertThat(tutorRepository.count()).isEqualTo(0);
+        assertThat(studentRepository.count()).isEqualTo(0);
+        assertThat(instructorRepository.count()).isEqualTo(1);
+        assertThat(administratorRepository.count()).isEqualTo(2);
+
+        userDTO.setAuthorities(Set.of(new String[]{AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.TUTOR}));
+        userDTO.setId(id);
+        userService.updateUser(userDTO);
+
+        assertThat(userRepository.count()).isEqualTo(3);
+        assertThat(tutorRepository.count()).isEqualTo(1);
+        assertThat(studentRepository.count()).isEqualTo(0);
+        assertThat(instructorRepository.count()).isEqualTo(1);
+        assertThat(administratorRepository.count()).isEqualTo(1);
+    }
 }
