@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -98,7 +99,7 @@ public class UserResource {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
         } else if (!Constants.LOGIN_PATTERN.matcher(userDTO.getLogin()).matches()) {
             throw new LoginPatternFailedException();
-        } else if (userDTO.getAuthorities() == null || userDTO.getAuthorities().isEmpty()) {
+        } else if (CollectionUtils.isEmpty(userDTO.getAuthorities())) {
             throw new CollectionRequiredEntryException();
             // Lowercase the user login before comparing with database
         } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
@@ -127,7 +128,7 @@ public class UserResource {
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
 
-        if (userDTO.getAuthorities() == null || userDTO.getAuthorities().isEmpty())  {
+        if (CollectionUtils.isEmpty(userDTO.getAuthorities()))  {
             throw new CollectionRequiredEntryException();
         }
 
