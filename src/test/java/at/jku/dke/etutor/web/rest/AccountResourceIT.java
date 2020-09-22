@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
+import liquibase.pro.packaged.U;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +31,9 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static at.jku.dke.etutor.web.rest.AccountResourceIT.TEST_USER_LOGIN;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Integration tests for the {@link AccountResource} REST controller.
  */
@@ -490,5 +492,27 @@ public class AccountResourceIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(keyAndPassword)))
             .andExpect(status().isInternalServerError());
+    }
+
+    /**
+     * Tests the account save rest call with a different user
+     *
+     * @throws Exception must not happen
+     */
+    @Test
+    @Transactional
+    @WithMockUser("save-account-different-user")
+    public void testSaveAccountWithDifferentUser() throws Exception {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setFirstName("Firstname");
+        userDTO.setLastName("Lastname");
+        userDTO.setLogin("k11123340");
+
+        restAccountMockMvc.perform(post("/api/account/")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(userDTO)))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.title", is("Internal Server Error")))
+            .andExpect(jsonPath("$.message", is("error.http.500")));
     }
 }

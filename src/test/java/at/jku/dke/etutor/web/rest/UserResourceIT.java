@@ -7,6 +7,7 @@ import at.jku.dke.etutor.repository.UserRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.mapper.UserMapper;
+import at.jku.dke.etutor.web.rest.vm.LoginVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -77,7 +80,7 @@ public class UserResourceIT {
 
     /**
      * Create a User.
-     *
+     * <p>
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.
      */
@@ -461,6 +464,104 @@ public class UserResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").value(hasItems(AuthoritiesConstants.ADMIN)));
+    }
+
+    /**
+     * Tests the rest login with the standard password.
+     *
+     * @throws Exception must not happen
+     */
+    @Test
+    @Transactional
+    public void testStandardPasswordLogin() throws Exception {
+        UserDTO newUser = userMapper.userToUserDTO(user);
+        newUser.getAuthorities().add(AuthoritiesConstants.ADMIN);
+
+        //Create new user
+        restUserMockMvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(newUser)))
+            .andExpect(status().isCreated())
+            .andExpect(header().string("Content-Type", is(MediaType.APPLICATION_JSON_VALUE)))
+            .andExpect(jsonPath("$.id").isNumber());
+
+        LoginVM loginVM = new LoginVM();
+        loginVM.setUsername(newUser.getLogin());
+        loginVM.setPassword(newUser.getLogin());
+
+        //Authenticate with the newly created user.
+        restUserMockMvc.perform(post("/api/authenticate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(loginVM)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id_token").isString())
+            .andExpect(jsonPath("$.id_token").isNotEmpty())
+            .andExpect(header().string("Authorization", not(nullValue())))
+            .andExpect(header().string("Authorization", not(is(emptyString()))));
+    }
+
+    /**
+     * Tests the rest call which creates a new user with an incorrect login pattern.
+     *
+     * @throws Exception should not be thrown
+     */
+    @Test
+    @Transactional
+    public void testCreateUserWithIncorrectLoginPattern() throws Exception {
+        UserDTO newUser = userMapper.userToUserDTO(user);
+        newUser.getAuthorities().add(AuthoritiesConstants.ADMIN);
+        newUser.setLogin("testlogin");
+
+        restUserMockMvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(newUser)))
+            .andExpect(status().isBadRequest())
+            .andExpect(header().string("Content-Type", is(MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+            .andExpect(jsonPath("$.status", is(400)))
+            .andExpect(jsonPath("$.entityName", is("validation")))
+            .andExpect(jsonPath("$.errorKey", is("loginPatternFailed")));
+    }
+
+    /**
+     * Tests the rest call which creates a new user without a mandatory user role.
+     *
+     * @throws Exception should not be thrown
+     */
+    @Test
+    @Transactional
+    public void testCreateUserWithoutRole() throws Exception {
+        UserDTO newUser = userMapper.userToUserDTO(user);
+
+        restUserMockMvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(newUser)))
+            .andExpect(status().isBadRequest())
+            .andExpect(header().string("Content-Type", is(MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+            .andExpect(jsonPath("$.status", is(400)))
+            .andExpect(jsonPath("$.entityName", is("userManagement")))
+            .andExpect(jsonPath("$.errorKey", is("emptycollection")));
+    }
+
+    /**
+     * Tests the rest call which updates an existing user without a mandatory user role.
+     *
+     * @throws Exception should not be thrown
+     */
+    @Test
+    @Transactional
+    public void testUpdateUserWithoutRole() throws Exception {
+        User dbUser = userRepository.saveAndFlush(user);
+        UserDTO updatedUser = userMapper.userToUserDTO(dbUser);
+        updatedUser.setAuthorities(null);
+
+        restUserMockMvc.perform(put("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(updatedUser)))
+            .andExpect(status().isBadRequest())
+            .andExpect(header().string("Content-Type", is(MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+            .andExpect(jsonPath("$.status", is(400)))
+            .andExpect(jsonPath("$.entityName", is("userManagement")))
+            .andExpect(jsonPath("$.errorKey", is("emptycollection")));
     }
 
     @Test
