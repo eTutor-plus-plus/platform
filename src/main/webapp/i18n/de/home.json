@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "Willkommen, Java Hipster!",
+    "title": "Willkommen zum eTutor++!",
     "subtitle": "Dies ist Ihre Hauptseite",
     "logged": {
       "message": "Sie sind als Benutzer \"{{username}}\" angemeldet."
@@ -14,6 +14,11 @@
       "follow": "kontaktieren Sie uns mit @jhipster auf Twitter"
     },
     "like": "Wenn Sie JHipster mögen, vergessen Sie nicht uns einen Stern zu geben auf",
-    "github": "GitHub"
+    "github": "GitHub",
+    "welcome": {
+      "firstHeader": "Willkommen zum eTutor++",
+      "secondHeader": "Ein interaktiver Studienassistent",
+      "thirdHeader": "Melden Sie sich bitte mit Ihrem JKU Account an!"
+    }
   }
 }

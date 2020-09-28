@@ -6,7 +6,6 @@ import { SessionStorageService } from 'ngx-webstorage';
 import { VERSION } from 'app/app.constants';
 import { LANGUAGES } from 'app/core/language/language.constants';
 import { AccountService } from 'app/core/auth/account.service';
-import { LoginModalService } from 'app/core/login/login-modal.service';
 import { LoginService } from 'app/core/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 
@@ -27,11 +26,10 @@ export class NavbarComponent implements OnInit {
     private languageService: JhiLanguageService,
     private sessionStorage: SessionStorageService,
     private accountService: AccountService,
-    private loginModalService: LoginModalService,
     private profileService: ProfileService,
     private router: Router
   ) {
-    this.version = VERSION ? (VERSION.toLowerCase().startsWith('v') ? VERSION : 'v' + VERSION) : '';
+    this.version = VERSION ? (VERSION.toLowerCase().startsWith('v') ? VERSION : 'v' + VERSION) : 'v Dev';
   }
 
   ngOnInit(): void {
@@ -55,7 +53,7 @@ export class NavbarComponent implements OnInit {
   }
 
   login(): void {
-    this.loginModalService.open();
+    this.router.navigate(['']);
   }
 
   logout(): void {

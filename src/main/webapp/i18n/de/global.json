@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "EtutorPlusPlus",
+    "title": "eTutor++",
     "browsehappy": "Sie benutzen einen <strong>veralteten</strong> Browser. Bitte <a href=\"http://browsehappy.com/?locale=de/\">aktualisieren Sie Ihren Browser</a>, um die Benutzerfreundlichkeit zu erhöhen.",
     "menu": {
       "home": "Startseite",
@@ -138,5 +138,8 @@
     "emptycollection" : "Die verpflichtende Liste ist leer!",
     "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!"
   },
-  "footer": "Dies ist Ihre Fußzeile"
+  "footer": {
+    "contact": "Kontakt",
+    "imprint": "Impressum"
+  }
 }

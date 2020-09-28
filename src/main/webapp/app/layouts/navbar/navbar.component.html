@@ -1,7 +1,7 @@
 <nav class="navbar navbar-light navbar-expand-md bg-light">
-    <a class="navbar-brand logo" routerLink="/" (click)="collapseNavbar()">
+    <a class="navbar-brand logo" routerLink="/overview" (click)="collapseNavbar()">
         <span class="logo-img"></span>
-        <span jhiTranslate="global.title" class="navbar-title">EtutorPlusPlus</span> <span class="navbar-version">{{ version }}</span>
+        <span jhiTranslate="global.title" class="navbar-title">eTutor++</span> <span class="navbar-version">{{ version }}</span>
     </a>
     <a class="navbar-toggler d-lg-none" href="javascript:void(0);" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" (click)="toggleNavbar()">
         <fa-icon icon="bars"></fa-icon>
@@ -9,7 +9,7 @@
     <div class="navbar-collapse collapse" id="navbarResponsive" [ngbCollapse]="isNavbarCollapsed" [ngSwitch]="isAuthenticated()">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link" routerLink="/" (click)="collapseNavbar()">
+                <a class="nav-link" routerLink="/overview" (click)="collapseNavbar()">
                     <span>
                         <fa-icon icon="home"></fa-icon>
                         <span jhiTranslate="global.menu.home">Home</span>
@@ -97,7 +97,7 @@
                 </ul>
             </li>
             <li ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="account-menu">
+                <a class="nav-link dropdown-toggle" *ngSwitchCase="true" ngbDropdownToggle href="javascript:void(0);" id="account-menu">
                     <span *ngIf="!getImageUrl()">
                         <fa-icon icon="user"></fa-icon>
                         <span jhiTranslate="global.menu.account.main">

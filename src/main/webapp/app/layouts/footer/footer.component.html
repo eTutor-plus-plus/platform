@@ -1,3 +1,14 @@
-<div class="footer">
-    <p jhiTranslate="footer">This is your footer</p>
+<div class="row footer fixed d-none d-md-flex">
+    <div class="col-sm-6">
+        <a [href]="contactUrl" target="_blank" jhiTranslate="footer.contact">Kontakt</a>
+    </div>
+    <div class="col-sm-6 text-md-right">
+        <a [href]="imprintUrl" target="_blank" jhiTranslate="footer.imprint">Imprint</a>
+    </div>
+</div>
+<div class="row footer d-md-none">
+    <div class="col-md-12">
+            <a [href]="contactUrl" target="_blank" class="col-md-6" jhiTranslate="footer.contact">Kontakt</a>
+            <a [href]="imprintUrl" target="_blank" class="col-md-6" jhiTranslate="footer.imprint">Imprint</a>
+    </div>
 </div>
