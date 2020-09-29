@@ -84,11 +84,12 @@ Generic styles
 
 .footer {
   &.fixed {
-    position: absolute;
+    position: fixed;
     left: 20px;
     right: 20px;
     bottom: 0;
     padding: 10px 0;
+    background-color: $white;
   }
 
   @media (max-width: 576px) {
