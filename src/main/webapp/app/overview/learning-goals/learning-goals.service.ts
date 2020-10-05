@@ -30,7 +30,7 @@ export class LearningGoalsService {
       text: 'First goal', value: 1, description: '', children: [{
         text: 'Sub goal 1', value: 2, description: ''
       }, {
-        text: 'Sub goal 2', value: 3, description: ''
+        text: 'Sub goal 2', value: 3, description: '', referencedFromCnt: 4
       }
       ]
     });
