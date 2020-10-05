@@ -46,12 +46,12 @@ export class LearningGoalsComponent implements OnInit {
   }
 
   /**
-   * Event handler for the selection changed event of the ngx tree view.
+   * Event handler which handles selected learning goal items.
    *
-   * @param value the list of selected learning goal tree view items
+   * @param item the selected learning goal
    */
-  public onSelectedChange(value: LearningGoalTreeviewItem[]): void {
+  public onSelect(item: LearningGoalTreeviewItem): void {
     // eslint-disable-next-line no-console
-    console.log('selection changed ' + value.toString());
+    console.log('selection changed ' + JSON.stringify(item));
   }
 }
