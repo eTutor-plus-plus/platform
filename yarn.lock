@@ -30,6 +30,15 @@
     ora "4.0.4"
     rxjs "6.5.5"
 
+"@angular/cdk@^10.2.3":
+  version "10.2.3"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-10.2.3.tgz#49eb09ae68f91f1ecec388592091a0f8f1dd5dce"
+  integrity sha512-ne3uSnWLQyUfYQ32zTvDauudyPONRPPBSbdOzFSsvFQuPxUcMQ3mFHJuq2OXei47TfSatmmyuKSuw9EtmTRbQw==
+  dependencies:
+    tslib "^2.0.0"
+  optionalDependencies:
+    parse5 "^5.0.0"
+
 "@angular/cli@10.0.0":
   version "10.0.0"
   resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-10.0.0.tgz#5137aeb89d5d237d09f7c6b37437b0a6e65e224a"
@@ -8730,6 +8739,13 @@ ng-jhipster@0.14.0:
   dependencies:
     tslib "^2.0.0"
 
+ngx-contextmenu@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/ngx-contextmenu/-/ngx-contextmenu-5.4.0.tgz#d8cbc3f426826aa4e481987a93e3ccf7f467489a"
+  integrity sha512-iHUCs1n/n4e1aE22KrntUWO133bJrxzxSoODfZmJTpsAujHkKU+2HtJsE73MbSdiIKAj2+i98B6g5Pwvkc5ZTw==
+  dependencies:
+    tslib "^1.9.0"
+
 ngx-cookie-service@3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-3.0.4.tgz#603600bf575322aa0bd3f83cab42494e9aebb00a"
@@ -9538,7 +9554,7 @@ parse-srcset@^1.0.2:
   resolved "https://registry.yarnpkg.com/parse-srcset/-/parse-srcset-1.0.2.tgz#f2bd221f6cc970a938d88556abc589caaaa2bde1"
   integrity sha1-8r0iH2zJcKk42IVWq8WJyqqiveE=
 
-parse5@5.1.1:
+parse5@5.1.1, parse5@^5.0.0:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.1.tgz#f68e4e5ba1852ac2cadc00f4555fff6c2abb6178"
   integrity sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==

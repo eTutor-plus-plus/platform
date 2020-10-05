@@ -13,13 +13,18 @@
                     d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
             </svg>
         </i>
-        <label (click)="onSelect(item)" class="bi form-check-label" [ngClass]="{'private': item.markedAsPrivate}">{{item.text}}</label>
+        <label [contextMenu]="learningGoalCtxMenu" [contextMenuSubject]="item" (click)="onSelect(item)" class="bi form-check-label" [ngClass]="{'private': item.markedAsPrivate}">{{item.text}}</label>
         <span [hidden]="item.referencedFromCnt == 0">
             &nbsp;
             <span class="badge badge-primary">{{item.referencedFromCnt}}</span>
         </span>
     </div>
 </ng-template>
+<context-menu #learningGoalCtxMenu>
+    <ng-template contextMenuItem (execute)="onCreateSubGoal($event.item)">
+        <span jhiTranslate="learningGoalManagement.createSubGoal">Create sub goal</span>
+    </ng-template>
+</context-menu>
 
 <h1 class="text-center" jhiTranslate="learningGoalManagement.header">Learning goal management</h1>
 <div class="row">

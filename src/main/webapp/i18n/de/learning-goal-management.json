@@ -1,5 +1,6 @@
 {
   "learningGoalManagement": {
-    "header": "Lernzielverwaltung"
+    "header": "Lernzielverwaltung",
+    "createSubGoal": "Teilziel erstellen"
   }
 }

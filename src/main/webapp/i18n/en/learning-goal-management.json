@@ -1,5 +1,6 @@
 {
   "learningGoalManagement": {
-    "header": "Learning goal management"
+    "header": "Learning goal management",
+    "createSubGoal": "Create sub goal"
   }
 }
