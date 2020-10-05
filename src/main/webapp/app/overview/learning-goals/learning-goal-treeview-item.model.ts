@@ -20,6 +20,11 @@ export interface LearningGoalTreeItem extends TreeItem {
    * The optional children list.
    */
   children?: LearningGoalTreeItem[];
+
+  /**
+   * The count of courses which uses this learning goal.
+   */
+  referencedFromCnt?: number
 }
 
 /**
@@ -30,6 +35,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
 
   private _markedAsPrivate: boolean;
   private _description: string;
+  private _referencedFromCnt: number;
 
   /**
    * Constructor.
@@ -41,6 +47,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
 
     this._markedAsPrivate = item.markedAsPrivate === true;
     this._description = item.description;
+    this._referencedFromCnt = item.referencedFromCnt !== undefined ? item.referencedFromCnt : 0;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
@@ -87,5 +94,23 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public set description(value: string) {
     this._description = value;
+  }
+
+  /**
+   * Returns the referenced from count.
+   *
+   * @returns the referenced from count
+   */
+  public get referencedFromCnt(): number {
+    return this._referencedFromCnt;
+  }
+
+  /**
+   * Sets the referenced from count.
+   *
+   * @param value the value to set
+   */
+  public set referencedFromCnt(value: number) {
+    this._referencedFromCnt = value;
   }
 }

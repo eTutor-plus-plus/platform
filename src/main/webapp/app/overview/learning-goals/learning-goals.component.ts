@@ -15,7 +15,7 @@ export class LearningGoalsComponent implements OnInit {
 
   @ViewChild(TreeviewComponent, {static: false})
   public treeviewComponent?: TreeviewComponent;
-  public learningGoals: LearningGoalTreeviewItem[] | null = null;
+  public learningGoals: LearningGoalTreeviewItem[] = [];
   public config = TreeviewConfig.create({
     hasAllCheckBox: false,
     hasFilter: true,
@@ -40,7 +40,9 @@ export class LearningGoalsComponent implements OnInit {
    * Loads all visible learning goals as tree view items asynchronously.
    */
   private async loadLearningGoalsAsync(): Promise<void> {
-    this.learningGoals = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems().toPromise();
+    this.learningGoals.length = 0;
+    const list = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems().toPromise();
+    list.forEach(x => this.learningGoals.push(x));
   }
 
   /**
@@ -49,6 +51,7 @@ export class LearningGoalsComponent implements OnInit {
    * @param value the list of selected learning goal tree view items
    */
   public onSelectedChange(value: LearningGoalTreeviewItem[]): void {
-
+    // eslint-disable-next-line no-console
+    console.log('selection changed ' + value.toString());
   }
 }
