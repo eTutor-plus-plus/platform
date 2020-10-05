@@ -1,1 +1,8 @@
 <p>learning-goals works!</p>
+
+<ng-template #goalTemplate let-item="item" let-onCollapseExpand="onCollapseExpand">
+<!-- TODO: Write template -->
+</ng-template>
+
+<ngx-treeview [items]="learningGoals" [itemTemplate]="goalTemplate" (selectedChange)="onSelectedChange($event)">
+</ngx-treeview>
