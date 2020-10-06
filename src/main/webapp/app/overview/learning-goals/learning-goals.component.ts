@@ -19,6 +19,7 @@ export class LearningGoalsComponent implements OnInit {
   @ViewChild('learningGoalCtxMenu')
   public learningGoalCtxMenu?: ContextMenuComponent;
   public learningGoals: LearningGoalTreeviewItem[] = [];
+  public selectedLearningGoal?: LearningGoalTreeviewItem;
   public config = TreeviewConfig.create({
     hasAllCheckBox: false,
     hasFilter: true,
@@ -54,8 +55,7 @@ export class LearningGoalsComponent implements OnInit {
    * @param item the selected learning goal
    */
   public onSelect(item: LearningGoalTreeviewItem): void {
-    // eslint-disable-next-line no-console
-    console.log('selection changed ' + JSON.stringify(item));
+    this.selectedLearningGoal = item;
   }
 
   /**

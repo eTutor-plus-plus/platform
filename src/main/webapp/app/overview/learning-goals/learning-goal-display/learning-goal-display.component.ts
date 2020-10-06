@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { LearningGoalTreeviewItem } from "../learning-goal-treeview-item.model";
 
 /**
  * Component for displaying the current selected learning goal.
@@ -9,6 +10,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./learning-goal-display.component.scss']
 })
 export class LearningGoalDisplayComponent implements OnInit {
+
+  @Input()
+  public learningGoalTreeviewItem?: LearningGoalTreeviewItem
 
   /**
    * Constructor

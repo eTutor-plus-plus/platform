@@ -1,1 +1,22 @@
-<p>learning-goal-display works!</p>
+<h3 jhiTranslate="learningGoalManagement.entity.selectedGoal">Selected learning goal</h3>
+<form role="form" style="max-width: 500px;">
+    <div class="form-group">
+        <label for="learningGoalName" jhiTranslate="learningGoalManagement.entity.name">Name:</label>
+        <input id="learningGoalName" class="form-control" disabled type="text"
+               value="{{learningGoalTreeviewItem?.text}}"/>
+    </div>
+    <div class="form-group">
+        <label for="learningGoalDescription"
+               jhiTranslate="learningGoalManagement.entity.description">Description:</label>
+        <textarea id="learningGoalDescription" class="form-control" disabled>
+            {{learningGoalTreeviewItem?.description}}
+        </textarea>
+    </div>
+    <div class="form-group">
+        <label for="learningGoalLastChangeDate" jhiTranslate="learningGoalManagement.entity.lastChangeDate">Last change
+            date:</label>
+        <input id="learningGoalLastChangeDate" disabled type="text" class="form-control"
+               value="{{learningGoalTreeviewItem?.changeDate | date:'dd.MM.yyyy HH:mm'}}"/>
+    </div>
+</form>
+

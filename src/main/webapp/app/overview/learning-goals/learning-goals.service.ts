@@ -27,16 +27,17 @@ export class LearningGoalsService {
    */
   public getAllVisibleLearningGoalsAsTreeViewItems(): Observable<LearningGoalTreeviewItem[]> {
     const firstGoal = new LearningGoalTreeviewItem({
-      text: 'First goal', value: 1, description: '', children: [{
-        text: 'Sub goal 1', value: 2, description: ''
+      text: 'First goal', value: 1, description: '', owner: 'admin', changeDate: new Date(), children: [{
+        text: 'Sub goal 1', value: 2, description: '', owner: 'admin', changeDate: new Date()
       }, {
-        text: 'Sub goal 2', value: 3, description: '', referencedFromCnt: 4
+        text: 'Sub goal 2', value: 3, description: '', referencedFromCnt: 4, owner: 'admin', changeDate: new Date()
       }
       ]
     });
 
     const secondGoal = new LearningGoalTreeviewItem({
-      text: 'Second goal', value: 4, description: '', markedAsPrivate: true
+      text: 'Second goal', value: 4, description: '', markedAsPrivate: true,
+      owner: 'admin', changeDate: new Date()
     });
 
     return of([firstGoal, secondGoal])

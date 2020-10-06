@@ -22,7 +22,9 @@ import { ContextMenuModule } from "ngx-contextmenu";
     EtutorPlusPlusSharedModule,
     EtutorPlusPlusCoreModule,
     EtutorPlusPlusHomeModule,
-    ContextMenuModule.forRoot(),
+    ContextMenuModule.forRoot({
+      useBootstrap4: true
+    }),
     // jhipster-needle-angular-add-module JHipster will add new module here
     EtutorPlusPlusEntityModule,
     EtutorPlusPlusAppRoutingModule,

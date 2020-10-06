@@ -1,6 +1,12 @@
 {
   "learningGoalManagement": {
     "header": "Learning goal management",
-    "createSubGoal": "Create sub goal"
+    "createSubGoal": "Create sub goal",
+    "entity": {
+      "name": "Name:",
+      "description": "Description:",
+      "lastChangeDate": "Last change date:",
+      "selectedGoal": "Selected learning goal"
+    }
   }
 }

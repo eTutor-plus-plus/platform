@@ -24,7 +24,17 @@ export interface LearningGoalTreeItem extends TreeItem {
   /**
    * The count of courses which uses this learning goal.
    */
-  referencedFromCnt?: number
+  referencedFromCnt?: number;
+
+  /**
+   * The login name of the goal's owner.
+   */
+  owner: string;
+
+  /**
+   * The change date.
+   */
+  changeDate: Date;
 }
 
 /**
@@ -36,6 +46,8 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   private _markedAsPrivate: boolean;
   private _description: string;
   private _referencedFromCnt: number;
+  private _owner: string;
+  private _changeDate: Date;
 
   /**
    * Constructor.
@@ -48,6 +60,8 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     this._markedAsPrivate = item.markedAsPrivate === true;
     this._description = item.description;
     this._referencedFromCnt = item.referencedFromCnt !== undefined ? item.referencedFromCnt : 0;
+    this._owner = item.owner;
+    this._changeDate = item.changeDate;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
@@ -112,5 +126,41 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public set referencedFromCnt(value: number) {
     this._referencedFromCnt = value;
+  }
+
+  /**
+   * Returns the owner's login.
+   *
+   * @returns the owner's login
+   */
+  public get owner(): string {
+    return this._owner;
+  }
+
+  /**
+   * Sets the owner's login.
+   *
+   * @param value the owner's login to set
+   */
+  public set owner(value: string) {
+    this._owner = value;
+  }
+
+  /**
+   * Returns the change date.
+   *
+   * @returns the change date
+   */
+  public get changeDate(): Date {
+    return this._changeDate;
+  }
+
+  /**
+   * Sets the change date.
+   *
+   * @param value the change date to set
+   */
+  public set changeDate(value: Date) {
+    this._changeDate = value;
   }
 }
