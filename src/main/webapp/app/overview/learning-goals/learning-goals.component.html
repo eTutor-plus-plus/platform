@@ -16,7 +16,7 @@
         <label [contextMenu]="learningGoalCtxMenu" [contextMenuSubject]="item" (click)="onSelect(item)" class="bi form-check-label" [ngClass]="{'private': item.markedAsPrivate}">{{item.text}}</label>
         <span [hidden]="item.referencedFromCnt == 0">
             &nbsp;
-            <span class="badge badge-primary">{{item.referencedFromCnt}}</span>
+            <span class="myBadge myBadge-info">{{item.referencedFromCnt}}</span>
         </span>
     </div>
 </ng-template>
