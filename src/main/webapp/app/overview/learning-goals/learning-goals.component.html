@@ -18,6 +18,8 @@
             &nbsp;
             <span class="badge badge-primary">{{item.referencedFromCnt}}</span>
         </span>
+
+
     </div>
 </ng-template>
 <context-menu #learningGoalCtxMenu>
@@ -34,5 +36,7 @@
     </div>
     <div class="col-6">
         <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal"></jhi-learning-goal-display>
+    </div>
+    <div #cy class="cy">
     </div>
 </div>
