@@ -1,10 +1,9 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
 import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
 import { TreeviewComponent, TreeviewConfig } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
-import * as cytoscape from 'cytoscape';
-import Any = jasmine.Any;
+import * as d3 from 'd3';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -14,13 +13,13 @@ import Any = jasmine.Any;
   templateUrl: './learning-goals.component.html',
   styleUrls: ['./learning-goals.component.scss'],
 })
-export class LearningGoalsComponent implements OnInit, AfterViewInit {
+export class LearningGoalsComponent implements OnInit {
   @ViewChild(TreeviewComponent, { static: false })
   public treeviewComponent?: TreeviewComponent;
   @ViewChild('learningGoalCtxMenu')
   public learningGoalCtxMenu?: ContextMenuComponent;
 
-  @ViewChild('cy')
+  @ViewChild('graph')
   public graph?: ElementRef;
 
   public learningGoals: LearningGoalTreeviewItem[] = [];
@@ -39,68 +38,81 @@ export class LearningGoalsComponent implements OnInit, AfterViewInit {
 
   constructor(private learningGoalsService: LearningGoalsService) {}
 
-  ngAfterViewInit(): void {
-    this.initCytoscape();
+  private data(): any {
+    return {};
+  }
+
+  private drawGraph(): void {
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 },
+      width = 400 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    const svg = d3
+      .select('#graph')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    d3.json<any>('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_network.json')
+      .then(data => {
+        console.log(data);
+
+        // Initialize the links
+        const link = svg.selectAll('line').data(data.links).enter().append('line').style('stroke', '#aaa');
+
+        // Initialize the nodes
+        const node = svg.selectAll('circle').data(data.nodes).enter().append('circle').attr('r', 20).style('fill', '#69b3a2');
+
+        // Let's list the force we wanna apply on the network
+        d3.forceSimulation(data.nodes) // Force algorithm is applied to data.nodes
+          .force(
+            'link',
+            d3
+              .forceLink() // This force provides links between nodes
+              .id((d: any) => d.id) // This provide the id of a node
+              .links(data.links) // and this the list of links
+          )
+          .force('charge', d3.forceManyBody().strength(-400)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+          .force('center', d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
+          .on('end', () => {
+            link
+              .attr('x1', (d: any) => {
+                return d.source.x;
+              })
+              .attr('y1', (d: any) => {
+                return d.source.y;
+              })
+              .attr('x2', (d: any) => {
+                return d.target.x;
+              })
+              .attr('y2', (d: any) => {
+                return d.target.y;
+              });
+
+            node
+              .attr('cx', (d: any) => {
+                return d.x + 6;
+              })
+              .attr('cy', (d: any) => {
+                return d.y - 6;
+              });
+          });
+      })
+      .catch(err => {
+        alert('ERROR loading data' + err);
+      });
   }
 
   /**
    * Implements the on init method. See {@link OnInit}
    */
 
-  public displayGraph(): void {
-    this.initCytoscape();
-  }
-
-  public initCytoscape(): void {
-    if (this.graph) {
-      this.graph.nativeElement.className = 'cy';
-      cytoscape({
-        container: this.graph.nativeElement,
-        zoomingEnabled: false,
-        boxSelectionEnabled: false,
-        elements: [
-          {
-            data: { id: 'A' },
-          },
-          {
-            data: { id: 'B' },
-          },
-          {
-            data: { id: 'C' },
-          },
-          { data: { id: 'ab', source: 'A', target: 'B' } },
-          { data: { id: 'ac', source: 'A', target: 'C' } },
-          { data: { id: 'bc', source: 'B', target: 'C' } },
-        ],
-
-        style: [
-          {
-            selector: 'node',
-            style: {
-              'background-color': '#666',
-              label: 'data(id)',
-            },
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 10,
-              'line-color': '#ccc',
-              'target-arrow-color': '#ccc',
-              'target-arrow-shape': 'diamond',
-            },
-          },
-        ],
-        layout: {
-          name: 'grid',
-          rows: 5,
-        },
-      });
-    }
-  }
-
   public ngOnInit(): void {
     this.loadLearningGoalsAsync();
+    this.drawGraph();
   }
 
   /**
