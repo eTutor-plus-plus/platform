@@ -37,8 +37,15 @@
     <div class="col-6">
         <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal"></jhi-learning-goal-display>
     </div>
+</div>
 
-    <h2>Graph</h2>
-    <div id="graph"></div>
-
+<div class="row">
+    <svg width="400" height="260" class="graph">
+        <g transform="translate(20, 20)">
+            <g class="links"></g>
+            <g class="nodes"></g>
+            <g class="labels"></g>
+            <g class="depends"></g>
+        </g>
+    </svg>
 </div>
