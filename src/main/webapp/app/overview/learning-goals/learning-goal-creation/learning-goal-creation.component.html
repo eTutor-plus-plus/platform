@@ -1,0 +1,19 @@
+<h3 jhiTranslate="learningGoalManagement.newLearningGoalHeader">Create new learning goal</h3>
+<form role="form" style="max-width: 500px;" (ngSubmit)="save()" [formGroup]="learningGoalForm">
+    <div class="form-group">
+        <label for="learningGoalName" jhiTranslate="learningGoalManagement.entity.name">Name:</label>
+        <input id="learningGoalName" name="learningGoalName" formControlName="learningGoalName" class="form-control required" type="text" #learningGoalName/>
+    </div>
+    <div class="form-group">
+        <label for="learningGoalDescription"
+               jhiTranslate="learningGoalManagement.entity.description">Description:</label>
+        <quill-editor [placeholder]="''" id="learningGoalDescription" #learningGoalDescription formControlName="learningGoalDescription">
+        </quill-editor>
+    </div>
+    <div class="form-check">
+        <label class="form-check-label" for="privateGoal">
+            <input class="form-check-input" type="checkbox" name="privateGoal" id="privateGoal" formControlName="privateGoal">
+            <span jhiTranslate="learningGoalManagement.entity.privateGoal">Private learning goal</span>
+        </label>
+    </div>
+</form>

@@ -92,7 +92,8 @@ module.exports = (options) => webpackMerge(commonConfig({ env: ENV }), {
                 clients: {
                     heartbeatTimeout: 60000
                 }
-            }
+            },
+            open: false
             /*
             ,ghostMode: { // uncomment this part to disable BrowserSync ghostMode; https://github.com/jhipster/generator-jhipster/issues/11116
                 clicks: false,

@@ -27,12 +27,17 @@
 </context-menu>
 
 <h1 class="text-center" jhiTranslate="learningGoalManagement.header">Learning goal management</h1>
+
+<div class="text-right">
+    <button type="button" class="btn btn-secondary" (click)="onCreateGoalRequested()" jhiTranslate="learningGoalManagement.createGoal">Create goal</button>
+</div>
 <div class="row">
     <div class="col-3">
         <ngx-treeview [items]="learningGoals" [itemTemplate]="goalTemplate" [config]="config">
         </ngx-treeview>
     </div>
     <div class="col-6">
-        <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal"></jhi-learning-goal-display>
+        <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal" [hidden]="showCreateLearningGoalComponent"></jhi-learning-goal-display>
+        <jhi-learning-goal-creation [hidden]="!showCreateLearningGoalComponent"></jhi-learning-goal-creation>
     </div>
 </div>

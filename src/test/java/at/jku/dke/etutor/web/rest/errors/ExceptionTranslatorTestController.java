@@ -9,7 +9,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -71,6 +70,11 @@ public class ExceptionTranslatorTestController {
     @GetMapping("/login-pattern-failed")
     public void loginPatternFailed() {
         throw new LoginPatternFailedException();
+    }
+
+    @GetMapping("/learning-goal-already-exists")
+    public void learningGoalAlreadyExists() {
+        throw new LearningGoalAlreadyExistsException();
     }
 
     public static class TestDTO {

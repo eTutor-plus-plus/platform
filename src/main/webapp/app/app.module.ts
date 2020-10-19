@@ -15,6 +15,7 @@ import { PageRibbonComponent } from './layouts/profiles/page-ribbon.component';
 import { ActiveMenuDirective } from './layouts/navbar/active-menu.directive';
 import { ErrorComponent } from './layouts/error/error.component';
 import { ContextMenuModule } from "ngx-contextmenu";
+import { QuillModule } from "ngx-quill";
 
 @NgModule({
   imports: [
@@ -24,6 +25,9 @@ import { ContextMenuModule } from "ngx-contextmenu";
     EtutorPlusPlusHomeModule,
     ContextMenuModule.forRoot({
       useBootstrap4: true
+    }),
+    QuillModule.forRoot({
+      theme: 'snow'
     }),
     // jhipster-needle-angular-add-module JHipster will add new module here
     EtutorPlusPlusEntityModule,

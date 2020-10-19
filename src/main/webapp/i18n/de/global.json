@@ -140,7 +140,9 @@
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
     "emptycollection" : "Die verpflichtende Liste ist leer!",
-    "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!"
+    "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!",
+    "learningGoalAlreadyExists": "Das Lernziel existiert bereits!",
+    "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!"
   },
   "footer": {
     "contact": "Kontakt",

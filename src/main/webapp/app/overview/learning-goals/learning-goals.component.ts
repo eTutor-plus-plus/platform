@@ -3,6 +3,7 @@ import { LearningGoalsService } from "./learning-goals.service";
 import { LearningGoalTreeviewItem } from "./learning-goal-treeview-item.model";
 import { TreeviewComponent, TreeviewConfig } from "ngx-treeview";
 import {ContextMenuComponent} from "ngx-contextmenu";
+import {LearningGoalCreationComponent} from "./learning-goal-creation/learning-goal-creation.component";
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -25,6 +26,10 @@ export class LearningGoalsComponent implements OnInit {
     hasFilter: true,
     hasCollapseExpand: true
   });
+
+  @ViewChild(LearningGoalCreationComponent)
+  public learningGoalCreationComponent!: LearningGoalCreationComponent;
+  public showCreateLearningGoalComponent = false;
 
   /**
    * Constructor
@@ -56,6 +61,7 @@ export class LearningGoalsComponent implements OnInit {
    */
   public onSelect(item: LearningGoalTreeviewItem): void {
     this.selectedLearningGoal = item;
+    this.showCreateLearningGoalComponent = false;
   }
 
   /**
@@ -66,5 +72,13 @@ export class LearningGoalsComponent implements OnInit {
   public onCreateSubGoal(parent: LearningGoalTreeviewItem): void {
     // eslint-disable-next-line no-console
     console.log('onCreateSubGoal for ' + JSON.stringify(parent));
+  }
+
+  /**
+   * Event handler which handles the creation request for a new goal.
+   */
+  public onCreateGoalRequested(): void {
+    this.learningGoalCreationComponent.reset();
+    this.showCreateLearningGoalComponent = true;
   }
 }

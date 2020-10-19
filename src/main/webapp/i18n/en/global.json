@@ -140,7 +140,9 @@
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
     "emptycollection" : "The mandatory list is empty!",
-    "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!"
+    "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!",
+    "learningGoalAlreadyExists": "The learning goal already exists!",
+    "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!"
   },
   "footer": {
     "contact": "Contact",

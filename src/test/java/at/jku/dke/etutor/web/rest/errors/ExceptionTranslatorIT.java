@@ -143,4 +143,14 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.message").value("error.loginPatternFailed"))
             .andExpect(jsonPath("$.title").value("The given login is not a valid JKU ak or matriculation number!"));
     }
+
+    @Test
+    public void testLearningGoalAlreadyExists() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/learning-goal-already-exists"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.learningGoalAlreadyExists"))
+            .andExpect(jsonPath("$.title").value("The learning goal already exists!"));
+
+    }
 }
