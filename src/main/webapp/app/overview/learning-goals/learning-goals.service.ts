@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable, of } from "rxjs";
 import { LearningGoalTreeviewItem } from "./learning-goal-treeview-item.model";
+import {ILearningGoalModel, INewLearningGoalModel} from "./learning-goal-model";
+import {SERVER_API_URL} from "../../app.constants";
 
 /**
  * Service which retrieves the learning goals from the api
@@ -41,5 +43,15 @@ export class LearningGoalsService {
     });
 
     return of([firstGoal, secondGoal])
+  }
+
+  /**
+   * Saves a new learning goal.
+   *
+   * @param newGoal the learning goal which should be saved
+   * @returns an observable which contains the {@link ILearningGoalModel}
+   */
+  public postNewLearningGoal(newGoal: INewLearningGoalModel): Observable<ILearningGoalModel> {
+    return this.http.post<ILearningGoalModel>(SERVER_API_URL + 'api/learninggoals', newGoal);
   }
 }

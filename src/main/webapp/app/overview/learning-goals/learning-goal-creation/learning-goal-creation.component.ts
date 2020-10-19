@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder, Validators} from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { LearningGoalsService } from "../learning-goals.service";
+import { INewLearningGoalModel } from "../learning-goal-model";
 
 /**
  * Component for creating a new learning goal.
@@ -48,7 +49,13 @@ export class LearningGoalCreationComponent implements OnInit {
    * Saves the newly created learning goal.
    */
   public save(): void {
+    const newGoal: INewLearningGoalModel = {
+      name: this.learningGoalForm.get(['learningGoalName'])!.value,
+      description: this.learningGoalForm.get(['learningGoalDescription'])!.value,
+      privateGoal: this.learningGoalForm.get(['privateGoal'])!.value
+    };
 
-    this.reset();
+    this.learningGoalsService.postNewLearningGoal(newGoal)
+      .subscribe(() => this.reset());
   }
 }
