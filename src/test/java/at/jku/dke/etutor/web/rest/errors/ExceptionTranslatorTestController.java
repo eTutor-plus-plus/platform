@@ -77,6 +77,11 @@ public class ExceptionTranslatorTestController {
         throw new LearningGoalAlreadyExistsException();
     }
 
+    @GetMapping("/learning-goal-not-found")
+    public void learningGoalNotFound() {
+        throw new LearningGoalNotFoundException();
+    }
+
     public static class TestDTO {
 
         @NotNull

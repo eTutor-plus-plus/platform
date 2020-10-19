@@ -151,6 +151,14 @@ public class ExceptionTranslatorIT {
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.learningGoalAlreadyExists"))
             .andExpect(jsonPath("$.title").value("The learning goal already exists!"));
+    }
 
+    @Test
+    public void testLearningGoalNotFound() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/learning-goal-not-found"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.learningGoalNotFound"))
+            .andExpect(jsonPath("$.title").value("The learning goal does not exist!"));
     }
 }

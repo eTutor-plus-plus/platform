@@ -2,6 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
+import at.jku.dke.etutor.service.LearningGoalNotExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
@@ -78,8 +79,11 @@ public class LearningGoalResource {
      * @param owner              the owner's name
      * @param parentGoalName     the parent goal's name
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with the new learning goal in body
-     * @throws URISyntaxException       if the location URI syntax is incorrect
-     * @throws BadRequestAlertException if the loged in user is not the given owner
+     * @throws URISyntaxException                                                   if the location URI syntax is incorrect
+     * @throws BadRequestAlertException                                             if the logged in user is not the given owner
+     * @throws at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException      the parent goal does not exist
+     * @throws at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException the name of the sub goal does
+     *                                                                              already exist
      */
     @PostMapping("/learninggoals/{owner}/{parentGoalName}/subGoal")
     public ResponseEntity<LearningGoalDTO> createSubGoal(@Valid @RequestBody NewLearningGoalDTO newLearningGoalDTO,
@@ -103,6 +107,8 @@ public class LearningGoalResource {
                 .body(newSubGoal);
         } catch (LearningGoalAlreadyExistsException ex) {
             throw new at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException();
+        } catch (LearningGoalNotExistsException e) {
+            throw new at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException();
         }
     }
 

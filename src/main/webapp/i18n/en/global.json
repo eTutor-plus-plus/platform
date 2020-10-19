@@ -142,7 +142,8 @@
     "emptycollection" : "The mandatory list is empty!",
     "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!",
     "learningGoalAlreadyExists": "The learning goal already exists!",
-    "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!"
+    "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!",
+    "learningGoalNotFound": "The learning goal does not exist!"
   },
   "footer": {
     "contact": "Contact",

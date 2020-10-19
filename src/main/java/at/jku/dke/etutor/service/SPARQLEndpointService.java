@@ -7,6 +7,7 @@ import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -91,7 +92,7 @@ public class SPARQLEndpointService {
         Instant now = Instant.now();
 
         Model model = ModelFactory.createDefaultModel();
-        constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false);
+        constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false, false);
 
         try (RDFConnection conn = getConnection()) {
             int cnt;
@@ -119,13 +120,13 @@ public class SPARQLEndpointService {
      * @param parentGoalName     the name of the parent goal
      * @return the created learning goal
      * @throws LearningGoalAlreadyExistsException if the learning goal already exists
+     * @throws LearningGoalNotExistsException     if the parent goal could not be found
      */
     public LearningGoalDTO insertSubGoal(NewLearningGoalDTO newLearningGoalDTO, String owner, String parentGoalName)
-        throws LearningGoalAlreadyExistsException {
+        throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException {
 
         Instant now = Instant.now();
         Model model = ModelFactory.createDefaultModel();
-        Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, true);
 
         try (RDFConnection conn = getConnection()) {
             int cnt;
@@ -138,6 +139,15 @@ public class SPARQLEndpointService {
             if (cnt > 0) {
                 throw new LearningGoalAlreadyExistsException();
             }
+
+            Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, parentGoalName);
+
+            if (superGoalPrivate == null) {
+                throw new LearningGoalNotExistsException();
+            }
+
+            Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, true, superGoalPrivate);
+
 
             Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, parentGoalName, model);
             parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, newGoal);
@@ -202,6 +212,49 @@ public class SPARQLEndpointService {
         }
     }
 
+    /**
+     * Returns whether a learning goal is private or not. If the learning goal can't be found, {@code null}
+     * will be returned.
+     *
+     * @param owner            the owner of the learning goal
+     * @param learningGoalName the rdf encoded name of the learning goal
+     * @return {@code null} if the goal has not been found, otherwise the coresponding {@code boolean} value
+     */
+    public Boolean isLearningGoalPrivate(String owner, String learningGoalName) {
+        try (RDFConnection conn = getConnection()) {
+            return isLearningGoalPrivate(conn, owner, learningGoalName);
+        }
+    }
+
+    /**
+     * Returns whether a learning goal is private or not. If the learning goal can't be found, {@code null}
+     * will be returned.
+     *
+     * @param conn             the rdf connection
+     * @param owner            the owner of the learning goal
+     * @param learningGoalName the rdf encoded name of the learning goal
+     * @return {@code null} if the goal has not been found, otherwise the coresponding {@code boolean} value
+     */
+    private Boolean isLearningGoalPrivate(RDFConnection conn, String owner, String learningGoalName) {
+        String query = String.format("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT  ?privateGoal
+            WHERE {
+              <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> etutor:isPrivate ?privateGoal
+            }
+            """, owner, learningGoalName);
+        try (QueryExecution exec = conn.query(query)) {
+            ResultSet set = exec.execSelect();
+
+            if (!set.hasNext()) {
+                return null;
+            }
+            QuerySolution solution = set.nextSolution();
+            return solution.getLiteral("?private").getBoolean();
+        }
+    }
+
     //region Private Methods
 
     /**
@@ -220,11 +273,12 @@ public class SPARQLEndpointService {
      * @param owner              the owner of the learning goal
      * @param model              the rdf model which should be used
      * @param creationTime       the creation time of the learning goal
-     * @param subGoal            {@code true} if the goal is a subgoal, otherwise {@code false}
+     * @param subGoal            {@code true} if the goal is a sub goal, otherwise {@code false}
+     * @param superGoalPrivate   {code true} if the super goal is already private, otherwise {@code false}
      * @return {@link Resource} which represents the new learning goal
      */
     private Resource constructLearningGoalFromDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Model model,
-                                                  Instant creationTime, boolean subGoal) {
+                                                  Instant creationTime, boolean subGoal, boolean superGoalPrivate) {
         String newResourceName = newLearningGoalDTO.getNameForRDF();
 
         Resource newGoal = ETutorVocabulary.createUserGoalResourceOfModel(owner, newResourceName, model);
@@ -237,8 +291,11 @@ public class SPARQLEndpointService {
         newGoal.addProperty(RDFS.label, newLearningGoalDTO.getName().trim());
         newGoal.addProperty(ETutorVocabulary.hasChangeDate, creationTimeStr, XSDDatatype.XSDdateTime);
         newGoal.addProperty(ETutorVocabulary.hasOwner, owner);
-        newGoal.addProperty(ETutorVocabulary.isPrivate, String.valueOf(newLearningGoalDTO.isPrivateGoal()),
-            XSDDatatype.XSDboolean);
+
+        String privateStr = superGoalPrivate ? String.valueOf(true)
+            : String.valueOf(newLearningGoalDTO.isPrivateGoal());
+
+        newGoal.addProperty(ETutorVocabulary.isPrivate, privateStr, XSDDatatype.XSDboolean);
 
         if (subGoal) {
             newGoal.addProperty(RDF.type, ETutorVocabulary.SubGoal);

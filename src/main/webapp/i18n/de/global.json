@@ -142,7 +142,8 @@
     "emptycollection" : "Die verpflichtende Liste ist leer!",
     "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!",
     "learningGoalAlreadyExists": "Das Lernziel existiert bereits!",
-    "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!"
+    "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!",
+    "learningGoalNotFound": "Das Lernziel existiert nicht!"
   },
   "footer": {
     "contact": "Kontakt",
