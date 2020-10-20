@@ -57,7 +57,10 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
     public LearningGoalDTO(Resource rdfResource) throws ParseException {
         this();
         setName(rdfResource.getProperty(RDFS.label).getString());
-        setDescription(rdfResource.getProperty(ETutorVocabulary.hasDescription).getString());
+        Statement descriptionStatement = rdfResource.getProperty(ETutorVocabulary.hasDescription);
+        if (descriptionStatement != null) {
+            setDescription(descriptionStatement.getString());
+        }
         setPrivateGoal(rdfResource.getProperty(ETutorVocabulary.isPrivate).getBoolean());
 
         this.owner = rdfResource.getProperty(ETutorVocabulary.hasOwner).getString();

@@ -10,7 +10,7 @@ etutor:SubGoal rdfs:subClassOf etutor:Goal .
 # Properties
 etutor:hasSubGoal rdf:type rdfs:Property ;
 				  rdfs:domain etutor:Goal ;
-				  rdfs:range etutor:SubGoal .
+				  rdfs:range etutor:Goal .
 
 etutor:dependsOn rdf:type rdfs:Property ;
 				 rdfs:domain etutor:Goal ;

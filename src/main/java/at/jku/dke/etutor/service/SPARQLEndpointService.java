@@ -92,7 +92,7 @@ public class SPARQLEndpointService {
         Instant now = Instant.now();
 
         Model model = ModelFactory.createDefaultModel();
-        constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false, false);
+        constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false);
 
         try (RDFConnection conn = getConnection()) {
             int cnt;
@@ -146,7 +146,7 @@ public class SPARQLEndpointService {
                 throw new LearningGoalNotExistsException();
             }
 
-            Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, true, superGoalPrivate);
+            Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, superGoalPrivate);
 
 
             Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, parentGoalName, model);
@@ -168,18 +168,25 @@ public class SPARQLEndpointService {
         String queryStr = String.format("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
             CONSTRUCT { ?subject ?predicate ?object }
             WHERE {
-              ?subject ?predicate ?object.
-              ?subject rdfs:label ?lbl
               {
-                ?subject etutor:isPrivate false.
-              }
-              UNION
-              {
-                ?subject etutor:isPrivate true.
-                ?subject etutor:hasOwner "%s".
+                  ?subject ?predicate ?object.
+                  ?subject rdfs:label ?lbl
+                  {
+                    ?subject etutor:isPrivate false.
+                  }
+                  UNION
+                  {
+                    ?subject etutor:isPrivate true.
+                    ?subject etutor:hasOwner "%s".
+                  }
+              } UNION {
+                  BIND(rdf:type AS ?predicate)
+                  BIND(etutor:SubGoal AS ?object)
+                  ?goal etutor:hasSubGoal ?subject .
               }
             }
             ORDER BY (?lbl)
@@ -195,7 +202,7 @@ public class SPARQLEndpointService {
                 iterator = resultModel.listSubjects();
                 while (iterator.hasNext()) {
                     Resource resource = iterator.next();
-                    if (resource.getProperty(RDF.type).getResource().equals(ETutorVocabulary.Goal)) {
+                    if (!resource.hasProperty(RDF.type, ETutorVocabulary.SubGoal)) {
                         goalList.add(new LearningGoalDTO(resource));
                     }
                 }
@@ -273,12 +280,11 @@ public class SPARQLEndpointService {
      * @param owner              the owner of the learning goal
      * @param model              the rdf model which should be used
      * @param creationTime       the creation time of the learning goal
-     * @param subGoal            {@code true} if the goal is a sub goal, otherwise {@code false}
      * @param superGoalPrivate   {code true} if the super goal is already private, otherwise {@code false}
      * @return {@link Resource} which represents the new learning goal
      */
     private Resource constructLearningGoalFromDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Model model,
-                                                  Instant creationTime, boolean subGoal, boolean superGoalPrivate) {
+                                                  Instant creationTime, boolean superGoalPrivate) {
         String newResourceName = newLearningGoalDTO.getNameForRDF();
 
         Resource newGoal = ETutorVocabulary.createUserGoalResourceOfModel(owner, newResourceName, model);
@@ -296,12 +302,7 @@ public class SPARQLEndpointService {
             : String.valueOf(newLearningGoalDTO.isPrivateGoal());
 
         newGoal.addProperty(ETutorVocabulary.isPrivate, privateStr, XSDDatatype.XSDboolean);
-
-        if (subGoal) {
-            newGoal.addProperty(RDF.type, ETutorVocabulary.SubGoal);
-        } else {
-            newGoal.addProperty(RDF.type, ETutorVocabulary.Goal);
-        }
+        newGoal.addProperty(RDF.type, ETutorVocabulary.Goal);
 
         return newGoal;
     }
