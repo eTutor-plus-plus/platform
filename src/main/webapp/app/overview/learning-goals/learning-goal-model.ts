@@ -1,8 +1,8 @@
+import { LearningGoalTreeItem } from "./learning-goal-treeview-item.model";
+
 /**
  * Interface for a new learning goal.
  */
-import {LearningGoalTreeItem} from "./learning-goal-treeview-item.model";
-
 export interface INewLearningGoalModel {
   /**
    * The name of the learning goal.
