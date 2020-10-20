@@ -7,6 +7,7 @@ import at.jku.dke.etutor.repository.*;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.mapper.UserMapper;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import io.github.jhipster.security.RandomUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.Page;
@@ -48,6 +50,9 @@ public class UserServiceIT {
     private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
 
     private static final String DEFAULT_LANGKEY = "dummy";
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private UserRepository userRepository;

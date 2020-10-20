@@ -1,9 +1,11 @@
 package at.jku.dke.etutor.web.rest.errors;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -23,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 public class ExceptionTranslatorIT {
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private MockMvc mockMvc;

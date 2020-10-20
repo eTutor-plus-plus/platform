@@ -4,11 +4,13 @@ import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
 
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @Transactional
 public class DomainUserDetailsServiceIT {
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     private static final String USER_ONE_LOGIN = "test-user-one";
     private static final String USER_ONE_EMAIL = "test-user-one@localhost";

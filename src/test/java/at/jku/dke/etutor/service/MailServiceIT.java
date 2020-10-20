@@ -4,6 +4,7 @@ import at.jku.dke.etutor.config.Constants;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.domain.User;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -50,6 +52,9 @@ public class MailServiceIT {
     };
     private static final Pattern PATTERN_LOCALE_3 = Pattern.compile("([a-z]{2})-([a-zA-Z]{4})-([a-z]{2})");
     private static final Pattern PATTERN_LOCALE_2 = Pattern.compile("([a-z]{2})-([a-z]{2})");
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private JHipsterProperties jHipsterProperties;

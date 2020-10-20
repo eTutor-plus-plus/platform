@@ -5,11 +5,13 @@ import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.Constants;
 import at.jku.dke.etutor.config.audit.AuditEventConverter;
 import at.jku.dke.etutor.domain.PersistentAuditEvent;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -31,6 +33,9 @@ import static at.jku.dke.etutor.repository.CustomAuditEventRepository.EVENT_DATA
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @Transactional
 public class CustomAuditEventRepositoryIT {
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;

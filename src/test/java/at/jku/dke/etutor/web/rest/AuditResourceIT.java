@@ -5,11 +5,13 @@ import at.jku.dke.etutor.domain.PersistentAuditEvent;
 import at.jku.dke.etutor.repository.PersistenceAuditEventRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,6 +40,9 @@ public class AuditResourceIT {
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
     private static final Instant SAMPLE_TIMESTAMP = Instant.parse("2015-08-04T10:11:30Z");
     private static final long SECONDS_PER_DAY = 60 * 60 * 24;
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private PersistenceAuditEventRepository auditEventRepository;

@@ -3,11 +3,13 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import at.jku.dke.etutor.web.rest.vm.LoginVM;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +31,9 @@ import static org.hamcrest.Matchers.not;
 @AutoConfigureMockMvc
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 public class UserJWTControllerIT {
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private UserRepository userRepository;

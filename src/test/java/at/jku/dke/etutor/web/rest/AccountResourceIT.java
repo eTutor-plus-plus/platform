@@ -9,6 +9,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
 import liquibase.pro.packaged.U;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 public class AccountResourceIT {
     static final String TEST_USER_LOGIN = "test";
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private UserRepository userRepository;
