@@ -91,7 +91,7 @@ public class SPARQLEndpointService {
         Instant now = Instant.now();
 
         Model model = ModelFactory.createDefaultModel();
-        constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false);
+        Resource goal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, false);
 
         try (RDFConnection conn = getConnection()) {
             int cnt;
@@ -108,7 +108,7 @@ public class SPARQLEndpointService {
             conn.load(model);
         }
 
-        return new LearningGoalDTO(newLearningGoalDTO, owner, now);
+        return new LearningGoalDTO(newLearningGoalDTO, owner, now, goal.getURI());
     }
 
     /**
@@ -152,9 +152,9 @@ public class SPARQLEndpointService {
             parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, newGoal);
 
             conn.load(model);
-        }
 
-        return new LearningGoalDTO(newLearningGoalDTO, owner, now);
+            return new LearningGoalDTO(newLearningGoalDTO, owner, now, newGoal.getURI());
+        }
     }
 
     /**

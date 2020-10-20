@@ -14,7 +14,7 @@ export interface LearningGoalTreeItem extends TreeItem {
   /**
    * The description of the learning goal.
    */
-  description: string;
+  description?: string;
 
   /**
    * The optional children list.
@@ -44,7 +44,7 @@ export interface LearningGoalTreeItem extends TreeItem {
 export class LearningGoalTreeviewItem extends TreeviewItem {
 
   private _markedAsPrivate: boolean;
-  private _description: string;
+  private _description?: string;
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
@@ -97,7 +97,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    *
    * @returns the description
    */
-  public get description(): string {
+  public get description(): string | undefined {
     return this._description;
   }
 
@@ -106,7 +106,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    *
    * @param value the value to set
    */
-  public set description(value: string) {
+  public set description(value: string | undefined) {
     this._description = value;
   }
 

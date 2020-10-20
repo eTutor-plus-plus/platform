@@ -22,6 +22,8 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
     private Instant lastModifiedDate;
     private String owner;
     private List<LearningGoalDTO> subGoals;
+    private int referencedFromCount = 0;
+    private String id;
 
     /**
      * Constructor.
@@ -37,8 +39,9 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
      * @param newLearningGoalDTO the new learning goal dto
      * @param owner              the owner of the learning goal
      * @param lastModifiedDate   the last modification date of the learning goal
+     * @param id the id of the learning goal
      */
-    public LearningGoalDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Instant lastModifiedDate) {
+    public LearningGoalDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Instant lastModifiedDate, String id) {
         this();
         setName(newLearningGoalDTO.getName());
         setDescription(newLearningGoalDTO.getDescription());
@@ -46,6 +49,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
 
         this.owner = owner;
         this.lastModifiedDate = lastModifiedDate;
+        this.id = id;
     }
 
     /**
@@ -57,6 +61,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
     public LearningGoalDTO(Resource rdfResource) throws ParseException {
         this();
         setName(rdfResource.getProperty(RDFS.label).getString());
+        setId(rdfResource.getURI());
         Statement descriptionStatement = rdfResource.getProperty(ETutorVocabulary.hasDescription);
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -132,5 +137,41 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
      */
     public void setSubGoals(List<LearningGoalDTO> subGoals) {
         this.subGoals = subGoals;
+    }
+
+    /**
+     * Returns the count of lectures which hold a reference to this learning goal.
+     *
+     * @return the count of lectures which have a reference to this learning goal
+     */
+    public int getReferencedFromCount() {
+        return referencedFromCount;
+    }
+
+    /**
+     * Sets the count of lectures which hold a reference to this learning goal.
+     *
+     * @param referencedFromCount the reference count to set
+     */
+    public void setReferencedFromCount(int referencedFromCount) {
+        this.referencedFromCount = referencedFromCount;
+    }
+
+    /**
+     * Returns the id of the learning goal.
+     *
+     * @return the id of the learning goal
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Sets the id of the learning goal.
+     *
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
     }
 }
