@@ -3,6 +3,9 @@ package at.jku.dke.etutor.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotBlank;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 
 /**
  * A DTO representing a new learning goal.
@@ -33,7 +36,11 @@ public class NewLearningGoalDTO {
         if (name == null) {
             return null;
         }
-        return name.replace(' ', '_');
+        try {
+            return URLEncoder.encode(name.replace(' ', '_'), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
     }
 
     /**

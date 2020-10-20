@@ -62,7 +62,7 @@ export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoa
     children: []
   };
 
-  for (let goal of inputModel.subGoals) {
+  for (const goal of inputModel.subGoals) {
     retModel.children!.push(convertLearningGoal(goal));
   }
 

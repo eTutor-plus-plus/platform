@@ -38,6 +38,6 @@
     </div>
     <div class="col-6">
         <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal" [hidden]="showCreateLearningGoalComponent"></jhi-learning-goal-display>
-        <jhi-learning-goal-creation [hidden]="!showCreateLearningGoalComponent"></jhi-learning-goal-creation>
+        <jhi-learning-goal-creation (learningGoalCreated)="loadLearningGoalsAsync()" [hidden]="!showCreateLearningGoalComponent"></jhi-learning-goal-creation>
     </div>
 </div>

@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from "./learning-goals.service";
 import { LearningGoalTreeviewItem } from "./learning-goal-treeview-item.model";
 import { TreeviewComponent, TreeviewConfig } from "ngx-treeview";
-import {ContextMenuComponent} from "ngx-contextmenu";
-import {LearningGoalCreationComponent} from "./learning-goal-creation/learning-goal-creation.component";
+import { ContextMenuComponent } from "ngx-contextmenu";
+import { LearningGoalCreationComponent } from "./learning-goal-creation/learning-goal-creation.component";
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -48,7 +48,7 @@ export class LearningGoalsComponent implements OnInit {
   /**
    * Loads all visible learning goals as tree view items asynchronously.
    */
-  private async loadLearningGoalsAsync(): Promise<void> {
+  public async loadLearningGoalsAsync(): Promise<void> {
     this.learningGoals.length = 0;
     const list = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems().toPromise();
     list.forEach(x => this.learningGoals.push(x));

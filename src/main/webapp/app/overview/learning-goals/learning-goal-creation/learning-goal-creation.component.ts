@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { FormBuilder, Validators } from "@angular/forms";
 import { LearningGoalsService } from "../learning-goals.service";
 import { INewLearningGoalModel } from "../learning-goal-model";
@@ -12,6 +12,9 @@ import { INewLearningGoalModel } from "../learning-goal-model";
   styleUrls: ['./learning-goal-creation.component.scss']
 })
 export class LearningGoalCreationComponent implements OnInit {
+
+  @Output()
+  public learningGoalCreated = new EventEmitter<void>();
 
   public learningGoalForm = this.fb.group({
     learningGoalName: ['', [Validators.required]],
@@ -56,6 +59,9 @@ export class LearningGoalCreationComponent implements OnInit {
     };
 
     this.learningGoalsService.postNewLearningGoal(newGoal)
-      .subscribe(() => this.reset());
+      .subscribe(() => {
+        this.reset();
+        this.learningGoalCreated.emit();
+      });
   }
 }

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { Observable, of } from "rxjs";
+import { Observable } from "rxjs";
 import { LearningGoalTreeviewItem } from "./learning-goal-treeview-item.model";
-import {ILearningGoalModel, INewLearningGoalModel} from "./learning-goal-model";
-import {SERVER_API_URL} from "../../app.constants";
+import { convertLearningGoal, ILearningGoalModel, INewLearningGoalModel } from "./learning-goal-model";
+import { SERVER_API_URL } from "../../app.constants";
+import { map } from "rxjs/operators";
 
 /**
  * Service which retrieves the learning goals from the api
@@ -28,21 +29,16 @@ export class LearningGoalsService {
    * @returns an observable which contains the list of {@link LearningGoalTreeviewItem}.
    */
   public getAllVisibleLearningGoalsAsTreeViewItems(): Observable<LearningGoalTreeviewItem[]> {
-    const firstGoal = new LearningGoalTreeviewItem({
-      text: 'First goal', value: 1, description: '', owner: 'admin', changeDate: new Date(), children: [{
-        text: 'Sub goal 1', value: 2, description: '', owner: 'admin', changeDate: new Date()
-      }, {
-        text: 'Sub goal 2', value: 3, description: '', referencedFromCnt: 4, owner: 'admin', changeDate: new Date()
+
+    return this.http.get<ILearningGoalModel[]>(SERVER_API_URL + 'api/learninggoals').pipe(map(list => {
+      const retList: LearningGoalTreeviewItem[] = [];
+
+      for (const item of list) {
+        retList.push(new LearningGoalTreeviewItem(convertLearningGoal(item)))
       }
-      ]
-    });
 
-    const secondGoal = new LearningGoalTreeviewItem({
-      text: 'Second goal', value: 4, description: '', markedAsPrivate: true,
-      owner: 'admin', changeDate: new Date()
-    });
-
-    return of([firstGoal, secondGoal])
+      return retList;
+    }));
   }
 
   /**
