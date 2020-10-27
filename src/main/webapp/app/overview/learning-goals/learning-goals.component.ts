@@ -79,7 +79,7 @@ export class LearningGoalsComponent implements OnInit {
    * Event handler which handles the creation request for a new goal.
    */
   public onCreateGoalRequested(): void {
-    this.learningGoalCreationComponent.reset();
+    this.learningGoalCreationComponent.learningGoal = undefined;
     this.showCreateLearningGoalComponent = true;
   }
 
