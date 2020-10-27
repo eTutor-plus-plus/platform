@@ -4,6 +4,7 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.QueryExecution;
@@ -142,24 +143,30 @@ public class SPARQLEndpointService {
             Instant now = Instant.now();
             String nowStr = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(Date.from(now));
 
-            String updateQry = String.format("""
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+            String description = ObjectUtils.firstNonNull(learningGoalDTO.getDescription(), "");
 
-                DELETE {
-                  ?subject etutor:hasChangeDate ?changeDate.
-                  ?subject etutor:hasDescription ?description
-                }
-                INSERT {
-                  ?subject etutor:hasChangeDate "%s"^^xsd:dateTime.
-                  ?subject etutor:hasDescription "%s"
-                }
-                WHERE {
-                  ?subject etutor:hasChangeDate ?changeDate.
-                  ?subject etutor:hasDescription ?description.
-                  FILTER(?subject = <%s> )
-                }
-                """, nowStr, learningGoalDTO.getDescription(), learningGoalDTO.getId());
+            String updateQry = String.format("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+                    DELETE {
+                      ?subject etutor:hasChangeDate ?changeDate.
+                      ?subject etutor:hasDescription ?description.
+                      ?subject etutor:isPrivate ?private
+                    }
+                    INSERT {
+                      ?subject etutor:hasChangeDate "%s"^^xsd:dateTime.
+                      ?subject etutor:hasDescription "%s".
+                      ?subject etutor:isPrivate %b
+                    }
+                    WHERE {
+                      ?subject etutor:hasChangeDate ?changeDate.
+                      ?subject etutor:hasDescription ?description.
+                      ?subject etutor:isPrivate ?private.
+                      FILTER(?subject = <%s> )
+                    }
+                    """, nowStr, description, learningGoalDTO.isPrivateGoal(),
+                learningGoalDTO.getId());
 
             conn.update(updateQry);
         }
@@ -286,6 +293,8 @@ public class SPARQLEndpointService {
         }
     }
 
+    //region Private Methods
+
     /**
      * Returns whether a learning goal is private or not. If the learning goal can't be found, {@code null}
      * will be returned.
@@ -315,8 +324,6 @@ public class SPARQLEndpointService {
         }
     }
 
-    //region Private Methods
-
     /**
      * Creates a new rdf connection to the configured fuseki server.
      *
@@ -345,6 +352,8 @@ public class SPARQLEndpointService {
 
         if (newLearningGoalDTO.getDescription() != null && newLearningGoalDTO.getDescription().trim().length() > 0) {
             newGoal.addProperty(ETutorVocabulary.hasDescription, newLearningGoalDTO.getDescription().trim());
+        } else {
+            newGoal.addProperty(ETutorVocabulary.hasDescription, "");
         }
 
         newGoal.addProperty(RDFS.label, newLearningGoalDTO.getName().trim());
