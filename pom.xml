@@ -120,6 +120,11 @@
             <artifactId>jena-rdfconnection</artifactId>
             <version>3.16.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-querybuilder</artifactId>
+            <version>3.16.0</version>
+        </dependency>
 
         <dependency>
             <groupId>io.github.jhipster</groupId>
@@ -747,8 +752,8 @@
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 14.</message>
-                                <version>[1.8,15]</version>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 16.</message>
+                                <version>[1.8,16]</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
