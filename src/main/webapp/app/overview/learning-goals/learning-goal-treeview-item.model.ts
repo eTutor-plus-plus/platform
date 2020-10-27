@@ -1,5 +1,6 @@
-import { TreeItem, TreeviewItem } from "ngx-treeview";
+import {TreeItem, TreeviewItem} from "ngx-treeview";
 import { isNil } from "lodash";
+import { ILearningGoalModel } from "./learning-goal-model";
 
 /**
  * The {@link LearningGoalTreeviewItem} interface extends the {@link TreeItem} interface
@@ -162,5 +163,31 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public set changeDate(value: Date) {
     this._changeDate = value;
+  }
+
+  /**
+   * Converts this object into the corresponding {@link ILearningGoalModel} representation.
+   *
+   * @returns the {@link ILearningGoalModel} representation of this object
+   */
+  public toILearningGoalModel(): ILearningGoalModel {
+    const model: ILearningGoalModel = {
+      name: this.text,
+      description: this.description,
+      privateGoal: this.markedAsPrivate,
+      referencedFromCount: this.referencedFromCnt,
+      owner: this.owner,
+      lastModifiedDate: this.changeDate,
+      id: this.value,
+      subGoals: []
+    };
+
+    if (!isNil(this.children)) {
+      for (const child of this.children) {
+        model.subGoals.push((child as LearningGoalTreeviewItem).toILearningGoalModel());
+      }
+    }
+
+    return model;
   }
 }

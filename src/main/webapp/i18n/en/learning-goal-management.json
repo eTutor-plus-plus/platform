@@ -3,6 +3,7 @@
     "header": "Learning goal management",
     "createSubGoal": "Create sub goal",
     "createGoal": "Create goal",
+    "editGoal": "Edit goal",
     "entity": {
       "name": "Name:",
       "description": "Description:",
@@ -10,6 +11,7 @@
       "selectedGoal": "Selected learning goal",
       "privateGoal": "Private learning goal"
     },
-    "newLearningGoalHeader": "Create new learning goal"
+    "newLearningGoalHeader": "Create new learning goal",
+    "updateLearningGoalHeader": "Update learning goal"
   }
 }

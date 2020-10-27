@@ -1,10 +1,11 @@
-<h3 jhiTranslate="learningGoalManagement.newLearningGoalHeader">Create new learning goal</h3>
+<h3 [hidden]="!isNewLearningGoal()" jhiTranslate="learningGoalManagement.newLearningGoalHeader">Create new learning goal</h3>
+<h3 [hidden]="isNewLearningGoal()" jhiTranslate="learningGoalManagement.updateLearningGoalHeader">Update learning goal</h3>
 <form role="form" style="max-width: 500px;" (ngSubmit)="save()" [formGroup]="learningGoalForm">
     <jhi-alert-error></jhi-alert-error>
 
     <div class="form-group">
         <label for="learningGoalName" jhiTranslate="learningGoalManagement.entity.name">Name:</label>
-        <input id="learningGoalName" name="learningGoalName" formControlName="learningGoalName" class="form-control required" type="text" #learningGoalName/>
+        <input [readOnly]="!isNewLearningGoal()" id="learningGoalName" name="learningGoalName" formControlName="learningGoalName" class="form-control required" type="text" #learningGoalName/>
     </div>
     <div class="form-group">
         <label for="learningGoalDescription"
@@ -20,5 +21,5 @@
     </div>
 
     <br>
-    <button type="submit" class="btn btn-primary" [disabled]="learningGoalForm.invalid">Speichern</button>
+    <button type="submit" class="btn btn-primary" [disabled]="learningGoalForm.invalid">Save</button>
 </form>

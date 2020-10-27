@@ -36,7 +36,8 @@ export class LearningGoalsComponent implements OnInit {
    *
    * @param learningGoalsService the injected learning goals service
    */
-  constructor(private learningGoalsService: LearningGoalsService) { }
+  constructor(private learningGoalsService: LearningGoalsService) {
+  }
 
   /**
    * Implements the on init method. See {@link OnInit}
@@ -79,6 +80,18 @@ export class LearningGoalsComponent implements OnInit {
    */
   public onCreateGoalRequested(): void {
     this.learningGoalCreationComponent.reset();
+    this.showCreateLearningGoalComponent = true;
+  }
+
+  /**
+   * Event handler which handles the editing request for a goal.
+   *
+   * @param goalItem the goal item which should be edited
+   */
+  public onEditGoalRequested(goalItem: LearningGoalTreeviewItem): void {
+    const goalModel = goalItem.toILearningGoalModel();
+
+    this.learningGoalCreationComponent.learningGoal = goalModel;
     this.showCreateLearningGoalComponent = true;
   }
 }

@@ -50,4 +50,14 @@ export class LearningGoalsService {
   public postNewLearningGoal(newGoal: INewLearningGoalModel): Observable<ILearningGoalModel> {
     return this.http.post<ILearningGoalModel>(SERVER_API_URL + 'api/learninggoals', newGoal);
   }
+
+  /**
+   * Updates an existing learning goal.
+   *
+   * @param goal the goal which should be updated
+   * @returns an observable which contains an empty response object
+   */
+  public updateLearningGoal(goal: ILearningGoalModel): Observable<Object> {
+    return this.http.put(SERVER_API_URL + 'api/learninggoals', goal);
+  }
 }
