@@ -7,6 +7,8 @@ import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
+import at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException;
+import com.github.jsonldjava.utils.Obj;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -70,6 +72,35 @@ public class LearningGoalResource {
         } catch (LearningGoalAlreadyExistsException ex) {
             throw new at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException();
         }
+    }
+
+    /**
+     * {@code PUT /learninggoals} : Updates an existing learning goal or creates one.
+     *
+     * @param learninggoal the learning goal from the request body
+     * @return the {@link ResponseEntity} with status {@code 204 (No content)}.
+     * @throws BadRequestAlertException                                        if the logged in user is not the owner of the learning goal
+     * @throws at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException if the learning goal does not exist
+     */
+    @PutMapping("/learninggoals")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> updateLearningGoal(@Valid @RequestBody @NotNull LearningGoalDTO learninggoal) {
+        log.debug("REST request to update a learninggoal : {}", learninggoal);
+
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!StringUtils.equals(learninggoal.getOwner(), currentLogin)) {
+            throw new BadRequestAlertException("Only the creator is allowed to edit the learning goal!",
+                "learningGoalManagement", "learningGoalNotOwner");
+        }
+
+        try {
+            sparqlEndpointService.updateLearningGoal(learninggoal, currentLogin);
+        } catch(LearningGoalNotExistsException ex) {
+            throw new LearningGoalNotFoundException();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     /**

@@ -48,6 +48,14 @@ public class SPARQLEndpointService {
         }
         """;
 
+    private static final String QRY_ID_GOAL_COUNT = """
+        SELECT (COUNT(DISTINCT ?subject) as ?count)
+        WHERE {
+        	?subject ?predicate ?object.
+          FILTER(?subject = <%s> )
+        }
+        """;
+
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
 
     private final ApplicationProperties applicationProperties;
@@ -109,6 +117,52 @@ public class SPARQLEndpointService {
         }
 
         return new LearningGoalDTO(newLearningGoalDTO, owner, now, goal.getURI());
+    }
+
+    /**
+     * Updates an existing learning goal.
+     *
+     * @param learningGoalDTO the data of the learning goal
+     * @param owner           the owner of the learning goal
+     * @throws LearningGoalNotExistsException if the learning goal does not exist
+     */
+    public void updateLearningGoal(LearningGoalDTO learningGoalDTO, String owner) throws LearningGoalNotExistsException {
+        try (RDFConnection conn = getConnection()) {
+            int cnt;
+
+            try (QueryExecution qExec = conn.query(String.format(QRY_ID_GOAL_COUNT,
+                learningGoalDTO.getId()))) {
+                cnt = qExec.execSelect().next().getLiteral("?count").getInt();
+            }
+
+            if (cnt == 0) {
+                throw new LearningGoalNotExistsException();
+            }
+
+            Instant now = Instant.now();
+            String nowStr = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(Date.from(now));
+
+            String updateQry = String.format("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+                DELETE {
+                  ?subject etutor:hasChangeDate ?changeDate.
+                  ?subject etutor:hasDescription ?description
+                }
+                INSERT {
+                  ?subject etutor:hasChangeDate "%s"^^xsd:dateTime.
+                  ?subject etutor:hasDescription "%s"
+                }
+                WHERE {
+                  ?subject etutor:hasChangeDate ?changeDate.
+                  ?subject etutor:hasDescription ?description.
+                  FILTER(?subject = <%s> )
+                }
+                """, nowStr, learningGoalDTO.getDescription(), learningGoalDTO.getId());
+
+            conn.update(updateQry);
+        }
     }
 
     /**
