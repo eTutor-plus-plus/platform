@@ -8,9 +8,8 @@
     <div class="form-group">
         <label for="learningGoalDescription"
                jhiTranslate="learningGoalManagement.entity.description">Description:</label>
-        <textarea id="learningGoalDescription" class="form-control" disabled>
-            {{learningGoalTreeviewItem?.description}}
-        </textarea>
+        <div id="learningGoalDescription" [innerHTML]="learningGoalTreeviewItem?.description">
+        </div>
     </div>
     <div class="form-group">
         <label for="learningGoalLastChangeDate" jhiTranslate="learningGoalManagement.entity.lastChangeDate">Last change
