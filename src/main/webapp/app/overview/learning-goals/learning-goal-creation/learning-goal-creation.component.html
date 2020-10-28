@@ -1,5 +1,6 @@
-<h3 [hidden]="!isNewLearningGoal()" jhiTranslate="learningGoalManagement.newLearningGoalHeader">Create new learning goal</h3>
-<h3 [hidden]="isNewLearningGoal()" jhiTranslate="learningGoalManagement.updateLearningGoalHeader">Update learning goal</h3>
+<h3 [hidden]="!isNewLearningGoal() ||isParentGoalSet()" jhiTranslate="learningGoalManagement.newLearningGoalHeader">Create new learning goal</h3>
+<h3 [hidden]="isNewLearningGoal() ||isParentGoalSet()" jhiTranslate="learningGoalManagement.updateLearningGoalHeader">Update learning goal</h3>
+<h3 [hidden]="!isParentGoalSet()" jhiTranslate="learningGoalManagement.createSubGoalHeader">Create sub goal</h3>
 <form role="form" style="max-width: 500px;" (ngSubmit)="save()" [formGroup]="learningGoalForm">
     <jhi-alert-error></jhi-alert-error>
 

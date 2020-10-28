@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LearningGoalsService } from "./learning-goals.service";
-import { LearningGoalTreeviewItem } from "./learning-goal-treeview-item.model";
-import { TreeviewComponent, TreeviewConfig } from "ngx-treeview";
-import { ContextMenuComponent } from "ngx-contextmenu";
-import { LearningGoalCreationComponent } from "./learning-goal-creation/learning-goal-creation.component";
+import { LearningGoalsService } from './learning-goals.service';
+import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
+import { TreeviewComponent, TreeviewConfig } from 'ngx-treeview';
+import { ContextMenuComponent } from 'ngx-contextmenu';
+import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
+import { AccountService } from '../../core/auth/account.service';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -11,11 +12,10 @@ import { LearningGoalCreationComponent } from "./learning-goal-creation/learning
 @Component({
   selector: 'jhi-learning-goals',
   templateUrl: './learning-goals.component.html',
-  styleUrls: ['./learning-goals.component.scss']
+  styleUrls: ['./learning-goals.component.scss'],
 })
 export class LearningGoalsComponent implements OnInit {
-
-  @ViewChild(TreeviewComponent, {static: false})
+  @ViewChild(TreeviewComponent, { static: false })
   public treeviewComponent?: TreeviewComponent;
   @ViewChild('learningGoalCtxMenu')
   public learningGoalCtxMenu?: ContextMenuComponent;
@@ -24,25 +24,28 @@ export class LearningGoalsComponent implements OnInit {
   public config = TreeviewConfig.create({
     hasAllCheckBox: false,
     hasFilter: true,
-    hasCollapseExpand: true
+    hasCollapseExpand: true,
   });
 
   @ViewChild(LearningGoalCreationComponent)
   public learningGoalCreationComponent!: LearningGoalCreationComponent;
   public showCreateLearningGoalComponent = false;
+  public username!: string;
 
   /**
    * Constructor
    *
    * @param learningGoalsService the injected learning goals service
+   * @param accountService the injected account service
    */
-  constructor(private learningGoalsService: LearningGoalsService) {
-  }
+  constructor(private learningGoalsService: LearningGoalsService, private accountService: AccountService) {}
 
   /**
    * Implements the on init method. See {@link OnInit}
    */
   public ngOnInit(): void {
+    this.username = this.accountService.getLoginName() ?? '';
+
     this.loadLearningGoalsAsync();
   }
 
@@ -51,7 +54,7 @@ export class LearningGoalsComponent implements OnInit {
    */
   public async loadLearningGoalsAsync(): Promise<void> {
     this.learningGoals.length = 0;
-    const list = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems().toPromise();
+    const list = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this.username).toPromise();
     list.forEach(x => this.learningGoals.push(x));
   }
 
@@ -71,8 +74,8 @@ export class LearningGoalsComponent implements OnInit {
    * @param parent the parent treeview item of the sub goal which should be created
    */
   public onCreateSubGoal(parent: LearningGoalTreeviewItem): void {
-    // eslint-disable-next-line no-console
-    console.log('onCreateSubGoal for ' + JSON.stringify(parent));
+    this.learningGoalCreationComponent.subGoalCreationRequest(parent.text);
+    this.showCreateLearningGoalComponent = true;
   }
 
   /**
@@ -93,5 +96,16 @@ export class LearningGoalsComponent implements OnInit {
 
     this.learningGoalCreationComponent.learningGoal = goalModel;
     this.showCreateLearningGoalComponent = true;
+  }
+
+  /**
+   * Checks whether the current user is allowed to edit the given goal or not.
+   *
+   * @param item the tree view item to check
+   * @returns {@code true} if the current user is allowed to edit
+   * the given goal, otherwise {@code false}
+   */
+  public isCurrentUserAllowedToEdit(item: LearningGoalTreeviewItem): boolean {
+    return item.isUserAllowedToModify();
   }
 }

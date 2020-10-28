@@ -21,10 +21,11 @@
     </div>
 </ng-template>
 <context-menu #learningGoalCtxMenu>
-    <ng-template contextMenuItem (execute)="onCreateSubGoal($event.item)">
+    <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onCreateSubGoal($event.item)">
         <span jhiTranslate="learningGoalManagement.createSubGoal">Create sub goal</span>
     </ng-template>
-    <ng-template contextMenuItem (execute)="onEditGoalRequested($event.item)">
+    <ng-template contextMenuItem [divider]="true"></ng-template>
+    <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onEditGoalRequested($event.item)">
         <span jhiTranslate="learningGoalManagement.editGoal">Edit goal</span>
     </ng-template>
 </context-menu>
@@ -42,6 +43,7 @@
     <div class="col-6">
         <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal" [hidden]="showCreateLearningGoalComponent"></jhi-learning-goal-display>
         <jhi-learning-goal-creation (learningGoalCreated)="loadLearningGoalsAsync()" (learningGoalUpdated)="loadLearningGoalsAsync()"
+                                    (subGoalCreated)="loadLearningGoalsAsync()" [loggedInUser]="username"
                                     [hidden]="!showCreateLearningGoalComponent">
         </jhi-learning-goal-creation>
     </div>

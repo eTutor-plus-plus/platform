@@ -1,6 +1,6 @@
-import {TreeItem, TreeviewItem} from "ngx-treeview";
-import { isNil } from "lodash";
-import { ILearningGoalModel } from "./learning-goal-model";
+import { TreeItem, TreeviewItem } from 'ngx-treeview';
+import { isNil } from 'lodash';
+import { ILearningGoalModel } from './learning-goal-model';
 
 /**
  * The {@link LearningGoalTreeviewItem} interface extends the {@link TreeItem} interface
@@ -43,19 +43,20 @@ export interface LearningGoalTreeItem extends TreeItem {
  * providing learning goal display specific properties.
  */
 export class LearningGoalTreeviewItem extends TreeviewItem {
-
   private _markedAsPrivate: boolean;
   private _description?: string;
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
+  private _currentUser: string;
 
   /**
    * Constructor.
    *
    * @param item the root item
+   * @param currentUser the currently logged in user
    */
-  constructor(item: LearningGoalTreeItem) {
+  constructor(item: LearningGoalTreeItem, currentUser: string) {
     super(item);
 
     this._markedAsPrivate = item.markedAsPrivate === true;
@@ -63,14 +64,14 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     this._referencedFromCnt = item.referencedFromCnt !== undefined ? item.referencedFromCnt : 0;
     this._owner = item.owner;
     this._changeDate = item.changeDate;
+    this._currentUser = currentUser;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
-
         if (super.disabled === true) {
           child.disabled = true;
         }
-        return new LearningGoalTreeviewItem(child);
+        return new LearningGoalTreeviewItem(child, currentUser);
       });
     }
   }
@@ -179,7 +180,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
       owner: this.owner,
       lastModifiedDate: this.changeDate,
       id: this.value,
-      subGoals: []
+      subGoals: [],
     };
 
     if (!isNil(this.children)) {
@@ -189,5 +190,14 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     }
 
     return model;
+  }
+
+  /**
+   * Returns whether the currently logged in user is allowed to modify this entry.
+   *
+   * @returns {code true} if the current user is allowed to modify this entry, otherwise {@code false}
+   */
+  public isUserAllowedToModify(): boolean {
+    return this._currentUser === this._owner;
   }
 }

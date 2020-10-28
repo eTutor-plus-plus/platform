@@ -12,6 +12,7 @@
       "privateGoal": "Privates Lernziel"
     },
     "newLearningGoalHeader": "Neues Lernziel erstellen",
-    "updateLearningGoalHeader": "Lernziel bearbeiten"
+    "updateLearningGoalHeader": "Lernziel bearbeiten",
+    "createSubGoalHeader": "Teilziel erstellen"
   }
 }

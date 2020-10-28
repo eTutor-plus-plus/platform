@@ -4,6 +4,7 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -25,9 +26,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Service class for SPARQL related operations.
@@ -198,7 +203,9 @@ public class SPARQLEndpointService {
                 throw new LearningGoalAlreadyExistsException();
             }
 
-            Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, parentGoalName);
+            String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), Charsets.UTF_8);
+
+            Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
 
             if (superGoalPrivate == null) {
                 throw new LearningGoalNotExistsException();
@@ -207,7 +214,7 @@ public class SPARQLEndpointService {
             Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, superGoalPrivate);
 
 
-            Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, parentGoalName, model);
+            Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
             parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, newGoal);
 
             conn.load(model);
@@ -249,7 +256,7 @@ public class SPARQLEndpointService {
             }
             """, owner);
 
-        SortedSet<LearningGoalDTO> goalList = new TreeSet<>(Comparator.comparing(NewLearningGoalDTO::getName));//comparator
+        SortedSet<LearningGoalDTO> goalList = new TreeSet<>(Comparator.comparing(NewLearningGoalDTO::getName));
 
         try (RDFConnection conn = getConnection()) {
             Model resultModel = conn.queryConstruct(queryStr);
@@ -263,9 +270,10 @@ public class SPARQLEndpointService {
                         goalList.add(new LearningGoalDTO(resource));
                     }
                 }
-            } catch (ParseException e) {
+            } catch (ParseException ex) {
+                log.error("Parsing exception", ex);
                 //TODO: Implement exception handling
-                e.printStackTrace();
+                ex.printStackTrace();
             } finally {
                 if (iterator != null) {
                     iterator.close();
@@ -317,7 +325,7 @@ public class SPARQLEndpointService {
                 return null;
             }
             QuerySolution solution = set.nextSolution();
-            return solution.getLiteral("?private").getBoolean();
+            return solution.getLiteral("?privateGoal").getBoolean();
         }
     }
 

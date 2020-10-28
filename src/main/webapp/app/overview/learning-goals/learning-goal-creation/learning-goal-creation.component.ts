@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, Validators } from "@angular/forms";
-import { LearningGoalsService } from "../learning-goals.service";
-import { ILearningGoalModel, INewLearningGoalModel } from "../learning-goal-model";
+import { FormBuilder, Validators } from '@angular/forms';
+import { LearningGoalsService } from '../learning-goals.service';
+import { ILearningGoalModel, INewLearningGoalModel } from '../learning-goal-model';
 import { isNil } from 'lodash';
 
 /**
@@ -10,11 +10,11 @@ import { isNil } from 'lodash';
 @Component({
   selector: 'jhi-learning-goal-creation',
   templateUrl: './learning-goal-creation.component.html',
-  styleUrls: ['./learning-goal-creation.component.scss']
+  styleUrls: ['./learning-goal-creation.component.scss'],
 })
 export class LearningGoalCreationComponent implements OnInit {
-
   private _learningGoal?: ILearningGoalModel;
+  private _parentGoal?: string;
 
   @Output()
   public learningGoalCreated = new EventEmitter<void>();
@@ -22,10 +22,16 @@ export class LearningGoalCreationComponent implements OnInit {
   @Output()
   public learningGoalUpdated = new EventEmitter<void>();
 
+  @Output()
+  public subGoalCreated = new EventEmitter<void>();
+
+  @Input()
+  public loggedInUser!: string;
+
   public learningGoalForm = this.fb.group({
     learningGoalName: ['', [Validators.required]],
     learningGoalDescription: [''],
-    privateGoal: [false]
+    privateGoal: [false],
   });
 
   /**
@@ -34,14 +40,12 @@ export class LearningGoalCreationComponent implements OnInit {
    * @param fb the injected form builder
    * @param learningGoalsService the injected learning goals service
    */
-  constructor(private fb: FormBuilder, private learningGoalsService: LearningGoalsService) {
-  }
+  constructor(private fb: FormBuilder, private learningGoalsService: LearningGoalsService) {}
 
   /**
    * Implements the on init method. See {@link OnInit}
    */
-  public ngOnInit(): void {
-  }
+  public ngOnInit(): void {}
 
   /**
    * Resets the form.
@@ -50,7 +54,7 @@ export class LearningGoalCreationComponent implements OnInit {
     this.learningGoalForm.patchValue({
       learningGoalName: '',
       learningGoalDescription: '',
-      privateGoal: false
+      privateGoal: false,
     });
   }
 
@@ -58,20 +62,21 @@ export class LearningGoalCreationComponent implements OnInit {
    * Saves the newly created learning goal.
    */
   public save(): void {
-    if (this.isNewLearningGoal()) {
+    if (this.isNewLearningGoal() && !this.isParentGoalSet()) {
       const newGoal: INewLearningGoalModel = {
         name: this.learningGoalForm.get(['learningGoalName'])!.value,
         description: this.learningGoalForm.get(['learningGoalDescription'])!.value,
-        privateGoal: this.learningGoalForm.get(['privateGoal'])!.value
+        privateGoal: this.learningGoalForm.get(['privateGoal'])!.value,
       };
 
-      this.learningGoalsService.postNewLearningGoal(newGoal)
-        .subscribe(() => {
-          this.reset();
-          this.learningGoalCreated.emit();
-        });
-    } else { // Update
-      const goal = {...this._learningGoal} as ILearningGoalModel;
+      this.learningGoalsService.postNewLearningGoal(newGoal).subscribe(() => {
+        this.reset();
+        this.learningGoalCreated.emit();
+      });
+    }
+    if (!this.isParentGoalSet()) {
+      // Update
+      const goal = { ...this._learningGoal } as ILearningGoalModel;
       goal.name = this.learningGoalForm.get(['learningGoalName'])!.value;
       goal.description = this.learningGoalForm.get(['learningGoalDescription'])!.value;
       goal.privateGoal = this.learningGoalForm.get(['privateGoal'])!.value;
@@ -79,6 +84,19 @@ export class LearningGoalCreationComponent implements OnInit {
       this.learningGoalsService.updateLearningGoal(goal).subscribe(() => {
         this.learningGoal = undefined;
         this.learningGoalUpdated.emit();
+      });
+    } else {
+      // New sub goal created
+      const newGoal: INewLearningGoalModel = {
+        name: this.learningGoalForm.get(['learningGoalName'])!.value,
+        description: this.learningGoalForm.get(['learningGoalDescription'])!.value,
+        privateGoal: this.learningGoalForm.get(['privateGoal'])!.value,
+      };
+
+      this.learningGoalsService.createSubGoal(newGoal, this.parentGoal!, this.loggedInUser).subscribe(() => {
+        this.reset();
+        this.parentGoal = undefined;
+        this.subGoalCreated.emit();
       });
     }
   }
@@ -90,6 +108,15 @@ export class LearningGoalCreationComponent implements OnInit {
    */
   public isNewLearningGoal(): boolean {
     return isNil(this._learningGoal);
+  }
+
+  /**
+   * Returns whether the parent goal is set or not.
+   *
+   * @returns {@code true} if the parent goal is set, otherwise {@code false}
+   */
+  public isParentGoalSet(): boolean {
+    return !isNil(this._parentGoal);
   }
 
   /**
@@ -107,16 +134,47 @@ export class LearningGoalCreationComponent implements OnInit {
       this.learningGoalForm.patchValue({
         learningGoalName: value.name,
         learningGoalDescription: value.description,
-        privateGoal: value.privateGoal
+        privateGoal: value.privateGoal,
       });
     }
   }
 
   /**
-   * Returns the current learning goal model, or {@code null} if a new learning goal
+   * Returns the current learning goal model or {@code null} if a new learning goal
    * should be created.
+   *
+   * @returns the current learning goal model or {@code null}
    */
   public get learningGoal(): ILearningGoalModel | undefined {
     return this._learningGoal;
+  }
+
+  /**
+   * Sets the parent goal id.
+   *
+   * @param value the parent goal id to set
+   */
+  @Input()
+  public set parentGoal(value: string | undefined) {
+    this._parentGoal = value;
+  }
+
+  /**
+   * Returns the parent goal name or {@code null}, when no parent id is set!
+   *
+   * @returns the parent goal name or {@code null}
+   */
+  public get parentGoal(): string | undefined {
+    return this._parentGoal;
+  }
+
+  /**
+   * Method which handles a sub goal creation request.
+   *
+   * @param parentGoalId the id of the parent goal
+   */
+  public subGoalCreationRequest(parentGoalId: string): void {
+    this.learningGoal = undefined;
+    this.parentGoal = parentGoalId;
   }
 }
