@@ -1,6 +1,7 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.LearningGoalNotExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
@@ -94,7 +95,7 @@ public class LearningGoalResource {
         }
 
         try {
-            sparqlEndpointService.updateLearningGoal(learninggoal, currentLogin);
+            sparqlEndpointService.updateLearningGoal(learninggoal);
         } catch (LearningGoalNotExistsException ex) {
             throw new LearningGoalNotFoundException();
         }
@@ -155,7 +156,11 @@ public class LearningGoalResource {
     public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals() {
 
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin);
-        return ResponseEntity.ok(goals);
+        try {
+            var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin);
+            return ResponseEntity.ok(goals);
+        } catch (InternalModelException ex) {
+            throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
+        }
     }
 }

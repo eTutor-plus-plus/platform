@@ -9,8 +9,7 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * DTO class for a learning goal which extends the new learning goal dto.
@@ -21,7 +20,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
 
     private Instant lastModifiedDate;
     private String owner;
-    private List<LearningGoalDTO> subGoals;
+    private SortedSet<LearningGoalDTO> subGoals;
     private int referencedFromCount = 0;
     private String id;
 
@@ -30,7 +29,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
      */
     public LearningGoalDTO() {
         // Needed for serialization
-        subGoals = new ArrayList<>();
+        subGoals = new TreeSet<>(Comparator.comparing(NewLearningGoalDTO::getName));
     }
 
     /**
@@ -122,20 +121,20 @@ public class LearningGoalDTO extends NewLearningGoalDTO {
     }
 
     /**
-     * Returns the list of sub goals.
+     * Returns the set of sub goals.
      *
-     * @return the list of sub goals
+     * @return the set of sub goals
      */
-    public List<LearningGoalDTO> getSubGoals() {
+    public SortedSet<LearningGoalDTO> getSubGoals() {
         return subGoals;
     }
 
     /**
-     * Sets the list of sub goals.
+     * Sets the set of sub goals.
      *
-     * @param subGoals the list of sub goals to set
+     * @param subGoals the set of sub goals to set
      */
-    public void setSubGoals(List<LearningGoalDTO> subGoals) {
+    public void setSubGoals(SortedSet<LearningGoalDTO> subGoals) {
         this.subGoals = subGoals;
     }
 

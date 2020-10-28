@@ -139,11 +139,12 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
-    "emptycollection" : "The mandatory list is empty!",
+    "emptycollection": "The mandatory list is empty!",
     "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!",
     "learningGoalAlreadyExists": "The learning goal already exists!",
     "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!",
-    "learningGoalNotFound": "The learning goal does not exist!"
+    "learningGoalNotFound": "The learning goal does not exist!",
+    "parsingError": "An internal error occurred!"
   },
   "footer": {
     "contact": "Contact",

@@ -127,10 +127,9 @@ public class SPARQLEndpointService {
      * Updates an existing learning goal.
      *
      * @param learningGoalDTO the data of the learning goal
-     * @param owner           the owner of the learning goal
      * @throws LearningGoalNotExistsException if the learning goal does not exist
      */
-    public void updateLearningGoal(LearningGoalDTO learningGoalDTO, String owner) throws LearningGoalNotExistsException {
+    public void updateLearningGoal(LearningGoalDTO learningGoalDTO) throws LearningGoalNotExistsException {
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
@@ -228,8 +227,9 @@ public class SPARQLEndpointService {
      *
      * @param owner the owner of requested learning goals
      * @return a list of all {@link LearningGoalDTO} which are visible for the given owner
+     * @throws InternalModelException
      */
-    public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) {
+    public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
         String queryStr = String.format("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -272,8 +272,7 @@ public class SPARQLEndpointService {
                 }
             } catch (ParseException ex) {
                 log.error("Parsing exception", ex);
-                //TODO: Implement exception handling
-                ex.printStackTrace();
+                throw new InternalModelException(ex);
             } finally {
                 if (iterator != null) {
                     iterator.close();

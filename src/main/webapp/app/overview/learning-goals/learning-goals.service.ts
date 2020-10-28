@@ -65,7 +65,7 @@ export class LearningGoalsService {
    * Creates a new sub goal.
    *
    * @param newGoal the sub goal which should be saved
-   * @param parentGoalId the name of the parent goal
+   * @param parentGoalName the name of the parent goal
    * @param currentUser the current logged in user
    * @returns an observable which contains the {@link ILearningGoalModel}
    */
