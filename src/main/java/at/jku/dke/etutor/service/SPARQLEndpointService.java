@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Service class for SPARQL related operations.
@@ -224,7 +222,7 @@ public class SPARQLEndpointService {
      * @param owner the owner of requested learning goals
      * @return a list of all {@link LearningGoalDTO} which are visible for the given owner
      */
-    public List<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) {
+    public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) {
         String queryStr = String.format("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -249,10 +247,9 @@ public class SPARQLEndpointService {
                   ?goal etutor:hasSubGoal ?subject .
               }
             }
-            ORDER BY (?lbl)
             """, owner);
 
-        List<LearningGoalDTO> goalList = new ArrayList<>();
+        SortedSet<LearningGoalDTO> goalList = new TreeSet<>(Comparator.comparing(NewLearningGoalDTO::getName));//comparator
 
         try (RDFConnection conn = getConnection()) {
             Model resultModel = conn.queryConstruct(queryStr);

@@ -8,7 +8,6 @@ import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException;
-import com.github.jsonldjava.utils.Obj;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * REST controller for managing learning goals.
@@ -96,7 +95,7 @@ public class LearningGoalResource {
 
         try {
             sparqlEndpointService.updateLearningGoal(learninggoal, currentLogin);
-        } catch(LearningGoalNotExistsException ex) {
+        } catch (LearningGoalNotExistsException ex) {
             throw new LearningGoalNotFoundException();
         }
 
@@ -153,7 +152,7 @@ public class LearningGoalResource {
      * @return {@link ResponseEntity} with status {@code 200 (OK)} and the list of visible learning goals in body
      */
     @GetMapping("/learninggoals")
-    public ResponseEntity<List<LearningGoalDTO>> getVisibleGoals() {
+    public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals() {
 
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin);
