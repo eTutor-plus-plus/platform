@@ -73,8 +73,7 @@ export class LearningGoalCreationComponent implements OnInit {
         this.reset();
         this.learningGoalCreated.emit();
       });
-    }
-    if (!this.isParentGoalSet()) {
+    } else if (!this.isParentGoalSet()) {
       // Update
       const goal = { ...this._learningGoal } as ILearningGoalModel;
       goal.name = this.learningGoalForm.get(['learningGoalName'])!.value;
