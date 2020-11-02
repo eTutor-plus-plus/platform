@@ -8,6 +8,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -127,8 +128,10 @@ public class SPARQLEndpointService {
      *
      * @param learningGoalDTO the data of the learning goal
      * @throws LearningGoalNotExistsException if the learning goal does not exist
+     * @throws PrivateSuperGoalException      if the learning goal should be public and has a private super goal
      */
-    public void updateLearningGoal(LearningGoalDTO learningGoalDTO) throws LearningGoalNotExistsException {
+    public void updateLearningGoal(LearningGoalDTO learningGoalDTO) throws LearningGoalNotExistsException,
+        PrivateSuperGoalException {
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
@@ -139,6 +142,25 @@ public class SPARQLEndpointService {
 
             if (cnt == 0) {
                 throw new LearningGoalNotExistsException();
+            }
+
+            if (!learningGoalDTO.isPrivateGoal()) {
+                ParameterizedSparqlString parameterizedSparqlString = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                    ASK {
+                      ?subject ^etutor:hasSubGoal+ ?goal.
+                      ?goal etutor:isPrivate true.
+                      FILTER(?subject = ?startSubject)
+                    }
+                    """);
+                parameterizedSparqlString.setIri("?startSubject", learningGoalDTO.getId());
+
+                boolean containsPrivateSuperGoal = conn.queryAsk(parameterizedSparqlString.toString());
+
+                if (containsPrivateSuperGoal) {
+                    throw new PrivateSuperGoalException();
+                }
             }
 
             Instant now = Instant.now();
@@ -170,6 +192,27 @@ public class SPARQLEndpointService {
                 learningGoalDTO.getId());
 
             conn.update(updateQry);
+
+            if (learningGoalDTO.isPrivateGoal()) {
+                // Update 'privateGoal' of all sub goals
+                String transitiveUpdateQry = String.format("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                    DELETE {
+                      ?goal etutor:isPrivate ?private
+                    }
+                    INSERT {
+                      ?goal etutor:isPrivate true
+                    }
+                    WHERE {
+                      ?subject etutor:hasSubGoal+ ?goal.
+                      ?goal etutor:isPrivate ?private.
+                      FILTER(?subject = <%s>)
+                    }
+                    """, learningGoalDTO.getId());
+
+                conn.update(transitiveUpdateQry);
+            }
         }
     }
 

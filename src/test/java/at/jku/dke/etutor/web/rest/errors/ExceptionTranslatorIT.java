@@ -161,4 +161,13 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.message").value("error.learningGoalNotFound"))
             .andExpect(jsonPath("$.title").value("The learning goal does not exist!"));
     }
+
+    @Test
+    public void testPrivateSuperGoal() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/private-super-goal"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.privateSuperGoal"))
+            .andExpect(jsonPath("$.title").value("A private super goal for a public sub goal is not allowed!"));
+    }
 }

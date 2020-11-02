@@ -1,10 +1,7 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.InternalModelException;
-import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
-import at.jku.dke.etutor.service.LearningGoalNotExistsException;
-import at.jku.dke.etutor.service.SPARQLEndpointService;
+import at.jku.dke.etutor.service.*;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
@@ -98,6 +95,8 @@ public class LearningGoalResource {
             sparqlEndpointService.updateLearningGoal(learninggoal);
         } catch (LearningGoalNotExistsException ex) {
             throw new LearningGoalNotFoundException();
+        } catch (PrivateSuperGoalException ex) {
+            throw new at.jku.dke.etutor.web.rest.errors.PrivateSuperGoalException();
         }
 
         return ResponseEntity.noContent().build();

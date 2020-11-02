@@ -144,7 +144,8 @@
     "learningGoalAlreadyExists": "Das Lernziel existiert bereits!",
     "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!",
     "learningGoalNotFound": "Das Lernziel existiert nicht!",
-    "parsingError": "Ein interner Fehler ist aufgetreten!"
+    "parsingError": "Ein interner Fehler ist aufgetreten!",
+    "privateSuperGoal": "Ein privates Überziel für ein öffentliches Teilziel ist nicht erlaubt!"
   },
   "footer": {
     "contact": "Kontakt",

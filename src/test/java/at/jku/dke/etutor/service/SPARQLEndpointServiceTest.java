@@ -222,9 +222,11 @@ public class SPARQLEndpointServiceTest {
      * @throws LearningGoalAlreadyExistsException must not happen
      * @throws LearningGoalNotExistsException     must not happen
      * @throws InternalModelException             must not happen
+     * @throws PrivateSuperGoalException          must not happen
      */
     @Test
-    public void testUpdateLearningGoal() throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException, InternalModelException {
+    public void testUpdateLearningGoal() throws LearningGoalAlreadyExistsException,
+        LearningGoalNotExistsException, InternalModelException, PrivateSuperGoalException {
         String owner = "admin";
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");

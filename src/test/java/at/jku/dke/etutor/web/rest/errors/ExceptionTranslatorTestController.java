@@ -82,6 +82,11 @@ public class ExceptionTranslatorTestController {
         throw new LearningGoalNotFoundException();
     }
 
+    @GetMapping("/private-super-goal")
+    public void privateSuperGoal() {
+        throw new PrivateSuperGoalException();
+    }
+
     public static class TestDTO {
 
         @NotNull
