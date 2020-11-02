@@ -274,6 +274,78 @@ public class SPARQLEndpointServiceTest {
             .isInstanceOf(LearningGoalNotExistsException.class);
     }
 
+    /**
+     * Tests the update goal method with a goal which has a sub goal. The goal
+     * will be set to a private goal; therefore, the sub goal has also to become
+     * a private goal.
+     *
+     * @throws LearningGoalAlreadyExistsException must not happen
+     * @throws LearningGoalNotExistsException     must not happen
+     * @throws PrivateSuperGoalException          must not happen
+     * @throws InternalModelException             must not happen
+     */
+    @Test
+    public void testUpdateLearningGoalWithSubGoal() throws LearningGoalAlreadyExistsException,
+        LearningGoalNotExistsException, PrivateSuperGoalException, InternalModelException {
+        String owner = "admin";
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
+        subGoal.setName("SubGoal");
+        subGoal.setDescription(null);
+        subGoal.setPrivateGoal(false);
+
+        sparqlEndpointService.insertSubGoal(subGoal, owner, newLearningGoalDTO.getName());
+
+        goal.setPrivateGoal(true);
+        sparqlEndpointService.updateLearningGoal(goal);
+
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(owner);
+
+        assertThat(goals.size()).isEqualTo(1);
+        goal = goals.first();
+        assertThat(goal.getSubGoals().size()).isEqualTo(1);
+        assertThat(goal.isPrivateGoal()).isTrue();
+        assertThat(goal.getSubGoals().first().isPrivateGoal()).isTrue();
+    }
+
+    /**
+     * Tests the update of a sub goal whose super is private.
+     * The sub goal is set to public; therefore, an exception has to
+     * be thrown.
+     *
+     * @throws LearningGoalAlreadyExistsException must not happen
+     * @throws LearningGoalNotExistsException must not happen
+     */
+    @Test
+    public void testUpdatePrivateLearningGoalWithPublicSubGoal() throws LearningGoalAlreadyExistsException,
+        LearningGoalNotExistsException {
+        String owner = "admin";
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(true);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
+        subGoal.setName("SubGoal");
+        subGoal.setDescription(null);
+        subGoal.setPrivateGoal(true);
+
+        var insertedSubGoal = sparqlEndpointService.insertSubGoal(subGoal, owner, newLearningGoalDTO.getName());
+        insertedSubGoal.setPrivateGoal(false);
+
+
+        assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal))
+            .isInstanceOf(PrivateSuperGoalException.class);
+    }
+
     //region Private helper methods
 
     /**
