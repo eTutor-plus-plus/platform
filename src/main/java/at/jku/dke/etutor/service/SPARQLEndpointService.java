@@ -1,7 +1,7 @@
 package at.jku.dke.etutor.service;
 
-import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import org.apache.commons.codec.Charsets;
@@ -16,7 +16,6 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFuseki;
 import org.apache.jena.system.Txn;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -62,15 +61,15 @@ public class SPARQLEndpointService {
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
 
-    private final ApplicationProperties applicationProperties;
+    private final RDFConnectionFactory rdfConnectionFactory;
 
     /**
      * Constructor.
      *
-     * @param applicationProperties the injected application properties
+     * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public SPARQLEndpointService(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+    public SPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
+        this.rdfConnectionFactory = rdfConnectionFactory;
     }
 
     /**
@@ -227,7 +226,7 @@ public class SPARQLEndpointService {
      *
      * @param owner the owner of requested learning goals
      * @return a list of all {@link LearningGoalDTO} which are visible for the given owner
-     * @throws InternalModelException
+     * @throws InternalModelException if the internal date format is not valid
      */
     public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
         String queryStr = String.format("""
@@ -306,7 +305,7 @@ public class SPARQLEndpointService {
      * @param conn             the rdf connection
      * @param owner            the owner of the learning goal
      * @param learningGoalName the rdf encoded name of the learning goal
-     * @return {@code null} if the goal has not been found, otherwise the coresponding {@code boolean} value
+     * @return {@code null} if the goal has not been found, otherwise the corresponding {@code boolean} value
      */
     private Boolean isLearningGoalPrivate(RDFConnection conn, String owner, String learningGoalName) {
         String query = String.format("""
@@ -334,7 +333,7 @@ public class SPARQLEndpointService {
      * @return new rdf connection
      */
     private RDFConnection getConnection() {
-        return RDFConnectionFuseki.create().destination(applicationProperties.getFuseki().getBaseUrl()).build();
+        return rdfConnectionFactory.getRDFConnection();
     }
 
     /**

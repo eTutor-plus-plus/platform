@@ -1,20 +1,19 @@
 package at.jku.dke.etutor.repository;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
-
 import at.jku.dke.etutor.config.Constants;
+import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.config.audit.AuditEventConverter;
 import at.jku.dke.etutor.domain.PersistentAuditEvent;
-import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpSession;
@@ -24,18 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static at.jku.dke.etutor.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link CustomAuditEventRepository}.
  */
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
+@ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @Transactional
 public class CustomAuditEventRepositoryIT {
-
-    @MockBean
-    private ApplicationReadyListener readyListener;
 
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
