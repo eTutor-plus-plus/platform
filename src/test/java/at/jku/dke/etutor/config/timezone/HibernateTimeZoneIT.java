@@ -3,11 +3,13 @@ package at.jku.dke.etutor.config.timezone;
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.repository.timezone.DateTimeWrapper;
 import at.jku.dke.etutor.repository.timezone.DateTimeWrapperRepository;
+import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 public class HibernateTimeZoneIT {
+
+    @MockBean
+    private ApplicationReadyListener readyListener;
 
     @Autowired
     private DateTimeWrapperRepository dateTimeWrapperRepository;

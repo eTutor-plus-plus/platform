@@ -1,0 +1,18 @@
+{
+  "learningGoalManagement": {
+    "header": "Lernzielverwaltung",
+    "createSubGoal": "Teilziel erstellen",
+    "createGoal": "Ziel erstellen",
+    "editGoal": "Ziel bearbeiten",
+    "entity": {
+      "name": "Name:",
+      "description": "Beschreibung:",
+      "lastChangeDate": "Letztes Änderungsdatum:",
+      "selectedGoal": "Ausgewähltes Lernziel",
+      "privateGoal": "Privates Lernziel"
+    },
+    "newLearningGoalHeader": "Neues Lernziel erstellen",
+    "updateLearningGoalHeader": "Lernziel bearbeiten",
+    "createSubGoalHeader": "Teilziel erstellen"
+  }
+}

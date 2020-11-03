@@ -31,7 +31,11 @@
         "database": "Datenbank",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
-      "language": "Sprache"
+      "language": "Sprache",
+      "learningGoals": {
+        "main": "Lernziele",
+        "management": "Lernzielverwaltung"
+      }
     },
     "form": {
       "username.label": "Benutzername",
@@ -135,8 +139,13 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
-    "emptycollection" : "Die verpflichtende Liste ist leer!",
-    "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!"
+    "emptycollection": "Die verpflichtende Liste ist leer!",
+    "loginPatternFailed": "Der übergebene Login entspricht keiner JKU Mitarbeitenden- oder Matrikelnummer!",
+    "learningGoalAlreadyExists": "Das Lernziel existiert bereits!",
+    "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!",
+    "learningGoalNotFound": "Das Lernziel existiert nicht!",
+    "parsingError": "Ein interner Fehler ist aufgetreten!",
+    "privateSuperGoal": "Ein privates Überziel für ein öffentliches Teilziel ist nicht erlaubt!"
   },
   "footer": {
     "contact": "Kontakt",

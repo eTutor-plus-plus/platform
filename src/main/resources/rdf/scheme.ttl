@@ -1,0 +1,33 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Classes
+etutor:Goal rdf:type rdfs:Class .
+etutor:SubGoal rdfs:subClassOf etutor:Goal .
+
+# Properties
+etutor:hasSubGoal rdf:type rdfs:Property ;
+				  rdfs:domain etutor:Goal ;
+				  rdfs:range etutor:Goal .
+
+etutor:dependsOn rdf:type rdfs:Property ;
+				 rdfs:domain etutor:Goal ;
+				 rdfs:range etutor:Goal .
+
+etutor:hasDescription rdf:type rdfs:Property ;
+					  rdfs:domain etutor:Goal ;
+					  rdfs:range xsd:string .
+
+etutor:isPrivate rdf:type rdfs:Property ;
+				 rdfs:domain etutor:Goal ;
+				 rdfs:range xsd:boolean .
+
+etutor:hasChangeDate rdf:type rdfs:Property ;
+					 rdfs:domain etutor:Goal ;
+					 rdfs:range xsd:dateTime .
+
+etutor:hasOwner rdf:type rdfs:Property ;
+				rdfs:domain etutor:Goal ;
+				rdfs:range xsd:string .

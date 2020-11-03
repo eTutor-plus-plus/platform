@@ -31,7 +31,11 @@
         "database": "Database",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
-      "language": "Language"
+      "language": "Language",
+      "learningGoals": {
+        "main": "Learning goals",
+        "management": "Learning goals management"
+      }
     },
     "form": {
       "username.label": "Username",
@@ -135,8 +139,13 @@
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     },
-    "emptycollection" : "The mandatory list is empty!",
-    "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!"
+    "emptycollection": "The mandatory list is empty!",
+    "loginPatternFailed": "The given login is not a valid JKU employee or matriculation number!",
+    "learningGoalAlreadyExists": "The learning goal already exists!",
+    "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!",
+    "learningGoalNotFound": "The learning goal does not exist!",
+    "parsingError": "An internal error occurred!",
+    "privateSuperGoal": "A private super goal for a public sub goal is not allowed!"
   },
   "footer": {
     "contact": "Contact",

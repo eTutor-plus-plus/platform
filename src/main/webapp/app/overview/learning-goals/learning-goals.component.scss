@@ -1,0 +1,67 @@
+.row-item {
+  .bi {
+    cursor: pointer;
+  }
+
+  .private {
+    color: gray;
+  }
+
+  .myBadge {
+    padding: 1px 9px 2px;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+    color: #ffffff;
+    background-color: #999999;
+    -webkit-border-radius: 9px;
+    -moz-border-radius: 9px;
+    border-radius: 9px;
+  }
+
+  .myBadge:hover {
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .myBadge-error {
+    background-color: #b94a48;
+  }
+
+  .myBadge-error:hover {
+    background-color: #953b39;
+  }
+
+  .myBadge-warning {
+    background-color: #f89406;
+  }
+
+  .myBadge-warning:hover {
+    background-color: #c67605;
+  }
+
+  .myBadge-success {
+    background-color: #468847;
+  }
+
+  .myBadge-success:hover {
+    background-color: #356635;
+  }
+
+  .myBadge-info {
+    background-color: #3a87ad;
+  }
+
+  .myBadge-info:hover {
+    background-color: #2d6987;
+  }
+
+  .myBadge-inverse {
+    background-color: #333333;
+  }
+
+  .myBadge-inverse:hover {
+    background-color: #1a1a1a;
+  }
+}

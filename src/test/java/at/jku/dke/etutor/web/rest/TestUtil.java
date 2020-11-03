@@ -1,6 +1,8 @@
 package at.jku.dke.etutor.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,6 +15,7 @@ import org.springframework.format.support.FormattingConversionService;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -127,10 +130,11 @@ public final class TestUtil {
 
     /**
      * Create a {@link FormattingConversionService} which use ISO date format, instead of the localized one.
+     *
      * @return the {@link FormattingConversionService}.
      */
     public static FormattingConversionService createFormattingConversionService() {
-        DefaultFormattingConversionService dfcs = new DefaultFormattingConversionService ();
+        DefaultFormattingConversionService dfcs = new DefaultFormattingConversionService();
         DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
         registrar.setUseIsoFormat(true);
         registrar.registerFormatters(dfcs);
@@ -139,8 +143,9 @@ public final class TestUtil {
 
     /**
      * Makes a an executes a query to the EntityManager finding all stored objects.
-     * @param <T> The type of objects to be searched
-     * @param em The instance of the EntityManager
+     *
+     * @param <T>  The type of objects to be searched
+     * @param em   The instance of the EntityManager
      * @param clss The class type to be searched
      * @return A list of all found objects
      */
@@ -153,5 +158,35 @@ public final class TestUtil {
         return allQuery.getResultList();
     }
 
-    private TestUtil() {}
+    /**
+     * Converts the given json string into the corresponding java object.
+     *
+     * @param jsonData the json object as string
+     * @param type     the type of the object
+     * @param <T>      the generic
+     * @return the parsed java object
+     * @throws JsonProcessingException is thrown when a conversion error occurs
+     */
+    public static <T> T convertFromJSONString(String jsonData, Class<T> type) throws JsonProcessingException {
+        return mapper.readValue(jsonData, type);
+    }
+
+    /**
+     * Converts the given json string into the corresponding java object.
+     *
+     * @param jsonData       the json object as string
+     * @param type           the type of the object
+     * @param collectionType the type of the collection
+     * @param <T>            the type generic
+     * @param <C>            the collection generic
+     * @return the parsed java object
+     * @throws JsonProcessingException is thrown when a conversion error occurs
+     */
+    public static <T, C extends Collection> C convertCollectionFromJSONString(String jsonData, Class<T> type, Class<C> collectionType)
+        throws JsonProcessingException {
+        return mapper.readValue(jsonData, mapper.getTypeFactory().constructCollectionType(collectionType, type));
+    }
+
+    private TestUtil() {
+    }
 }

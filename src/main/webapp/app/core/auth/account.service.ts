@@ -81,6 +81,15 @@ export class AccountService {
     return this.userIdentity ? this.userIdentity.imageUrl : '';
   }
 
+  /**
+   * Returns the login name or undefined, when no user is logged in.
+   *
+   * @returns the login name or undefined, when no user is logged in
+   */
+  public getLoginName(): string | undefined {
+    return this.userIdentity?.login;
+  }
+
   private fetch(): Observable<Account> {
     return this.http.get<Account>(SERVER_API_URL + 'api/account');
   }
