@@ -298,7 +298,7 @@ public class SPARQLEndpointService {
             }
             """, owner);
 
-        SortedSet<LearningGoalDTO> goalList = new TreeSet<>(Comparator.comparing(NewLearningGoalDTO::getName));
+        SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
 
         try (RDFConnection conn = getConnection()) {
             Model resultModel = conn.queryConstruct(queryStr);

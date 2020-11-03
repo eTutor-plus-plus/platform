@@ -4,8 +4,8 @@ import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
-import org.apache.jena.query.*;
-import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,16 +43,16 @@ public class SPARQLEndpointServiceTest {
      */
     @Test
     public void testInsertScheme() {
-        checkThatExists("etutor:hasOwner");
-        checkThatExists("etutor:SubGoal");
+        RDFTestUtil.checkThatSubjectExists("etutor:hasOwner", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:SubGoal", rdfConnectionFactory);
 
-        checkThatExists("etutor:hasSubGoal");
-        checkThatExists("etutor:dependsOn");
-        checkThatExists("etutor:hasDescription");
-        checkThatExists("etutor:isPrivate");
-        checkThatExists("etutor:isPrivate");
-        checkThatExists("etutor:hasChangeDate");
-        checkThatExists("etutor:hasOwner");
+        RDFTestUtil.checkThatSubjectExists("etutor:hasSubGoal", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:dependsOn", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:hasDescription", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:isPrivate", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:isPrivate", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:hasChangeDate", rdfConnectionFactory);
+        RDFTestUtil.checkThatSubjectExists("etutor:hasOwner", rdfConnectionFactory);
     }
 
     /**
@@ -121,8 +121,8 @@ public class SPARQLEndpointServiceTest {
         owner = "admin2";
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
 
-        assertThat(getGoalCount()).isEqualTo(2);
-        checkThatExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin2/Goal#Testziel>");
+        assertThat(RDFTestUtil.getGoalCount(rdfConnectionFactory)).isEqualTo(2);
+        RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin2/Goal#Testziel>", rdfConnectionFactory);
     }
 
     /**
@@ -147,9 +147,9 @@ public class SPARQLEndpointServiceTest {
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
 
         sparqlEndpointService.insertSubGoal(newSubGoalDTO, owner, newLearningGoalDTO.getName());
-        assertThat(getGoalCount()).isEqualTo(2);
+        assertThat(RDFTestUtil.getGoalCount(rdfConnectionFactory)).isEqualTo(2);
 
-        checkThatExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Teilziel>");
+        RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Teilziel>", rdfConnectionFactory);
     }
 
     /**
@@ -320,7 +320,7 @@ public class SPARQLEndpointServiceTest {
      * be thrown.
      *
      * @throws LearningGoalAlreadyExistsException must not happen
-     * @throws LearningGoalNotExistsException must not happen
+     * @throws LearningGoalNotExistsException     must not happen
      */
     @Test
     public void testUpdatePrivateLearningGoalWithPublicSubGoal() throws LearningGoalAlreadyExistsException,
@@ -345,53 +345,4 @@ public class SPARQLEndpointServiceTest {
         assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal))
             .isInstanceOf(PrivateSuperGoalException.class);
     }
-
-    //region Private helper methods
-
-    /**
-     * Checks that the given subject exists.
-     *
-     * @param subject the subject to check
-     */
-    private void checkThatExists(String subject) {
-        String query = String.format("""
-            prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-
-            ASK {
-              ?subject ?predicate ?object.
-              FILTER (?subject = %s)
-            }
-            """, subject);
-
-        try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
-            boolean res = connection.queryAsk(query);
-            assertThat(res).isTrue();
-        }
-    }
-
-    /**
-     * Returns the number of goals.
-     *
-     * @return the number of goals
-     */
-    private int getGoalCount() {
-        String query = """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-
-            SELECT (COUNT(DISTINCT ?subject) as ?cnt)
-            WHERE
-            {
-              ?subject a etutor:Goal.
-            }
-            """;
-        try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
-            try (QueryExecution execution = connection.query(query)) {
-                ResultSet set = execution.execSelect();
-
-                QuerySolution solution = set.nextSolution();
-                return solution.get("?cnt").asLiteral().getInt();
-            }
-        }
-    }
-    //endregion
 }

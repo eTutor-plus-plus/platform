@@ -215,6 +215,10 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
      */
     @Override
     public int compareTo(LearningGoalDTO o) {
-        return getName().compareTo(o.getName());
+        int res = getName().compareTo(o.getName());
+        if (res == 0) {
+            return getOwner().compareTo(o.getOwner());
+        }
+        return res;
     }
 }
