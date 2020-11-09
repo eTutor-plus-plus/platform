@@ -31,10 +31,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Date;
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Service class for SPARQL related operations.
@@ -458,6 +455,44 @@ public class SPARQLEndpointService {
             updateQry.setLiteral("?newType", courseDTO.getCourseType());
 
             conn.update(updateQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the course by it's name.
+     *
+     * @param name the rdf encoded name of the course which should be returned
+     * @return An empty optional, if the course does not exist, otherwise the optional containing the course
+     */
+    public Optional<CourseDTO> getCourse(String name) {
+        Objects.requireNonNull(name);
+
+        String query = String.format("""
+            CONSTRUCT { ?subject ?predicate ?object }
+            WHERE {
+                ?subject ?predicate ?object.
+                FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s>)
+            }
+            """, name);
+
+        try (RDFConnection conn = getConnection()) {
+
+            Model model = conn.queryConstruct(query);
+            ResIterator iterator = null;
+
+            try {
+                iterator = model.listSubjects();
+                if (iterator.hasNext()) {
+                    Resource resource = iterator.nextResource();
+                    return Optional.of(new CourseDTO(resource));
+                } else {
+                    return Optional.empty();
+                }
+            } finally {
+                if (iterator != null) {
+                    iterator.close();
+                }
+            }
         }
     }
 

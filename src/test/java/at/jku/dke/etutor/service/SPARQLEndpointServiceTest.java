@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.SortedSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -513,6 +514,47 @@ public class SPARQLEndpointServiceTest {
         var courses = sparqlEndpointService.getAllCourses();
         course = courses.first();
         assertThat(course).isEqualToComparingFieldByField(courseFromService);
+    }
+
+    /**
+     * Tests the get course method with a null value.
+     */
+    @Test
+    public void testGetCourseNullValue() {
+        assertThatThrownBy(() -> sparqlEndpointService.getCourse(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the get course method with a nonexistent course.
+     */
+    @Test
+    public void testGetCourseWithNonexistentCourse() {
+        var course = sparqlEndpointService.getCourse("Testcourse");
+
+        assertThat(course).isEmpty();
+    }
+
+    /**
+     * Tests the get course method with an existing course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     */
+    @Test
+    public void testGetCourseWithExistingCourse() throws CourseAlreadyExistsException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        var courseFromService = sparqlEndpointService.insertNewCourse(course, user);
+
+        Optional<CourseDTO> optionalCourse = sparqlEndpointService.getCourse(course.getNameForRDF());
+        assertThat(optionalCourse).isPresent();
+        course = optionalCourse.get();
+        assertThat(course.getName()).isEqualTo(courseFromService.getName());
+        assertThat(course.getCourseType()).isEqualTo(courseFromService.getCourseType());
+        assertThat(course.getId()).isEqualTo(courseFromService.getId());
     }
     //endregion
 }
