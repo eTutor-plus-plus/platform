@@ -425,7 +425,7 @@ public class SPARQLEndpointServiceTest {
 
         course = sparqlEndpointService.insertNewCourse(course, user);
         assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);
-        sparqlEndpointService.deleteCourse(course.getId(), user);
+        sparqlEndpointService.deleteCourse(course.getNameForRDF(), user);
         assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(0);
     }
 
@@ -446,7 +446,7 @@ public class SPARQLEndpointServiceTest {
         assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("testid", "test"))
             .isInstanceOf(CourseNotFoundException.class);
 
-        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(courseFromService.getId(), "test"))
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(courseFromService.getNameForRDF(), "test"))
             .isInstanceOf(CourseNotFoundException.class);
 
         assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);

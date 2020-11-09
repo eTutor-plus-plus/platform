@@ -499,13 +499,15 @@ public class SPARQLEndpointService {
     /**
      * Deletes the given course.
      *
-     * @param id      the id of the course
+     * @param name    the rdf encoded course name
      * @param creator the creator of the course
      * @throws CourseNotFoundException if the course does not exist or the given creator is not the course's creator
      */
-    public void deleteCourse(String id, String creator) throws CourseNotFoundException {
-        Objects.requireNonNull(id);
+    public void deleteCourse(String name, String creator) throws CourseNotFoundException {
+        Objects.requireNonNull(name);
         Objects.requireNonNull(creator);
+
+        String id = ETutorVocabulary.Course.getURI() + "#" + name;
 
         ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_WITH_OWNER_EXIST);
         courseExistQry.setIri("?uri", id);
