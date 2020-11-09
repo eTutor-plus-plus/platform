@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service.dto;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.service.dto.validation.CourseTypeConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.codec.Charsets;
 import org.apache.jena.rdf.model.Resource;
@@ -26,6 +27,7 @@ public class CourseDTO implements Comparable<CourseDTO> {
     private String description;
     private URL link;
     @NotBlank
+    @CourseTypeConstraint
     private String courseType;
     private String creator;
 
