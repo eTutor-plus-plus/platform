@@ -28,6 +28,36 @@ public final class RDFTestUtil {
               ?subject a etutor:Goal.
             }
             """;
+        return getCount(query, rdfConnectionFactory);
+    }
+
+    /**
+     * Returns the number of courses.
+     *
+     * @param rdfConnectionFactory the rdf connection factory
+     * @return the number of courses
+     */
+    public static int getCourseCount(RDFConnectionFactory rdfConnectionFactory) {
+        String query = """
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (COUNT(DISTINCT ?subject) as ?cnt)
+            WHERE
+            {
+              ?subject a etutor:Course.
+            }
+            """;
+        return getCount(query, rdfConnectionFactory);
+    }
+
+    /**
+     * Returns the number which will be retrieved by the given query
+     *
+     * @param query                the query to execute
+     * @param rdfConnectionFactory the rdf connection factory
+     * @return the determined number
+     */
+    private static int getCount(String query, RDFConnectionFactory rdfConnectionFactory) {
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             try (QueryExecution execution = connection.query(query)) {
                 ResultSet set = execution.execSelect();

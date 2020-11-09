@@ -3,6 +3,7 @@
 @prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
+## Learning goals
 # Classes
 etutor:Goal rdf:type rdfs:Class .
 etutor:SubGoal rdfs:subClassOf etutor:Goal .
@@ -31,3 +32,28 @@ etutor:hasChangeDate rdf:type rdfs:Property ;
 etutor:hasOwner rdf:type rdfs:Property ;
 				rdfs:domain etutor:Goal ;
 				rdfs:range xsd:string .
+
+## Coureses
+# Classes
+etutor:Course rdf:type rdfs:Class .
+
+# Properties
+etutor:hasCourseDescription rdf:type rdfs:Property ;
+                            rdfs:domain etutor:Course ;
+                            rdfs:range xsd:string .
+
+etutor:hasCourseName rdf:type rdfs:Property ;
+                     rdfs:domain etutor:Course ;
+                     rdfs:range xsd:string .
+
+etutor:hasCourseLink rdf:type rdfs:Property ;
+                     rdfs:domain etutor:Course ;
+                     rdfs:range xsd:anyURI .
+
+etutor:hasCourseType rdf:type rdfs:Property ;
+                     rdfs:domain etutor:Course ;
+                     rdfs:range xsd:string .
+
+etutor:hasCourseCreator rdf:type rdfs:Property ;
+                        rdfs:domain etutor:Course ;
+                        rdfs:range xsd:string .

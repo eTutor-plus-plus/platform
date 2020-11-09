@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import org.apache.jena.query.Dataset;
@@ -9,6 +10,8 @@ import org.apache.jena.query.DatasetFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.SortedSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +57,8 @@ public class SPARQLEndpointServiceTest {
         RDFTestUtil.checkThatSubjectExists("etutor:hasChangeDate", rdfConnectionFactory);
         RDFTestUtil.checkThatSubjectExists("etutor:hasOwner", rdfConnectionFactory);
     }
+
+    //region Learning goals
 
     /**
      * Tests the successful insertion of a new learning goal
@@ -345,4 +350,169 @@ public class SPARQLEndpointServiceTest {
         assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal))
             .isInstanceOf(PrivateSuperGoalException.class);
     }
+    //endregion
+
+    //region Courses
+
+    /**
+     * Tests the successful insertion of a course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     * @throws MalformedURLException        must not be thrown
+     */
+    @Test
+    public void testInsertNewCourseSuccess() throws CourseAlreadyExistsException, MalformedURLException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+        course.setLink(new URL("https://www.dke.uni-linz.ac.at"));
+
+        course = sparqlEndpointService.insertNewCourse(course, user);
+        RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/Course#TestCourse>", rdfConnectionFactory);
+
+        var courses = sparqlEndpointService.getAllCourses();
+        assertThat(courses.size()).isEqualTo(1);
+        CourseDTO courseFromService = courses.first();
+        assertThat(courseFromService.getName()).isEqualTo("TestCourse");
+        assertThat(courseFromService.getCourseType()).isEqualTo("LVA");
+        assertThat(courseFromService.getLink().toString()).isEqualTo("https://www.dke.uni-linz.ac.at");
+    }
+
+    /**
+     * Tests the insertion of null values
+     */
+    @Test
+    public void testInsertNewCourseNull() {
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(new CourseDTO(), null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the insertion of an already existing course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     */
+    @Test
+    public void testInsertAlreadyExistingCourse() throws CourseAlreadyExistsException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        sparqlEndpointService.insertNewCourse(course, user);
+
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(course, "testuser"))
+            .isInstanceOf(CourseAlreadyExistsException.class);
+    }
+
+    /**
+     * Tests the successful removal of an existing course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     * @throws CourseNotFoundException      must not be thrown
+     */
+    @Test
+    public void testDeleteCourseSuccess() throws CourseAlreadyExistsException, CourseNotFoundException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        course = sparqlEndpointService.insertNewCourse(course, user);
+        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);
+        sparqlEndpointService.deleteCourse(course.getId(), user);
+        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(0);
+    }
+
+    /**
+     * Tests the removal of a nonexistent course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     */
+    @Test
+    public void testDeleteNonexistentCourse() throws CourseAlreadyExistsException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        var courseFromService = sparqlEndpointService.insertNewCourse(course, user);
+
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("testid", "test"))
+            .isInstanceOf(CourseNotFoundException.class);
+
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(courseFromService.getId(), "test"))
+            .isInstanceOf(CourseNotFoundException.class);
+
+        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);
+    }
+
+    /**
+     * Tests the removal of courses with null values.
+     */
+    @Test
+    public void testDeleteCourseNullValues() {
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("test", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the update course method with a null value.
+     */
+    @Test
+    public void testUpdateCourseNullValue() {
+        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the modification of a nonexistent course.
+     */
+    @Test
+    public void testUpdateOfNonexistentCourse() {
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+        course.setId("https://www.test.at");
+
+        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(course))
+            .isInstanceOf(CourseNotFoundException.class);
+    }
+
+    /**
+     * Tests the successful modification of a course.
+     *
+     * @throws CourseAlreadyExistsException must not be thrown
+     * @throws CourseNotFoundException      must not be thrown
+     * @throws MalformedURLException        must not be thrown
+     */
+    @Test
+    public void testUpdateCourseSuccess() throws CourseAlreadyExistsException, CourseNotFoundException, MalformedURLException {
+        String user = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        var courseFromService = sparqlEndpointService.insertNewCourse(course, user);
+
+        courseFromService.setDescription("Testbeschreibung");
+        courseFromService.setCourseType("Kurs");
+        courseFromService.setLink(new URL("https://www.dke.uni-linz.ac.at"));
+
+        sparqlEndpointService.updateCourse(courseFromService);
+
+        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);
+
+        var courses = sparqlEndpointService.getAllCourses();
+        course = courses.first();
+        assertThat(course).isEqualToComparingFieldByField(courseFromService);
+    }
+    //endregion
 }

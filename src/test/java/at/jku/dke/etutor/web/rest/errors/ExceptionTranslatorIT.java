@@ -170,4 +170,22 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.message").value("error.privateSuperGoal"))
             .andExpect(jsonPath("$.title").value("A private super goal for a public sub goal is not allowed!"));
     }
+
+    @Test
+    public void testCourseAlreadyExists() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/course-already-exists"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.courseAlreadyExists"))
+            .andExpect(jsonPath("$.title").value("The course already exists!"));
+    }
+
+    @Test
+    public void testCourseNotFound() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/course-not-found"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.courseNotFound"))
+            .andExpect(jsonPath("$.title").value("The course does not exist!"));
+    }
 }

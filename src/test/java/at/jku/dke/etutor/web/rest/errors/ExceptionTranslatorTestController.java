@@ -87,6 +87,16 @@ public class ExceptionTranslatorTestController {
         throw new PrivateSuperGoalException();
     }
 
+    @GetMapping("/course-already-exists")
+    public void courseAlreadyExists() {
+        throw new CourseAlreadyExistsException();
+    }
+
+    @GetMapping("/course-not-found")
+    public void courseNotFound() {
+        throw new CourseNotFoundException();
+    }
+
     public static class TestDTO {
 
         @NotNull
