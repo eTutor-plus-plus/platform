@@ -1,15 +1,14 @@
-import { NgModule } from "@angular/core";
-import { EtutorPlusPlusSharedModule } from "../shared/shared.module";
-import { RouterModule } from "@angular/router";
-import { overviewRoute } from "./overview.route";
-import { OverviewComponent } from "./overview.component";
+import { NgModule } from '@angular/core';
+import { EtutorPlusPlusSharedModule } from '../shared/shared.module';
+import { RouterModule } from '@angular/router';
+import { overviewRoute } from './overview.route';
+import { OverviewComponent } from './overview.component';
+import { CourseManagementComponent } from './course-management/course-management.component';
 /**
  * Module for the overview component.
  */
 @NgModule({
   imports: [EtutorPlusPlusSharedModule, RouterModule.forChild(overviewRoute)],
-  declarations : [
-    OverviewComponent
-  ]
+  declarations: [OverviewComponent],
 })
-export class OverviewModule { }
+export class OverviewModule {}

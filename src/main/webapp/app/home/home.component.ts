@@ -1,12 +1,12 @@
-import {Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/user/account.model';
-import { FormBuilder, Validators } from "@angular/forms";
-import { LOGIN_PATTERN } from "app/shared/constants/user.constants";
-import {Router} from "@angular/router";
-import {LoginService} from "app/core/login/login.service";
+import { FormBuilder, Validators } from '@angular/forms';
+import { LOGIN_PATTERN } from 'app/shared/constants/user.constants';
+import { Router } from '@angular/router';
+import { LoginService } from 'app/core/login/login.service';
 
 /**
  * Component which represents the home / login page.
@@ -33,7 +33,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   public account: Account | null = null;
   public authSubscription?: Subscription;
 
-  constructor(private accountService: AccountService, private fb: FormBuilder, private router:Router, private loginService: LoginService) {}
+  constructor(
+    private accountService: AccountService,
+    private fb: FormBuilder,
+    private router: Router,
+    private loginService: LoginService
+  ) {}
 
   public ngOnInit(): void {
     if (this.isAuthenticated()) {
@@ -52,15 +57,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       .login({
         username: this.loginForm.get('username')!.value,
         password: this.loginForm.get('password')!.value,
-        rememberMe: this.loginForm.get('rememberMe')!.value
+        rememberMe: this.loginForm.get('rememberMe')!.value,
       })
-      .subscribe(() => {
-        this.authenticationError = false;
+      .subscribe(
+        () => {
+          this.authenticationError = false;
 
-        this.router.navigate([this.OVERVIEW_ROUTE]);
-      }, () => {
-        this.authenticationError = true;
-      })
+          this.router.navigate([this.OVERVIEW_ROUTE]);
+        },
+        () => {
+          this.authenticationError = true;
+        }
+      );
   }
 
   public requestResetPassword(): void {
