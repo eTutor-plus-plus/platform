@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
 
 /**
  * Service which retrieves the learning goals from the api
- * and is currently mocked. TODO: Add REST-API
+ * and is currently mocked.
  */
 @Injectable({
   providedIn: 'root',
