@@ -35,6 +35,10 @@
       "learningGoals": {
         "main": "Lernziele",
         "management": "Lernzielverwaltung"
+      },
+      "courses": {
+        "main": "LVAs",
+        "management": "LVA-Verwaltung"
       }
     },
     "form": {

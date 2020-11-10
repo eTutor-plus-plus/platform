@@ -34,7 +34,11 @@
       "language": "Language",
       "learningGoals": {
         "main": "Learning goals",
-        "management": "Learning goals management"
+        "management": "Learning goal management"
+      },
+      "courses": {
+        "main": "Courses",
+        "management": "Course management"
       }
     },
     "form": {
