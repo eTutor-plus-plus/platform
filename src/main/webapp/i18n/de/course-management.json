@@ -1,0 +1,12 @@
+{
+  "courseManagement": {
+    "title": "Kurse",
+    "popover": {
+      "title": "Information",
+      "message": "Soll der ausgewählte Kurs gelöscht werden?",
+      "cancelBtn": "Nein",
+      "confirmBtn": "Ja"
+    },
+    "createText": "Neuen Kurs erstellen"
+  }
+}

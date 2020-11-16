@@ -1,12 +1,22 @@
-<h2 jhiTranslate="">Courses</h2>
+<jhi-alert-error></jhi-alert-error>
+<button type="button" class="btn btn-primary float-right">
+    <fa-icon icon="plus"></fa-icon> <span jhiTranslate="courseManagement.createText">Create new course</span>
+</button>
+<h2 jhiTranslate="courseManagement.title">Courses</h2>
 <ul class="list-group">
-    <li class="list-group-item">Cras justo odio</li>
-    <li class="list-group-item">Dapibus ac facilisis in
-        <span class="float-right">
+    <li *ngFor="let course of courses; index as idx; trackBy: trackIdentity" class="list-group-item">{{course.name}}
+        <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
             <a><fa-icon icon="edit"></fa-icon></a>
-            <a style="margin-left: 10px;"><fa-icon icon="trash"></fa-icon></a>
-        </span></li>
-    <li class="list-group-item">Morbi leo risus</li>
-    <li class="list-group-item">Porta ac consectetur ac</li>
-    <li class="list-group-item">Vestibulum at eros</li>
+            <a style="margin-left: 10px;"
+                mwlConfirmationPopover
+                [popoverTitle]="popoverTitle"
+                [popoverMessage]="popoverMessage"
+                placement="left"
+                (confirm)="deleteCourse(course)"
+                [cancelText]="popoverCancelBtnText"
+                [confirmText]="popoverConfirmBtnText">
+                <fa-icon icon="trash"></fa-icon>
+            </a>
+        </span>
+    </li>
 </ul>

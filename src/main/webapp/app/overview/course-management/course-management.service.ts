@@ -46,4 +46,13 @@ export class CourseManagementService {
   public putCourse(course: CourseModel): Observable<any> {
     return this.http.put(SERVER_API_URL + 'api/course', course);
   }
+
+  /**
+   * Deletes the given course.
+   *
+   * @param course the course to delete
+   */
+  public deleteCourse(course: CourseModel): Observable<any> {
+    return this.http.delete(SERVER_API_URL + `api/course/${course.name}`);
+  }
 }
