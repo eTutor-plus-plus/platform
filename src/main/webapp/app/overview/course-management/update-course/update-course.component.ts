@@ -120,4 +120,12 @@ export class UpdateCourseComponent implements OnInit {
   public get course(): CourseModel | undefined {
     return this._course;
   }
+
+  /**
+   * Returns whether the component is in edit mode
+   * or not which means new mode.
+   */
+  public get isEditMode(): boolean {
+    return this.course !== undefined;
+  }
 }

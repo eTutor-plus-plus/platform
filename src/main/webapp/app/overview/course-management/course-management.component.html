@@ -6,7 +6,7 @@
 <ul class="list-group">
     <li *ngFor="let course of courses; index as idx; trackBy: trackIdentity" class="list-group-item">{{course.name}}
         <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
-            <a><fa-icon icon="edit"></fa-icon></a>
+            <a (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
             <a style="margin-left: 10px;"
                 mwlConfirmationPopover
                 [popoverTitle]="popoverTitle"

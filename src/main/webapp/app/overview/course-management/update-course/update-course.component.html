@@ -8,7 +8,7 @@
     <div class="modal-body">
         <div class="form-group">
             <label class="form-control-label" for="name" jhiTranslate="courseManagement.form.name">Name:</label>
-            <input type="text" class="form-control" name="name" id="name" formControlName="name" #name>
+            <input [readOnly]="isEditMode" type="text" class="form-control" name="name" id="name" formControlName="name" #name>
 
             <div *ngIf="updateForm.get('name')!.invalid">
                 <small class="form-text text-danger"
