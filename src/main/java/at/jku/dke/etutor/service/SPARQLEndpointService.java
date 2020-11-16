@@ -507,7 +507,7 @@ public class SPARQLEndpointService {
         Objects.requireNonNull(name);
         Objects.requireNonNull(creator);
 
-        String id = ETutorVocabulary.Course.getURI() + "#" + name;
+        String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
 
         ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_WITH_OWNER_EXIST);
         courseExistQry.setIri("?uri", id);
