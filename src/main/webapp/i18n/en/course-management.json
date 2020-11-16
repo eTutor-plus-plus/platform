@@ -7,6 +7,20 @@
       "cancelBtn": "No",
       "confirmBtn": "Yes"
     },
-    "createText": "Create new course"
+    "createText": "Create new course",
+    "form": {
+      "header": "Create / edit a course",
+      "name": "Name:",
+      "description": "Description:",
+      "type": "Type:",
+      "typePlaceholder": "Select type",
+      "url": "Link:",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "error": {
+      "required": "This field is required!",
+      "url": "This optional field has to conform the URL standard!"
+    }
   }
 }

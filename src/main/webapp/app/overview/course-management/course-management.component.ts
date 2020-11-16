@@ -5,6 +5,8 @@ import { CourseManagementService } from './course-management.service';
 import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { UpdateCourseComponent } from './update-course/update-course.component';
 
 /**
  * Component which is used to display the course management
@@ -34,12 +36,14 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    * @param courseService the injected course service
    * @param eventManager the injected event manager
    * @param translatePipe the injected translate pipe
+   * @param modalService the injected modal service
    */
   constructor(
     private accountService: AccountService,
     private courseService: CourseManagementService,
     private eventManager: JhiEventManager,
-    private translatePipe: TranslatePipe
+    private translatePipe: TranslatePipe,
+    private modalService: NgbModal
   ) {}
 
   /**
@@ -90,14 +94,20 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   /**
    * Requests the creation of a new course
    */
-  public createNewCourse(): void {}
+  public createNewCourse(): void {
+    const modalRef = this.modalService.open(UpdateCourseComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as UpdateCourseComponent).course = undefined;
+  }
 
   /**
    * Shows the create / edit window for the given course
    *
    * @param course the course to edit
    */
-  public editCourse(course: CourseModel): void {}
+  public editCourse(course: CourseModel): void {
+    const modalRef = this.modalService.open(UpdateCourseComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as UpdateCourseComponent).course = course;
+  }
 
   /**
    * Deletes the course

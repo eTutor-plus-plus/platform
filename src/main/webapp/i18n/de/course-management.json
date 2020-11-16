@@ -7,6 +7,20 @@
       "cancelBtn": "Nein",
       "confirmBtn": "Ja"
     },
-    "createText": "Neuen Kurs erstellen"
+    "createText": "Neuen Kurs erstellen",
+    "form": {
+      "header": "Kurs erstellen / bearbeiten",
+      "name": "Name:",
+      "description": "Beschreibung:",
+      "type": "Type:",
+      "typePlaceholder": "Type auswählen",
+      "url": "Link:",
+      "cancel": "Abbrechen",
+      "save": "Speichern"
+    },
+    "error": {
+      "required": "Dieses Feld ist erforderlich!",
+      "url": "Dieses optionale Feld muss dem URL-Format entsprechen!"
+    }
   }
 }
