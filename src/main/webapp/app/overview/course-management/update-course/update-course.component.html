@@ -19,7 +19,7 @@
         </div>
         <div class="form-group">
             <label class="form-control-label" for="description" jhiTranslate="courseManagement.form.description">Beschreibung:</label>
-            <quill-editor [placeholder]="''" id="description" #description formControlName="description">
+            <quill-editor [modules]="modules" [placeholder]="''" id="description" #description formControlName="description">
             </quill-editor>
         </div>
         <div class="form-group">
