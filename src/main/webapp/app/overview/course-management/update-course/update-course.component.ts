@@ -5,7 +5,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { CourseModel } from '../course-mangement.model';
 import { JhiEventManager } from 'ng-jhipster';
 import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants';
-import { QuillModules } from 'ngx-quill';
 
 /**
  * Component which is used to create / update a course.
@@ -28,15 +27,6 @@ export class UpdateCourseComponent implements OnInit {
   });
 
   public isSaving = false;
-
-  public modules: QuillModules = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote'],
-      [{ header: [1, 2, 3, 4, 5, false] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-    ],
-  };
 
   /**
    * Constructor.

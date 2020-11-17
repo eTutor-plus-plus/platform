@@ -3,7 +3,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { LearningGoalsService } from '../learning-goals.service';
 import { ILearningGoalModel, INewLearningGoalModel } from '../learning-goal-model';
 import { isNil } from 'lodash';
-import { QuillModules } from 'ngx-quill';
 
 /**
  * Component for creating a new learning goal.
@@ -34,15 +33,6 @@ export class LearningGoalCreationComponent implements OnInit {
     learningGoalDescription: [''],
     privateGoal: [false],
   });
-
-  public modules: QuillModules = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote'],
-      [{ header: [1, 2, 3, 4, 5, false] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-    ],
-  };
 
   /**
    * Constructor.
