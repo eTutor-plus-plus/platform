@@ -12,7 +12,6 @@ import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants'
 @Component({
   selector: 'jhi-update-course',
   templateUrl: './update-course.component.html',
-  styleUrls: ['./update-course.component.scss'],
 })
 export class UpdateCourseComponent implements OnInit {
   private _course?: CourseModel;

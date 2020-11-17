@@ -5,6 +5,7 @@ import { courseManagementRoutes } from './course-management.route';
 import { CourseManagementComponent } from './course-management.component';
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { UpdateCourseComponent } from './update-course/update-course.component';
+import { ViewCourseComponent } from './view-course/view-course.component';
 
 /**
  * The module for course management related components.
@@ -19,6 +20,6 @@ import { UpdateCourseComponent } from './update-course/update-course.component';
       appendToBody: true,
     }),
   ],
-  declarations: [CourseManagementComponent, UpdateCourseComponent],
+  declarations: [CourseManagementComponent, UpdateCourseComponent, ViewCourseComponent],
 })
 export class CourseManagementModule {}

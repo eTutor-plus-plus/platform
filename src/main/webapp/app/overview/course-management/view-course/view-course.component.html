@@ -1,0 +1,38 @@
+<div>
+    <div class="modal-header">
+        <h4 class="modal-title" jhiTranslate="courseManagement.form.viewHeader">View course</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label class="form-control-label" for="name" jhiTranslate="courseManagement.form.name">Name:</label>
+            <input readOnly type="text" class="form-control" name="name" id="name" #name [(ngModel)]="course.name">
+        </div>
+        <div class="form-group">
+            <label class="form-control-label">Beschreibung:</label>
+            <div [innerHTML]="course.description!"></div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="type" jhiTranslate="courseManagement.form.type">Type:</label>
+            <input readOnly type="text" class="form-control" name="type" id="type" #type [(ngModel)]="course.courseType">
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="link" jhiTranslate="courseManagement.form.url">Link:</label>
+            <input readOnly type="text" class="form-control" name="link" id="link" #link [(ngModel)]="course.link!">
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="creator" jhiTranslate="courseManagement.form.creator">Creator:</label>
+            <input readOnly type="text" class="form-control" name="creator" id="creator" #creator [(ngModel)]="course.creator!">
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="id" jhiTranslate="courseManagement.form.id">Id:</label>
+            <input readOnly type="text" class="form-control" name="creator" id="id" #id [(ngModel)]="course.id!">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">
+            <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
+        </button>
+    </div>
+</div>

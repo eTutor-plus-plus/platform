@@ -4,7 +4,8 @@
 </button>
 <h2 jhiTranslate="courseManagement.title">Courses</h2>
 <ul class="list-group">
-    <li *ngFor="let course of courses; index as idx; trackBy: trackIdentity" class="list-group-item">{{course.name}}
+    <li *ngFor="let course of courses; index as idx; trackBy: trackIdentity" class="list-group-item">
+        <a (click)="viewCourse(course)">{{course.name}}</a>
         <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
             <a (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
             <a style="margin-left: 10px;"

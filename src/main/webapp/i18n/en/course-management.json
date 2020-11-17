@@ -16,7 +16,11 @@
       "typePlaceholder": "Select type",
       "url": "Link:",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "close": "Close",
+      "viewHeader": "View course",
+      "creator": "Creator",
+      "id": "Id:"
     },
     "error": {
       "required": "This field is required!",

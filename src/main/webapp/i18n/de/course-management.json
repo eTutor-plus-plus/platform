@@ -16,7 +16,11 @@
       "typePlaceholder": "Type auswählen",
       "url": "Link:",
       "cancel": "Abbrechen",
-      "save": "Speichern"
+      "save": "Speichern",
+      "close": "Schließen",
+      "viewHeader": "Kurs anzeigen",
+      "creator": "Ersteller:",
+      "id": "Id:"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

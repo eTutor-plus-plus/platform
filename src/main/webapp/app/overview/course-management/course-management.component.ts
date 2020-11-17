@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateCourseComponent } from './update-course/update-course.component';
+import { ViewCourseComponent } from './view-course/view-course.component';
 
 /**
  * Component which is used to display the course management
@@ -118,6 +119,16 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
     this.courseService.deleteCourse(course).subscribe(() => {
       this.eventManager.broadcast('courseChanged');
     });
+  }
+
+  /**
+   * Displays the selected course.
+   *
+   * @param course the course to display
+   */
+  public viewCourse(course: CourseModel): void {
+    const modalRef = this.modalService.open(ViewCourseComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as ViewCourseComponent).course = course;
   }
 
   /**
