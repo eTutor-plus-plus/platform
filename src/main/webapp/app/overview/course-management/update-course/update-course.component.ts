@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CourseManagementService } from '../course-management.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -16,7 +16,8 @@ import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants'
 export class UpdateCourseComponent implements OnInit {
   private _course?: CourseModel;
 
-  public readonly courseTypes: string[] = ['Fach', 'Klasse', 'LVA', 'Modul'];
+  @Input()
+  public courseTypes: string[] = [];
 
   public updateForm = this.fb.group({
     name: ['', [Validators.required]],

@@ -13,6 +13,22 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-12  d-flex">
+        <div class="ml-auto search-box">
+            <ng-select
+                [items]="courseTypes"
+                [multiple]="true"
+                [closeOnSelect]="false"
+                [(ngModel)]="selectedCourseTypes"
+                (change)="onCourseTypeSelectedChanged()">
+                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                    <input id="item-{{index}}" type="checkbox" [(ngModel)]="item$.selected"/> {{item}}
+                </ng-template>
+            </ng-select>
+        </div>
+    </div>
+</div>
 <ul class="list-group">
     <li *ngFor="let course of filteredCourses; index as idx; trackBy: trackIdentity" class="list-group-item">
         <a (click)="viewCourse(course)">{{course.name}}</a>

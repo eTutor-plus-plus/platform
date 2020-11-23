@@ -6,6 +6,7 @@ import { CourseManagementComponent } from './course-management.component';
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { UpdateCourseComponent } from './update-course/update-course.component';
 import { ViewCourseComponent } from './view-course/view-course.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 /**
  * The module for course management related components.
@@ -19,6 +20,7 @@ import { ViewCourseComponent } from './view-course/view-course.component';
       closeOnOutsideClick: true,
       appendToBody: true,
     }),
+    NgSelectModule,
   ],
   declarations: [CourseManagementComponent, UpdateCourseComponent, ViewCourseComponent],
 })

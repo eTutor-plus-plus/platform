@@ -21,6 +21,7 @@
     "@fortawesome/fontawesome-svg-core": "1.2.29",
     "@fortawesome/free-solid-svg-icons": "5.13.1",
     "@ng-bootstrap/ng-bootstrap": "6.1.0",
+    "@ng-select/ng-select": "^5.0.9",
     "@ngx-translate/core": "12.1.2",
     "@ngx-translate/http-loader": "5.0.0",
     "angular-confirmation-popover": "^6.0.0",

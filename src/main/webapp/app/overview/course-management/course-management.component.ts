@@ -33,6 +33,10 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
 
   public filteredCourses: CourseModel[] = [];
 
+  public readonly courseTypes: string[] = ['Fach', 'Klasse', 'LVA', 'Modul'];
+
+  public selectedCourseTypes = [...this.courseTypes];
+
   public filterString = '';
 
   /**
@@ -103,6 +107,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   public createNewCourse(): void {
     const modalRef = this.modalService.open(UpdateCourseComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as UpdateCourseComponent).course = undefined;
+    (modalRef.componentInstance as UpdateCourseComponent).courseTypes = this.courseTypes;
   }
 
   /**
@@ -113,6 +118,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   public editCourse(course: CourseModel): void {
     const modalRef = this.modalService.open(UpdateCourseComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as UpdateCourseComponent).course = course;
+    (modalRef.componentInstance as UpdateCourseComponent).courseTypes = this.courseTypes;
   }
 
   /**
@@ -148,11 +154,28 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    * Performs the filtering operation.
    */
   public performFiltering(): void {
+    this.filter();
+  }
+
+  /**
+   * Performs the filtering operation after a course type has been selected.
+   */
+  public onCourseTypeSelectedChanged(): void {
+    this.filter();
+  }
+
+  /**
+   * Performs the actual filtering operation.
+   */
+  private filter(): void {
     this.filteredCourses = filter(this.courses, item => {
-      if (this.filterString) {
-        return item.name.toLowerCase().includes(this.filterString.toLowerCase());
+      if (this.selectedCourseTypes.includes(item.courseType)) {
+        if (this.filterString) {
+          return item.name.toLowerCase().includes(this.filterString.toLowerCase());
+        }
+        return true;
       }
-      return true;
+      return false;
     });
   }
 }
