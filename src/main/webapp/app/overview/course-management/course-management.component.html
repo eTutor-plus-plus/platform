@@ -1,21 +1,30 @@
 <jhi-alert-error></jhi-alert-error>
 <button type="button" class="btn btn-primary float-right" (click)="createNewCourse()">
-    <fa-icon icon="plus"></fa-icon> <span jhiTranslate="courseManagement.createText">Create new course</span>
+    <fa-icon icon="plus"></fa-icon>
+    <span jhiTranslate="courseManagement.createText">Create new course</span>
 </button>
 <h2 jhiTranslate="courseManagement.title">Courses</h2>
+<div class="row">
+    <div class="col-12  d-flex">
+        <div style="max-width: 500px !important; margin-bottom: 10px !important;" class="ml-auto">
+            <input placeholder="{{ 'courseManagement.searchPlaceholder' | translate }}" style="max-width: 200px;" type="text" class="form-control"
+                   [(ngModel)]="filterString" (keyup)="performFiltering()">
+        </div>
+    </div>
+</div>
 <ul class="list-group">
-    <li *ngFor="let course of courses; index as idx; trackBy: trackIdentity" class="list-group-item">
+    <li *ngFor="let course of filteredCourses; index as idx; trackBy: trackIdentity" class="list-group-item">
         <a (click)="viewCourse(course)">{{course.name}}</a>
         <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
             <a (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
             <a style="margin-left: 10px;"
-                mwlConfirmationPopover
-                [popoverTitle]="popoverTitle"
-                [popoverMessage]="popoverMessage"
-                placement="left"
-                (confirm)="deleteCourse(course)"
-                [cancelText]="popoverCancelBtnText"
-                [confirmText]="popoverConfirmBtnText">
+               mwlConfirmationPopover
+               [popoverTitle]="popoverTitle"
+               [popoverMessage]="popoverMessage"
+               placement="left"
+               (confirm)="deleteCourse(course)"
+               [cancelText]="popoverCancelBtnText"
+               [confirmText]="popoverConfirmBtnText">
                 <fa-icon icon="trash"></fa-icon>
             </a>
         </span>

@@ -22,6 +22,7 @@
       "creator": "Creator",
       "id": "Id:"
     },
+    "searchPlaceholder": "Search by name ...",
     "error": {
       "required": "This field is required!",
       "url": "This optional field has to conform the URL standard!"

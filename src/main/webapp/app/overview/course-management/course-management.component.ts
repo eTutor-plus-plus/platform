@@ -8,6 +8,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateCourseComponent } from './update-course/update-course.component';
 import { ViewCourseComponent } from './view-course/view-course.component';
+import { filter } from 'lodash';
 
 /**
  * Component which is used to display the course management
@@ -29,6 +30,10 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   public popoverConfirmBtnText = 'courseManagement.popover.confirmBtn';
 
   public courses: CourseModel[] = [];
+
+  public filteredCourses: CourseModel[] = [];
+
+  public filterString = '';
 
   /**
    * Constructor.
@@ -136,5 +141,18 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    */
   private async loadCourses(): Promise<any> {
     this.courses = await this.courseService.getAllCourses().toPromise();
+    this.performFiltering();
+  }
+
+  /**
+   * Performs the filtering operation.
+   */
+  public performFiltering(): void {
+    this.filteredCourses = filter(this.courses, item => {
+      if (this.filterString) {
+        return item.name.toLowerCase().includes(this.filterString.toLowerCase());
+      }
+      return true;
+    });
   }
 }
