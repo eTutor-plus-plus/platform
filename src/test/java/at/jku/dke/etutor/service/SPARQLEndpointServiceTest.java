@@ -666,7 +666,8 @@ public class SPARQLEndpointServiceTest {
      * @throws LearningGoalAssignmentNonExistentException   must not be thrown
      */
     @Test
-    public void testRemoveGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException, LearningGoalAssignmentNonExistentException {
+    public void testRemoveGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException,
+        LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException, LearningGoalAssignmentNonExistentException {
 
         String owner = "admin";
         CourseDTO course = new CourseDTO();

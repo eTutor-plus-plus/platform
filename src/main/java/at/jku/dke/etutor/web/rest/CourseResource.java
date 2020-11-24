@@ -175,6 +175,7 @@ public class CourseResource {
      * @return a {@link ResponseEntity} with no content
      */
     @DeleteMapping("/course/goal")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> removeGoalAssignment(@Valid @RequestBody LearningGoalAssignmentDTO learningGoalAssignmentDTO) {
         try {
             sparqlEndpointService.removeGoalAssignment(learningGoalAssignmentDTO);
@@ -191,6 +192,7 @@ public class CourseResource {
      * @return a {@link ResponseEntity} with the learning goals
      */
     @GetMapping("/course/{courseName}/goals")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Set<LearningGoalDTO>> getLearningGoalsForCourse(@PathVariable String courseName) {
         try {
             var goals = sparqlEndpointService.getLearningGoalsForCourse(courseName);
