@@ -151,7 +151,9 @@
     "parsingError": "An internal error occurred!",
     "privateSuperGoal": "A private super goal for a public sub goal is not allowed!",
     "courseAlreadyExists": "The course already exists!",
-    "courseNotFound": "The course does not exist!"
+    "courseNotFound": "The course does not exist!",
+    "learningGoalAssignmentNonExistent": "The learning goal assignment does not exist!",
+    "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!"
   },
   "footer": {
     "contact": "Contact",

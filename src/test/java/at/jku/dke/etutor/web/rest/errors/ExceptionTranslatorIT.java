@@ -188,4 +188,22 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.message").value("error.courseNotFound"))
             .andExpect(jsonPath("$.title").value("The course does not exist!"));
     }
+
+    @Test
+    public void testLearningGoalAssignmentAlreadyExists() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/learning-goal-assignment-already-exists"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.learningGoalAssignmentAlreadyExists"))
+            .andExpect(jsonPath("$.title").value("The learning goal assignment already exists!"));
+    }
+
+    @Test
+    public void testLearningGoalAssignmentNonExistent() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/learning-goal-assignment-non-existent"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.learningGoalAssignmentNonExistent"))
+            .andExpect(jsonPath("$.title").value("The learning goal assignment does not exist!"));
+    }
 }

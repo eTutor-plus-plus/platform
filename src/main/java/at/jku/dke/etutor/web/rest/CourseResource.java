@@ -1,10 +1,12 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.CourseDTO;
-import at.jku.dke.etutor.web.rest.errors.CourseAlreadyExistsException;
-import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
+import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
+import at.jku.dke.etutor.service.dto.LearningGoalDTO;
+import at.jku.dke.etutor.web.rest.errors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -128,17 +130,75 @@ public class CourseResource {
      * </p>
      *
      * @param body the course dto from the request body
-     * @return the {@link ResponseEntity} with no content
+     * @return a {@link ResponseEntity} with no content
      */
     @PutMapping("/course")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> updateCourse(@Valid @RequestBody CourseDTO body) {
         try {
             sparqlEndpointService.updateCourse(body);
-
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.CourseNotFoundException e) {
             throw new CourseNotFoundException();
+        }
+    }
+
+    /**
+     * {@code POST /course/goal} : Inserts a new learning goal assignment for a course
+     *
+     * <p>
+     * If the course does not exist, an exception will be thrown.
+     * </p>
+     *
+     * @param learningGoalAssignmentDTO the dto from the request body
+     * @return a {@link ResponseEntity} with no content
+     */
+    @PostMapping("/course/goal")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> insertGoalAssignment(@Valid @RequestBody LearningGoalAssignmentDTO learningGoalAssignmentDTO) {
+        try {
+            sparqlEndpointService.addGoalAssignment(learningGoalAssignmentDTO);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.LearningGoalAssignmentAlreadyExistsException e) {
+            throw new LearningGoalAssignmentAlreadyExistsException();
+        }
+    }
+
+    /**
+     * {@code DELETE /course/goal} : Deletes a learning goal assignment from a course
+     *
+     * <p>
+     * If the course does not exist, an exception will be thrown.
+     * </p>
+     *
+     * @param learningGoalAssignmentDTO the learning goal dto from the request body
+     * @return a {@link ResponseEntity} with no content
+     */
+    @DeleteMapping("/course/goal")
+    public ResponseEntity<Void> removeGoalAssignment(@Valid @RequestBody LearningGoalAssignmentDTO learningGoalAssignmentDTO) {
+        try {
+            sparqlEndpointService.removeGoalAssignment(learningGoalAssignmentDTO);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException e) {
+            throw new LearningGoalAssignmentNonExistentException();
+        }
+    }
+
+    /**
+     * {@code GET /course/:courseNmae/goals} : Gets all learning goals of a course
+     *
+     * @param courseName the course name
+     * @return a {@link ResponseEntity} with the learning goals
+     */
+    @GetMapping("/course/{courseName}/goals")
+    public ResponseEntity<Set<LearningGoalDTO>> getLearningGoalsForCourse(@PathVariable String courseName) {
+        try {
+            var goals = sparqlEndpointService.getLearningGoalsForCourse(courseName);
+            return ResponseEntity.ok(goals);
+        } catch (at.jku.dke.etutor.service.CourseNotFoundException e) {
+            throw new CourseNotFoundException();
+        } catch (InternalModelException ex) {
+            throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
         }
     }
 }

@@ -151,7 +151,9 @@
     "parsingError": "Ein interner Fehler ist aufgetreten!",
     "privateSuperGoal": "Ein privates Überziel für ein öffentliches Teilziel ist nicht erlaubt!",
     "courseAlreadyExists": "Die LVA existiert bereits!",
-    "courseNotFound": "Die LVA existiert nicht!"
+    "courseNotFound": "Die LVA existiert nicht!",
+    "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
+    "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!"
   },
   "footer": {
     "contact": "Kontakt",

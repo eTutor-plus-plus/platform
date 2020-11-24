@@ -97,6 +97,16 @@ public class ExceptionTranslatorTestController {
         throw new CourseNotFoundException();
     }
 
+    @GetMapping("/learning-goal-assignment-already-exists")
+    public void learningGoalAssignmentAlreadyExists() {
+        throw new LearningGoalAssignmentAlreadyExistsException();
+    }
+
+    @GetMapping("/learning-goal-assignment-non-existent")
+    public void learningGoalAssignmentNonExistent() {
+        throw new LearningGoalAssignmentNonExistentException();
+    }
+
     public static class TestDTO {
 
         @NotNull

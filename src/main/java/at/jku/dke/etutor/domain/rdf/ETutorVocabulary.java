@@ -24,6 +24,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_COURSE_LINK = "hasCourseLink";
     private static final String PROP_HAS_COURSE_TYPE = "hasCourseType";
     private static final String PROP_HAS_COURSE_CREATOR = "hasCourseCreator";
+    private static final String PROP_HAS_GOAL = "hasGoal";
 
     /**
      * The namespace of the vocabulary
@@ -72,6 +73,10 @@ public final class ETutorVocabulary {
      * The hasCourseCreator property.
      */
     public static final Property hasCourseCreator = m.createProperty(URI + PROP_HAS_COURSE_CREATOR);
+    /**
+     * The hasGoal property.
+     */
+    public static final Property hasGoal = m.createProperty(URI + PROP_HAS_GOAL);
 
     /**
      * The goal resource.

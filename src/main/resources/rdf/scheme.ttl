@@ -57,3 +57,7 @@ etutor:hasCourseType rdf:type rdfs:Property ;
 etutor:hasCourseCreator rdf:type rdfs:Property ;
                         rdfs:domain etutor:Course ;
                         rdfs:range xsd:string .
+
+etutor:hasGoal rdf:type rdfs:Property ;
+               rdfs:domain etutor:Course ;
+               rdfs:range etutor:Goal .

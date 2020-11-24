@@ -3,8 +3,11 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.CourseDTO;
+import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentAlreadyExistsException;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -82,6 +85,14 @@ public class SPARQLEndpointService {
         WHERE {
             ?subject ?predicate ?object.
             FILTER(?subject = ?uri)
+        }
+        """;
+
+    private static final String QRY_GOAL_ASSIGNMENT_EXISTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+        	?course etutor:hasGoal ?goal
         }
         """;
     //endregion
@@ -565,6 +576,153 @@ public class SPARQLEndpointService {
                     }
                 }
             }
+        }
+    }
+    //endregion
+
+    //region Learning Goal Assignment
+
+    /**
+     * Returns the associated learning goals of a given course.
+     *
+     * @param course the course
+     * @return the associated learning goals
+     * @throws CourseNotFoundException if the course does not exist
+     * @throws InternalModelException if an internal model exception occurs
+     */
+    public SortedSet<LearningGoalDTO> getLearningGoalsForCourse(String course) throws CourseNotFoundException, InternalModelException {
+        Objects.requireNonNull(course);
+
+        String qry = String.format(QRY_ASK_COURSE_EXIST, course);
+
+        ParameterizedSparqlString constructQry = new ParameterizedSparqlString("""
+             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+             CONSTRUCT {
+               ?s ?p ?o .
+             } WHERE {
+               {
+                 SELECT ?s ?p ?o WHERE {
+                   ?s ?p ?o .
+                   ?course etutor:hasGoal ?s .
+                 }
+               } UNION {
+                 SELECT ?s ?p ?o WHERE {
+                   ?s ?p ?o .
+                   ?course etutor:hasGoal ?goal .
+                   ?goal etutor:hasSubGoal* ?s .
+                 }
+               } UNION {
+                 SELECT ?s ?p ?o WHERE {
+                   ?course etutor:hasGoal ?goal .
+                   ?goal etutor:hasSubGoal+ ?s .
+                   BIND(rdf:type AS ?p)
+                   BIND(etutor:SubGoal AS ?o)
+                 }
+               }
+             }
+            """);
+
+        constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exist = connection.queryAsk(qry);
+
+            if (!exist) {
+                throw new CourseNotFoundException();
+            }
+
+            SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
+            Model resultModel = connection.queryConstruct(constructQry.asQuery());
+            ResIterator iterator = null;
+
+            try {
+                iterator = resultModel.listSubjects();
+                while (iterator.hasNext()) {
+                    Resource resource = iterator.next();
+                    if (!resource.hasProperty(RDF.type, ETutorVocabulary.SubGoal)) {
+                        goalList.add(new LearningGoalDTO(resource));
+                    }
+                }
+            } catch (ParseException ex) {
+                log.error("Parsing exception", ex);
+                throw new InternalModelException(ex);
+            } finally {
+                if (iterator != null) {
+                    iterator.close();
+                }
+            }
+            return goalList;
+        }
+    }
+
+    /**
+     * Adds a new learning goal assignment.
+     *
+     * @param learningGoalAssignmentDTO the learning goal assignment dto to add
+     * @throws LearningGoalAssignmentAlreadyExistsException if a learning goal assignment already exists
+     */
+    public void addGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO) throws LearningGoalAssignmentAlreadyExistsException {
+        Objects.requireNonNull(learningGoalAssignmentDTO);
+        Objects.requireNonNull(learningGoalAssignmentDTO.getCourseId());
+        Objects.requireNonNull(learningGoalAssignmentDTO.getLearningGoalId());
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_ASSIGNMENT_EXISTS);
+        qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+        qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exists = connection.queryAsk(qry.asQuery());
+
+            if (exists) {
+                throw new LearningGoalAssignmentAlreadyExistsException();
+            }
+
+            Model model = ModelFactory.createDefaultModel();
+            Resource courseResource = model.createResource(learningGoalAssignmentDTO.getCourseId());
+            Resource goalResource = model.createResource(learningGoalAssignmentDTO.getLearningGoalId());
+            courseResource.addProperty(ETutorVocabulary.hasGoal, goalResource);
+
+            connection.load(model);
+        }
+    }
+
+    /**
+     * Removes a given learning goal assignment.
+     *
+     * @param learningGoalAssignmentDTO the learning goal assignment to remove
+     * @throws LearningGoalAssignmentNonExistentException if the learning goal does not exist
+     */
+    public void removeGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO) throws LearningGoalAssignmentNonExistentException {
+        Objects.requireNonNull(learningGoalAssignmentDTO);
+        Objects.requireNonNull(learningGoalAssignmentDTO.getCourseId());
+        Objects.requireNonNull(learningGoalAssignmentDTO.getLearningGoalId());
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_ASSIGNMENT_EXISTS);
+        qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+        qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exists = connection.queryAsk(qry.asQuery());
+
+            if (!exists) {
+                throw new LearningGoalAssignmentNonExistentException();
+            }
+
+            qry = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                DELETE { ?course etutor:hasGoal ?goal }
+                WHERE {
+                    ?course etutor:hasGoal ?goal
+                }
+                """);
+            qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+            qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+            connection.update(qry.asUpdate());
+            connection.commit();
         }
     }
     //endregion
