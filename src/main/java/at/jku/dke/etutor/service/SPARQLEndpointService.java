@@ -722,7 +722,6 @@ public class SPARQLEndpointService {
             qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
 
             connection.update(qry.asUpdate());
-            connection.commit();
         }
     }
     //endregion

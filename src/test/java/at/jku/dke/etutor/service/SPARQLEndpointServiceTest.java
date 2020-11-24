@@ -3,8 +3,11 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.CourseDTO;
+import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentAlreadyExistsException;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -555,6 +558,142 @@ public class SPARQLEndpointServiceTest {
         assertThat(course.getName()).isEqualTo(courseFromService.getName());
         assertThat(course.getCourseType()).isEqualTo(courseFromService.getCourseType());
         assertThat(course.getId()).isEqualTo(courseFromService.getId());
+    }
+    //endregion
+
+    //region Learning goal assignment
+
+    /**
+     * Tests the add goal assignment method.
+     *
+     * @throws LearningGoalAlreadyExistsException           must not be thrown
+     * @throws CourseAlreadyExistsException                 must not be thrown
+     * @throws LearningGoalAssignmentAlreadyExistsException must not be thrown
+     * @throws CourseNotFoundException                      must not be thrown
+     */
+    @Test
+    public void testAddGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException,
+        LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException {
+
+        String owner = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+        course = sparqlEndpointService.insertNewCourse(course, owner);
+
+        LearningGoalAssignmentDTO learningGoalAssignmentDTO = new LearningGoalAssignmentDTO();
+        learningGoalAssignmentDTO.setCourseId(course.getId());
+        learningGoalAssignmentDTO.setLearningGoalId(goal.getId());
+
+        sparqlEndpointService.addGoalAssignment(learningGoalAssignmentDTO);
+
+        var associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(associatedGoals).isNotEmpty();
+        assertThat(associatedGoals.size()).isEqualTo(1);
+    }
+
+    /**
+     * Tests the insertion of an already existing goal assignment.
+     *
+     * @throws LearningGoalAlreadyExistsException           must not be thrown
+     * @throws CourseAlreadyExistsException                 must not be thrown
+     * @throws LearningGoalAssignmentAlreadyExistsException must not be thrown
+     */
+    @Test
+    public void testAddGoalAssignmentWithAnAlreadyExistentAssignment() throws LearningGoalAlreadyExistsException,
+        CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException {
+
+        String owner = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+        course = sparqlEndpointService.insertNewCourse(course, owner);
+
+        LearningGoalAssignmentDTO learningGoalAssignmentDTO = new LearningGoalAssignmentDTO();
+        learningGoalAssignmentDTO.setCourseId(course.getId());
+        learningGoalAssignmentDTO.setLearningGoalId(goal.getId());
+
+        sparqlEndpointService.addGoalAssignment(learningGoalAssignmentDTO);
+
+        assertThatThrownBy(() -> sparqlEndpointService.addGoalAssignment(learningGoalAssignmentDTO))
+            .isInstanceOf(LearningGoalAssignmentAlreadyExistsException.class);
+    }
+
+    /**
+     * Tests the getting of learning goals from a nonexistent course.
+     */
+    @Test
+    public void testGetLearningGoalsForANonExistentCourse() {
+        assertThatThrownBy(() -> sparqlEndpointService.getLearningGoalsForCourse("NonExistentCourse"))
+            .isInstanceOf(CourseNotFoundException.class);
+    }
+
+    /**
+     * Tests the removal of a nonexistent learning goal assignment.
+     */
+    @Test
+    public void testRemoveNonExistentLearningGoalAssignment() {
+        LearningGoalAssignmentDTO learningGoalAssignmentDTO = new LearningGoalAssignmentDTO();
+        learningGoalAssignmentDTO.setCourseId("http://www.test.at/nonexistent");
+        learningGoalAssignmentDTO.setLearningGoalId("http://www.test123.at/nonexistent");
+
+        assertThatThrownBy(() -> sparqlEndpointService.removeGoalAssignment(learningGoalAssignmentDTO))
+            .isInstanceOf(LearningGoalAssignmentNonExistentException.class);
+    }
+
+    /**
+     * Tests the removal of a goal assignment.
+     *
+     * @throws LearningGoalAlreadyExistsException           must not be thrown
+     * @throws CourseAlreadyExistsException                 must not be thrown
+     * @throws LearningGoalAssignmentAlreadyExistsException must not be thrown
+     * @throws CourseNotFoundException                      must not be thrown
+     * @throws InternalModelException                       must not be thrown
+     * @throws LearningGoalAssignmentNonExistentException   must not be thrown
+     */
+    @Test
+    public void testRemoveGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException, LearningGoalAssignmentNonExistentException {
+
+        String owner = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+        course = sparqlEndpointService.insertNewCourse(course, owner);
+
+        LearningGoalAssignmentDTO learningGoalAssignmentDTO = new LearningGoalAssignmentDTO();
+        learningGoalAssignmentDTO.setCourseId(course.getId());
+        learningGoalAssignmentDTO.setLearningGoalId(goal.getId());
+
+        sparqlEndpointService.addGoalAssignment(learningGoalAssignmentDTO);
+
+        var associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(associatedGoals).isNotEmpty();
+        assertThat(associatedGoals.size()).isEqualTo(1);
+
+        sparqlEndpointService.removeGoalAssignment(learningGoalAssignmentDTO);
+        associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(associatedGoals).isEmpty();
     }
     //endregion
 }
