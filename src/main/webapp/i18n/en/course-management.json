@@ -30,7 +30,9 @@
     "tooltip": {
       "editCourse": "Edit course '{{courseName}}'",
       "deleteCourse": "Delete course '{{courseName}}'",
-      "viewCourse": "View course '{{courseName}}'"
+      "viewCourse": "View course '{{courseName}}'",
+      "editGoalAssignment": "Edit goal assignment of '{{courseName}}'",
+      "viewGoalAssignment": "View goal assignment of '{{courseName}}'"
     }
   }
 }

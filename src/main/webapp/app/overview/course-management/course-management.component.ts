@@ -111,7 +111,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Shows the create / edit window for the given course
+   * Shows the create / edit window for the given course.
    *
    * @param course the course to edit
    */
@@ -122,7 +122,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Deletes the course
+   * Deletes the course.
    *
    * @param course the course to delete
    */
@@ -141,6 +141,20 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(ViewCourseComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as ViewCourseComponent).course = course;
   }
+
+  /**
+   * Displays the goal assignment for the given course.
+   *
+   * @param course the course whose goals should be displayed
+   */
+  public viewGoalAssignments(course: CourseModel): void {}
+
+  /**
+   * Shows the edit goal assignment windows for the given course.
+   *
+   * @param course the course whose goals should be edited
+   */
+  public editGoalAssignments(course: CourseModel): void {}
 
   /**
    * Loads the courses asynchronously from the service.

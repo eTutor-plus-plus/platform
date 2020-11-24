@@ -30,7 +30,9 @@
     "tooltip": {
       "editCourse": "Kurs '{{courseName}}' bearbeiten",
       "deleteCourse": "Kurs '{{courseName}}' löschen",
-      "viewCourse": "Kurs '{{courseName}}' anzeigen"
+      "viewCourse": "Kurs '{{courseName}}' anzeigen",
+      "editGoalAssignment": "Zielzuordnung von '{{courseName}}' bearbeiten",
+      "viewGoalAssignment": "Zielzuordnung von '{{courseName}}' anzeigen"
     }
   }
 }
