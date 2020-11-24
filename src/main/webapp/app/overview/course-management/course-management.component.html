@@ -31,10 +31,10 @@
 </div>
 <ul class="list-group">
     <li *ngFor="let course of filteredCourses; index as idx; trackBy: trackIdentity" class="list-group-item">
-        <a (click)="viewCourse(course)">{{course.name}}</a>
+        <a ngbTooltip="{{'courseManagement.tooltip.viewCourse' | translate : {courseName: course.name} }}" (click)="viewCourse(course)">{{course.name}}</a>
         <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
-            <a (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
-            <a style="margin-left: 10px;"
+            <a ngbTooltip="{{'courseManagement.tooltip.editCourse' | translate : {courseName: course.name} }}" (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
+            <a ngbTooltip="{{'courseManagement.tooltip.deleteCourse' | translate : {courseName: course.name} }}" style="margin-left: 10px;"
                mwlConfirmationPopover
                [popoverTitle]="popoverTitle"
                [popoverMessage]="popoverMessage"

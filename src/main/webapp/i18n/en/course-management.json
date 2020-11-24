@@ -26,6 +26,11 @@
     "error": {
       "required": "This field is required!",
       "url": "This optional field has to conform the URL standard!"
+    },
+    "tooltip": {
+      "editCourse": "Edit course '{{courseName}}'",
+      "deleteCourse": "Delete course '{{courseName}}'",
+      "viewCourse": "View course '{{courseName}}'"
     }
   }
 }
