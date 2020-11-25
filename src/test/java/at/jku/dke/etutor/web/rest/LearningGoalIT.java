@@ -8,10 +8,7 @@ import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LearningGoalIT {
 
     @Autowired
@@ -48,6 +46,14 @@ public class LearningGoalIT {
 
     @Autowired
     private SPARQLEndpointService sparqlEndpointService;
+
+    /**
+     * Init method which is called before the test run.
+     */
+    @BeforeAll
+    public void initBeforeAllTests() {
+        rdfConnectionFactory.clearDataset();
+    }
 
     /**
      * Tests the successful creation of a learning goal.
