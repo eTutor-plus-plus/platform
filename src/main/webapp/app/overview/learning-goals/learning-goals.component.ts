@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
 import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
-import { TreeviewComponent, TreeviewConfig } from 'ngx-treeview';
+import { TreeviewComponent, TreeviewConfig, TreeviewI18n } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from '../../core/auth/account.service';
+import { DefaultTreeviewI18n } from '../../shared/util/default-treeview-i18n';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -13,6 +14,7 @@ import { AccountService } from '../../core/auth/account.service';
   selector: 'jhi-learning-goals',
   templateUrl: './learning-goals.component.html',
   styleUrls: ['./learning-goals.component.scss'],
+  providers: [{ provide: TreeviewI18n, useClass: DefaultTreeviewI18n }],
 })
 export class LearningGoalsComponent implements OnInit {
   @ViewChild(TreeviewComponent, { static: false })
