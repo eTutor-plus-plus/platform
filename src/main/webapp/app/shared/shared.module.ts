@@ -6,6 +6,7 @@ import { AlertErrorComponent } from './alert/alert-error.component';
 import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
 import { TranslateRolePipe } from 'app/shared/language/translate-role.pipe';
 import { QuillModule } from 'ngx-quill';
+import { TreeviewModule } from 'ngx-treeview';
 
 @NgModule({
   imports: [
@@ -21,6 +22,7 @@ import { QuillModule } from 'ngx-quill';
         ],
       },
     }),
+    TreeviewModule.forRoot(),
   ],
   declarations: [FindLanguageFromKeyPipe, TranslateRolePipe, AlertComponent, AlertErrorComponent, HasAnyAuthorityDirective],
   exports: [
@@ -31,6 +33,7 @@ import { QuillModule } from 'ngx-quill';
     AlertErrorComponent,
     HasAnyAuthorityDirective,
     QuillModule,
+    TreeviewModule,
   ],
 })
 export class EtutorPlusPlusSharedModule {}
