@@ -40,6 +40,12 @@ export class MainComponent implements OnInit {
 
       this.renderer.setAttribute(document.querySelector('html'), 'lang', langChangeEvent.lang);
     });
+
+    const spinningElement: HTMLElement | null = document.getElementById('nb-global-spinner');
+
+    if (spinningElement) {
+      spinningElement.style['display'] = 'none';
+    }
   }
 
   private getPageTitle(routeSnapshot: ActivatedRouteSnapshot): string {

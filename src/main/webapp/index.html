@@ -19,14 +19,6 @@
     <![endif]-->
     <jhi-main>
         <div class="app-loading">
-            <div class="lds-css ng-scope">
-                <div class="lds-pacman">
-                    <div><div></div><div></div><div></div></div>
-                    <div><div></div><div></div><div></div></div>
-                </div>
-            </div>
-        </div>
-        <div class="app-loading">
             <div id="jhipster-error" style="display:none">
                 <!-- This content is for troubleshooting purpose and will be removed when app renders -->
                 <h1>An error has occurred :-(</h1>
@@ -68,6 +60,14 @@
             </div>
         </div>
     </jhi-main>
+    <div id="nb-global-spinner" class="spinner">
+        <div class="blob blob-0"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+    </div>
     <noscript>
         <h1>You must enable javascript to view this page.</h1>
     </noscript>
@@ -78,8 +78,10 @@
         }
         function showError() {
             var errorElm = document.getElementById("jhipster-error");
+            var loadingElm = document.getElementById("nb-global-spinner");
             if (errorElm && errorElm.style) {
                 errorElm.style.display = "block";
+                loadingElm.style['display'] = 'none';
             }
         }
     </script>
