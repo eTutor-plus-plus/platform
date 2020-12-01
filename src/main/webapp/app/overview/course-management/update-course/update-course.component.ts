@@ -15,9 +15,7 @@ import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants'
 })
 export class UpdateCourseComponent implements OnInit {
   private _course?: CourseModel;
-
-  @Input()
-  public courseTypes: string[] = [];
+  private _courseTypes: string[] = [];
 
   public updateForm = this.fb.group({
     name: ['', [Validators.required]],
@@ -119,6 +117,28 @@ export class UpdateCourseComponent implements OnInit {
    */
   public get course(): CourseModel | undefined {
     return this._course;
+  }
+
+  /**
+   * Sets the available course types.
+   *
+   * @param value the types to set
+   */
+  @Input()
+  public set courseTypes(value: string[]) {
+    if (value && value.length > 0) {
+      this.updateForm.patchValue({
+        type: value[0],
+      });
+    }
+    this._courseTypes = value;
+  }
+
+  /**
+   * Returns the available course types.
+   */
+  public get courseTypes(): string[] {
+    return this._courseTypes;
   }
 
   /**
