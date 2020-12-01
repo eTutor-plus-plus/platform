@@ -72,6 +72,11 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
         this.lastModifiedDate = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
             .parse(lastModifiedDateStr).toInstant();
 
+        Statement referenceCntStatement = rdfResource.getProperty(ETutorVocabulary.hasReferenceCnt);
+        if (referenceCntStatement != null) {
+            setReferencedFromCount(referenceCntStatement.getInt());
+        }
+
         StmtIterator subGoalIterator = rdfResource.listProperties(ETutorVocabulary.hasSubGoal);
         try {
             while (subGoalIterator.hasNext()) {

@@ -33,6 +33,10 @@ etutor:hasOwner rdf:type rdfs:Property ;
 				rdfs:domain etutor:Goal ;
 				rdfs:range xsd:string .
 
+etutor:hasReferenceCnt rdf:type rdfs:Property ;
+                       rdfs:domain etutor:Goal ;
+                       rdfs:range xsd:int .
+
 ## Coureses
 # Classes
 etutor:Course rdf:type rdfs:Class .

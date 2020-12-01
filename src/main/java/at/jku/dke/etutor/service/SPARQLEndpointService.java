@@ -316,25 +316,34 @@ public class SPARQLEndpointService {
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            CONSTRUCT { ?subject ?predicate ?object }
-            WHERE {
-              {
-                  ?subject ?predicate ?object.
-                  ?subject rdfs:label ?lbl
-                  {
-                    ?subject etutor:isPrivate false.
-                  }
-                  UNION
-                  {
-                    ?subject etutor:isPrivate true.
-                    ?subject etutor:hasOwner "%s".
-                  }
-              } UNION {
-                  BIND(rdf:type AS ?predicate)
-                  BIND(etutor:SubGoal AS ?object)
-                  ?goal etutor:hasSubGoal ?subject .
-              }
-            }
+            CONSTRUCT {
+             	?subject ?predicate ?object.
+             	?subject etutor:hasReferenceCnt ?cnt
+             } WHERE {
+               {
+                 ?subject ?predicate ?object.
+                 ?subject a etutor:Goal.
+                 ?subject rdfs:label ?lbl
+                 {
+                   ?subject etutor:isPrivate false.
+                 }
+                 UNION
+                 {
+                   ?subject etutor:isPrivate true.
+                   ?subject etutor:hasOwner "%s".
+                 }
+               } UNION {
+                 BIND(rdf:type AS ?predicate)
+                 BIND(etutor:SubGoal AS ?object)
+                 ?goal etutor:hasSubGoal ?subject .
+               } {
+               	SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                   ?subject a etutor:Goal.
+                   OPTIONAL { ?course etutor:hasGoal ?subject }
+               	}
+               	GROUP BY ?subject
+               }
+             }
             """, owner);
 
         SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
@@ -600,8 +609,10 @@ public class SPARQLEndpointService {
              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
              CONSTRUCT {
-               ?s ?p ?o .
-             } WHERE {
+             	?s ?p ?o.
+               	?s etutor:hasReferenceCnt ?cnt
+             }
+              WHERE {
                {
                  SELECT ?s ?p ?o WHERE {
                    ?s ?p ?o .
@@ -620,8 +631,15 @@ public class SPARQLEndpointService {
                    BIND(rdf:type AS ?p)
                    BIND(etutor:SubGoal AS ?o)
                  }
+               } {
+               	SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
+                   ?s a etutor:Goal.
+                   OPTIONAL { ?course1 etutor:hasGoal ?s. }
+               	}
+               	GROUP BY ?s
                }
              }
+
             """);
 
         constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
