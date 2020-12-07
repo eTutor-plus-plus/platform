@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CourseModel } from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
+import { LearningGoalTreeviewItem } from '../learning-goals/learning-goal-treeview-item.model';
+import { convertLearningGoal, ILearningGoalModel } from '../learning-goals/learning-goal-model';
+import { map } from 'rxjs/operators';
 
 /**
  * Service which manages the courses.
@@ -54,5 +57,25 @@ export class CourseManagementService {
    */
   public deleteCourse(course: CourseModel): Observable<any> {
     return this.http.delete(SERVER_API_URL + `api/course/${course.name}`);
+  }
+
+  /**
+   * Returns the learning goals of the given course.
+   *
+   * @param course the course model
+   * @param userLogin the current user's login name
+   */
+  public getLearningGoalsFromCourse(course: CourseModel, userLogin: string): Observable<LearningGoalTreeviewItem[]> {
+    return this.http.get<ILearningGoalModel[]>(SERVER_API_URL + `api/course/${course.name}/goals`).pipe(
+      map(list => {
+        const retList: LearningGoalTreeviewItem[] = [];
+
+        for (const item of list) {
+          retList.push(new LearningGoalTreeviewItem(convertLearningGoal(item), userLogin));
+        }
+
+        return retList;
+      })
+    );
   }
 }

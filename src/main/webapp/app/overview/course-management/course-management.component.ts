@@ -9,6 +9,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateCourseComponent } from './update-course/update-course.component';
 import { ViewCourseComponent } from './view-course/view-course.component';
 import { filter } from 'lodash';
+import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
+import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 
 /**
  * Component which is used to display the course management
@@ -147,14 +149,20 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    *
    * @param course the course whose goals should be displayed
    */
-  public viewGoalAssignments(course: CourseModel): void {}
+  public viewGoalAssignments(course: CourseModel): void {
+    const modalRef = this.modalService.open(LearningGoalAssignmentDisplayComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as LearningGoalAssignmentDisplayComponent).selectedCourse = course;
+  }
 
   /**
    * Shows the edit goal assignment windows for the given course.
    *
    * @param course the course whose goals should be edited
    */
-  public editGoalAssignments(course: CourseModel): void {}
+  public editGoalAssignments(course: CourseModel): void {
+    const modalRef = this.modalService.open(LearningGoalAssignmentUpdateComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as LearningGoalAssignmentUpdateComponent).selectedCourse = course;
+  }
 
   /**
    * Loads the courses asynchronously from the service.

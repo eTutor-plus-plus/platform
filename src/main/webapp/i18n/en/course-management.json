@@ -33,6 +33,14 @@
       "viewCourse": "View course '{{courseName}}'",
       "editGoalAssignment": "Edit goal assignment of '{{courseName}}'",
       "viewGoalAssignment": "View goal assignment of '{{courseName}}'"
+    },
+    "goalAssignment": {
+      "modalHeader": "Learning goal assignment",
+      "selectGoal": "Select learning goal",
+      "deselectGoal": "Deselect learning goal",
+      "availableGoals": "Available learning goals",
+      "selectedGoals": "Selected learning goals",
+      "displayModalHeader": "Display learning goal assignment"
     }
   }
 }

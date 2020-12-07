@@ -1,5 +1,5 @@
+/* eslint-disable */
 import { TreeviewI18n, TreeviewSelection } from 'ngx-treeview';
-import { JhiLanguageService } from 'ng-jhipster';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -43,7 +43,7 @@ export class DefaultTreeviewI18n extends TreeviewI18n {
    *
    * @param selection the selection
    */
-  getText(selection: TreeviewSelection): string {
+  public getText(selection: TreeviewSelection): string {
     return '';
   }
 

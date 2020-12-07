@@ -7,6 +7,8 @@ import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { UpdateCourseComponent } from './update-course/update-course.component';
 import { ViewCourseComponent } from './view-course/view-course.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
+import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 
 /**
  * The module for course management related components.
@@ -22,6 +24,12 @@ import { NgSelectModule } from '@ng-select/ng-select';
     }),
     NgSelectModule,
   ],
-  declarations: [CourseManagementComponent, UpdateCourseComponent, ViewCourseComponent],
+  declarations: [
+    CourseManagementComponent,
+    UpdateCourseComponent,
+    ViewCourseComponent,
+    LearningGoalAssignmentUpdateComponent,
+    LearningGoalAssignmentDisplayComponent,
+  ],
 })
 export class CourseManagementModule {}

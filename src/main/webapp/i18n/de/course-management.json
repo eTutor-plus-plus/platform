@@ -33,6 +33,14 @@
       "viewCourse": "Kurs '{{courseName}}' anzeigen",
       "editGoalAssignment": "Zielzuordnung von '{{courseName}}' bearbeiten",
       "viewGoalAssignment": "Zielzuordnung von '{{courseName}}' anzeigen"
+    },
+    "goalAssignment": {
+      "modalHeader": "Lernzielzuordnung",
+      "selectGoal": "Lernziel auswählen",
+      "deselectGoal": "Lernziel abwählen",
+      "availableGoals": "Verfügbare Lernziele",
+      "selectedGoals": "Ausgewählte Lernziele",
+      "displayModalHeader": "Lernzielzuordnung darstellen"
     }
   }
 }
