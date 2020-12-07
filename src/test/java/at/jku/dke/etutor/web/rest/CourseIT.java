@@ -6,10 +6,8 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
-import at.jku.dke.etutor.service.dto.CourseDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.*;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -328,12 +326,52 @@ public class CourseIT {
     }
 
     /**
+     * Tests the set assignment endpoint.
+     *
+     * @throws Exception mut not be thrown
+     */
+    @Test
+    @Order(15)
+    public void testSetGoalAssignment() throws Exception {
+        NewLearningGoalDTO learningGoalDTO = new NewLearningGoalDTO();
+        learningGoalDTO.setName("AssignmentTestGoal");
+        var secondGoal = sparqlEndpointService.insertNewLearningGoal(learningGoalDTO, "admin");
+
+        var course = sparqlEndpointService.getCourse("Testcourse").orElseThrow();
+        var goal = sparqlEndpointService.getLearningGoalsForCourse(course.getName()).first();
+
+        LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignmentDTO = new LearningGoalUpdateAssignmentDTO();
+        learningGoalUpdateAssignmentDTO.setCourseId(course.getId());
+        learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(goal.getId());
+        learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(secondGoal.getId());
+
+        restCourseMockMvc.perform(put("/api/course/goal")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO)))
+            .andExpect(status().isNoContent());
+
+        var goals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(goals).hasSize(2);
+
+        learningGoalUpdateAssignmentDTO.getLearningGoalIds().clear();
+        learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(goal.getId());
+
+        restCourseMockMvc.perform(put("/api/course/goal")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO)))
+            .andExpect(status().isNoContent());
+
+        goals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(goals).hasSize(1);
+    }
+
+    /**
      * Tests the removal of an existing goal assignment
      *
      * @throws Exception must not be thrown
      */
     @Test
-    @Order(15)
+    @Order(16)
     public void testRemoveGoalAssignment() throws Exception {
         var course = sparqlEndpointService.getCourse("Testcourse").orElseThrow();
         var goal = sparqlEndpointService.getLearningGoalsForCourse(course.getName()).first();

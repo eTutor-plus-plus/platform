@@ -2,10 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
-import at.jku.dke.etutor.service.dto.CourseDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.LearningGoalAssignmentAlreadyExistsException;
 import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.jena.query.Dataset;
@@ -30,7 +27,6 @@ public class SPARQLEndpointServiceTest {
 
     private SPARQLEndpointService sparqlEndpointService;
 
-    private Dataset dataset;
     private RDFConnectionFactory rdfConnectionFactory;
 
     /**
@@ -38,7 +34,7 @@ public class SPARQLEndpointServiceTest {
      */
     @BeforeEach
     public void setup() {
-        dataset = DatasetFactory.createTxnMem();
+        Dataset dataset = DatasetFactory.createTxnMem();
         rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
 
@@ -340,7 +336,7 @@ public class SPARQLEndpointServiceTest {
         newLearningGoalDTO.setDescription(null);
         newLearningGoalDTO.setPrivateGoal(true);
 
-        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
 
         NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
         subGoal.setName("SubGoal");
@@ -372,7 +368,7 @@ public class SPARQLEndpointServiceTest {
         course.setCourseType("LVA");
         course.setLink(new URL("https://www.dke.uni-linz.ac.at"));
 
-        course = sparqlEndpointService.insertNewCourse(course, user);
+        sparqlEndpointService.insertNewCourse(course, user);
         RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/Course#TestCourse>", rdfConnectionFactory);
 
         var courses = sparqlEndpointService.getAllCourses();
@@ -695,6 +691,54 @@ public class SPARQLEndpointServiceTest {
         sparqlEndpointService.removeGoalAssignment(learningGoalAssignmentDTO);
         associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
         assertThat(associatedGoals).isEmpty();
+    }
+
+    /**
+     * Tests the set goal assignment method with null and empty values.
+     */
+    @Test
+    public void testSetGoalAssignmentException() {
+        LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignmentDTO = new LearningGoalUpdateAssignmentDTO();
+
+        assertThatThrownBy(() -> sparqlEndpointService.setGoalAssignment(null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignmentDTO))
+            .isInstanceOf(NullPointerException.class);
+        learningGoalUpdateAssignmentDTO.setCourseId("http://www.test.at");
+    }
+
+    /**
+     * Tests the set goal assignment method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testSetGoalAssignment() throws Exception {
+        String owner = "admin";
+        CourseDTO course = new CourseDTO();
+        course.setName("TestCourse");
+        course.setCourseType("LVA");
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        var goal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+        course = sparqlEndpointService.insertNewCourse(course, owner);
+
+        LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignmentDTO = new LearningGoalUpdateAssignmentDTO();
+        learningGoalUpdateAssignmentDTO.setCourseId(course.getId());
+        learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(goal.getId());
+
+        sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignmentDTO);
+
+        var assignedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
+        assertThat(assignedGoals).isNotEmpty();
+        assertThat(assignedGoals).hasSize(1);
+        var assignedGoal = assignedGoals.first();
+        assertThat(assignedGoal.getId()).isEqualTo(goal.getId());
     }
     //endregion
 }

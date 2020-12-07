@@ -746,6 +746,10 @@ public class SPARQLEndpointService {
      * @param learningGoalUpdateAssignment the assignment to set
      */
     public void setGoalAssignment(LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignment) {
+        Objects.requireNonNull(learningGoalUpdateAssignment);
+        Objects.requireNonNull(learningGoalUpdateAssignment.getCourseId());
+        Objects.requireNonNull(learningGoalUpdateAssignment.getLearningGoalIds());
+
         StringBuilder builder = new StringBuilder();
         builder.append("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -754,7 +758,7 @@ public class SPARQLEndpointService {
             INSERT {
             """);
 
-        for(String goal : learningGoalUpdateAssignment.getLearningGoalIds()) {
+        for (String goal : learningGoalUpdateAssignment.getLearningGoalIds()) {
             builder.append(String.format("?subject etutor:hasGoal <%s> .%n", goal));
         }
 
@@ -772,7 +776,7 @@ public class SPARQLEndpointService {
         ParameterizedSparqlString updateQry = new ParameterizedSparqlString(builder.toString());
         updateQry.setIri("?course", learningGoalUpdateAssignment.getCourseId());
 
-        try(RDFConnection conn = getConnection()) {
+        try (RDFConnection conn = getConnection()) {
             conn.update(updateQry.asUpdate());
         }
     }
