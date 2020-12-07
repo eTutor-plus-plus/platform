@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
+import at.jku.dke.etutor.service.dto.LearningGoalUpdateAssignmentDTO;
 import at.jku.dke.etutor.web.rest.errors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,5 +203,18 @@ public class CourseResource {
         } catch (InternalModelException ex) {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
         }
+    }
+
+    /**
+     * {@code PUT /course/goal} : Sets the course's learning goal assignments.
+     *
+     * @param learningGoalUpdateAssignment the learning goal update dto from the request body
+     * @return a {@link ResponseEntity} with no content
+     */
+    @PutMapping("/course/goal")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> setLearningGoalsForCourse(@Valid @RequestBody LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignment) {
+        sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignment);
+        return ResponseEntity.noContent().build();
     }
 }
