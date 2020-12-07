@@ -7,6 +7,7 @@ import { TreeviewConfig, TreeviewI18n } from 'ngx-treeview';
 import { DefaultTreeviewI18n } from '../../../shared/util/default-treeview-i18n';
 import { LearningGoalsService } from '../../learning-goals/learning-goals.service';
 import { AccountService } from '../../../core/auth/account.service';
+import { cloneDeep } from 'lodash';
 
 /**
  * Component which is used to
@@ -60,7 +61,8 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
   public ngOnInit(): void {
     this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this.loginName).subscribe(value => {
       this.availableLearningGoals = value;
-      this.allAvailableLearningGoals = [...value];
+      this.allAvailableLearningGoals = [];
+      this.availableLearningGoals.forEach(x => this.allAvailableLearningGoals.push(cloneDeep(x)));
     });
   }
 
@@ -111,9 +113,10 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
   public onSelectLearningGoal(item: LearningGoalTreeviewItem): void {
     this.removeGoalFromAvailable(item);
 
-    this.removeSubTreesOfSelectedItem(item);
-    this.selectedLearningGoals.push(item);
+    const originalItem = this.removeSubTreesOfSelectedItem(item);
+    this.selectedLearningGoals.push(originalItem);
     this.selectedLearningGoals.sort((a, b) => a.text.localeCompare(b.text));
+    this.selectedAvailableGoal = undefined;
   }
 
   /**
@@ -136,6 +139,7 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
 
     idx = this.selectedLearningGoals.findIndex(x => x.value === item.value);
     this.selectedLearningGoals.splice(idx, 1);
+    this.selectedSelectedGoal = undefined;
   }
 
   /**
@@ -156,9 +160,17 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    * Event handler for the selection of all available learning goals.
    */
   public onSelectAllLearningGoals(): void {
-    this.selectedLearningGoals = [...this.allAvailableLearningGoals];
     this.availableLearningGoals = [];
-    this.extractedLearningGoals = [...this.allAvailableLearningGoals];
+
+    this.selectedLearningGoals = [];
+    this.extractedLearningGoals = [];
+
+    this.allAvailableLearningGoals.forEach(x => {
+      this.selectedLearningGoals.push(cloneDeep(x));
+      this.extractedLearningGoals.push(cloneDeep(x));
+    });
+
+    this.selectedAvailableGoal = undefined;
   }
 
   /**
@@ -166,8 +178,11 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    */
   public onDeselectAllLearningGoals(): void {
     this.selectedLearningGoals = [];
-    this.availableLearningGoals = [...this.allAvailableLearningGoals];
+    this.availableLearningGoals = [];
+    this.allAvailableLearningGoals.forEach(x => this.availableLearningGoals.push(cloneDeep(x)));
     this.extractedLearningGoals = [];
+
+    this.selectedSelectedGoal = undefined;
   }
 
   /**
@@ -215,10 +230,11 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    *
    * @param item the selected item
    */
-  private removeSubTreesOfSelectedItem(item: LearningGoalTreeviewItem): void {
+  private removeSubTreesOfSelectedItem(item: LearningGoalTreeviewItem): LearningGoalTreeviewItem {
     const originalItem = this.getOriginalAvailableItem(item);
 
     this.removeSubTreeOfSelectedItemRecursive(originalItem);
+    return originalItem;
   }
 
   /**
@@ -233,8 +249,10 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
     if (idx > -1) {
       this.selectedLearningGoals.splice(idx, 1);
     } else {
-      for (const child of item.children) {
-        this.removeSubTreesOfSelectedItem(child as LearningGoalTreeviewItem);
+      if (item.children) {
+        for (const child of item.children) {
+          this.removeSubTreesOfSelectedItem(child as LearningGoalTreeviewItem);
+        }
       }
     }
   }
@@ -250,7 +268,9 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       parent = parent.parent;
     }
 
-    const itemToReturn = this.getOriginalAvailableItemRecursive(parent, item);
+    const start = this.allAvailableLearningGoals.find(x => x.value === parent.value)!;
+
+    const itemToReturn = this.getOriginalAvailableItemRecursive(start, item);
 
     return itemToReturn ?? item;
   }
@@ -269,13 +289,14 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       return item;
     }
 
-    for (const child of item.children) {
-      const ret = this.getOriginalAvailableItemRecursive(child as LearningGoalTreeviewItem, itemToSearch);
-      if (ret) {
-        return ret;
+    if (item.children) {
+      for (const child of item.children) {
+        const ret = this.getOriginalAvailableItemRecursive(child as LearningGoalTreeviewItem, itemToSearch);
+        if (ret) {
+          return ret;
+        }
       }
     }
-
     return undefined;
   }
 
