@@ -51,3 +51,11 @@ export class CourseModel implements ICourseModel {
     public creator?: string
   ) {}
 }
+
+/**
+ * Interface for learning goal assignment updates.
+ */
+export interface ILearningGoalUpdateAssignment {
+  courseId: string;
+  learningGoalIds: string[];
+}

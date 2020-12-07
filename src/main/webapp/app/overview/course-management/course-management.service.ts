@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CourseModel } from './course-mangement.model';
+import { CourseModel, ILearningGoalUpdateAssignment } from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { LearningGoalTreeviewItem } from '../learning-goals/learning-goal-treeview-item.model';
 import { convertLearningGoal, ILearningGoalModel } from '../learning-goals/learning-goal-model';
@@ -77,5 +77,14 @@ export class CourseManagementService {
         return retList;
       })
     );
+  }
+
+  /**
+   * Sets the learning goal assignment.
+   *
+   * @param learningGoalAssignment the assignment to set
+   */
+  public setLearningGoalAssignment(learningGoalAssignment: ILearningGoalUpdateAssignment): Observable<any> {
+    return this.http.put(SERVER_API_URL + 'api/course/goal', learningGoalAssignment);
   }
 }

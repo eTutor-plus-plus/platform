@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ICourseModel } from '../course-mangement.model';
+import { ICourseModel, ILearningGoalUpdateAssignment } from '../course-mangement.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
 import { LearningGoalTreeviewItem } from '../../learning-goals/learning-goal-treeview-item.model';
@@ -77,7 +77,24 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    * Saves the course's assignment.
    */
   public save(): void {
-    this.activeModal.close();
+    this.isSaving = true;
+
+    const ids = this.selectedLearningGoals.map<string>(x => x.value);
+
+    const assignment: ILearningGoalUpdateAssignment = {
+      courseId: this.selectedCourse.id!,
+      learningGoalIds: ids,
+    };
+
+    this.courseManagementService.setLearningGoalAssignment(assignment).subscribe(
+      () => {
+        this.isSaving = false;
+        this.activeModal.close();
+      },
+      () => {
+        this.isSaving = false;
+      }
+    );
   }
 
   /**
