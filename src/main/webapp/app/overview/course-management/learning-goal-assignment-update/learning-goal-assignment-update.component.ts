@@ -146,11 +146,13 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
     const extractedItem = this.extractedLearningGoals[idx];
     this.extractedLearningGoals.splice(idx, 1);
 
+    const originalItem = cloneDeep(this.getOriginalAvailableItem(item));
+
     if (extractedItem.parent) {
-      extractedItem.parent.children.push(extractedItem);
+      extractedItem.parent.children.push(originalItem);
       extractedItem.parent.children.sort((a, b) => a.text.localeCompare(b.text));
     } else {
-      this.availableLearningGoals.push(extractedItem);
+      this.availableLearningGoals.push(originalItem);
       this.availableLearningGoals.sort((a, b) => a.text.localeCompare(b.text));
     }
 
