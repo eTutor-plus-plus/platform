@@ -39,7 +39,7 @@
     </ng-template>
 </context-menu>
 <context-menu #selectedLearningGoalsCtxMenu>
-    <ng-template contextMenuItem (execute)="onDeselectLearningGoal($event.item)">
+    <ng-template contextMenuItem [enabled]="isSelectedContextMenuAllowed" (execute)="onDeselectLearningGoal($event.item)">
         <span jhiTranslate="courseManagement.goalAssignment.deselectGoal">Deselect learning goal</span>
     </ng-template>
 </context-menu>

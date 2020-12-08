@@ -243,6 +243,16 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
   }
 
   /**
+   * Checks whether the current selected contexts menu's entry
+   * is enabled.
+   *
+   * @param item the current item
+   */
+  public isSelectedContextMenuAllowed = (item: LearningGoalTreeviewItem): boolean => {
+    return this.isRootItemIn(item, this.selectedLearningGoals);
+  };
+
+  /**
    * Handles a simple left click on the available goals tree view.
    * If the left click also contains a pressed CTRL key, the selection will be removed.
    *
