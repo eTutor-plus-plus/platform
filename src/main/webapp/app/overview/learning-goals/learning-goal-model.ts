@@ -45,11 +45,37 @@ export interface ILearningGoalModel extends INewLearningGoalModel {
 }
 
 /**
+ * Interface for a displayable learning goal assignment.
+ */
+export interface IDisplayLearningGoalAssignmentModel extends ILearningGoalModel {
+  /**
+   * The optional root id
+   */
+  rootId?: string;
+}
+
+/**
+ * Returns whether the given model is an instance of the
+ * `IDisplayLearningGoalAssignmentModel` interface.
+ *
+ * @param model the learning goal model to test
+ */
+function instanceOfIDisplayLearningGoalAssignmentModel(model: ILearningGoalModel): model is IDisplayLearningGoalAssignmentModel {
+  return 'rootId' in model;
+}
+
+/**
  * Converts the given {@link ILearningGoalModel} into the corresponding {@link LearningGoalTreeItem}.
  *
  * @param inputModel the model which should be converted
  */
 export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoalTreeItem {
+  let rootId = '';
+
+  if (instanceOfIDisplayLearningGoalAssignmentModel(inputModel) && inputModel.rootId) {
+    rootId = inputModel.rootId;
+  }
+
   const retModel: LearningGoalTreeItem = {
     text: inputModel.name,
     description: inputModel.description,
@@ -59,6 +85,7 @@ export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoa
     changeDate: inputModel.lastModifiedDate,
     value: inputModel.id,
     children: [],
+    rootId,
   };
 
   for (const goal of inputModel.subGoals) {

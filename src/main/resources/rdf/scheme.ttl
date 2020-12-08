@@ -37,6 +37,10 @@ etutor:hasReferenceCnt rdf:type rdfs:Property ;
                        rdfs:domain etutor:Goal ;
                        rdfs:range xsd:int .
 
+etutor:hasRootGoal rdf:type rdfs:Property ;
+                   rdfs:domain etutor:Goal ;
+                   rdfs:range etutor:Goal .
+
 ## Coureses
 # Classes
 etutor:Course rdf:type rdfs:Class .

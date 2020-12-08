@@ -21,6 +21,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_OWNER = "hasOwner";
     private static final String PROP_HAS_SUB_GOAL = "hasSubGoal";
     private static final String PROP_HAS_REFERENCE_CNT = "hasReferenceCnt";
+    private static final String PROP_HAS_ROOT_GOAL = "hasRootGoal";
     private static final String PROP_HAS_COURSE_DESCRIPTION = "hasCourseDescription";
     private static final String PROP_HAS_COURSE_LINK = "hasCourseLink";
     private static final String PROP_HAS_COURSE_TYPE = "hasCourseType";
@@ -62,6 +63,10 @@ public final class ETutorVocabulary {
      * The hasReferenceCnt property.
      */
     public static final Property hasReferenceCnt = m.createProperty(URI + PROP_HAS_REFERENCE_CNT);
+    /**
+     * The hasRootGoal property.
+     */
+    public static final Property hasRootGoal = m.createProperty(URI + PROP_HAS_ROOT_GOAL);
     /**
      * The hasCourseDescription property.
      */

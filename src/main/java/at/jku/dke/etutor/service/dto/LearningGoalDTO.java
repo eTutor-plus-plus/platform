@@ -9,7 +9,8 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.*;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * DTO class for a learning goal which extends the new learning goal dto.
@@ -38,7 +39,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
      * @param newLearningGoalDTO the new learning goal dto
      * @param owner              the owner of the learning goal
      * @param lastModifiedDate   the last modification date of the learning goal
-     * @param id the id of the learning goal
+     * @param id                 the id of the learning goal
      */
     public LearningGoalDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Instant lastModifiedDate, String id) {
         this();
@@ -54,7 +55,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
     /**
      * Constructor.
      *
-     * @param rdfResource the rdf representation of the learning goal.
+     * @param rdfResource the rdf representation of the learning goal
      * @throws ParseException is thrown if the modification date is stored in the wrong format
      */
     public LearningGoalDTO(Resource rdfResource) throws ParseException {
@@ -82,11 +83,23 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
             while (subGoalIterator.hasNext()) {
                 Statement stmt = subGoalIterator.nextStatement();
                 Resource subGoalResource = stmt.getResource();
-                subGoals.add(new LearningGoalDTO(subGoalResource));
+                subGoals.add(getSubGoalForConstructor(subGoalResource));
             }
         } finally {
             subGoalIterator.close();
         }
+    }
+
+    /**
+     * Method which creates a new sub goal and is designed to be used only
+     * in the constructor.
+     *
+     * @param subGoalResource the resource for the sub goal
+     * @return a new learning goal dto which represents a sub goal
+     * @throws ParseException is thrown if the modification date is stored in the wrong format
+     */
+    protected LearningGoalDTO getSubGoalForConstructor(Resource subGoalResource) throws ParseException {
+        return new LearningGoalDTO(subGoalResource);
     }
 
     /**

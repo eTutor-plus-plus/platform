@@ -21,6 +21,7 @@ import { cloneDeep } from 'lodash';
 export class LearningGoalAssignmentUpdateComponent implements OnInit {
   private _selectedCourse?: ICourseModel;
   private loginName = '';
+  private initialLoadingDone = false;
 
   private extractedLearningGoals: LearningGoalTreeviewItem[] = [];
   private allAvailableLearningGoals: LearningGoalTreeviewItem[] = [];
@@ -63,6 +64,7 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       this.availableLearningGoals = value;
       this.allAvailableLearningGoals = [];
       this.availableLearningGoals.forEach(x => this.allAvailableLearningGoals.push(cloneDeep(x)));
+      this.initialLoadingDone = true;
     });
   }
 
@@ -104,15 +106,9 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    */
   @Input()
   public set selectedCourse(value: ICourseModel) {
-    this.courseManagementService.getLearningGoalsFromCourse(value, this.loginName).subscribe(goals => {
-      this.selectedLearningGoals = goals;
-
-      for (const goal of goals) {
-        this.removeGoalFromAvailable(goal);
-      }
-    });
-
     this._selectedCourse = value;
+
+    this.loadAssignmentsFromCourseAsync();
   }
 
   /**
@@ -120,6 +116,33 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    */
   public get selectedCourse(): ICourseModel {
     return this._selectedCourse!;
+  }
+
+  /**
+   * Asynchronously loads the assignment from the current course.
+   */
+  private async loadAssignmentsFromCourseAsync(): Promise<any> {
+    const goalsFromService = await this.courseManagementService
+      .getLearningGoalsFromCourse(this._selectedCourse!, this.loginName)
+      .toPromise();
+    while (!this.initialLoadingDone) {
+      await this.delay(10);
+    }
+
+    this.selectedLearningGoals = goalsFromService;
+
+    for (const goal of goalsFromService) {
+      this.removeGoalFromAvailable(goal, true);
+    }
+  }
+
+  /**
+   * Performs an awaitable delay.
+   *
+   * @param ms the amount in milliseconds
+   */
+  private delay(ms: number): Promise<any> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -287,7 +310,11 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       parent = parent.parent;
     }
 
-    const start = this.allAvailableLearningGoals.find(x => x.value === parent.value)!;
+    let start = this.allAvailableLearningGoals.find(x => x.value === parent.value);
+
+    if (!start) {
+      start = this.allAvailableLearningGoals.find(x => x.value === parent.rootId)!;
+    }
 
     const itemToReturn = this.getOriginalAvailableItemRecursive(start, item);
 
@@ -323,16 +350,31 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    * Removes the given learning goal tree view item from the available ones.
    *
    * @param item the item to remove
+   * @param itemFromEndpoint
    */
-  private removeGoalFromAvailable(item: LearningGoalTreeviewItem): void {
-    if (!item.parent) {
-      const idx = this.availableLearningGoals.findIndex(x => x.value === item.value);
-      this.availableLearningGoals.splice(idx, 1);
-    } else {
-      const idx = item.parent.children.findIndex(x => x.value === item.value);
-      item.parent.children.splice(idx, 1);
-    }
+  private removeGoalFromAvailable(item: LearningGoalTreeviewItem, itemFromEndpoint = false): void {
+    if (itemFromEndpoint) {
+      let idx = this.availableLearningGoals.findIndex(x => x.value === item.rootId);
+      const originalParent = this.availableLearningGoals[idx];
+      const originalItem = this.getOriginalAvailableItemRecursive(originalParent, item) ?? item;
 
-    this.extractedLearningGoals.push(item);
+      this.extractedLearningGoals.push(originalItem);
+      if (originalItem.value === originalParent.value) {
+        this.availableLearningGoals.splice(idx, 1);
+      } else {
+        idx = originalItem.parent!.children.findIndex(x => x.value === originalItem.value);
+        originalItem.parent!.children.splice(idx, 1);
+      }
+    } else {
+      if (!item.parent) {
+        const idx = this.availableLearningGoals.findIndex(x => x.value === item.value);
+        this.extractedLearningGoals.push(item);
+        this.availableLearningGoals.splice(idx, 1);
+      } else {
+        const idx = item.parent.children.findIndex(x => x.value === item.value);
+        item.parent.children.splice(idx, 1);
+        this.extractedLearningGoals.push(item);
+      }
+    }
   }
 }

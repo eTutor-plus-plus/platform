@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { CourseModel, ILearningGoalUpdateAssignment } from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { LearningGoalTreeviewItem } from '../learning-goals/learning-goal-treeview-item.model';
-import { convertLearningGoal, ILearningGoalModel } from '../learning-goals/learning-goal-model';
+import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../learning-goals/learning-goal-model';
 import { map } from 'rxjs/operators';
 
 /**
@@ -66,7 +66,7 @@ export class CourseManagementService {
    * @param userLogin the current user's login name
    */
   public getLearningGoalsFromCourse(course: CourseModel, userLogin: string): Observable<LearningGoalTreeviewItem[]> {
-    return this.http.get<ILearningGoalModel[]>(SERVER_API_URL + `api/course/${course.name}/goals`).pipe(
+    return this.http.get<IDisplayLearningGoalAssignmentModel[]>(SERVER_API_URL + `api/course/${course.name}/goals`).pipe(
       map(list => {
         const retList: LearningGoalTreeviewItem[] = [];
 

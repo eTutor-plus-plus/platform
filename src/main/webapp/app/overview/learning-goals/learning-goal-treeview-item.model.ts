@@ -53,8 +53,9 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
-  private _currentUser: string;
-  private _parent?: LearningGoalTreeviewItem;
+  private readonly _currentUser: string;
+  private readonly _parent?: LearningGoalTreeviewItem;
+  private readonly _rootId?: string;
 
   /**
    * Constructor.
@@ -73,6 +74,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     this._changeDate = item.changeDate;
     this._currentUser = currentUser;
     this._parent = parent;
+    this._rootId = item.rootId;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
@@ -181,6 +183,15 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public get parent(): LearningGoalTreeviewItem | undefined {
     return this._parent;
+  }
+
+  /**
+   * Returns the optional root id.
+   *
+   * @returns the optional root id
+   */
+  public get rootId(): string | undefined {
+    return this._rootId;
   }
 
   /**

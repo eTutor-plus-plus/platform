@@ -3,10 +3,7 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
-import at.jku.dke.etutor.service.dto.CourseDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalAssignmentDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.LearningGoalUpdateAssignmentDTO;
+import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.web.rest.errors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,7 +191,7 @@ public class CourseResource {
      */
     @GetMapping("/course/{courseName}/goals")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Set<LearningGoalDTO>> getLearningGoalsForCourse(@PathVariable String courseName) {
+    public ResponseEntity<Set<DisplayLearningGoalAssignmentDTO>> getLearningGoalsForCourse(@PathVariable String courseName) {
         try {
             var goals = sparqlEndpointService.getLearningGoalsForCourse(courseName);
             return ResponseEntity.ok(goals);

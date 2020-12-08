@@ -7,7 +7,6 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.*;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -289,7 +288,8 @@ public class CourseIT {
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        SortedSet<LearningGoalDTO> goals = TestUtil.convertCollectionFromJSONString(jsonData, LearningGoalDTO.class, TreeSet.class);
+        SortedSet<DisplayLearningGoalAssignmentDTO> goals = TestUtil.convertCollectionFromJSONString(jsonData,
+            DisplayLearningGoalAssignmentDTO.class, TreeSet.class);
 
         assertThat(goals).isNotEmpty();
         assertThat(goals.size()).isEqualTo(1);

@@ -309,38 +309,48 @@ public class SPARQLEndpointService {
      */
     public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
         String queryStr = String.format("""
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+          PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            CONSTRUCT {
-             	?subject ?predicate ?object.
-             	?subject etutor:hasReferenceCnt ?cnt
-             } WHERE {
-               {
-                 ?subject ?predicate ?object.
-                 ?subject a etutor:Goal.
-                 ?subject rdfs:label ?lbl
-                 {
-                   ?subject etutor:isPrivate false.
-                 }
-                 UNION
-                 {
-                   ?subject etutor:isPrivate true.
-                   ?subject etutor:hasOwner "%s".
-                 }
-               } UNION {
-                 BIND(rdf:type AS ?predicate)
-                 BIND(etutor:SubGoal AS ?object)
-                 ?goal etutor:hasSubGoal ?subject .
-               } {
-               	SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                   ?subject a etutor:Goal.
-                   OPTIONAL { ?course etutor:hasGoal ?subject }
-               	}
-               	GROUP BY ?subject
-               }
-             }
+          CONSTRUCT {
+            ?subject ?predicate ?object.
+            ?subject etutor:hasReferenceCnt ?cnt.
+            ?subject etutor:hasRoot ?root
+          } WHERE {
+            {
+              ?subject ?predicate ?object.
+              ?subject a etutor:Goal.
+              ?subject rdfs:label ?lbl
+              {
+                ?subject etutor:isPrivate false.
+              }
+              UNION
+              {
+                ?subject etutor:isPrivate true.
+                ?subject etutor:hasOwner "%s".
+              }\s
+            } UNION {
+              BIND(rdf:type AS ?predicate)
+              BIND(etutor:SubGoal AS ?object)
+              ?goal etutor:hasSubGoal ?subject .
+            } {
+              SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                ?subject a etutor:Goal.
+                OPTIONAL { ?course etutor:hasGoal ?subject }
+              }
+              GROUP BY ?subject
+            } {
+              SELECT ?subject ?root WHERE {
+                ?root etutor:hasSubGoal* ?subject.
+                FILTER (
+                  !EXISTS {
+                    ?otherGoal etutor:hasSubGoal ?root.
+                  }
+                )
+              }
+            }
+          }
             """, owner);
 
         SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
@@ -596,47 +606,57 @@ public class SPARQLEndpointService {
      * @throws CourseNotFoundException if the course does not exist
      * @throws InternalModelException  if an internal model exception occurs
      */
-    public SortedSet<LearningGoalDTO> getLearningGoalsForCourse(String course) throws CourseNotFoundException, InternalModelException {
+    public SortedSet<DisplayLearningGoalAssignmentDTO> getLearningGoalsForCourse(String course) throws CourseNotFoundException, InternalModelException {
         Objects.requireNonNull(course);
 
         String qry = String.format(QRY_ASK_COURSE_EXIST, course);
 
         ParameterizedSparqlString constructQry = new ParameterizedSparqlString("""
-             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+              PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-             CONSTRUCT {
-             	?s ?p ?o.
-               	?s etutor:hasReferenceCnt ?cnt
-             }
+              CONSTRUCT {
+                ?s ?p ?o.
+                ?s etutor:hasReferenceCnt ?cnt
+              }
               WHERE {
-               {
-                 SELECT ?s ?p ?o WHERE {
-                   ?s ?p ?o .
-                   ?course etutor:hasGoal ?s .
-                 }
-               } UNION {
-                 SELECT ?s ?p ?o WHERE {
-                   ?s ?p ?o .
-                   ?course etutor:hasGoal ?goal .
-                   ?goal etutor:hasSubGoal* ?s .
-                 }
-               } UNION {
-                 SELECT ?s ?p ?o WHERE {
-                   ?course etutor:hasGoal ?goal .
-                   ?goal etutor:hasSubGoal+ ?s .
-                   BIND(rdf:type AS ?p)
-                   BIND(etutor:SubGoal AS ?o)
-                 }
-               } {
-               	SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
-                   ?s a etutor:Goal.
-                   OPTIONAL { ?course1 etutor:hasGoal ?s. }
-               	}
-               	GROUP BY ?s
-               }
-             }
-
+                {
+                  SELECT ?s ?p ?o WHERE {
+                    ?course etutor:hasGoal+/etutor:hasSubGoal* ?s.
+                    BIND(etutor:hasRootGoal AS ?p).
+                    ?o etutor:hasSubGoal* ?s.
+                    FILTER (
+                      !EXISTS {
+                        ?otherGoal etutor:hasSubGoal ?o.
+                      }
+                    )
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?s ?p ?o .
+                    ?course etutor:hasGoal ?s .
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?s ?p ?o .
+                    ?course etutor:hasGoal ?goal .
+                    ?goal etutor:hasSubGoal* ?s .
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?course etutor:hasGoal ?goal .
+                    ?goal etutor:hasSubGoal+ ?s .
+                    BIND(rdf:type AS ?p)
+                    BIND(etutor:SubGoal AS ?o)
+                  }
+                } {
+                  SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
+                    ?s a etutor:Goal.
+                    OPTIONAL { ?course1 etutor:hasGoal ?s. }
+                  }
+                  GROUP BY ?s
+                }
+              }
             """);
 
         constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
@@ -648,7 +668,7 @@ public class SPARQLEndpointService {
                 throw new CourseNotFoundException();
             }
 
-            SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
+            SortedSet<DisplayLearningGoalAssignmentDTO> goalList = new TreeSet<>();
             Model resultModel = connection.queryConstruct(constructQry.asQuery());
             ResIterator iterator = null;
 
@@ -657,7 +677,7 @@ public class SPARQLEndpointService {
                 while (iterator.hasNext()) {
                     Resource resource = iterator.next();
                     if (!resource.hasProperty(RDF.type, ETutorVocabulary.SubGoal)) {
-                        goalList.add(new LearningGoalDTO(resource));
+                        goalList.add(new DisplayLearningGoalAssignmentDTO(resource));
                     }
                 }
             } catch (ParseException ex) {
