@@ -28,10 +28,10 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
         {
           path: 'overview',
           data: {
-            requireLogin: true
+            requireLogin: true,
           },
           canActivate: [UserRouteAccessService],
-          loadChildren: () => import('./overview/overview.module').then(m => m.OverviewModule)
+          loadChildren: () => import('./overview/overview.module').then(m => m.OverviewModule),
         },
         ...LAYOUT_ROUTES,
       ],

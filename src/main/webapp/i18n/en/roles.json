@@ -1,7 +1,7 @@
 {
-  "roles" : {
+  "roles": {
     "ROLE_ADMIN": "Administrator",
-    "ROLE_INSTRUCTOR" : "Course Instructor",
+    "ROLE_INSTRUCTOR": "Course Instructor",
     "ROLE_STUDENT": "Student",
     "ROLE_TUTOR": "Tutor",
     "ROLE_USER": "User"

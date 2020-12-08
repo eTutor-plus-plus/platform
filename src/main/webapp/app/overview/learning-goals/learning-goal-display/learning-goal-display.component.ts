@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { LearningGoalTreeviewItem } from "../learning-goal-treeview-item.model";
+import { LearningGoalTreeviewItem } from '../learning-goal-treeview-item.model';
 
 /**
  * Component for displaying the current selected learning goal.
@@ -7,21 +7,19 @@ import { LearningGoalTreeviewItem } from "../learning-goal-treeview-item.model";
 @Component({
   selector: 'jhi-learning-goal-display',
   templateUrl: './learning-goal-display.component.html',
-  styleUrls: ['./learning-goal-display.component.scss']
+  styleUrls: ['./learning-goal-display.component.scss'],
 })
 export class LearningGoalDisplayComponent implements OnInit {
-
   @Input()
-  public learningGoalTreeviewItem?: LearningGoalTreeviewItem
+  public learningGoalTreeviewItem?: LearningGoalTreeviewItem;
 
   /**
    * Constructor
    */
-  constructor() { }
+  constructor() {}
 
   /**
    * Implements the on init method. See {@link OnInit}
    */
-  public ngOnInit(): void {
-  }
+  public ngOnInit(): void {}
 }

@@ -34,7 +34,11 @@
       "language": "Language",
       "learningGoals": {
         "main": "Learning goals",
-        "management": "Learning goals management"
+        "management": "Learning goal management"
+      },
+      "courses": {
+        "main": "Courses",
+        "management": "Course management"
       }
     },
     "form": {
@@ -145,7 +149,11 @@
     "learningGoalNotOwner": "Only the creator is allowed to edit the learning goal!",
     "learningGoalNotFound": "The learning goal does not exist!",
     "parsingError": "An internal error occurred!",
-    "privateSuperGoal": "A private super goal for a public sub goal is not allowed!"
+    "privateSuperGoal": "A private super goal for a public sub goal is not allowed!",
+    "courseAlreadyExists": "The course already exists!",
+    "courseNotFound": "The course does not exist!",
+    "learningGoalAssignmentNonExistent": "The learning goal assignment does not exist!",
+    "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!"
   },
   "footer": {
     "contact": "Contact",

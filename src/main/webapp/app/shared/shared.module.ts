@@ -4,10 +4,28 @@ import { FindLanguageFromKeyPipe } from './language/find-language-from-key.pipe'
 import { AlertComponent } from './alert/alert.component';
 import { AlertErrorComponent } from './alert/alert-error.component';
 import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
-import { TranslateRolePipe } from "app/shared/language/translate-role.pipe";
+import { TranslateRolePipe } from 'app/shared/language/translate-role.pipe';
+import { QuillModule } from 'ngx-quill';
+import { TreeviewModule } from 'ngx-treeview';
+import { ContextMenuModule } from 'ngx-contextmenu';
 
 @NgModule({
-  imports: [EtutorPlusPlusSharedLibsModule],
+  imports: [
+    EtutorPlusPlusSharedLibsModule,
+    QuillModule.forRoot({
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote'],
+          [{ header: [1, 2, 3, 4, 5, false] }],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link'],
+        ],
+      },
+    }),
+    TreeviewModule.forRoot(),
+    ContextMenuModule,
+  ],
   declarations: [FindLanguageFromKeyPipe, TranslateRolePipe, AlertComponent, AlertErrorComponent, HasAnyAuthorityDirective],
   exports: [
     EtutorPlusPlusSharedLibsModule,
@@ -16,6 +34,9 @@ import { TranslateRolePipe } from "app/shared/language/translate-role.pipe";
     AlertComponent,
     AlertErrorComponent,
     HasAnyAuthorityDirective,
+    QuillModule,
+    TreeviewModule,
+    ContextMenuModule,
   ],
 })
 export class EtutorPlusPlusSharedModule {}

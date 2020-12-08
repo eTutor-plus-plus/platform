@@ -1,0 +1,46 @@
+{
+  "courseManagement": {
+    "title": "Kurse",
+    "popover": {
+      "title": "Information",
+      "message": "Soll der ausgewählte Kurs gelöscht werden?",
+      "cancelBtn": "Nein",
+      "confirmBtn": "Ja"
+    },
+    "createText": "Neuen Kurs erstellen",
+    "form": {
+      "header": "Kurs erstellen / bearbeiten",
+      "name": "Name:",
+      "description": "Beschreibung:",
+      "type": "Type:",
+      "typePlaceholder": "Type auswählen",
+      "url": "Link:",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "close": "Schließen",
+      "viewHeader": "Kurs anzeigen",
+      "creator": "Ersteller:",
+      "id": "Id:"
+    },
+    "searchPlaceholder": "Nach Namen suchen...",
+    "error": {
+      "required": "Dieses Feld ist erforderlich!",
+      "url": "Dieses optionale Feld muss dem URL-Format entsprechen!"
+    },
+    "tooltip": {
+      "editCourse": "Kurs '{{courseName}}' bearbeiten",
+      "deleteCourse": "Kurs '{{courseName}}' löschen",
+      "viewCourse": "Kurs '{{courseName}}' anzeigen",
+      "editGoalAssignment": "Zielzuordnung von '{{courseName}}' bearbeiten",
+      "viewGoalAssignment": "Zielzuordnung von '{{courseName}}' anzeigen"
+    },
+    "goalAssignment": {
+      "modalHeader": "Lernzielzuordnung",
+      "selectGoal": "Lernziel auswählen",
+      "deselectGoal": "Lernziel abwählen",
+      "availableGoals": "Verfügbare Lernziele",
+      "selectedGoals": "Ausgewählte Lernziele",
+      "displayModalHeader": "Lernzielzuordnung darstellen"
+    }
+  }
+}

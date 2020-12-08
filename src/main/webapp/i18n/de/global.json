@@ -35,6 +35,10 @@
       "learningGoals": {
         "main": "Lernziele",
         "management": "Lernzielverwaltung"
+      },
+      "courses": {
+        "main": "LVAs",
+        "management": "LVA-Verwaltung"
       }
     },
     "form": {
@@ -145,7 +149,11 @@
     "learningGoalNotOwner": "Nur der Ersteller darf das Lernziel bearbeiten!",
     "learningGoalNotFound": "Das Lernziel existiert nicht!",
     "parsingError": "Ein interner Fehler ist aufgetreten!",
-    "privateSuperGoal": "Ein privates Überziel für ein öffentliches Teilziel ist nicht erlaubt!"
+    "privateSuperGoal": "Ein privates Überziel für ein öffentliches Teilziel ist nicht erlaubt!",
+    "courseAlreadyExists": "Die LVA existiert bereits!",
+    "courseNotFound": "Die LVA existiert nicht!",
+    "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
+    "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!"
   },
   "footer": {
     "contact": "Kontakt",

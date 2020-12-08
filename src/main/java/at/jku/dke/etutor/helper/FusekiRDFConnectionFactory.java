@@ -37,4 +37,12 @@ public class FusekiRDFConnectionFactory implements RDFConnectionFactory {
         return RDFConnectionFuseki.create()
             .destination(applicationProperties.getFuseki().getBaseUrl()).build();
     }
+
+    /**
+     * Clears the dataset (only works in embedded mode).
+     */
+    @Override
+    public void clearDataset() {
+        //Not implemented!
+    }
 }

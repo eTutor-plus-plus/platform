@@ -2,8 +2,9 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
-import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.*;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentAlreadyExistsException;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -26,13 +27,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Service class for SPARQL related operations.
@@ -44,6 +43,7 @@ public class SPARQLEndpointService {
 
     private static final String SCHEME_PATH = "/rdf/scheme.ttl";
 
+    //region Queries
     private static final String QRY_GOAL_COUNT = """
         SELECT (COUNT(DISTINCT ?subject) as ?count)
         WHERE {
@@ -52,13 +52,47 @@ public class SPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_ID_GOAL_COUNT = """
+    private static final String QRY_ID_SUBJECT_COUNT = """
         SELECT (COUNT(DISTINCT ?subject) as ?count)
         WHERE {
         	?subject ?predicate ?object.
           FILTER(?subject = <%s> )
         }
         """;
+
+    private static final String QRY_ASK_COURSE_EXIST = """
+        ASK {
+        	?subject ?predicate ?object.
+          FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s> )
+        }
+        """;
+
+    private static final String QRY_ASK_COURSE_WITH_OWNER_EXIST = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+        	?subject ?predicate ?object.
+        	?subject etutor:hasCourseCreator ?creator
+            FILTER(?subject = ?uri )
+        }
+        """;
+
+    private static final String QRY_DELETE_ALL_FROM_SUBJECT = """
+        DELETE { ?subject ?predicate ?object }
+        WHERE {
+            ?subject ?predicate ?object.
+            FILTER(?subject = ?uri)
+        }
+        """;
+
+    private static final String QRY_GOAL_ASSIGNMENT_EXISTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+        	?course etutor:hasGoal ?goal
+        }
+        """;
+    //endregion
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
 
@@ -88,6 +122,8 @@ public class SPARQLEndpointService {
             log.error("Internal error! Must not occur!", ex);
         }
     }
+
+    //region Learning goals
 
     /**
      * Inserts a new learning goal into the RDF graph.
@@ -135,7 +171,7 @@ public class SPARQLEndpointService {
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
-            try (QueryExecution qExec = conn.query(String.format(QRY_ID_GOAL_COUNT,
+            try (QueryExecution qExec = conn.query(String.format(QRY_ID_SUBJECT_COUNT,
                 learningGoalDTO.getId()))) {
                 cnt = qExec.execSelect().next().getLiteral("?count").getInt();
             }
@@ -273,29 +309,48 @@ public class SPARQLEndpointService {
      */
     public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
         String queryStr = String.format("""
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+          PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            CONSTRUCT { ?subject ?predicate ?object }
-            WHERE {
+          CONSTRUCT {
+            ?subject ?predicate ?object.
+            ?subject etutor:hasReferenceCnt ?cnt.
+            ?subject etutor:hasRoot ?root
+          } WHERE {
+            {
+              ?subject ?predicate ?object.
+              ?subject a etutor:Goal.
+              ?subject rdfs:label ?lbl
               {
-                  ?subject ?predicate ?object.
-                  ?subject rdfs:label ?lbl
-                  {
-                    ?subject etutor:isPrivate false.
+                ?subject etutor:isPrivate false.
+              }
+              UNION
+              {
+                ?subject etutor:isPrivate true.
+                ?subject etutor:hasOwner "%s".
+              }\s
+            } UNION {
+              BIND(rdf:type AS ?predicate)
+              BIND(etutor:SubGoal AS ?object)
+              ?goal etutor:hasSubGoal ?subject .
+            } {
+              SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                ?subject a etutor:Goal.
+                OPTIONAL { ?course etutor:hasGoal ?subject }
+              }
+              GROUP BY ?subject
+            } {
+              SELECT ?subject ?root WHERE {
+                ?root etutor:hasSubGoal* ?subject.
+                FILTER (
+                  !EXISTS {
+                    ?otherGoal etutor:hasSubGoal ?root.
                   }
-                  UNION
-                  {
-                    ?subject etutor:isPrivate true.
-                    ?subject etutor:hasOwner "%s".
-                  }
-              } UNION {
-                  BIND(rdf:type AS ?predicate)
-                  BIND(etutor:SubGoal AS ?object)
-                  ?goal etutor:hasSubGoal ?subject .
+                )
               }
             }
+          }
             """, owner);
 
         SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
@@ -338,6 +393,414 @@ public class SPARQLEndpointService {
             return isLearningGoalPrivate(conn, owner, learningGoalName);
         }
     }
+    //endregion
+
+    //region Courses
+
+    /**
+     * Creates a new course.
+     *
+     * @param courseDTO the dto of the course to create
+     * @param user      the current logged in user
+     * @return the newly created course dto
+     * @throws CourseAlreadyExistsException if a course already exists
+     */
+    public CourseDTO insertNewCourse(CourseDTO courseDTO, String user) throws CourseAlreadyExistsException {
+        Objects.requireNonNull(courseDTO);
+        Objects.requireNonNull(user);
+
+        String query = String.format(QRY_ASK_COURSE_EXIST, courseDTO.getNameForRDF());
+        Model model = ModelFactory.createDefaultModel();
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseAlreadyExist = connection.queryAsk(query);
+
+            if (courseAlreadyExist) {
+                throw new CourseAlreadyExistsException();
+            }
+
+            Resource newCourse = constructCourseFromDTO(courseDTO, user, model);
+            connection.load(model);
+            courseDTO.setId(newCourse.getURI());
+            courseDTO.setCreator(user);
+            return courseDTO;
+        }
+    }
+
+    /**
+     * Updates the given course
+     *
+     * @param courseDTO the course dto which contains the update information
+     * @throws CourseNotFoundException if the course does not exist
+     */
+    public void updateCourse(CourseDTO courseDTO) throws CourseNotFoundException {
+        Objects.requireNonNull(courseDTO);
+
+        String courseExistQry = String.format(QRY_ASK_COURSE_EXIST, courseDTO.getNameForRDF());
+
+        try (RDFConnection conn = getConnection()) {
+            boolean courseExist = conn.queryAsk(courseExistQry);
+
+            if (!courseExist) {
+                throw new CourseNotFoundException();
+            }
+
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                DELETE {
+                    ?subject etutor:hasCourseDescription ?description.
+                    ?subject etutor:hasCourseLink ?link.
+                    ?subject etutor:hasCourseType ?type.
+                }
+                INSERT {
+                    ?subject etutor:hasCourseDescription ?newDescription.
+                    ?subject etutor:hasCourseLink ?newLink.
+                    ?subject etutor:hasCourseType ?newType.
+                }
+                WHERE {
+                    ?subject etutor:hasCourseDescription ?description.
+                    ?subject etutor:hasCourseLink ?link.
+                    ?subject etutor:hasCourseType ?type.
+                    FILTER(?subject = ?courseUri)
+                }
+                """);
+
+            updateQry.setIri("?courseUri", courseDTO.getId());
+
+            String description = ObjectUtils.firstNonNull(courseDTO.getDescription(), "");
+            description = description.trim();
+            updateQry.setLiteral("?newDescription", description);
+
+            String link = "";
+
+            if (courseDTO.getLink() != null) {
+                link = courseDTO.getLink().toString();
+            }
+
+            updateQry.setLiteral("?newLink", link);
+            updateQry.setLiteral("?newType", courseDTO.getCourseType());
+
+            conn.update(updateQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the course by it's name.
+     *
+     * @param name the rdf encoded name of the course which should be returned
+     * @return An empty optional, if the course does not exist, otherwise the optional containing the course
+     */
+    public Optional<CourseDTO> getCourse(String name) {
+        Objects.requireNonNull(name);
+
+        String query = String.format("""
+            CONSTRUCT { ?subject ?predicate ?object }
+            WHERE {
+                ?subject ?predicate ?object.
+                FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s>)
+            }
+            """, name);
+
+        try (RDFConnection conn = getConnection()) {
+
+            Model model = conn.queryConstruct(query);
+            ResIterator iterator = null;
+
+            try {
+                iterator = model.listSubjects();
+                if (iterator.hasNext()) {
+                    Resource resource = iterator.nextResource();
+                    return Optional.of(new CourseDTO(resource));
+                } else {
+                    return Optional.empty();
+                }
+            } finally {
+                if (iterator != null) {
+                    iterator.close();
+                }
+            }
+        }
+    }
+
+    /**
+     * Deletes the given course.
+     *
+     * @param name    the rdf encoded course name
+     * @param creator the creator of the course
+     * @throws CourseNotFoundException if the course does not exist or the given creator is not the course's creator
+     */
+    public void deleteCourse(String name, String creator) throws CourseNotFoundException {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(creator);
+
+        String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
+
+        ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_WITH_OWNER_EXIST);
+        courseExistQry.setIri("?uri", id);
+        courseExistQry.setLiteral("?creator", creator);
+
+        try (RDFConnection conn = getConnection()) {
+            boolean courseExist = conn.queryAsk(courseExistQry.toString());
+
+            if (!courseExist) {
+                throw new CourseNotFoundException();
+            }
+
+            ParameterizedSparqlString courseDeleteQry = new ParameterizedSparqlString(QRY_DELETE_ALL_FROM_SUBJECT);
+            courseDeleteQry.setIri("?uri", id);
+
+            conn.update(courseDeleteQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns a sorted set of all available courses.
+     *
+     * @return a sorted set of all available courses
+     */
+    public SortedSet<CourseDTO> getAllCourses() {
+        String query = """
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            CONSTRUCT { ?subject ?predicate ?object }
+            WHERE {
+                ?subject ?predicate ?object.
+                ?subject a etutor:Course
+            }
+            """;
+
+        try (RDFConnection conn = getConnection()) {
+            SortedSet<CourseDTO> set = new TreeSet<>();
+
+            try (QueryExecution exec = conn.query(query)) {
+                Model model = exec.execConstruct();
+                ResIterator iterator = null;
+
+                try {
+                    iterator = model.listSubjects();
+
+                    while (iterator.hasNext()) {
+                        Resource resource = iterator.nextResource();
+                        set.add(new CourseDTO(resource));
+                    }
+
+                    return set;
+                } finally {
+                    if (iterator != null) {
+                        iterator.close();
+                    }
+                }
+            }
+        }
+    }
+    //endregion
+
+    //region Learning Goal Assignment
+
+    /**
+     * Returns the associated learning goals of a given course.
+     *
+     * @param course the course
+     * @return the associated learning goals
+     * @throws CourseNotFoundException if the course does not exist
+     * @throws InternalModelException  if an internal model exception occurs
+     */
+    public SortedSet<DisplayLearningGoalAssignmentDTO> getLearningGoalsForCourse(String course) throws CourseNotFoundException, InternalModelException {
+        Objects.requireNonNull(course);
+
+        String qry = String.format(QRY_ASK_COURSE_EXIST, course);
+
+        ParameterizedSparqlString constructQry = new ParameterizedSparqlString("""
+              PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+              CONSTRUCT {
+                ?s ?p ?o.
+                ?s etutor:hasReferenceCnt ?cnt
+              }
+              WHERE {
+                {
+                  SELECT ?s ?p ?o WHERE {
+                    ?course etutor:hasGoal+/etutor:hasSubGoal* ?s.
+                    BIND(etutor:hasRootGoal AS ?p).
+                    ?o etutor:hasSubGoal* ?s.
+                    FILTER (
+                      !EXISTS {
+                        ?otherGoal etutor:hasSubGoal ?o.
+                      }
+                    )
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?s ?p ?o .
+                    ?course etutor:hasGoal ?s .
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?s ?p ?o .
+                    ?course etutor:hasGoal ?goal .
+                    ?goal etutor:hasSubGoal* ?s .
+                  }
+                } UNION {
+                  SELECT ?s ?p ?o WHERE {
+                    ?course etutor:hasGoal ?goal .
+                    ?goal etutor:hasSubGoal+ ?s .
+                    BIND(rdf:type AS ?p)
+                    BIND(etutor:SubGoal AS ?o)
+                  }
+                } {
+                  SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
+                    ?s a etutor:Goal.
+                    OPTIONAL { ?course1 etutor:hasGoal ?s. }
+                  }
+                  GROUP BY ?s
+                }
+              }
+            """);
+
+        constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exist = connection.queryAsk(qry);
+
+            if (!exist) {
+                throw new CourseNotFoundException();
+            }
+
+            SortedSet<DisplayLearningGoalAssignmentDTO> goalList = new TreeSet<>();
+            Model resultModel = connection.queryConstruct(constructQry.asQuery());
+            ResIterator iterator = null;
+
+            try {
+                iterator = resultModel.listSubjects();
+                while (iterator.hasNext()) {
+                    Resource resource = iterator.next();
+                    if (!resource.hasProperty(RDF.type, ETutorVocabulary.SubGoal)) {
+                        goalList.add(new DisplayLearningGoalAssignmentDTO(resource));
+                    }
+                }
+            } catch (ParseException ex) {
+                log.error("Parsing exception", ex);
+                throw new InternalModelException(ex);
+            } finally {
+                if (iterator != null) {
+                    iterator.close();
+                }
+            }
+            return goalList;
+        }
+    }
+
+    /**
+     * Adds a new learning goal assignment.
+     *
+     * @param learningGoalAssignmentDTO the learning goal assignment dto to add
+     * @throws LearningGoalAssignmentAlreadyExistsException if a learning goal assignment already exists
+     */
+    public void addGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO) throws LearningGoalAssignmentAlreadyExistsException {
+        Objects.requireNonNull(learningGoalAssignmentDTO);
+        Objects.requireNonNull(learningGoalAssignmentDTO.getCourseId());
+        Objects.requireNonNull(learningGoalAssignmentDTO.getLearningGoalId());
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_ASSIGNMENT_EXISTS);
+        qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+        qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exists = connection.queryAsk(qry.asQuery());
+
+            if (exists) {
+                throw new LearningGoalAssignmentAlreadyExistsException();
+            }
+
+            Model model = ModelFactory.createDefaultModel();
+            Resource courseResource = model.createResource(learningGoalAssignmentDTO.getCourseId());
+            Resource goalResource = model.createResource(learningGoalAssignmentDTO.getLearningGoalId());
+            courseResource.addProperty(ETutorVocabulary.hasGoal, goalResource);
+
+            connection.load(model);
+        }
+    }
+
+    /**
+     * Removes a given learning goal assignment.
+     *
+     * @param learningGoalAssignmentDTO the learning goal assignment to remove
+     * @throws LearningGoalAssignmentNonExistentException if the learning goal does not exist
+     */
+    public void removeGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO) throws LearningGoalAssignmentNonExistentException {
+        Objects.requireNonNull(learningGoalAssignmentDTO);
+        Objects.requireNonNull(learningGoalAssignmentDTO.getCourseId());
+        Objects.requireNonNull(learningGoalAssignmentDTO.getLearningGoalId());
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_ASSIGNMENT_EXISTS);
+        qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+        qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+        try (RDFConnection connection = getConnection()) {
+            boolean exists = connection.queryAsk(qry.asQuery());
+
+            if (!exists) {
+                throw new LearningGoalAssignmentNonExistentException();
+            }
+
+            qry = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                DELETE { ?course etutor:hasGoal ?goal }
+                WHERE {
+                    ?course etutor:hasGoal ?goal
+                }
+                """);
+            qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
+            qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
+
+            connection.update(qry.asUpdate());
+        }
+    }
+
+    /**
+     * Sets the given learning goal assignment.
+     *
+     * @param learningGoalUpdateAssignment the assignment to set
+     */
+    public void setGoalAssignment(LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignment) {
+        Objects.requireNonNull(learningGoalUpdateAssignment);
+        Objects.requireNonNull(learningGoalUpdateAssignment.getCourseId());
+        Objects.requireNonNull(learningGoalUpdateAssignment.getLearningGoalIds());
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE { ?subject etutor:hasGoal ?goal }
+            INSERT {
+            """);
+
+        for (String goal : learningGoalUpdateAssignment.getLearningGoalIds()) {
+            builder.append(String.format("?subject etutor:hasGoal <%s> .%n", goal));
+        }
+
+        builder.append("""
+            }
+            WHERE {
+              ?subject a etutor:Course.
+              OPTIONAL {
+                ?subject etutor:hasGoal ?goal.
+              }
+              FILTER(?subject = ?course)
+            }
+            """);
+
+        ParameterizedSparqlString updateQry = new ParameterizedSparqlString(builder.toString());
+        updateQry.setIri("?course", learningGoalUpdateAssignment.getCourseId());
+
+        try (RDFConnection conn = getConnection()) {
+            conn.update(updateQry.asUpdate());
+        }
+    }
+    //endregion
 
     //region Private Methods
 
@@ -413,6 +876,39 @@ public class SPARQLEndpointService {
         newGoal.addProperty(RDF.type, ETutorVocabulary.Goal);
 
         return newGoal;
+    }
+
+    /**
+     * Creates a new course from the given parameters.
+     *
+     * @param courseDTO the course dto of the new course
+     * @param owner     the owner of the new course
+     * @param model     the rdf model which should be used
+     * @return {@link Resource} which represents the new course
+     */
+    private Resource constructCourseFromDTO(CourseDTO courseDTO, String owner, Model model) {
+        String resourceName = courseDTO.getNameForRDF();
+
+        Resource newCourse = ETutorVocabulary.createCourseResourceOfModel(resourceName, model);
+
+        String courseDescription = ObjectUtils.firstNonNull(courseDTO.getDescription(), "");
+        courseDescription = courseDescription.trim();
+
+        newCourse.addProperty(ETutorVocabulary.hasCourseDescription, courseDescription);
+        newCourse.addProperty(RDFS.label, courseDTO.getName().trim());
+        newCourse.addProperty(ETutorVocabulary.hasCourseCreator, owner);
+
+        URL url = courseDTO.getLink();
+        String urlAsString = "";
+
+        if (url != null) {
+            urlAsString = url.toString();
+        }
+        newCourse.addProperty(ETutorVocabulary.hasCourseLink, urlAsString);
+        newCourse.addProperty(ETutorVocabulary.hasCourseType, courseDTO.getCourseType());
+        newCourse.addProperty(RDF.type, ETutorVocabulary.Course);
+
+        return newCourse;
     }
     //endregion
 }

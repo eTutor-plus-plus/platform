@@ -7,8 +7,7 @@ import { SERVER_API_URL } from '../../app.constants';
 import { map } from 'rxjs/operators';
 
 /**
- * Service which retrieves the learning goals from the api
- * and is currently mocked. TODO: Add REST-API
+ * Service which manages the learning goals.
  */
 @Injectable({
   providedIn: 'root',

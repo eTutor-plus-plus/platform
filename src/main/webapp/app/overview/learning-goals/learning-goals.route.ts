@@ -1,5 +1,5 @@
-import { Routes } from "@angular/router";
-import { LearningGoalsComponent } from "./learning-goals.component";
+import { Routes } from '@angular/router';
+import { LearningGoalsComponent } from './learning-goals.component';
 
 /**
  * Learning goal related routes.
@@ -7,6 +7,6 @@ import { LearningGoalsComponent } from "./learning-goals.component";
 export const learningGoalsRoute: Routes = [
   {
     path: '',
-    component: LearningGoalsComponent
-  }
+    component: LearningGoalsComponent,
+  },
 ];

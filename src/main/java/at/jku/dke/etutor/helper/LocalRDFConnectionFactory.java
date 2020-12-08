@@ -42,4 +42,12 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
     public RDFConnection getRDFConnection() {
         return org.apache.jena.rdfconnection.RDFConnectionFactory.connect(dataset);
     }
+
+    /**
+     * Clears the dataset (only works in embedded mode).
+     */
+    @Override
+    public void clearDataset() {
+        dataset = DatasetFactory.createTxnMem();
+    }
 }

@@ -15,4 +15,9 @@ public interface RDFConnectionFactory {
      * @return the newly created rdf connection
      */
     RDFConnection getRDFConnection();
+
+    /**
+     * Clears the dataset (only works in embedded mode).
+     */
+    void clearDataset();
 }

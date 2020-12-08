@@ -21,7 +21,7 @@ logging:
 
 spring:
   main:
-    banner-mode: "off"
+    banner-mode: 'off'
   profiles:
     active: dev
     include:

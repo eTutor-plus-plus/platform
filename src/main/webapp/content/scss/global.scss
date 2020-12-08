@@ -7,6 +7,8 @@
 @import '~bootswatch/dist/simplex/variables';
 @import '~bootstrap/scss/variables';
 
+@import '~@ng-select/ng-select/themes/default.theme.css';
+
 /* ==============================================================
 Bootstrap tweaks
 ===============================================================*/
@@ -188,6 +190,18 @@ ui bootstrap tweaks
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ==========================================================================
+Custom styles
+========================================================================== */
+strong {
+  font-weight: bold !important;
+}
+
+.cdk-global-overlay-wrapper,
+.cdk-overlay-container {
+  z-index: 99999 !important;
 }
 
 /* jhipster-needle-scss-add-main JHipster will add new css style */

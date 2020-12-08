@@ -35,7 +35,7 @@ public class NewLearningGoalDTO {
         if (name == null) {
             return null;
         }
-        return URLEncoder.encode(name.replace(' ', '_'), Charsets.UTF_8);
+        return URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
     }
 
     /**

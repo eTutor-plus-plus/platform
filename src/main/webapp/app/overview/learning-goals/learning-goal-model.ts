@@ -1,4 +1,4 @@
-import { LearningGoalTreeItem } from "./learning-goal-treeview-item.model";
+import { LearningGoalTreeItem } from './learning-goal-treeview-item.model';
 
 /**
  * Interface for a new learning goal.
@@ -7,15 +7,15 @@ export interface INewLearningGoalModel {
   /**
    * The name of the learning goal.
    */
-  name: string,
+  name: string;
   /**
    * The description of the learning goal.
    */
-  description?: string,
+  description?: string;
   /**
    * Whether the learning goal is private or not.
    */
-  privateGoal: boolean
+  privateGoal: boolean;
 }
 
 /**
@@ -25,23 +25,43 @@ export interface ILearningGoalModel extends INewLearningGoalModel {
   /**
    * The id of the learning goal.
    */
-  id: string,
+  id: string;
   /**
    * The owner of the learning goal.
    */
-  owner: string,
+  owner: string;
   /**
    * The last modification date of the learning goal.
    */
-  lastModifiedDate: Date,
+  lastModifiedDate: Date;
   /**
    * The sub goals of this learning goal.
    */
-  subGoals: ILearningGoalModel[],
+  subGoals: ILearningGoalModel[];
   /**
    * The count of lectures which hold a reference to this learning goal.
    */
-  referencedFromCount: number
+  referencedFromCount: number;
+}
+
+/**
+ * Interface for a displayable learning goal assignment.
+ */
+export interface IDisplayLearningGoalAssignmentModel extends ILearningGoalModel {
+  /**
+   * The optional root id
+   */
+  rootId?: string;
+}
+
+/**
+ * Returns whether the given model is an instance of the
+ * `IDisplayLearningGoalAssignmentModel` interface.
+ *
+ * @param model the learning goal model to test
+ */
+function instanceOfIDisplayLearningGoalAssignmentModel(model: ILearningGoalModel): model is IDisplayLearningGoalAssignmentModel {
+  return 'rootId' in model;
 }
 
 /**
@@ -50,6 +70,11 @@ export interface ILearningGoalModel extends INewLearningGoalModel {
  * @param inputModel the model which should be converted
  */
 export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoalTreeItem {
+  let rootId = '';
+
+  if (instanceOfIDisplayLearningGoalAssignmentModel(inputModel) && inputModel.rootId) {
+    rootId = inputModel.rootId;
+  }
 
   const retModel: LearningGoalTreeItem = {
     text: inputModel.name,
@@ -59,7 +84,8 @@ export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoa
     owner: inputModel.owner,
     changeDate: inputModel.lastModifiedDate,
     value: inputModel.id,
-    children: []
+    children: [],
+    rootId,
   };
 
   for (const goal of inputModel.subGoals) {

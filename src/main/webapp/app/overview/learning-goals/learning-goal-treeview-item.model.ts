@@ -36,6 +36,11 @@ export interface LearningGoalTreeItem extends TreeItem {
    * The change date.
    */
   changeDate: Date;
+
+  /**
+   * The id of the root node.
+   */
+  rootId?: string;
 }
 
 /**
@@ -48,15 +53,18 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
-  private _currentUser: string;
+  private readonly _currentUser: string;
+  private readonly _parent?: LearningGoalTreeviewItem;
+  private readonly _rootId?: string;
 
   /**
    * Constructor.
    *
    * @param item the root item
    * @param currentUser the currently logged in user
+   * @param parent the parent goal
    */
-  constructor(item: LearningGoalTreeItem, currentUser: string) {
+  constructor(item: LearningGoalTreeItem, currentUser: string, parent: LearningGoalTreeviewItem | undefined = undefined) {
     super(item);
 
     this._markedAsPrivate = item.markedAsPrivate === true;
@@ -65,13 +73,15 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     this._owner = item.owner;
     this._changeDate = item.changeDate;
     this._currentUser = currentUser;
+    this._parent = parent;
+    this._rootId = item.rootId;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
         if (super.disabled === true) {
           child.disabled = true;
         }
-        return new LearningGoalTreeviewItem(child, currentUser);
+        return new LearningGoalTreeviewItem(child, currentUser, this);
       });
     }
   }
@@ -164,6 +174,24 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public set changeDate(value: Date) {
     this._changeDate = value;
+  }
+
+  /**
+   * Returns the parent.
+   *
+   * @returns the parent
+   */
+  public get parent(): LearningGoalTreeviewItem | undefined {
+    return this._parent;
+  }
+
+  /**
+   * Returns the optional root id.
+   *
+   * @returns the optional root id
+   */
+  public get rootId(): string | undefined {
+    return this._rootId;
   }
 
   /**

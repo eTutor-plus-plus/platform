@@ -1,0 +1,8 @@
+{
+  "treeview": {
+    "collapse": "Minimieren",
+    "expand": "Erweitern",
+    "filterPlaceholder": "Suchen ...",
+    "notFound": "Keinen Eintrag gefunden!"
+  }
+}

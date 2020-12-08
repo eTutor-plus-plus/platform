@@ -3,11 +3,11 @@ import { ComponentFixture, TestBed, async, inject, fakeAsync, tick } from '@angu
 import { EtutorPlusPlusTestModule } from '../../test.module';
 import { HomeComponent } from 'app/home/home.component';
 import { AccountService } from 'app/core/auth/account.service';
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder } from '@angular/forms';
 import { LoginService } from 'app/core/login/login.service';
-import { MockLoginService } from "../../helpers/mock-login.service";
-import { MockRouter } from "../../helpers/mock-route.service";
-import { Router } from "@angular/router";
+import { MockLoginService } from '../../helpers/mock-login.service';
+import { MockRouter } from '../../helpers/mock-route.service';
+import { Router } from '@angular/router';
 
 describe('Component Tests', () => {
   describe('Home Component', () => {
@@ -21,10 +21,13 @@ describe('Component Tests', () => {
       TestBed.configureTestingModule({
         imports: [EtutorPlusPlusTestModule],
         declarations: [HomeComponent],
-        providers: [FormBuilder, {
-          provide: LoginService,
-          useClass: MockLoginService
-        }]
+        providers: [
+          FormBuilder,
+          {
+            provide: LoginService,
+            useClass: MockLoginService,
+          },
+        ],
       })
         .overrideTemplate(HomeComponent, '')
         .compileComponents();
@@ -54,29 +57,32 @@ describe('Component Tests', () => {
       expect(accountService.isAuthenticated).toHaveBeenCalled();
     });
 
-    it('Should authenticate the user', inject([], fakeAsync(() => {
-      // GIVEN
-      const credentials = {
-        username: 'admin',
-        password: 'admin',
-        rememberMe: true
-      };
+    it('Should authenticate the user', inject(
+      [],
+      fakeAsync(() => {
+        // GIVEN
+        const credentials = {
+          username: 'admin',
+          password: 'admin',
+          rememberMe: true,
+        };
 
-      comp.loginForm.patchValue({
-        username: 'admin',
-        password: 'admin',
-        rememberMe: true
-      });
-      mockLoginService.setResponse({});
+        comp.loginForm.patchValue({
+          username: 'admin',
+          password: 'admin',
+          rememberMe: true,
+        });
+        mockLoginService.setResponse({});
 
-      // WHEN
-      comp.login();
-      tick();
+        // WHEN
+        comp.login();
+        tick();
 
-      // THEN
-      expect(comp.authenticationError).toEqual(false);
-      expect(mockLoginService.loginSpy).toHaveBeenCalledWith(credentials)
-    })));
+        // THEN
+        expect(comp.authenticationError).toEqual(false);
+        expect(mockLoginService.loginSpy).toHaveBeenCalledWith(credentials);
+      })
+    ));
 
     it('Should redirect user when request password', () => {
       // WHEN
