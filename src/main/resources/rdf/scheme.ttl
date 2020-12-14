@@ -1,71 +1,161 @@
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/> .
+@prefix etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#> .
+@prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 ## Learning goals
 # Classes
-etutor:Goal rdf:type rdfs:Class .
-etutor:SubGoal rdfs:subClassOf etutor:Goal .
+etutor:Goal
+    rdf:type rdfs:Class .
+
+etutor:SubGoal
+    rdfs:subClassOf etutor:Goal .
 
 # Properties
-etutor:hasSubGoal rdf:type rdfs:Property ;
-				  rdfs:domain etutor:Goal ;
-				  rdfs:range etutor:Goal .
+etutor:hasSubGoal
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  etutor:Goal .
 
-etutor:dependsOn rdf:type rdfs:Property ;
-				 rdfs:domain etutor:Goal ;
-				 rdfs:range etutor:Goal .
+etutor:dependsOn
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  etutor:Goal .
 
-etutor:hasDescription rdf:type rdfs:Property ;
-					  rdfs:domain etutor:Goal ;
-					  rdfs:range xsd:string .
+etutor:hasDescription
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:string .
 
-etutor:isPrivate rdf:type rdfs:Property ;
-				 rdfs:domain etutor:Goal ;
-				 rdfs:range xsd:boolean .
+etutor:isPrivate
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:boolean .
 
-etutor:hasChangeDate rdf:type rdfs:Property ;
-					 rdfs:domain etutor:Goal ;
-					 rdfs:range xsd:dateTime .
+etutor:hasChangeDate
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:dateTime .
 
-etutor:hasOwner rdf:type rdfs:Property ;
-				rdfs:domain etutor:Goal ;
-				rdfs:range xsd:string .
+etutor:hasOwner
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:string .
 
-etutor:hasReferenceCnt rdf:type rdfs:Property ;
-                       rdfs:domain etutor:Goal ;
-                       rdfs:range xsd:int .
+etutor:hasReferenceCnt
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:int .
 
-etutor:hasRootGoal rdf:type rdfs:Property ;
-                   rdfs:domain etutor:Goal ;
-                   rdfs:range etutor:Goal .
+etutor:hasRootGoal
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  etutor:Goal .
 
 ## Coureses
 # Classes
-etutor:Course rdf:type rdfs:Class .
+etutor:Course
+    rdf:type rdfs:Class .
 
 # Properties
-etutor:hasCourseDescription rdf:type rdfs:Property ;
-                            rdfs:domain etutor:Course ;
-                            rdfs:range xsd:string .
+etutor:hasCourseDescription
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  xsd:string .
 
-etutor:hasCourseName rdf:type rdfs:Property ;
-                     rdfs:domain etutor:Course ;
-                     rdfs:range xsd:string .
+etutor:hasCourseName
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  xsd:string .
 
-etutor:hasCourseLink rdf:type rdfs:Property ;
-                     rdfs:domain etutor:Course ;
-                     rdfs:range xsd:anyURI .
+etutor:hasCourseLink
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  xsd:anyURI .
 
-etutor:hasCourseType rdf:type rdfs:Property ;
-                     rdfs:domain etutor:Course ;
-                     rdfs:range xsd:string .
+etutor:hasCourseType
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  xsd:string .
 
-etutor:hasCourseCreator rdf:type rdfs:Property ;
-                        rdfs:domain etutor:Course ;
-                        rdfs:range xsd:string .
+etutor:hasCourseCreator
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  xsd:string .
 
-etutor:hasGoal rdf:type rdfs:Property ;
-               rdfs:domain etutor:Course ;
-               rdfs:range etutor:Goal .
+etutor:hasGoal
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Course ;
+    rdfs:range  etutor:Goal .
+
+## Assignments
+# Classes
+etutor:TaskAssignment
+    rdf:type rdfs:Class .
+
+etutor:DifficultyRanking
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:hasTaskAssignment
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  etutor:TaskAssignment .
+
+etutor:hasTaskCreator
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskCreationDate
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:dateTime .
+
+etutor:hasTypicalProcessingTime
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskDifficulty
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  etutor:DifficultyRanking .
+
+etutor:hasTaskOrganisationUnit
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskUrl
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskInstruction
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
+etutor:isPrivateTask
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:boolean .
+
+# Instances
+etutor-difficulty:Easy
+    a          etutor:DifficultyRanking ;
+    rdfs:label "Easy" .
+
+etutor-difficulty:Medium
+    a          etutor:DifficultyRanking ;
+    rdfs:label "Medium" .
+
+etutor-difficulty:Hard
+    a          etutor:DifficultyRanking ;
+    rdfs:label "Hard" .
+
+etutor-difficulty:VeryHard
+    a               etutor:DifficultyRanking ;
+    rdfs:rdfs:label "VeryHard" .

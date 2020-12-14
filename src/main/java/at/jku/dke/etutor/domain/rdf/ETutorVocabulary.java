@@ -13,6 +13,8 @@ public final class ETutorVocabulary {
     private static final String CLASS_GOAL = "Goal";
     private static final String CLASS_SUB_GOAL = "SubGoal";
     private static final String CLASS_COURSE = "Course";
+    private static final String CLASS_TASK_ASSIGNMENT = "TaskAssignment";
+    private static final String CLASS_DIFFICULTY_RANKING = "DifficultyRanking";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -22,16 +24,36 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SUB_GOAL = "hasSubGoal";
     private static final String PROP_HAS_REFERENCE_CNT = "hasReferenceCnt";
     private static final String PROP_HAS_ROOT_GOAL = "hasRootGoal";
+
     private static final String PROP_HAS_COURSE_DESCRIPTION = "hasCourseDescription";
     private static final String PROP_HAS_COURSE_LINK = "hasCourseLink";
     private static final String PROP_HAS_COURSE_TYPE = "hasCourseType";
     private static final String PROP_HAS_COURSE_CREATOR = "hasCourseCreator";
     private static final String PROP_HAS_GOAL = "hasGoal";
 
+    private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
+    private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
+    private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
+    private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
+    private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
+    private static final String PROP_HAS_TASK_ORGANISATION_UNIT = "hasTaskOrganisationUnit";
+    private static final String PROP_HAS_TASK_URL = "hasTaskUrl";
+    private static final String PROP_HAS_TASK_INSTRUCTION = "hasTaskInstruction";
+    private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
+
+    private static final String INSTANCE_EASY = "Easy";
+    private static final String INSTANCE_MEDIUM = "Medium";
+    private static final String INSTANCE_HARD = "Hard";
+    private static final String INSTANCE_VERY_HARD = "VeryHard";
+
     /**
-     * The namespace of the vocabulary
+     * The namespace of the vocabulary.
      */
     public static final String URI = "http://www.dke.uni-linz.ac.at/etutorpp/";
+    /**
+     * The namespace of the difficulty types.
+     */
+    public static final String DIFFICULTY_URI = "http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#";
 
     private static final Model m = ModelFactory.createDefaultModel();
 
@@ -87,6 +109,42 @@ public final class ETutorVocabulary {
      * The hasGoal property.
      */
     public static final Property hasGoal = m.createProperty(URI + PROP_HAS_GOAL);
+    /**
+     * The hasTaskAssignment property.
+     */
+    public static final Property hasTaskAssignment = m.createProperty(URI + PROP_HAS_TASK_ASSIGNMENT);
+    /**
+     * The hasTaskCreator property.
+     */
+    public static final Property hasTaskCreator = m.createProperty(URI + PROP_HAS_TASK_CREATOR);
+    /**
+     * The hasTaskCreationDate property.
+     */
+    public static final Property hasTaskCreationDate = m.createProperty(URI + PROP_HAS_TASK_CREATION_DATE);
+    /**
+     * The hasTypicalProcessingTime property.
+     */
+    public static final Property hasTypicalProcessingTime = m.createProperty(URI + PROP_HAS_TYPICAL_PROCESSING_TIME);
+    /**
+     * The hasTaskDifficulty property.
+     */
+    public static final Property hasTaskDifficulty = m.createProperty(URI + PROP_HAS_TASK_DIFFICULTY);
+    /**
+     * The hasTaskOrganisationUnit property.
+     */
+    public static final Property hasTaskOrganisationUnit = m.createProperty(URI + PROP_HAS_TASK_ORGANISATION_UNIT);
+    /**
+     * The hasTaskUrl property.
+     */
+    public static final Property hasTaskUrl = m.createProperty(URI + PROP_HAS_TASK_URL);
+    /**
+     * The hasTaskInstruction property.
+     */
+    public static final Property hasTaskInstruction = m.createProperty(URI + PROP_HAS_TASK_INSTRUCTION);
+    /**
+     * The isPrivateTask property.
+     */
+    public static final Property isPrivateTask = m.createProperty(URI + PROP_IS_PRIVATE_TASK);
 
     /**
      * The goal resource.
@@ -100,6 +158,31 @@ public final class ETutorVocabulary {
      * The course resource.
      */
     public static final Resource Course = m.createResource(URI + CLASS_COURSE);
+    /**
+     * The task assignment resource.
+     */
+    public static final Resource TaskAssignment = m.createResource(URI + CLASS_TASK_ASSIGNMENT);
+    /**
+     * The difficulty ranking resource.
+     */
+    public static final Resource DifficultyRanking = m.createResource(URI + CLASS_DIFFICULTY_RANKING);
+
+    /**
+     * The easy difficulty instance.
+     */
+    public static final Resource Easy = m.createResource(DIFFICULTY_URI + INSTANCE_EASY);
+    /**
+     * The medium difficulty instance.
+     */
+    public static final Resource Medium = m.createResource(DIFFICULTY_URI + INSTANCE_MEDIUM);
+    /**
+     * The hard difficulty instance.
+     */
+    public static final Resource Hard = m.createResource(DIFFICULTY_URI + INSTANCE_HARD);
+    /**
+     * The very hard difficulty instance
+     */
+    public static final Resource VeryHard = m.createProperty(DIFFICULTY_URI + INSTANCE_VERY_HARD);
 
     /**
      * Creates an individual goal resource from a given model.
