@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 /**
- * RDF vocabulary classes.
+ * RDF vocabulary class.
  */
 public final class ETutorVocabulary {
 
