@@ -167,4 +167,37 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assertThat(assignments).isEmpty();
     }
+
+    /**
+     * Tests the update task assignment method with a null value.
+     */
+    @Test
+    public void testUpdateTaskAssignmentWithNullValue() {
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.updateTaskAssignment(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the update task assignment method.
+     *
+     * @throws InternalModelException must not happen
+     */
+    @Test
+    public void testUpdateTaskAssignment() throws InternalModelException {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var testGoal1 = goals.first();
+
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator("Florian");
+        newTaskAssignmentDTO.setHeader("Testassignment");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+
+        insertedAssignment.setHeader("Newheader");
+
+        assignmentSPARQLEndpointService.updateTaskAssignment(insertedAssignment);
+    }
 }
