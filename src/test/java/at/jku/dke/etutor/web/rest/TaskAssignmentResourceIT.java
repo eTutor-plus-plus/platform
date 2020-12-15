@@ -5,6 +5,7 @@ import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
@@ -22,8 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.SortedSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -47,6 +47,9 @@ public class TaskAssignmentResourceIT {
 
     @Autowired
     private SPARQLEndpointService sparqlEndpointService;
+
+    @Autowired
+    private AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     @Autowired
     private MockMvc restTaskAssignmentMockMvc;
@@ -145,6 +148,29 @@ public class TaskAssignmentResourceIT {
         @SuppressWarnings("unchecked")
         SortedSet<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDTO.class, SortedSet.class);
 
+        assertThat(assignments).isEmpty();
+    }
+
+    /**
+     * Tests the removal of a task assignment.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(4)
+    public void testRemoveTaskAssignment() throws  Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var firstGoal = goals.first();
+        var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
+        assertThat(assignments).isNotEmpty();
+        var assignment = assignments.first();
+
+        String id = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
+
+        restTaskAssignmentMockMvc.perform(delete(String.format("/api/tasks/assignments/%s", id)))
+            .andExpect(status().isNoContent());
+
+        assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
         assertThat(assignments).isEmpty();
     }
 }

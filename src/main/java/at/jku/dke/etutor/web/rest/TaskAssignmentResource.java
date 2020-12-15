@@ -68,4 +68,17 @@ public class TaskAssignmentResource {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
         }
     }
+
+    /**
+     * REST endpoint for deleting a task assignment ({@code DELETE /api/tasks/assignments/:id}).
+     *
+     * @param id the internal id of the task (path variable)
+     * @return empty {@link ResponseEntity}
+     */
+    @DeleteMapping("tasks/assignments/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
+        assignmentSPARQLEndpointService.removeTaskAssignment(id);
+        return ResponseEntity.noContent().build();
+    }
 }
