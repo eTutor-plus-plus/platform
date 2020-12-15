@@ -130,7 +130,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     private Resource constructTaskAssignmentFromDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String uuid, Instant creationDate, Model model) {
         Resource resource = ETutorVocabulary.createTaskAssignmentResourceOfModel(uuid, model);
 
-        resource.addProperty(ETutorVocabulary.hasTaskAssignment, model.createResource(newTaskAssignmentDTO.getLearningGoalId()));
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
