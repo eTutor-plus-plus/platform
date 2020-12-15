@@ -1,5 +1,8 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
+import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
+
+import javax.validation.constraints.NotBlank;
 import java.net.URL;
 
 /**
@@ -9,11 +12,17 @@ import java.net.URL;
  */
 public class NewTaskAssignmentDTO {
 
+    @NotBlank
     private String learningGoalId;
+    @NotBlank
     private String creator;
+    @NotBlank
     private String header;
     private String processingTime;
+    @NotBlank
+    @DifficultyRankingConstraint
     private String taskDifficultyId;
+    @NotBlank
     private String organisationUnit;
     private URL url;
     private String instruction;
