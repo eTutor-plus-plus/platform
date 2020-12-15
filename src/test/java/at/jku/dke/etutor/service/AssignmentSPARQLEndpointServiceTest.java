@@ -31,24 +31,18 @@ public class AssignmentSPARQLEndpointServiceTest {
 
     /**
      * Method which initializes the dataset and endpoint service before each run.
+     *
+     * @throws LearningGoalAlreadyExistsException must not be thrown
      */
     @BeforeEach
-    public void setup() {
+    public void setup() throws LearningGoalAlreadyExistsException {
         Dataset dataset = DatasetFactory.createTxnMem();
         rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
 
         sparqlEndpointService.insertScheme();
-    }
 
-    /**
-     * Method which inserts demo learning goals before each run.
-     *
-     * @throws LearningGoalAlreadyExistsException must not be thrown
-     */
-    @BeforeEach
-    public void insertTestGoals() throws LearningGoalAlreadyExistsException {
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("TestGoal1");
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, OWNER);
