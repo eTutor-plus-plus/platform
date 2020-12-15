@@ -40,6 +40,19 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
+    private static final String QRY_DELETE_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?assignment ?predicate ?object.
+          ?goal etutor:hasTaskAssignment ?assignment.
+        }
+        WHERE {
+          ?assignment ?predicate ?object.
+          ?goal etutor:hasTaskAssignment ?assignment.
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -113,6 +126,23 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             return taskAssignments;
+        }
+    }
+
+    /**
+     * Removes the task assignment.
+     *
+     * @param assignmentUuid the internal generated uuid of a task assignment
+     */
+    public void removeTaskAssignment(String assignmentUuid) {
+        Objects.requireNonNull(assignmentUuid);
+        String assignmentId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", assignmentUuid);
+
+        ParameterizedSparqlString parameterizedQry = new ParameterizedSparqlString(QRY_DELETE_ASSIGNMENT);
+        parameterizedQry.setIri("?assignment", assignmentId);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(parameterizedQry.asUpdate());
         }
     }
 

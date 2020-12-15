@@ -128,4 +128,43 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(assignments).isNotEmpty();
         assertThat(assignments.first()).isEqualByComparingTo(insertedAssignment);
     }
+
+    /**
+     * Tests the task assignment removal method with a null value.
+     */
+    @Test
+    public void testRemoveTaskAssignmentWithNullValue() {
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.removeTaskAssignment(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the removal of a task assignment.
+     *
+     * @throws InternalModelException must not happen
+     */
+    @Test
+    public void testRemoveTaskAssignment() throws InternalModelException {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var testGoal1 = goals.first();
+
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator("Florian");
+        newTaskAssignmentDTO.setHeader("Testassignment");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+
+        var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+        assertThat(assignments).isNotEmpty();
+
+        String id = insertedAssignment.getId().substring(insertedAssignment.getId().lastIndexOf('#') + 1);
+
+        assignmentSPARQLEndpointService.removeTaskAssignment(id);
+        assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+
+        assertThat(assignments).isEmpty();
+    }
 }
