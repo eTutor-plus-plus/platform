@@ -39,7 +39,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class SPARQLEndpointService {
+public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String SCHEME_PATH = "/rdf/scheme.ttl";
 
@@ -96,15 +96,13 @@ public class SPARQLEndpointService {
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
 
-    private final RDFConnectionFactory rdfConnectionFactory;
-
     /**
      * Constructor.
      *
      * @param rdfConnectionFactory the injected rdf connection factory
      */
     public SPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
-        this.rdfConnectionFactory = rdfConnectionFactory;
+        super(rdfConnectionFactory);
     }
 
     /**
@@ -309,49 +307,49 @@ public class SPARQLEndpointService {
      */
     public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
         String queryStr = String.format("""
-          PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-          CONSTRUCT {
-            ?subject ?predicate ?object.
-            ?subject etutor:hasReferenceCnt ?cnt.
-            ?subject etutor:hasRoot ?root
-          } WHERE {
-            {
+            CONSTRUCT {
               ?subject ?predicate ?object.
-              ?subject a etutor:Goal.
-              ?subject rdfs:label ?lbl
+              ?subject etutor:hasReferenceCnt ?cnt.
+              ?subject etutor:hasRoot ?root
+            } WHERE {
               {
-                ?subject etutor:isPrivate false.
-              }
-              UNION
-              {
-                ?subject etutor:isPrivate true.
-                ?subject etutor:hasOwner "%s".
-              }\s
-            } UNION {
-              BIND(rdf:type AS ?predicate)
-              BIND(etutor:SubGoal AS ?object)
-              ?goal etutor:hasSubGoal ?subject .
-            } {
-              SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                ?subject ?predicate ?object.
                 ?subject a etutor:Goal.
-                OPTIONAL { ?course etutor:hasGoal ?subject }
-              }
-              GROUP BY ?subject
-            } {
-              SELECT ?subject ?root WHERE {
-                ?root etutor:hasSubGoal* ?subject.
-                FILTER (
-                  !EXISTS {
-                    ?otherGoal etutor:hasSubGoal ?root.
-                  }
-                )
+                ?subject rdfs:label ?lbl
+                {
+                  ?subject etutor:isPrivate false.
+                }
+                UNION
+                {
+                  ?subject etutor:isPrivate true.
+                  ?subject etutor:hasOwner "%s".
+                }\s
+              } UNION {
+                BIND(rdf:type AS ?predicate)
+                BIND(etutor:SubGoal AS ?object)
+                ?goal etutor:hasSubGoal ?subject .
+              } {
+                SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                  ?subject a etutor:Goal.
+                  OPTIONAL { ?course etutor:hasGoal ?subject }
+                }
+                GROUP BY ?subject
+              } {
+                SELECT ?subject ?root WHERE {
+                  ?root etutor:hasSubGoal* ?subject.
+                  FILTER (
+                    !EXISTS {
+                      ?otherGoal etutor:hasSubGoal ?root.
+                    }
+                  )
+                }
               }
             }
-          }
-            """, owner);
+              """, owner);
 
         SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
 
@@ -831,15 +829,6 @@ public class SPARQLEndpointService {
             QuerySolution solution = set.nextSolution();
             return solution.getLiteral("?privateGoal").getBoolean();
         }
-    }
-
-    /**
-     * Creates a new rdf connection to the configured fuseki server.
-     *
-     * @return new rdf connection
-     */
-    private RDFConnection getConnection() {
-        return rdfConnectionFactory.getRDFConnection();
     }
 
     /**

@@ -202,7 +202,7 @@ public final class ETutorVocabulary {
     }
 
     /**
-     * Create an individual course resource from a given model.
+     * Creates an individual course resource from a given model.
      *
      * @param courseName the  rdf encoded name of the course
      * @param model      the base model of the resource
@@ -210,5 +210,16 @@ public final class ETutorVocabulary {
      */
     public static final Resource createCourseResourceOfModel(String courseName, Model model) {
         return model.createResource(URI + CLASS_COURSE + "#" + courseName);
+    }
+
+    /**
+     * Creates an individual task assignment from a given model.
+     *
+     * @param uuid  the uuid
+     * @param model the base model
+     * @return the individual task assignment resource
+     */
+    public static final Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
+        return model.createResource(URI + CLASS_TASK_ASSIGNMENT + "#" + uuid);
     }
 }

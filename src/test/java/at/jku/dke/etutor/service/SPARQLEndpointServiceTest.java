@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Tests for {@code SPARQLEndpointService} class.
+ * Tests for the {@code SPARQLEndpointService} class.
  *
  * @author fne
  */
