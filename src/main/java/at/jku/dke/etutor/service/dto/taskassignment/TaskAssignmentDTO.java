@@ -5,6 +5,8 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -17,7 +19,9 @@ import java.time.Instant;
  */
 public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparable<TaskAssignmentDTO> {
 
+    @NotEmpty
     private String id;
+    @NotNull
     private Instant creationDate;
 
     /**

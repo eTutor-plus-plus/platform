@@ -5,7 +5,9 @@ import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
+import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +82,22 @@ public class TaskAssignmentResource {
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * REST endpoint for updating a task assignment ({@code PUT /api/tasks/assignments})
+     *
+     * @param taskAssignmentDTO the validated task assignment from the request body
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("tasks/assignments")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
+        try {
+            assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            return ResponseEntity.noContent().build();
+        } catch (InternalTaskAssignmentNonexistentException e) {
+            throw new TaskAssignmentNonexistentException();
+        }
     }
 }

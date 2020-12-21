@@ -6,6 +6,8 @@ import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -180,10 +182,10 @@ public class AssignmentSPARQLEndpointServiceTest {
     /**
      * Tests the update task assignment method.
      *
-     * @throws InternalModelException must not happen
+     * @throws Exception must not happen
      */
     @Test
-    public void testUpdateTaskAssignment() throws InternalModelException {
+    public void testUpdateTaskAssignment() throws Exception {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
         var testGoal1 = goals.first();
 
@@ -199,5 +201,43 @@ public class AssignmentSPARQLEndpointServiceTest {
         insertedAssignment.setHeader("Newheader");
 
         assignmentSPARQLEndpointService.updateTaskAssignment(insertedAssignment);
+    }
+
+    /**
+     * Tests the update task assignment method with all fields.
+     *
+     * @throws Exception must not happen
+     */
+    @Test
+    public void testUpdateTaskAssignmentWithAllFields() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var testGoal1 = goals.first();
+
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator("Florian");
+        newTaskAssignmentDTO.setHeader("Testassignment");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+
+        assignment.setProcessingTime("1h");
+        assignment.setUrl(new URL("http://www.test.at"));
+        assignment.setInstruction("<b>Testinstructions</b>");
+
+        assignmentSPARQLEndpointService.updateTaskAssignment(assignment);
+    }
+
+    /**
+     * Tests the update method with a nonexistent assignment.
+     */
+    @Test
+    public void testUpdateTaskAssignmentWithNonexistentAssignment() {
+        TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
+        taskAssignmentDTO.setId("http://www.testid.at");
+
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO))
+            .isInstanceOf(InternalTaskAssignmentNonexistentException.class);
     }
 }

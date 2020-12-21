@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import liquibase.pro.packaged.U;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,11 +21,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.URL;
+import java.time.Instant;
 import java.util.SortedSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 /**
@@ -158,7 +161,7 @@ public class TaskAssignmentResourceIT {
      */
     @Test
     @Order(4)
-    public void testRemoveTaskAssignment() throws  Exception {
+    public void testRemoveTaskAssignment() throws Exception {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
         var firstGoal = goals.first();
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
@@ -172,5 +175,70 @@ public class TaskAssignmentResourceIT {
 
         assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
         assertThat(assignments).isEmpty();
+    }
+
+    /**
+     * Tests the update method with a nonexistent task assignment.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(5)
+    public void testUpdateNonexistentTaskAssignment() throws Exception {
+        TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
+        taskAssignmentDTO.setId("http://www.test.at");
+        taskAssignmentDTO.setCreationDate(Instant.now());
+        taskAssignmentDTO.setLearningGoalId("http://www.");
+        taskAssignmentDTO.setLearningGoalId("http://www.learninggoal.at");
+        taskAssignmentDTO.setCreator("Florian");
+        taskAssignmentDTO.setHeader("Test assignment");
+        taskAssignmentDTO.setProcessingTime("1h");
+        taskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        taskAssignmentDTO.setOrganisationUnit("DKE");
+
+        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(taskAssignmentDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.taskAssignmentNotFound"))
+            .andExpect(jsonPath("$.title").value("The task assignment does not exist!"));
+    }
+
+    /**
+     * Tests the update task assignment REST endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(6)
+    public void testUpdateTaskAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var testGoal1 = goals.first();
+
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator("Florian");
+        newTaskAssignmentDTO.setHeader("Testassignment");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+
+        assignment.setProcessingTime("2h");
+        assignment.setUrl(new URL("http://www.test.at"));
+        assignment.setTaskDifficultyId(ETutorVocabulary.VeryHard.getURI());
+        assignment.setOrganisationUnit("JKU SE");
+
+        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(assignment)))
+            .andExpect(status().isNoContent());
+
+        var assignmentsFromDB = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+        assertThat(assignmentsFromDB).isNotEmpty();
+
+        var assignmentFromDB = assignmentsFromDB.first();
+        assertThat(assignmentFromDB).isEqualToIgnoringGivenFields(assignment, "creationDate");
     }
 }

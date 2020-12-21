@@ -4,6 +4,8 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -50,6 +52,14 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         WHERE {
           ?assignment ?predicate ?object.
           ?goal etutor:hasTaskAssignment ?assignment.
+        }
+        """;
+
+    private static final String QRY_ASK_ASSIGNMENT_EXISTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?assignment a etutor:TaskAssignment.
         }
         """;
 
@@ -150,63 +160,73 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * Updates the given task assignment.
      *
      * @param taskAssignment the task assignment to update
+     * @throws InternalTaskAssignmentNonexistentException if the given assignment does not exist
      */
-    public void updateTaskAssignment(TaskAssignmentDTO taskAssignment) {
+    public void updateTaskAssignment(TaskAssignmentDTO taskAssignment) throws InternalTaskAssignmentNonexistentException {
         Objects.requireNonNull(taskAssignment);
 
-        ParameterizedSparqlString query = new ParameterizedSparqlString();
-        query.append("""
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-
-            DELETE {
-              ?assignment ?predicate ?object
-            } INSERT {
-            """);
-
-        query.append("?assignment etutor:hasTaskHeader ");
-        query.appendLiteral(taskAssignment.getHeader());
-        query.append(".\n");
-
-        if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
-            query.append("?assignment etutor:hasTypicalProcessingTime ");
-            query.appendLiteral(taskAssignment.getProcessingTime().trim());
-            query.append(".\n");
-        }
-
-        query.append("?assignment etutor:hasTaskDifficulty ");
-        query.appendIri(taskAssignment.getTaskDifficultyId());
-        query.append(".\n");
-
-        query.append("?assignment etutor:hasTaskOrganisationUnit ");
-        query.appendLiteral(taskAssignment.getOrganisationUnit());
-        query.append(".\n");
-
-        if (taskAssignment.getUrl() != null) {
-            query.append(String.format("?assignment etutor:hasTaskUrl \"%s\"%n", taskAssignment.getUrl().toString()));
-            query.appendLiteral(taskAssignment.getUrl().toString());
-            query.append(".\n");
-        }
-
-        if (StringUtils.isNotBlank(taskAssignment.getInstruction())) {
-            query.append(String.format("?assignment etutor:hasTaskInstruction \"%s\"%n", taskAssignment.getInstruction().trim()));
-            query.appendLiteral(taskAssignment.getInstruction().trim());
-            query.append(".\n");
-        }
-
-        query.append("?assignment etutor:isPrivateTask ");
-        query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
-        query.append(".\n");
-
-        query.append("""
-            } WHERE {
-              ?assignment ?predicate ?object.
-              FILTER(?predicate != etutor:hasTaskCreationDate && ?predicate != etutor:hasTaskCreator)
-            }
-            """);
-
-        query.setIri("?assignment", taskAssignment.getId());
+        ParameterizedSparqlString existQuery = new ParameterizedSparqlString(QRY_ASK_ASSIGNMENT_EXISTS);
+        existQuery.setIri("?assignment", taskAssignment.getId());
 
         try (RDFConnection connection = getConnection()) {
+            boolean assignmentExist = connection.queryAsk(existQuery.asQuery());
+
+            if (!assignmentExist) {
+                throw new InternalTaskAssignmentNonexistentException();
+            }
+
+            ParameterizedSparqlString query = new ParameterizedSparqlString();
+            query.append("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                DELETE {
+                  ?assignment ?predicate ?object
+                } INSERT {
+                """);
+
+            query.append("?assignment etutor:hasTaskHeader ");
+            query.appendLiteral(taskAssignment.getHeader());
+            query.append(".\n");
+
+            if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
+                query.append("?assignment etutor:hasTypicalProcessingTime ");
+                query.appendLiteral(taskAssignment.getProcessingTime().trim());
+                query.append(".\n");
+            }
+
+            query.append("?assignment etutor:hasTaskDifficulty ");
+            query.appendIri(taskAssignment.getTaskDifficultyId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasTaskOrganisationUnit ");
+            query.appendLiteral(taskAssignment.getOrganisationUnit());
+            query.append(".\n");
+
+            if (taskAssignment.getUrl() != null) {
+                query.append("?assignment etutor:hasTaskUrl ");
+                query.appendLiteral(taskAssignment.getUrl().toString());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getInstruction())) {
+                query.append("?assignment etutor:hasTaskInstruction ");
+                query.appendLiteral(taskAssignment.getInstruction().trim());
+                query.append(".\n");
+            }
+
+            query.append("?assignment etutor:isPrivateTask ");
+            query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
+            query.append(".\n");
+
+            query.append("""
+                } WHERE {
+                  ?assignment ?predicate ?object.
+                  FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator))
+                }
+                """);
+
+            query.setIri("?assignment", taskAssignment.getId());
+
             connection.update(query.asUpdate());
         }
     }
