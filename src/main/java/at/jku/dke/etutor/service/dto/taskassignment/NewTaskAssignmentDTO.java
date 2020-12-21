@@ -1,9 +1,12 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for a new task assignment.
@@ -12,8 +15,7 @@ import java.net.URL;
  */
 public class NewTaskAssignmentDTO {
 
-    @NotBlank
-    private String learningGoalId;
+    private List<String> learningGoalIds = new ArrayList<>();
     @NotBlank
     private String creator;
     @NotBlank
@@ -29,21 +31,48 @@ public class NewTaskAssignmentDTO {
     private boolean privateTask;
 
     /**
-     * Returns the associated learning goal id.
+     * Returns the associated learning goal ids.
      *
-     * @return the associated learning goal id
+     * @return the associated learning goal ids
      */
-    public String getLearningGoalId() {
-        return learningGoalId;
+    public List<String> getLearningGoalIds() {
+        return learningGoalIds;
     }
 
     /**
-     * Sets the associated learning goal id.
+     * Sets the associated learning goal ids.
      *
-     * @param learningGoalId the associated learning goal id to set
+     * @param learningGoalIds the associated learning goal ids to set
      */
-    public void setLearningGoalId(String learningGoalId) {
-        this.learningGoalId = learningGoalId;
+    public void setLearningGoalIds(List<String> learningGoalIds) {
+        this.learningGoalIds = learningGoalIds;
+    }
+
+    /**
+     * Adds a learning goal id.
+     *
+     * @param learningGoal the learning goal id to add, not null
+     */
+    @JsonIgnore
+    public void addLearningGoal(String learningGoal) {
+        if (learningGoalIds == null) {
+            learningGoalIds = new ArrayList<>();
+        }
+        if (learningGoal != null) {
+            learningGoalIds.add(learningGoal);
+        }
+    }
+
+    /**
+     * Removes a learning goal id.
+     *
+     * @param learningGoal the learning goal id to remove, not null
+     */
+    @JsonIgnore
+    public void removeLearningGoal(String learningGoal) {
+        if (learningGoalIds != null && learningGoal != null) {
+            learningGoalIds.remove(learningGoal);
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for a task assignment.
@@ -41,7 +44,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate) {
         super();
 
-        setLearningGoalId(newTaskAssignmentDTO.getLearningGoalId());
+        setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
         setHeader(newTaskAssignmentDTO.getHeader());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
@@ -58,16 +61,27 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     /**
      * Constructor.
      *
-     * @param resource       the rdf resource which contains this assignment
-     * @param learningGoalId the learning goal which is associated with this assignment
+     * @param resource the rdf resource which contains this assignment
      * @throws MalformedURLException if the url can not be parsed
      * @throws ParseException        if a date can not be parsed
      */
-    public TaskAssignmentDTO(Resource resource, String learningGoalId) throws MalformedURLException, ParseException {
+    public TaskAssignmentDTO(Resource resource) throws MalformedURLException, ParseException {
         this();
 
         setId(resource.getURI());
-        setLearningGoalId(learningGoalId);
+        List<String> learningGoalIds = new ArrayList<>();
+
+        StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.isAssignmentOf);
+        try {
+            while (stmtIterator.hasNext()) {
+                Statement statement = stmtIterator.nextStatement();
+                learningGoalIds.add(statement.getObject().asResource().getURI());
+            }
+        } finally {
+            stmtIterator.close();
+        }
+
+        setLearningGoalIds(learningGoalIds);
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskCreator).getString());
         setHeader(resource.getProperty(ETutorVocabulary.hasTaskHeader).getString());
 

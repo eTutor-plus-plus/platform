@@ -33,12 +33,16 @@ import java.util.UUID;
 @Service
 public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_DESCRIBE_TASK_ASSIGNMENTS_FROM_GOAL = """
+    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
 
-        DESCRIBE ?assignment
+        CONSTRUCT { ?assignment ?predicate ?object.
+        			?assignment etutor:isAssignmentOf ?othergoal.}
         WHERE {
-          ?goal etutor:hasTaskAssignment ?assignment
+          ?goal etutor:hasTaskAssignment ?assignment.
+          ?assignment ?predicate ?object.
+          ?othergoal etutor:hasTaskAssignment ?assignment.
         }
         """;
 
@@ -88,11 +92,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         Resource newTaskAssignment = constructTaskAssignmentFromDTO(newTaskAssignmentDTO, newId, now, model);
 
-        Resource assignmentResource = model.createResource(newTaskAssignmentDTO.getLearningGoalId());
-        assignmentResource.addProperty(ETutorVocabulary.hasTaskAssignment, newTaskAssignment);
+        for (String learningGoalId : newTaskAssignmentDTO.getLearningGoalIds()) {
+            Resource assignmentResource = model.createResource(learningGoalId);
+            assignmentResource.addProperty(ETutorVocabulary.hasTaskAssignment, newTaskAssignment);
+        }
 
         try (RDFConnection connection = getConnection()) {
-
             connection.load(model);
         }
 
@@ -113,11 +118,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         String goalId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", goalOwner, goalName);
 
-        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_DESCRIBE_TASK_ASSIGNMENTS_FROM_GOAL);
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL);
         query.setIri("?goal", goalId);
 
         try (RDFConnection connection = getConnection()) {
-            Model model = connection.queryDescribe(query.asQuery());
+            Model model = connection.queryConstruct(query.asQuery());
             SortedSet<TaskAssignmentDTO> taskAssignments = new TreeSet<>();
 
             ResIterator subjectIterator = model.listSubjects();
@@ -126,7 +131,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 while (subjectIterator.hasNext()) {
                     Resource taskAssignmentResource = subjectIterator.nextResource();
                     try {
-                        taskAssignments.add(new TaskAssignmentDTO(taskAssignmentResource, goalId));
+                        taskAssignments.add(new TaskAssignmentDTO(taskAssignmentResource));
                     } catch (ParseException | MalformedURLException e) {
                         throw new InternalModelException(e);
                     }
@@ -157,7 +162,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Updates the given task assignment.
+     * Updates the given task assignment. Task learning goal assignment changes are ignored!
      *
      * @param taskAssignment the task assignment to update
      * @throws InternalTaskAssignmentNonexistentException if the given assignment does not exist

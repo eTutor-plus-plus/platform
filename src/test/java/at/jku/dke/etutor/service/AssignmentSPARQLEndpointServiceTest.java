@@ -90,7 +90,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
@@ -116,7 +116,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setCreator("Florian1");
         newTaskAssignmentDTO.setHeader("Test");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
         newTaskAssignmentDTO.setInstruction("<b>Test</b>");
         newTaskAssignmentDTO.setProcessingTime("1 h");
@@ -154,7 +154,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
@@ -193,7 +193,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
@@ -217,7 +217,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);

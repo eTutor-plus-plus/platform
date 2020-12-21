@@ -41,6 +41,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_URL = "hasTaskUrl";
     private static final String PROP_HAS_TASK_INSTRUCTION = "hasTaskInstruction";
     private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
+    private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -150,6 +151,10 @@ public final class ETutorVocabulary {
      * The isPrivateTask property.
      */
     public static final Property isPrivateTask = m.createProperty(URI + PROP_IS_PRIVATE_TASK);
+    /**
+     * The isAssignmentOf property.
+     */
+    public static final Property isAssignmentOf = m.createProperty(URI + PROP_IS_ASSIGNMENT_OF);
 
     /**
      * The goal resource.

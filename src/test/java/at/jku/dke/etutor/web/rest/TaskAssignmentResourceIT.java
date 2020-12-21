@@ -91,7 +91,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setHeader("Testheader");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Easy.getURI());
-        newTaskAssignmentDTO.setLearningGoalId(firstGoal.getId());
+        newTaskAssignmentDTO.addLearningGoal(firstGoal.getId());
 
         var result = restTaskAssignmentMockMvc.perform(post("/api/tasks/assignments")
             .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +106,7 @@ public class TaskAssignmentResourceIT {
         assertThat(taskAssignmentDTO.getHeader()).isEqualTo(newTaskAssignmentDTO.getHeader());
         assertThat(taskAssignmentDTO.getOrganisationUnit()).isEqualTo(newTaskAssignmentDTO.getOrganisationUnit());
         assertThat(taskAssignmentDTO.getTaskDifficultyId()).isEqualTo(newTaskAssignmentDTO.getTaskDifficultyId());
-        assertThat(taskAssignmentDTO.getLearningGoalId()).isEqualTo(newTaskAssignmentDTO.getLearningGoalId());
+        assertThat(taskAssignmentDTO.getLearningGoalIds()).containsExactlyInAnyOrderElementsOf(newTaskAssignmentDTO.getLearningGoalIds());
     }
 
     /**
@@ -188,8 +188,7 @@ public class TaskAssignmentResourceIT {
         TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
         taskAssignmentDTO.setId("http://www.test.at");
         taskAssignmentDTO.setCreationDate(Instant.now());
-        taskAssignmentDTO.setLearningGoalId("http://www.");
-        taskAssignmentDTO.setLearningGoalId("http://www.learninggoal.at");
+        taskAssignmentDTO.addLearningGoal("http://www.learninggoal.at");
         taskAssignmentDTO.setCreator("Florian");
         taskAssignmentDTO.setHeader("Test assignment");
         taskAssignmentDTO.setProcessingTime("1h");
@@ -220,7 +219,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalId(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
