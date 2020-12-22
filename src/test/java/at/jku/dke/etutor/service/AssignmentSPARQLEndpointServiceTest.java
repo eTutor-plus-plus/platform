@@ -4,16 +4,23 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -239,5 +246,70 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assertThatThrownBy(() -> assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO))
             .isInstanceOf(InternalTaskAssignmentNonexistentException.class);
+    }
+
+    /**
+     * Tests the set assignment method with null values.
+     */
+    @Test
+    public void testSetAssignmentWithNullValues() {
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("testid", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the set assignment method with a nonexistent task.
+     */
+    @Test
+    public void testSetAssignmentWithNonexistentTaskAssignment() {
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("12345", new ArrayList<>()))
+            .isInstanceOf(InternalTaskAssignmentNonexistentException.class);
+    }
+
+    /**
+     * Tests the set assignment method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testSetAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var testGoal1 = goals.first();
+
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator("Florian");
+        newTaskAssignmentDTO.setHeader("Testassignment");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+
+        List<String> testGoalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+
+        String taskId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
+
+        assignmentSPARQLEndpointService.setTaskAssignment(taskId, testGoalIds);
+
+        try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
+            String cntQuery = """
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                SELECT (COUNT(?goal) as ?cnt)
+                WHERE {
+                	?goal etutor:hasTaskAssignment ?assignment
+                }
+                """;
+
+            try (QueryExecution queryExecution = connection.query(cntQuery)) {
+                ResultSet set = queryExecution.execSelect();
+                int cnt = set.nextSolution().getLiteral("?cnt").getInt();
+
+                assertThat(cnt).isEqualTo(testGoalIds.size());
+            }
+        }
     }
 }

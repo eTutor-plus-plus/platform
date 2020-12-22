@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.SortedSet;
 
 /**
@@ -95,6 +96,24 @@ public class TaskAssignmentResource {
     public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            return ResponseEntity.noContent().build();
+        } catch (InternalTaskAssignmentNonexistentException e) {
+            throw new TaskAssignmentNonexistentException();
+        }
+    }
+
+    /**
+     * REST endpoint for setting the task assignments' goal ids.
+     *
+     * @param assignmentId the internal task assignment id
+     * @param goalIds      the goal ids from request body
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("tasks/assignments/{assignmentId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> setTaskAssignment(@PathVariable String assignmentId, @RequestBody List<String> goalIds) {
+        try {
+            assignmentSPARQLEndpointService.setTaskAssignment(assignmentId, goalIds);
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();

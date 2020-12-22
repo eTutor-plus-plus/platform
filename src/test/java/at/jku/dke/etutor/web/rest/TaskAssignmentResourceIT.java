@@ -8,10 +8,11 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
+import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import liquibase.pro.packaged.U;
+import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -236,8 +239,58 @@ public class TaskAssignmentResourceIT {
 
         var assignmentsFromDB = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         assertThat(assignmentsFromDB).isNotEmpty();
+        assertThat(assignmentsFromDB).hasSize(1);
 
         var assignmentFromDB = assignmentsFromDB.first();
         assertThat(assignmentFromDB).isEqualToIgnoringGivenFields(assignment, "creationDate");
+    }
+
+    /**
+     * Tests the set assignment endpoint with a nonexistent assignment.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(7)
+    public void testSetAssignmentWithNonexistentAssignment() throws Exception {
+        List<String> ids = new ArrayList<>();
+        String assignmentId = "12i345-789";
+
+        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(ids)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.taskAssignmentNotFound"))
+            .andExpect(jsonPath("$.title").value("The task assignment does not exist!"));
+    }
+
+    /**
+     * Tests the set assignment endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(8)
+    public void testSetAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var testGoal1 = goals.first();
+
+        List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+
+        var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+        var assignment = assignments.first();
+
+        String assignmentId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
+
+        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(goalIds)))
+            .andExpect(status().isNoContent());
+
+        assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+        assignment = assignments.first();
+
+        assertThat(assignment.getLearningGoalIds()).containsExactlyInAnyOrderElementsOf(goalIds);
     }
 }

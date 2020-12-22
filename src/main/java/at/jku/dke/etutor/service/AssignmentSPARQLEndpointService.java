@@ -5,7 +5,6 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
-import at.jku.dke.etutor.service.exception.LearningGoalAssignmentNonExistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -20,10 +19,7 @@ import org.springframework.stereotype.Service;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * SPARQL endpoint for assignment related operations.
@@ -183,6 +179,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             ParameterizedSparqlString query = new ParameterizedSparqlString();
             query.append("""
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                 DELETE {
                   ?assignment ?predicate ?object
@@ -226,13 +223,60 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.append("""
                 } WHERE {
                   ?assignment ?predicate ?object.
-                  FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator))
+                  FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type))
                 }
                 """);
 
             query.setIri("?assignment", taskAssignment.getId());
 
             connection.update(query.asUpdate());
+        }
+    }
+
+    /**
+     * Updates the task assignment.
+     *
+     * @param taskAssignmentId the id of the initial task assignment.
+     * @param goalIds          the list of goals which should be associated with the given task
+     * @throws InternalTaskAssignmentNonexistentException if the initial task assignment can not be found
+     */
+    public void setTaskAssignment(String taskAssignmentId, List<String> goalIds) throws InternalTaskAssignmentNonexistentException {
+        Objects.requireNonNull(taskAssignmentId);
+        Objects.requireNonNull(goalIds);
+
+        ParameterizedSparqlString existQuery = new ParameterizedSparqlString(QRY_ASK_ASSIGNMENT_EXISTS);
+        String assignment = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", taskAssignmentId);
+        existQuery.setIri("?assignment", assignment);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean assignmentExist = connection.queryAsk(existQuery.asQuery());
+
+            if (!assignmentExist) {
+                throw new InternalTaskAssignmentNonexistentException();
+            }
+
+            ParameterizedSparqlString updateQuery = new ParameterizedSparqlString();
+            updateQuery.append("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                DELETE { ?goal etutor:hasTaskAssignment ?assignment }
+                INSERT {
+                """);
+
+            for (String goalId : goalIds) {
+                updateQuery.appendIri(goalId);
+                updateQuery.append(" etutor:hasTaskAssignment ?assignment.\n");
+            }
+
+            updateQuery.append("""
+                }
+                WHERE {
+                	?goal etutor:hasTaskAssignment ?assignment
+                }
+                """);
+
+            updateQuery.setIri("?assignment", assignment);
+            connection.update(updateQuery.asUpdate());
         }
     }
 
