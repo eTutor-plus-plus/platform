@@ -16,6 +16,7 @@ import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.stereotype.Service;
 
+import java.io.Serial;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.time.Instant;
@@ -277,6 +278,77 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
             updateQuery.setIri("?assignment", assignment);
             connection.update(updateQuery.asUpdate());
+        }
+    }
+
+    /**
+     * Returns all tasks assignments. An optional header filter can be passed to this method.
+     *
+     * @param headerFilter the optional header filter, might be null
+     * @return {@code List} containing the task assignments which are found by the given filter
+     * @throws MalformedURLException if a url can not be parsed (internal)
+     * @throws ParseException        if a date can not be parsed (internal)
+     */
+    public List<TaskAssignmentDTO> getTaskAssignments(String headerFilter) throws MalformedURLException, ParseException {
+        ParameterizedSparqlString qry = new ParameterizedSparqlString();
+        qry.append("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            CONSTRUCT { ?assignment ?predicate ?object.
+              ?assignment etutor:isAssignmentOf ?othergoal.}
+            WHERE {
+            """);
+
+        if (StringUtils.isNotBlank(headerFilter)) {
+            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").", headerFilter));
+        }
+
+        qry.append("""
+              ?assignment a etutor:TaskAssignment.
+              ?assignment ?predicate ?object.
+              OPTIONAL {
+                ?othergoal etutor:hasTaskAssignment ?assignment.
+              }
+            }
+            """);
+
+        try (RDFConnection connection = getConnection()) {
+            List<TaskAssignmentDTO> taskList = new ArrayList<>() {
+                @Serial
+                private static final long serialVersionUID = 1L;
+
+                /**
+                 * Appends the specified element to the end of this list.
+                 *
+                 * @param e element to be appended to this list
+                 * @return {@code true} (as specified by {@link Collection#add})
+                 */
+                @Override
+                public boolean add(TaskAssignmentDTO e) {
+                    int index = Collections.binarySearch(this, e);
+                    if (index < 0) {
+                        index = ~index;
+                    }
+                    super.add(index, e);
+                    return true;
+                }
+            };
+
+            Model model = connection.queryConstruct(qry.asQuery());
+
+            ResIterator iterator = model.listSubjects();
+
+            try {
+                while (iterator.hasNext()) {
+                    Resource resource = iterator.nextResource();
+                    taskList.add(new TaskAssignmentDTO(resource));
+                }
+            } finally {
+                iterator.close();
+            }
+
+            return taskList;
         }
     }
 

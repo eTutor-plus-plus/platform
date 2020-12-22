@@ -312,4 +312,75 @@ public class AssignmentSPARQLEndpointServiceTest {
             }
         }
     }
+
+    /**
+     * Tests the getTaskAssignment method without a query string.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetTaskAssignmentsWithoutQueryString() throws Exception {
+        int expectedCnt = insertTestAssignmentsForFulltextSearch();
+
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments(null);
+        assertThat(tasks).hasSize(expectedCnt);
+
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("");
+        assertThat(tasks).hasSize(expectedCnt);
+
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("     ");
+        assertThat(tasks).hasSize(expectedCnt);
+    }
+
+    /**
+     * Tests the getTaskAssignment method with a query string.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetTaskAssignmentWithQueryString() throws Exception {
+        insertTestAssignmentsForFulltextSearch();
+
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("test");
+        assertThat(tasks).hasSize(2);
+
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("for");
+        assertThat(tasks).hasSize(1);
+
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("1");
+        assertThat(tasks).hasSize(2);
+    }
+
+    //region Private methods
+
+    /**
+     * Inserts the test assignments for the fulltext search.
+     *
+     * @return count of inserted assignments
+     */
+    private int insertTestAssignmentsForFulltextSearch() {
+        insertTaskAssignmentForFulltextSearch("Testheader");
+        insertTaskAssignmentForFulltextSearch("New header for");
+        insertTaskAssignmentForFulltextSearch("Beispielaufgabe");
+        insertTaskAssignmentForFulltextSearch("Aufgabe1");
+        insertTaskAssignmentForFulltextSearch("Test123");
+
+        return 5;
+    }
+
+    /**
+     * Inserts a new task assignment for the fulltext search.
+     *
+     * @param header the header of the assignment (will be indexed)
+     */
+    private void insertTaskAssignmentForFulltextSearch(String header) {
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setCreator("TestCreator");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setHeader(header);
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+    }
+    //endregion
 }
