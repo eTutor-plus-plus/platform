@@ -301,7 +301,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
 
         if (StringUtils.isNotBlank(headerFilter)) {
-            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").", headerFilter));
+            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
         }
 
         qry.append("""

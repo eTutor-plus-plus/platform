@@ -26,7 +26,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      * Constructor.
      */
     public LocalRDFConnectionFactory() {
-        dataset = DatasetFactory.createTxnMem();
+        this(DatasetFactory.createTxnMem());
     }
 
     /**
@@ -35,16 +35,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      * @param dataset the dataset for the tests
      */
     public LocalRDFConnectionFactory(Dataset dataset) {
-        @SuppressWarnings("deprecation")
-        Directory luceneDirectory = new RAMDirectory();
-
-        EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
-        TextIndexConfig textIndexConfig = new TextIndexConfig(entDef);
-        Analyzer analyzer = Util.getLocalizedAnalyzer("de");
-        textIndexConfig.setAnalyzer(analyzer);
-        textIndexConfig.setValueStored(true);
-
-        this.dataset = TextDatasetFactory.createLucene(dataset, luceneDirectory, textIndexConfig);
+        createLuceneDataset(dataset);
     }
 
     /**
@@ -62,6 +53,24 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      */
     @Override
     public void clearDataset() {
-        dataset = DatasetFactory.createTxnMem();
+        createLuceneDataset(DatasetFactory.createTxnMem());
+    }
+
+    /**
+     * Creates a lucene dataset around the given dataset.
+     *
+     * @param dataset the dataset which should be wrapped
+     */
+    private void createLuceneDataset(Dataset dataset) {
+        @SuppressWarnings("deprecation")
+        Directory luceneDirectory = new RAMDirectory();
+
+        EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
+        TextIndexConfig textIndexConfig = new TextIndexConfig(entDef);
+        Analyzer analyzer = Util.getLocalizedAnalyzer("de");
+        textIndexConfig.setAnalyzer(analyzer);
+        textIndexConfig.setValueStored(true);
+
+        this.dataset = TextDatasetFactory.createLucene(dataset, luceneDirectory, textIndexConfig);
     }
 }

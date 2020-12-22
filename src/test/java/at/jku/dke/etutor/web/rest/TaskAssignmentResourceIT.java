@@ -293,4 +293,42 @@ public class TaskAssignmentResourceIT {
 
         assertThat(assignment.getLearningGoalIds()).containsExactlyInAnyOrderElementsOf(goalIds);
     }
+
+    /**
+     * Tests the get assignment endpoint with the query parameter.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(9)
+    public void testGetAssignmentsWithQueryParameter() throws Exception {
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments?taskHeader=test123"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        List<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDTO.class, List.class);
+
+        assertThat(assignments).isEmpty();
+    }
+
+    /**
+     * Tests the get assignment endpoint without the query parameter.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(10)
+    public void testGetAssignmentsWithoutQueryParameter() throws Exception {
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        List<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDTO.class, List.class);
+
+        assertThat(assignments).hasSize(1);
+    }
 }

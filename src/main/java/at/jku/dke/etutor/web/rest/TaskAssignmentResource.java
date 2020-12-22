@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -117,6 +119,24 @@ public class TaskAssignmentResource {
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();
+        }
+    }
+
+    /**
+     * REST endpoint for retrieving task assignments which may be filtered
+     * by an optional task header filter string.
+     *
+     * @param taskHeader the optional task header filter query parameter
+     * @return {@link ResponseEntity} containing the list of task assignments
+     */
+    @GetMapping("tasks/assignments")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<TaskAssignmentDTO>> getTaskAssignments(@RequestParam(required = false, defaultValue = "") String taskHeader) {
+        try {
+            List<TaskAssignmentDTO> taskAssignments = assignmentSPARQLEndpointService.getTaskAssignments(taskHeader);
+            return ResponseEntity.ok(taskAssignments);
+        } catch (MalformedURLException | ParseException e) {
+            throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
         }
     }
 }
