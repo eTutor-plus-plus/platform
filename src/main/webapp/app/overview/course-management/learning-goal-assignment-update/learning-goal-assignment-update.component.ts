@@ -3,8 +3,6 @@ import { ICourseModel, ILearningGoalUpdateAssignment } from '../course-mangement
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
 import { LearningGoalTreeviewItem } from '../../learning-goals/learning-goal-treeview-item.model';
-import { TreeviewConfig, TreeviewI18n } from 'ngx-treeview';
-import { DefaultTreeviewI18n } from '../../../shared/util/default-treeview-i18n';
 import { LearningGoalsService } from '../../learning-goals/learning-goals.service';
 import { AccountService } from '../../../core/auth/account.service';
 import { cloneDeep } from 'lodash';
@@ -16,7 +14,6 @@ import { cloneDeep } from 'lodash';
   selector: 'jhi-learning-goal-assignment-update',
   templateUrl: './learning-goal-assignment-update.component.html',
   styleUrls: ['./learning-goal-assignment-update.component.scss'],
-  providers: [{ provide: TreeviewI18n, useClass: DefaultTreeviewI18n }],
 })
 export class LearningGoalAssignmentUpdateComponent implements OnInit {
   private _selectedCourse?: ICourseModel;
@@ -27,11 +24,6 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
   private allAvailableLearningGoals: LearningGoalTreeviewItem[] = [];
 
   public isSaving = false;
-  public config = TreeviewConfig.create({
-    hasAllCheckBox: false,
-    hasFilter: true,
-    hasCollapseExpand: true,
-  });
 
   public availableLearningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoals: LearningGoalTreeviewItem[] = [];
@@ -301,9 +293,9 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
     if (idx > -1) {
       this.selectedLearningGoals.splice(idx, 1);
     } else {
-      if (item.children) {
-        for (const child of item.children) {
-          this.removeSubTreesOfSelectedItem(child as LearningGoalTreeviewItem);
+      if (item.childItems) {
+        for (const child of item.childItems) {
+          this.removeSubTreesOfSelectedItem(child);
         }
       }
     }
@@ -345,9 +337,9 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       return item;
     }
 
-    if (item.children) {
-      for (const child of item.children) {
-        const ret = this.getOriginalAvailableItemRecursive(child as LearningGoalTreeviewItem, itemToSearch);
+    if (item.childItems) {
+      for (const child of item.childItems) {
+        const ret = this.getOriginalAvailableItemRecursive(child, itemToSearch);
         if (ret) {
           return ret;
         }

@@ -9,6 +9,7 @@ import { ViewCourseComponent } from './view-course/view-course.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
+import { LearningGoalsModule } from '../learning-goals/learning-goals.module';
 
 /**
  * The module for course management related components.
@@ -23,6 +24,7 @@ import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignme
       appendToBody: true,
     }),
     NgSelectModule,
+    LearningGoalsModule,
   ],
   declarations: [
     CourseManagementComponent,

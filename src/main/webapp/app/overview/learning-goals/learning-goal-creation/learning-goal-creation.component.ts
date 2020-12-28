@@ -176,4 +176,17 @@ export class LearningGoalCreationComponent implements OnInit {
     this.learningGoal = undefined;
     this.parentGoal = parentGoalId;
   }
+
+  /**
+   * Clears this control.
+   */
+  public clear(): void {
+    this._learningGoal = undefined;
+    this._parentGoal = undefined;
+    this.learningGoalForm.patchValue({
+      learningGoalName: '',
+      learningGoalDescription: '',
+      privateGoal: false,
+    });
+  }
 }

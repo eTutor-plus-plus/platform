@@ -22,8 +22,8 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
     </div>
     <div class="modal-body">
-        <ngx-treeview [items]="goals" [itemTemplate]="learningGoalsTemplate"
-                      [config]="config"></ngx-treeview>
+        <jhi-learning-goal-treeview [items]="goals" [itemTemplate]="learningGoalsTemplate">
+        </jhi-learning-goal-treeview>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="close()">
