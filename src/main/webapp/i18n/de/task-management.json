@@ -1,0 +1,8 @@
+{
+  "taskManagement": {
+    "title": "Aufgabenverwaltung",
+    "createText": "Neue Aufgabe anlegen",
+    "searchPlaceholder": "Suche...",
+    "noItems": "Es sind keine Aufgaben vorhanden!"
+  }
+}

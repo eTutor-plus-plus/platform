@@ -2,18 +2,25 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.Serial;
@@ -349,6 +356,62 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             return taskList;
+        }
+    }
+
+    /**
+     * Returns a paged task display (task header + id). An optional header filter may be passed to this method.
+     *
+     * @param headerFilter the optional header filter, might be null
+     * @param pageable     the mandatory pageable object
+     * @return {@code Slice} containing the elements
+     */
+    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable) {
+        Objects.requireNonNull(headerFilter);
+        Objects.requireNonNull(pageable);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString();
+        qry.append("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header
+            WHERE {
+            """);
+
+        if (StringUtils.isNotBlank(headerFilter)) {
+            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        qry.append("""
+              ?assignment a etutor:TaskAssignment.
+              ?assignment etutor:hasTaskHeader ?header
+            }
+            ORDER BY (LCASE(?header))
+            """);
+
+        if (pageable.isPaged()) {
+            qry.append("LIMIT ");
+            qry.append(pageable.getPageSize() + 1);
+            qry.append("\nOFFSET ");
+            qry.append(pageable.getOffset());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution queryExecution = connection.query(qry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+                List<TaskDisplayDTO> resultList = new ArrayList<>();
+
+                while (set.hasNext()) {
+                    QuerySolution querySolution = set.nextSolution();
+
+                    resultList.add(new TaskDisplayDTO(querySolution.getLiteral("?assignmentId").getString(),
+                        querySolution.getLiteral("?header").getString()));
+                }
+
+                boolean hasNext = pageable.isPaged() && resultList.size() > pageable.getPageSize();
+                return new SliceImpl<>(hasNext ? resultList.subList(0, pageable.getPageSize()) : resultList, pageable, hasNext);
+            }
         }
     }
 

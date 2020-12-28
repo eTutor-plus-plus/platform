@@ -34,7 +34,8 @@
       "language": "Sprache",
       "learningGoals": {
         "main": "Lernziele",
-        "management": "Lernzielverwaltung"
+        "management": "Lernzielverwaltung",
+        "taskManagement": "Aufgabenverwaltung"
       },
       "courses": {
         "main": "LVAs",

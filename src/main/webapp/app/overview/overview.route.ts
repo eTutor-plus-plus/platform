@@ -27,4 +27,12 @@ export const overviewRoute: Routes = [
     },
     loadChildren: () => import('./course-management/course-management.module').then(m => m.CourseManagementModule),
   },
+  {
+    path: 'tasks',
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.INSTRUCTOR],
+    },
+    loadChildren: () => import('./tasks/tasks.module').then(m => m.TasksModule),
+  },
 ];

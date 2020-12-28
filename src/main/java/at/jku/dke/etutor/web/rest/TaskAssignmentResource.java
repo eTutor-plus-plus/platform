@@ -3,13 +3,19 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.InternalModelException;
+import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -138,5 +144,22 @@ public class TaskAssignmentResource {
         } catch (MalformedURLException | ParseException e) {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
         }
+    }
+
+    /**
+     * REST endpoint for retrieving the task display list which may be filtered
+     * by an optional task header filter string.
+     *
+     * @param taskHeader the optional task header filter query parameter
+     * @param pageable   the pagination object
+     * @return {@link ResponseEntity} containing the list of task displays of the current "page"
+     */
+    @GetMapping("tasks/display")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<TaskDisplayDTO>> getAllTaskDisplayList(@RequestParam(required = false, defaultValue = "") String taskHeader, Pageable pageable) {
+        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
+        return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);
     }
 }

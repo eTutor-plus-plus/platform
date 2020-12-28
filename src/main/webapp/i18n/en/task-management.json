@@ -1,0 +1,8 @@
+{
+  "taskManagement": {
+    "title": "Task management",
+    "createText": "Create new task",
+    "searchPlaceholder": "Search...",
+    "noItems": "There are no items existent!"
+  }
+}

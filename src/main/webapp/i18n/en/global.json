@@ -34,7 +34,8 @@
       "language": "Language",
       "learningGoals": {
         "main": "Learning goals",
-        "management": "Learning goal management"
+        "management": "Learning goal management",
+        "taskManagement": "Task management"
       },
       "courses": {
         "main": "Courses",

@@ -56,6 +56,12 @@
                             <span jhiTranslate="global.menu.learningGoals.management">Learning goal management</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="overview/tasks" routerLinkActive="active" (click)="collapseNavbar()">
+                            <fa-icon icon="tasks" [fixedWidth]="true"></fa-icon>
+                            <span jhiTranslate="global.menu.learningGoals.taskManagement">Task management</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li *jhiHasAnyAuthority="'ROLE_ADMIN'" ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
