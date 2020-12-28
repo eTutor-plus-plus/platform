@@ -3,7 +3,7 @@ import { ICourseModel } from '../course-mangement.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
 import { AccountService } from '../../../core/auth/account.service';
-import { LearningGoalTreeviewItem } from '../../learning-goals/learning-goal-treeview-item.model';
+import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 
 /**
  * Component which is used to display a course's assigned goals.

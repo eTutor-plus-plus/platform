@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LearningGoalsService } from '../learning-goals.service';
-import { ILearningGoalModel, INewLearningGoalModel } from '../learning-goal-model';
+import { ILearningGoalModel, INewLearningGoalModel } from '../../shared/learning-goal-model';
 import { isNil } from 'lodash';
 
 /**

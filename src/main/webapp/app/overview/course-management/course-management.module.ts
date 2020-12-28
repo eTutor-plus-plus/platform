@@ -9,7 +9,7 @@ import { ViewCourseComponent } from './view-course/view-course.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
-import { LearningGoalsModule } from '../learning-goals/learning-goals.module';
+import { OverviewSharedModule } from '../shared/overview-shared.module';
 
 /**
  * The module for course management related components.
@@ -17,6 +17,7 @@ import { LearningGoalsModule } from '../learning-goals/learning-goals.module';
 @NgModule({
   imports: [
     EtutorPlusPlusSharedModule,
+    OverviewSharedModule,
     RouterModule.forChild(courseManagementRoutes),
     ConfirmationPopoverModule.forRoot({
       confirmButtonType: 'danger',
@@ -24,7 +25,6 @@ import { LearningGoalsModule } from '../learning-goals/learning-goals.module';
       appendToBody: true,
     }),
     NgSelectModule,
-    LearningGoalsModule,
   ],
   declarations: [
     CourseManagementComponent,

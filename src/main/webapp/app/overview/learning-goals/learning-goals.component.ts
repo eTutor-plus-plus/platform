@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
-import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
+import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
 import { TreeviewComponent } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';

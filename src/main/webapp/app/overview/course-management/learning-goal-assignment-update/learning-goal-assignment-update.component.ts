@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ICourseModel, ILearningGoalUpdateAssignment } from '../course-mangement.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
-import { LearningGoalTreeviewItem } from '../../learning-goals/learning-goal-treeview-item.model';
+import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 import { LearningGoalsService } from '../../learning-goals/learning-goals.service';
 import { AccountService } from '../../../core/auth/account.service';
 import { cloneDeep } from 'lodash';
