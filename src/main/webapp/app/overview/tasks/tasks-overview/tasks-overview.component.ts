@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITaskDisplayModel } from './task.model';
-import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { TasksService } from '../tasks.service';
 
 /**
@@ -26,7 +26,7 @@ export class TasksOverviewComponent implements OnInit {
    * @param tasksService the injected tasks service
    */
   constructor(private tasksService: TasksService) {
-    this.itemsPerPage = ITEMS_PER_PAGE;
+    this.itemsPerPage = ITEMS_PER_SLICE;
   }
 
   /**
@@ -66,7 +66,7 @@ export class TasksOverviewComponent implements OnInit {
    * calls the REST endpoint.
    */
   public performFiltering(): void {
-    let wordSearch = this.filterString;
+    const wordSearch = this.filterString;
 
     setTimeout(() => {
       if (wordSearch === this.filterString) {
@@ -105,6 +105,5 @@ export class TasksOverviewComponent implements OnInit {
       this.entries.push(...data);
     }
   }
-
   // endregion
 }
