@@ -1,8 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITaskDisplayModel } from './task.model';
 import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { TasksService } from '../tasks.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TaskUpdateComponent } from './task-update/task-update.component';
 
 /**
  * Component which provides an overview of the tasks.
@@ -24,8 +26,9 @@ export class TasksOverviewComponent implements OnInit {
    * Constructor.
    *
    * @param tasksService the injected tasks service
+   * @param modalService the injected modal service
    */
-  constructor(private tasksService: TasksService) {
+  constructor(private tasksService: TasksService, private modalService: NgbModal) {
     this.itemsPerPage = ITEMS_PER_SLICE;
   }
 
@@ -59,7 +62,16 @@ export class TasksOverviewComponent implements OnInit {
   /**
    * Opens the new task creation window.
    */
-  public createNewTask(): void {}
+  public createNewTask(): void {
+    this.modalService.open(TaskUpdateComponent, { size: 'lg', backdrop: 'static' });
+  }
+
+  public editTask(selectedModel: ITaskDisplayModel): void {
+    this.tasksService.getTaskAssignmentById(selectedModel.taskId).subscribe(value => {
+      const modalRef = this.modalService.open(TaskUpdateComponent, { size: 'lg', backdrop: 'static' });
+      (modalRef.componentInstance as TaskUpdateComponent).taskModel = value.body!;
+    });
+  }
 
   /**
    * Performs the filter operation and

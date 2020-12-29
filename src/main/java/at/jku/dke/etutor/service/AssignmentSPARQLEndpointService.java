@@ -71,6 +71,21 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
+    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
+
+        CONSTRUCT { ?assignment ?predicate ?object.
+          ?assignment etutor:isAssignmentOf ?goal.}
+        WHERE {
+          ?assignment ?predicate ?object.
+          ?assignment a etutor:TaskAssignment.
+          OPTIONAL {
+            ?goal etutor:hasTaskAssignment ?assignment.
+          }
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -356,6 +371,37 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             return taskList;
+        }
+    }
+
+    /**
+     * Returns the task by its internal id.
+     *
+     * @param id the task's internal id
+     * @return {@link Optional} which contains the task, if a task with the given id exists
+     */
+    public Optional<TaskAssignmentDTO> getTaskAssignmentByInternalId(String id) {
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENTS);
+
+        String taskAssignmentId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", id);
+        query.setIri("?assignment", taskAssignmentId);
+
+        try (RDFConnection connection = getConnection()) {
+            Model model = connection.queryConstruct(query.asQuery());
+
+            if (model.isEmpty()) {
+                return Optional.empty();
+            }
+            ResIterator iterator = model.listSubjects();
+
+            try {
+                Resource resource = iterator.nextResource();
+                return Optional.of(new TaskAssignmentDTO(resource));
+            } finally {
+                iterator.close();
+            }
+        } catch (ParseException | MalformedURLException e) {
+            return Optional.empty();
         }
     }
 

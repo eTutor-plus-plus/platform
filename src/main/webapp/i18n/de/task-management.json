@@ -3,6 +3,31 @@
     "title": "Aufgabenverwaltung",
     "createText": "Neue Aufgabe anlegen",
     "searchPlaceholder": "Suche...",
-    "noItems": "Es sind keine Aufgaben vorhanden!"
+    "noItems": "Es sind keine Aufgaben vorhanden!",
+    "difficultyPlaceholder": "Schwierigkeit auswählen",
+    "difficulties": {
+      "easy": "Leicht",
+      "medium": "Mittel",
+      "hard": "Schwer",
+      "veryHard": "Sehr schwer"
+    },
+    "fields": {
+      "header": "Überschrift:",
+      "creator": "Ersteller:",
+      "organisationUnit": "Organisationseinheit:",
+      "privateTask": "Private Aufgabe",
+      "taskDifficulty": "Aufgabenschwierigkeit:",
+      "processingTime": "Bearbeitungszeit:",
+      "url": "Url:",
+      "instruction": "Aufgabenstellung:"
+    },
+    "error": {
+      "required": "Dieses Feld ist erforderlich!",
+      "urlPattern": "Das optionale Feld entspricht nicht dem URL-Standard!"
+    },
+    "modal": {
+      "newHeader": "Neue Aufgabe anlegen",
+      "editHeader": "Aufgabe '{{taskHeader}}' bearbeiten"
+    }
   }
 }

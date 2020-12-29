@@ -9,7 +9,6 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
-import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +23,7 @@ import javax.validation.Valid;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 
 /**
@@ -161,5 +161,20 @@ public class TaskAssignmentResource {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
         return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * REST endpoint for retrieving a single task assignment object by its
+     * internal id.
+     *
+     * @param assignmentId the internal id (path variable)
+     * @return the {@link TaskAssignmentDTO} containing the given id
+     */
+    @GetMapping("tasks/assignments/{assignmentId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<TaskAssignmentDTO> getTaskAssignmentById(@PathVariable String assignmentId) {
+        Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
+
+        return ResponseEntity.of(optionalTaskAssignmentDTO);
     }
 }
