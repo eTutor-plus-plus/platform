@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ITaskDisplayModel } from './task.model';
+import { ITaskDisplayModel } from '../task.model';
 import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { TasksService } from '../tasks.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';

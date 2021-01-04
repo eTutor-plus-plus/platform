@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { ITaskDisplayModel, ITaskModel } from './tasks-overview/task.model';
+import { INewTaskModel, ITaskDisplayModel, ITaskModel } from './task.model';
 import { Observable } from 'rxjs';
 import { createRequestOption } from '../../shared/util/request-util';
 
@@ -49,5 +49,23 @@ export class TasksService {
     const id = internalId.substr(internalId.lastIndexOf('#') + 1);
 
     return this.http.get<ITaskModel>(`api/tasks/assignments/${id}`, { observe: 'response' });
+  }
+
+  /**
+   * Saves a new task.
+   *
+   * @param task the task to save
+   */
+  public saveNewTask(task: INewTaskModel): Observable<HttpResponse<any>> {
+    return this.http.post('api/tasks/assignments', task, { observe: 'response' });
+  }
+
+  /**
+   * Saves an edited tasks.
+   *
+   * @param task the task to save
+   */
+  public saveEditedTask(task: ITaskModel): Observable<HttpResponse<any>> {
+    return this.http.put('api/tasks/assignments', task, { observe: 'response' });
   }
 }

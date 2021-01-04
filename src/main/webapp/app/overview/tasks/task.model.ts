@@ -98,8 +98,8 @@ export class TaskDifficulty {
 
   public static readonly Values = [TaskDifficulty.Easy, TaskDifficulty.Medium, TaskDifficulty.Hard, TaskDifficulty.VeryHard];
 
-  private _value: string;
-  private _text: string;
+  private readonly _value: string;
+  private readonly _text: string;
 
   /**
    * Constructor.

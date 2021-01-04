@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
-import { ITaskModel, TaskDifficulty } from '../task.model';
+import { INewTaskModel, ITaskModel, TaskDifficulty } from '../../task.model';
 import { URL_OR_EMPTY_PATTERN } from '../../../../shared/constants/input.constants';
+import { CustomValidators } from '../../../../shared/validators/custom-validators';
 
 /**
  * Component for creating / updating tasks.
@@ -19,9 +20,9 @@ export class TaskUpdateComponent implements OnInit {
   public readonly difficulties = TaskDifficulty.Values;
 
   public readonly updateForm = this.fb.group({
-    header: ['', [Validators.required]],
-    creator: ['', [Validators.required]],
-    organisationUnit: ['', [Validators.required]],
+    header: ['', [CustomValidators.required]],
+    creator: ['', [CustomValidators.required]],
+    organisationUnit: ['', [CustomValidators.required]],
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     processingTime: [''],
@@ -48,6 +49,62 @@ export class TaskUpdateComponent implements OnInit {
    */
   public save(): void {
     this.isSaving = true;
+
+    const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
+
+    const newTask: INewTaskModel = {
+      header: this.updateForm.get(['header'])!.value.trim(),
+      creator: this.updateForm.get(['creator'])!.value.trim(),
+      organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
+      taskDifficultyId,
+      privateTask: this.updateForm.get('privateTask')!.value,
+    };
+
+    const urlStr: string = this.updateForm.get('url')!.value;
+    if (urlStr) {
+      newTask.url = new URL(urlStr);
+    }
+
+    const instructionStr: string = this.updateForm.get('instruction')!.value;
+    if (instructionStr && instructionStr.trim()) {
+      newTask.instruction = instructionStr.trim();
+    }
+
+    const processingTime: string = this.updateForm.get('processingTime')!.value;
+    if (processingTime && processingTime.trim()) {
+      newTask.processingTime = processingTime.trim();
+    }
+
+    if (this.isNew) {
+      this.tasksService.saveNewTask(newTask).subscribe(
+        () => {
+          this.isSaving = false;
+          this.close();
+        },
+        () => (this.isSaving = false)
+      );
+    } else {
+      const editedTask: ITaskModel = {
+        header: newTask.header,
+        creator: newTask.creator,
+        organisationUnit: newTask.organisationUnit,
+        taskDifficultyId: newTask.taskDifficultyId,
+        processingTime: newTask.processingTime,
+        url: newTask.url,
+        instruction: newTask.instruction,
+        privateTask: newTask.privateTask,
+        creationDate: this.taskModel!.creationDate,
+        id: this.taskModel!.id,
+      };
+
+      this.tasksService.saveEditedTask(editedTask).subscribe(
+        () => {
+          this.isSaving = false;
+          this.close();
+        },
+        () => (this.isSaving = false)
+      );
+    }
   }
 
   /**
