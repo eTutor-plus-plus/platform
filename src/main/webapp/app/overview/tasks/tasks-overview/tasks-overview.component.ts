@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITaskDisplayModel } from '../task.model';
 import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { TasksService } from '../tasks.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskUpdateComponent } from './task-update/task-update.component';
+import { JhiEventManager } from 'ng-jhipster';
+import { Subscription } from 'rxjs';
 
 /**
  * Component which provides an overview of the tasks.
@@ -14,8 +16,9 @@ import { TaskUpdateComponent } from './task-update/task-update.component';
   templateUrl: './tasks-overview.component.html',
   styleUrls: ['./tasks-overview.component.scss'],
 })
-export class TasksOverviewComponent implements OnInit {
+export class TasksOverviewComponent implements OnInit, OnDestroy {
   private itemsPerPage: number;
+  private subscription?: Subscription;
 
   public hasNextPage = false;
   public page = 0;
@@ -27,8 +30,9 @@ export class TasksOverviewComponent implements OnInit {
    *
    * @param tasksService the injected tasks service
    * @param modalService the injected modal service
+   * @param eventManager the injected event manager service
    */
-  constructor(private tasksService: TasksService, private modalService: NgbModal) {
+  constructor(private tasksService: TasksService, private modalService: NgbModal, private eventManager: JhiEventManager) {
     this.itemsPerPage = ITEMS_PER_SLICE;
   }
 
@@ -36,7 +40,20 @@ export class TasksOverviewComponent implements OnInit {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
+    this.subscription = this.eventManager.subscribe('taskModification', () => {
+      this.entries.length = 0;
+      this.loadPage(0);
+    });
     this.loadEntries();
+  }
+
+  /**
+   * Implements the destroy method. See {@link OnDestroy}.
+   */
+  public ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   /**

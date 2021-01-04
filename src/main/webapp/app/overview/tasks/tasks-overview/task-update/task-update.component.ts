@@ -5,6 +5,7 @@ import { TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskDifficulty } from '../../task.model';
 import { URL_OR_EMPTY_PATTERN } from '../../../../shared/constants/input.constants';
 import { CustomValidators } from '../../../../shared/validators/custom-validators';
+import { JhiEventManager } from 'ng-jhipster';
 
 /**
  * Component for creating / updating tasks.
@@ -36,8 +37,14 @@ export class TaskUpdateComponent implements OnInit {
    * @param fb the injected form builder service
    * @param activeModal the injected active modal service
    * @param tasksService the injected tasks service
+   * @param eventManager the injected event manager service
    */
-  constructor(private fb: FormBuilder, private activeModal: NgbActiveModal, private tasksService: TasksService) {}
+  constructor(
+    private fb: FormBuilder,
+    private activeModal: NgbActiveModal,
+    private tasksService: TasksService,
+    private eventManager: JhiEventManager
+  ) {}
 
   /**
    * Implements the init method. See {@link OnInit}.
@@ -100,6 +107,7 @@ export class TaskUpdateComponent implements OnInit {
       this.tasksService.saveEditedTask(editedTask).subscribe(
         () => {
           this.isSaving = false;
+          this.eventManager.broadcast('taskModification');
           this.close();
         },
         () => (this.isSaving = false)
