@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -57,7 +59,9 @@ public class TaskAssignmentResource {
     @PostMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
-        TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
         return ResponseEntity.ok(assignment);
     }
 
@@ -102,6 +106,13 @@ public class TaskAssignmentResource {
     @PutMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
+            throw new BadRequestAlertException("Only the creator of the task is allowed to edit it!",
+                "taskManagmeent", "taskNotOwner");
+        }
+
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
@@ -138,8 +149,10 @@ public class TaskAssignmentResource {
     @GetMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<TaskAssignmentDTO>> getTaskAssignments(@RequestParam(required = false, defaultValue = "") String taskHeader) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
         try {
-            List<TaskAssignmentDTO> taskAssignments = assignmentSPARQLEndpointService.getTaskAssignments(taskHeader);
+            List<TaskAssignmentDTO> taskAssignments = assignmentSPARQLEndpointService.getTaskAssignments(taskHeader, currentLogin);
             return ResponseEntity.ok(taskAssignments);
         } catch (MalformedURLException | ParseException e) {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");
@@ -157,7 +170,9 @@ public class TaskAssignmentResource {
     @GetMapping("tasks/display")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<TaskDisplayDTO>> getAllTaskDisplayList(@RequestParam(required = false, defaultValue = "") String taskHeader, Pageable pageable) {
-        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable);
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable, currentLogin);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
         return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);

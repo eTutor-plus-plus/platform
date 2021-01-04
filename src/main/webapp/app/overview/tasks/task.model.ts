@@ -10,6 +10,14 @@ export interface ITaskDisplayModel {
    * The task's header.
    */
   header: string;
+  /**
+   * The task's internal creator.
+   */
+  internalCreator: string;
+  /**
+   * Indicates whether this task is a private task or not.
+   */
+  privateTask: boolean;
 }
 
 /**
@@ -60,9 +68,13 @@ export interface ITaskModel extends INewTaskModel {
    */
   id: string;
   /**
-   * The task's creation date
+   * The task's creation date.
    */
   creationDate: Date;
+  /**
+   * The task's internal creator.
+   */
+  internalCreator: string;
 }
 
 /**

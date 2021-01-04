@@ -102,6 +102,7 @@ export class TaskUpdateComponent implements OnInit {
         privateTask: newTask.privateTask,
         creationDate: this.taskModel!.creationDate,
         id: this.taskModel!.id,
+        internalCreator: this.taskModel!.internalCreator,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(

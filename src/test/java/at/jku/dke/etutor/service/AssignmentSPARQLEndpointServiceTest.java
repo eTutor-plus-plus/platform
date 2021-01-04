@@ -66,7 +66,10 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testInsertNewAssignmentNullValues() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(null))
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(new NewTaskAssignmentDTO(), null))
             .isInstanceOf(NullPointerException.class);
     }
 
@@ -100,7 +103,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         RDFTestUtil.checkThatSubjectExists(String.format("<%s>", insertedAssignment.getId()), rdfConnectionFactory);
 
@@ -129,7 +132,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setProcessingTime("1 h");
         newTaskAssignmentDTO.setUrl(new URL("http://www.test.at"));
 
-        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         RDFTestUtil.checkThatSubjectExists(String.format("<%s>", insertedAssignment.getId()), rdfConnectionFactory);
 
@@ -164,7 +167,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         assertThat(assignments).isNotEmpty();
@@ -203,7 +206,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         insertedAssignment.setHeader("Newheader");
 
@@ -227,7 +230,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         assignment.setProcessingTime("1h");
         assignment.setUrl(new URL("http://www.test.at"));
@@ -286,7 +289,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
         List<String> testGoalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
 
@@ -322,13 +325,13 @@ public class AssignmentSPARQLEndpointServiceTest {
     public void testGetTaskAssignmentsWithoutQueryString() throws Exception {
         int expectedCnt = insertTestAssignmentsForFulltextSearch();
 
-        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments(null);
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments(null, OWNER);
         assertThat(tasks).hasSize(expectedCnt);
 
-        tasks = assignmentSPARQLEndpointService.getTaskAssignments("");
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("", OWNER);
         assertThat(tasks).hasSize(expectedCnt);
 
-        tasks = assignmentSPARQLEndpointService.getTaskAssignments("     ");
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("     ", OWNER);
         assertThat(tasks).hasSize(expectedCnt);
     }
 
@@ -341,13 +344,13 @@ public class AssignmentSPARQLEndpointServiceTest {
     public void testGetTaskAssignmentWithQueryString() throws Exception {
         insertTestAssignmentsForFulltextSearch();
 
-        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("test");
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("test", OWNER);
         assertThat(tasks).hasSize(2);
 
-        tasks = assignmentSPARQLEndpointService.getTaskAssignments("for");
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
         assertThat(tasks).hasSize(1);
 
-        tasks = assignmentSPARQLEndpointService.getTaskAssignments("1");
+        tasks = assignmentSPARQLEndpointService.getTaskAssignments("1", OWNER);
         assertThat(tasks).hasSize(2);
     }
 
@@ -380,7 +383,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.setHeader(header);
 
-        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
     }
     //endregion
 }

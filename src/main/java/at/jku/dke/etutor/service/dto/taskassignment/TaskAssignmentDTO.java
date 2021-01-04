@@ -26,6 +26,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     private String id;
     @NotNull
     private Instant creationDate;
+    @NotEmpty
+    private String internalCreator;
 
     /**
      * Default constructor.
@@ -40,8 +42,9 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
      * @param newTaskAssignmentDTO the new task assignment
      * @param id                   the created id
      * @param creationDate         the creation date
+     * @param internalCreator      the internal creator
      */
-    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate) {
+    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator) {
         super();
 
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
@@ -56,6 +59,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
 
         setId(id);
         setCreationDate(creationDate);
+        setInternalCreator(internalCreator);
     }
 
     /**
@@ -91,6 +95,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         }
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());
+        setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalTaskCreator).getString());
 
         Statement urlStatement = resource.getProperty(ETutorVocabulary.hasTaskUrl);
         if (urlStatement != null) {
@@ -141,6 +146,24 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
      */
     public void setCreationDate(Instant creationDate) {
         this.creationDate = creationDate;
+    }
+
+    /**
+     * Returns the internal creator.
+     *
+     * @return the internal creator
+     */
+    public String getInternalCreator() {
+        return internalCreator;
+    }
+
+    /**
+     * Sets the internal creator.
+     *
+     * @param internalCreator the internal creator to set
+     */
+    public void setInternalCreator(String internalCreator) {
+        this.internalCreator = internalCreator;
     }
 
     /**

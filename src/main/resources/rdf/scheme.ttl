@@ -108,6 +108,11 @@ etutor:hasTaskCreator
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
+etutor:hasInternalTaskCreator
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  xsd:string .
+
 etutor:hasTaskHeader
     rdf:type    rdfs:Property ;
     rdfs:domain etutor:TaskAssignment ;

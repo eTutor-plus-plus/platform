@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.domain.rdf;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -33,6 +34,7 @@ public final class ETutorVocabulary {
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
+    private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
@@ -119,6 +121,10 @@ public final class ETutorVocabulary {
      * The hasTaskCreator property.
      */
     public static final Property hasTaskCreator = m.createProperty(URI + PROP_HAS_TASK_CREATOR);
+    /**
+     * The hasInternalTaskCreator property.
+     */
+    public static final Property hasInternalTaskCreator = m.createProperty(URI + PROP_HAS_INTERNAL_TASK_CREATOR);
     /**
      * The hasTaskHeader property.
      */

@@ -16,7 +16,7 @@
 </div>
 <ul [hidden]="!entries.length" class="list-group" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
     <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
-        <span>{{entry.header}}</span>
+        <span [ngClass]="{'privateTask': entry.privateTask}">{{entry.header}}</span>
 
         <span class="float-right">
             <a (click)="editTask(entry)"><fa-icon icon="edit"></fa-icon></a>

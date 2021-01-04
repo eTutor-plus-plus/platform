@@ -197,6 +197,7 @@ public class TaskAssignmentResourceIT {
         taskAssignmentDTO.setProcessingTime("1h");
         taskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
         taskAssignmentDTO.setOrganisationUnit("DKE");
+        taskAssignmentDTO.setInternalCreator("admin");
 
         restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments")
             .contentType(MediaType.APPLICATION_JSON)
@@ -225,7 +226,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
-        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO);
+        var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, USERNAME);
 
         assignment.setProcessingTime("2h");
         assignment.setUrl(new URL("http://www.test.at"));

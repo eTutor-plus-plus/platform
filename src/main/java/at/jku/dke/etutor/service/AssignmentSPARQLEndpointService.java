@@ -44,9 +44,18 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         CONSTRUCT { ?assignment ?predicate ?object.
         			?assignment etutor:isAssignmentOf ?othergoal.}
         WHERE {
-          ?goal etutor:hasTaskAssignment ?assignment.
-          ?assignment ?predicate ?object.
-          ?othergoal etutor:hasTaskAssignment ?assignment.
+            {
+            ?goal etutor:hasTaskAssignment ?assignment.
+            ?assignment etutor:isPrivateTask false.
+            ?assignment ?predicate ?object.
+            ?othergoal etutor:hasTaskAssignment ?assignment.
+          } UNION {
+            ?goal etutor:hasTaskAssignment ?assignment.
+            ?assignment etutor:isPrivateTask true.
+            ?assignment etutor:hasInternalTaskCreator ?internalTaskOwner.
+            ?assignment ?predicate ?object.
+            ?othergoal etutor:hasTaskAssignment ?assignment.
+          }
         }
         """;
 
@@ -99,17 +108,19 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * Inserts a new task assignment.
      *
      * @param newTaskAssignmentDTO the task assignment dto to persist
+     * @param internalCreator      the internal creator of this task assignment
      * @return the inserted task assignment dto
      */
-    public TaskAssignmentDTO insertNewTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    public TaskAssignmentDTO insertNewTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO, String internalCreator) {
         Objects.requireNonNull(newTaskAssignmentDTO);
+        Objects.requireNonNull(internalCreator);
 
         Instant now = Instant.now();
         String newId = UUID.randomUUID().toString();
 
         Model model = ModelFactory.createDefaultModel();
 
-        Resource newTaskAssignment = constructTaskAssignmentFromDTO(newTaskAssignmentDTO, newId, now, model);
+        Resource newTaskAssignment = constructTaskAssignmentFromDTO(newTaskAssignmentDTO, newId, now, model, internalCreator);
 
         for (String learningGoalId : newTaskAssignmentDTO.getLearningGoalIds()) {
             Resource assignmentResource = model.createResource(learningGoalId);
@@ -120,7 +131,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             connection.load(model);
         }
 
-        return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now);
+        return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator);
     }
 
     /**
@@ -139,6 +150,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL);
         query.setIri("?goal", goalId);
+        query.setLiteral("?internalTaskOwner", goalOwner);
 
         try (RDFConnection connection = getConnection()) {
             Model model = connection.queryConstruct(query.asQuery());
@@ -246,7 +258,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.append("""
                 } WHERE {
                   ?assignment ?predicate ?object.
-                  FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type))
+                  FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator))
                 }
                 """);
 
@@ -307,11 +319,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * Returns all tasks assignments. An optional header filter can be passed to this method.
      *
      * @param headerFilter the optional header filter, might be null
+     * @param user         the currently logged-in user
      * @return {@code List} containing the task assignments which are found by the given filter
      * @throws MalformedURLException if a url can not be parsed (internal)
      * @throws ParseException        if a date can not be parsed (internal)
      */
-    public List<TaskAssignmentDTO> getTaskAssignments(String headerFilter) throws MalformedURLException, ParseException {
+    public List<TaskAssignmentDTO> getTaskAssignments(String headerFilter, String user) throws MalformedURLException, ParseException {
         ParameterizedSparqlString qry = new ParameterizedSparqlString();
         qry.append("""
             PREFIX text:   <http://jena.apache.org/text#>
@@ -320,6 +333,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             CONSTRUCT { ?assignment ?predicate ?object.
               ?assignment etutor:isAssignmentOf ?othergoal.}
             WHERE {
+                {
             """);
 
         if (StringUtils.isNotBlank(headerFilter)) {
@@ -327,13 +341,32 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
 
         qry.append("""
-              ?assignment a etutor:TaskAssignment.
-              ?assignment ?predicate ?object.
-              OPTIONAL {
-                ?othergoal etutor:hasTaskAssignment ?assignment.
+                ?assignment a etutor:TaskAssignment.
+                ?assignment ?predicate ?object.
+                ?assignment etutor:isPrivateTask false.
+                OPTIONAL {
+                  ?othergoal etutor:hasTaskAssignment ?assignment.
+                }
+              } UNION {
+            """);
+
+        if (StringUtils.isNotBlank(headerFilter)) {
+            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        qry.append("""
+                ?assignment a etutor:TaskAssignment.
+                ?assignment ?predicate ?object.
+                ?assignment etutor:isPrivateTask true.
+                ?assignment etutor:hasInternalTaskCreator ?internalTaskCreator
+                OPTIONAL {
+                  ?othergoal etutor:hasTaskAssignment ?assignment.
+                }
               }
             }
             """);
+
+        qry.setLiteral("?hasInternalTaskCreator", user);
 
         try (RDFConnection connection = getConnection()) {
             List<TaskAssignmentDTO> taskList = new ArrayList<>() {
@@ -410,9 +443,10 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      *
      * @param headerFilter the optional header filter, might be null
      * @param pageable     the mandatory pageable object
+     * @param user         the currently logged-in user
      * @return {@code Slice} containing the elements
      */
-    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable) {
+    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user) {
         Objects.requireNonNull(headerFilter);
         Objects.requireNonNull(pageable);
 
@@ -421,8 +455,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header
+            SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header ?internalCreator ?privateTask
             WHERE {
+                {
             """);
 
         if (StringUtils.isNotBlank(headerFilter)) {
@@ -430,8 +465,25 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
 
         qry.append("""
-              ?assignment a etutor:TaskAssignment.
-              ?assignment etutor:hasTaskHeader ?header
+                ?assignment a etutor:TaskAssignment.
+                ?assignment etutor:hasTaskHeader ?header.
+                ?assignment etutor:hasInternalTaskCreator ?internalCreator.
+                ?assignment etutor:isPrivateTask ?privateTask.
+                FILTER(?privateTask = false)
+              } UNION {
+            """);
+
+        if (StringUtils.isNotBlank(headerFilter)) {
+            qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        qry.append("""
+                ?assignment a etutor:TaskAssignment.
+                ?assignment etutor:hasTaskHeader ?header.
+                ?assignment etutor:hasInternalTaskCreator ?internalCreator.
+                ?assignment etutor:isPrivateTask ?privateTask.
+                FILTER(?internalCreator = ?loggedInUser && ?privateTask = true)
+              }
             }
             ORDER BY (LCASE(?header))
             """);
@@ -442,6 +494,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             qry.append("\nOFFSET ");
             qry.append(pageable.getOffset());
         }
+        qry.setLiteral("?loggedInUser", user);
 
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution queryExecution = connection.query(qry.asQuery())) {
@@ -451,8 +504,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 while (set.hasNext()) {
                     QuerySolution querySolution = set.nextSolution();
 
-                    resultList.add(new TaskDisplayDTO(querySolution.getLiteral("?assignmentId").getString(),
-                        querySolution.getLiteral("?header").getString()));
+                    String assignmentId = querySolution.getLiteral("?assignmentId").getString();
+                    String header = querySolution.getLiteral("?header").getString();
+                    String internalCreator = querySolution.getLiteral("?internalCreator").getString();
+                    boolean privateTask = querySolution.getLiteral("?privateTask").getBoolean();
+
+                    resultList.add(new TaskDisplayDTO(assignmentId, header, internalCreator, privateTask));
                 }
 
                 boolean hasNext = pageable.isPaged() && resultList.size() > pageable.getPageSize();
@@ -470,9 +527,10 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * @param uuid                 the generated uuid
      * @param creationDate         the creation date
      * @param model                the rdf base model
+     * @param user                 the creator
      * @return {@link Resource} which represents the new task assignment
      */
-    private Resource constructTaskAssignmentFromDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String uuid, Instant creationDate, Model model) {
+    private Resource constructTaskAssignmentFromDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String uuid, Instant creationDate, Model model, String user) {
         Resource resource = ETutorVocabulary.createTaskAssignmentResourceOfModel(uuid, model);
 
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());
@@ -484,6 +542,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         resource.addProperty(ETutorVocabulary.hasTaskDifficulty, model.createResource(newTaskAssignmentDTO.getTaskDifficultyId()));
         resource.addProperty(ETutorVocabulary.hasTaskOrganisationUnit, newTaskAssignmentDTO.getOrganisationUnit().trim());
+        resource.addProperty(ETutorVocabulary.hasInternalTaskCreator, user);
 
         if (newTaskAssignmentDTO.getUrl() != null) {
             resource.addProperty(ETutorVocabulary.hasTaskUrl, newTaskAssignmentDTO.getUrl().toString());

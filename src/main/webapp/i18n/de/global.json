@@ -155,7 +155,8 @@
     "courseNotFound": "Die LVA existiert nicht!",
     "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
     "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!",
-    "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!"
+    "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
+    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!"
   },
   "footer": {
     "contact": "Kontakt",
