@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskUpdateComponent } from './task-update/task-update.component';
 import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
+import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-assignment-update.component';
 
 /**
  * Component which provides an overview of the tasks.
@@ -83,11 +84,26 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
     this.modalService.open(TaskUpdateComponent, { size: 'lg', backdrop: 'static' });
   }
 
+  /**
+   * Opens the edit task modal window for the given selected task model.
+   *
+   * @param selectedModel the selected task model
+   */
   public editTask(selectedModel: ITaskDisplayModel): void {
     this.tasksService.getTaskAssignmentById(selectedModel.taskId).subscribe(value => {
       const modalRef = this.modalService.open(TaskUpdateComponent, { size: 'lg', backdrop: 'static' });
       (modalRef.componentInstance as TaskUpdateComponent).taskModel = value.body!;
     });
+  }
+
+  /**
+   * Opens the edit learning goal assignment modal window for the given selected task model.
+   *
+   * @param selectedModel the selected task model
+   */
+  public editLearningGoalAssignments(selectedModel: ITaskDisplayModel): void {
+    const modalRef = this.modalService.open(TaskAssignmentUpdateComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as TaskAssignmentUpdateComponent).taskDisplayModel = selectedModel;
   }
 
   /**

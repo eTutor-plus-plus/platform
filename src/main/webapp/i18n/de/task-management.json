@@ -27,7 +27,8 @@
     },
     "modal": {
       "newHeader": "Neue Aufgabe anlegen",
-      "editHeader": "Aufgabe '{{taskHeader}}' bearbeiten"
+      "editHeader": "Aufgabe '{{taskHeader}}' bearbeiten",
+      "learningGoalAssignmentEditHeader": "Lernzielzuordnung bearbeiten"
     }
   }
 }

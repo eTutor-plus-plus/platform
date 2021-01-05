@@ -192,4 +192,18 @@ public class TaskAssignmentResource {
 
         return ResponseEntity.of(optionalTaskAssignmentDTO);
     }
+
+    /**
+     * REST endpoint for retrieving the assigned learning goal ids of a given
+     * task assignment.
+     *
+     * @param assignmentId the task assignment's internal id
+     * @return the {@link ResponseEntity} containing the list of associated learning goal ids
+     */
+    @GetMapping("tasks/assignments/{assignmentId}/learninggoals")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<String>> getAssignedLearningGoalsOfAssignment(@PathVariable String assignmentId) {
+        List<String> learningGoalIds = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(assignmentId);
+        return ResponseEntity.ok(learningGoalIds);
+    }
 }

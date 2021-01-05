@@ -27,7 +27,8 @@
     },
     "modal": {
       "newHeader": "Create new task",
-      "editHeader": "Edit task '{{taskHeader}}'"
+      "editHeader": "Edit task '{{taskHeader}}'",
+      "learningGoalAssignmentEditHeader": "Edit learning goal assignment"
     }
   }
 }

@@ -7,6 +7,7 @@ import { createRequestOption } from '../../shared/util/request-util';
 type TaskDisplayResponseType = HttpResponse<ITaskDisplayModel>;
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
+type StringArrayResponseType = HttpResponse<string[]>;
 
 /**
  * Service which manages the tasks
@@ -43,7 +44,7 @@ export class TasksService {
    * Performs the REST endpoint call for retrieving a task assingment
    * object by its id.
    *
-   * @param internalId the internal task assingment object
+   * @param internalId the internal task's id
    */
   public getTaskAssignmentById(internalId: string): Observable<TaskResponseType> {
     const id = internalId.substr(internalId.lastIndexOf('#') + 1);
@@ -67,5 +68,28 @@ export class TasksService {
    */
   public saveEditedTask(task: ITaskModel): Observable<HttpResponse<any>> {
     return this.http.put('api/tasks/assignments', task, { observe: 'response' });
+  }
+
+  /**
+   * Returns the ids of the assigned learning goals.
+   *
+   * @param internalId the internal task's id
+   */
+  public getAssignedLearningGoalsOfAssignment(internalId: string): Observable<StringArrayResponseType> {
+    const id = internalId.substr(internalId.lastIndexOf('#') + 1);
+
+    return this.http.get<string[]>(`api/tasks/assignments/${id}/learninggoals`, { observe: 'response' });
+  }
+
+  /**
+   * Saves assigned learning goal ids for a specific task assignment.
+   *
+   * @param internalId the task's internal id
+   * @param learningGoalIds the learning goal ids
+   */
+  public saveAssignedLearningGoalIdsForTask(internalId: string, learningGoalIds: string[]): Observable<HttpResponse<any>> {
+    const id = internalId.substr(internalId.lastIndexOf('#') + 1);
+
+    return this.http.put(`api/tasks/assignments/${id}`, learningGoalIds, { observe: 'response' });
   }
 }

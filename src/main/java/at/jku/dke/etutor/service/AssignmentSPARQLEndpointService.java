@@ -95,6 +95,16 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
+    private static final String QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT (STR(?goal) as ?goalId)
+        WHERE {
+          ?assignment a etutor:TaskAssignment.
+          ?goal etutor:hasTaskAssignment ?assignment.
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -306,7 +316,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             updateQuery.append("""
                 }
                 WHERE {
-                	?goal etutor:hasTaskAssignment ?assignment
+                    OPTIONAL {
+                	    ?goal etutor:hasTaskAssignment ?assignment
+                	}
                 }
                 """);
 
@@ -514,6 +526,34 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
                 boolean hasNext = pageable.isPaged() && resultList.size() > pageable.getPageSize();
                 return new SliceImpl<>(hasNext ? resultList.subList(0, pageable.getPageSize()) : resultList, pageable, hasNext);
+            }
+        }
+    }
+
+    /**
+     * Returns the list of assigned learning goal ids of the given task assignment.
+     *
+     * @param internalId the internal task assignment id
+     * @return the list of assigned learning goal ids
+     */
+    public List<String> getAssignedLearningGoalIdsOfTaskAssignment(String internalId) {
+        List<String> goalIds = new ArrayList<>();
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT);
+        String taskAssignmentId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", internalId);
+        query.setIri("?assignment", taskAssignmentId);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String goalId = solution.getLiteral("?goalId").getString();
+                    goalIds.add(goalId);
+                }
+
+                return goalIds;
             }
         }
     }
