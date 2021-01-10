@@ -21,6 +21,20 @@ export interface ITaskDisplayModel {
 }
 
 /**
+ * Interface for a learning goal display model.
+ */
+export interface ILearningGoalDisplayModel {
+  /**
+   * The learning goal's id.
+   */
+  id: string;
+  /**
+   * The learning goal's name.
+   */
+  name?: string;
+}
+
+/**
  * Interface which represents a new task.
  */
 export interface INewTaskModel {
@@ -56,6 +70,10 @@ export interface INewTaskModel {
    * The optional instruction text.
    */
   instruction?: string;
+  /**
+   * The associated learning goals.
+   */
+  learningGoalIds: ILearningGoalDisplayModel[];
 }
 
 /**

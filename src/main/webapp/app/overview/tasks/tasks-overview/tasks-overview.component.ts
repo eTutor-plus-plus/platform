@@ -8,6 +8,7 @@ import { TaskUpdateComponent } from './task-update/task-update.component';
 import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
 import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-assignment-update.component';
+import { TaskDisplayComponent } from './task-display/task-display.component';
 
 /**
  * Component which provides an overview of the tasks.
@@ -104,6 +105,16 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   public editLearningGoalAssignments(selectedModel: ITaskDisplayModel): void {
     const modalRef = this.modalService.open(TaskAssignmentUpdateComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as TaskAssignmentUpdateComponent).taskDisplayModel = selectedModel;
+  }
+
+  /**
+   * Opens the given task model in a modal window.
+   *
+   * @param selectedModel the selected task model
+   */
+  public displayTask(selectedModel: ITaskDisplayModel): void {
+    const modalRef = this.modalService.open(TaskDisplayComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as TaskDisplayComponent).taskDisplayModel = selectedModel;
   }
 
   /**

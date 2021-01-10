@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import one.util.streamex.StreamEx;
@@ -94,7 +95,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setHeader("Testheader");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Easy.getURI());
-        newTaskAssignmentDTO.addLearningGoal(firstGoal.getId());
+        newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(firstGoal.getId(), firstGoal.getName()));
 
         var result = restTaskAssignmentMockMvc.perform(post("/api/tasks/assignments")
             .contentType(MediaType.APPLICATION_JSON)
@@ -188,10 +189,13 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(5)
     public void testUpdateNonexistentTaskAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var testGoal1 = goals.first();
+
         TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
         taskAssignmentDTO.setId("http://www.test.at");
         taskAssignmentDTO.setCreationDate(Instant.now());
-        taskAssignmentDTO.addLearningGoal("http://www.learninggoal.at");
+        taskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(testGoal1.getId(), testGoal1.getName()));
         taskAssignmentDTO.setCreator("Florian");
         taskAssignmentDTO.setHeader("Test assignment");
         taskAssignmentDTO.setProcessingTime("1h");
@@ -223,7 +227,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setCreator("Florian");
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.addLearningGoal(testGoal1.getId());
+        newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(testGoal1.getId(), testGoal1.getName()));
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
 
         var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, USERNAME);
@@ -277,22 +281,24 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
         var testGoal1 = goals.first();
 
-        List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+        List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         var assignment = assignments.first();
 
         String assignmentId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
 
+        List<String> displayGoalsToSerialize = StreamEx.of(displayGoals).map(x -> x.getId()).toList();
+
         restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(goalIds)))
+            .content(TestUtil.convertObjectToJsonBytes(displayGoalsToSerialize)))
             .andExpect(status().isNoContent());
 
         assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         assignment = assignments.first();
 
-        assertThat(assignment.getLearningGoalIds()).containsExactlyInAnyOrderElementsOf(goalIds);
+        assertThat(assignment.getLearningGoalIds()).containsExactlyInAnyOrderElementsOf(displayGoals);
     }
 
     /**

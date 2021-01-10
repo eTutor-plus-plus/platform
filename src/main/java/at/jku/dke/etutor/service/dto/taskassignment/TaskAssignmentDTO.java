@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.RDFS;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -73,13 +74,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         this();
 
         setId(resource.getURI());
-        List<String> learningGoalIds = new ArrayList<>();
+        List<LearningGoalDisplayDTO> learningGoalIds = new ArrayList<>();
 
         StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.isAssignmentOf);
         try {
             while (stmtIterator.hasNext()) {
                 Statement statement = stmtIterator.nextStatement();
-                learningGoalIds.add(statement.getObject().asResource().getURI());
+                Resource goalResource = statement.getObject().asResource();
+
+                String id = goalResource.getURI();
+                String name = goalResource.getProperty(RDFS.label).getString();
+
+                learningGoalIds.add(new LearningGoalDisplayDTO(id, name));
             }
         } finally {
             stmtIterator.close();

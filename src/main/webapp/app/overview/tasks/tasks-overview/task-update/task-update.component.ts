@@ -65,6 +65,7 @@ export class TaskUpdateComponent implements OnInit {
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
       privateTask: this.updateForm.get('privateTask')!.value,
+      learningGoalIds: [],
     };
 
     const urlStr: string = this.updateForm.get('url')!.value;
@@ -103,6 +104,7 @@ export class TaskUpdateComponent implements OnInit {
         creationDate: this.taskModel!.creationDate,
         id: this.taskModel!.id,
         internalCreator: this.taskModel!.internalCreator,
+        learningGoalIds: this.taskModel!.learningGoalIds,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(

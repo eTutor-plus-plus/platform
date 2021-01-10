@@ -33,8 +33,8 @@ export class TasksService {
     const options = createRequestOption(req);
     let url = 'api/tasks/display';
 
-    if (headerFilter) {
-      url += `?taskHeader=${headerFilter}`;
+    if (headerFilter && headerFilter.trim().length > 0) {
+      url += `?taskHeader=${headerFilter.trim()}`;
     }
 
     return this.http.get<ITaskDisplayModel[]>(url, { params: options, observe: 'response' });

@@ -6,12 +6,13 @@ import { TasksOverviewComponent } from './tasks-overview/tasks-overview.componen
 import { tasksRoutes } from './tasks.route';
 import { TaskUpdateComponent } from './tasks-overview/task-update/task-update.component';
 import { TaskAssignmentUpdateComponent } from './tasks-overview/task-assignment-update/task-assignment-update.component';
+import { TaskDisplayComponent } from './tasks-overview/task-display/task-display.component';
 
 /**
  * Module for task related components.
  */
 @NgModule({
   imports: [EtutorPlusPlusSharedModule, OverviewSharedModule, RouterModule.forChild(tasksRoutes)],
-  declarations: [TasksOverviewComponent, TaskUpdateComponent, TaskAssignmentUpdateComponent],
+  declarations: [TasksOverviewComponent, TaskUpdateComponent, TaskAssignmentUpdateComponent, TaskDisplayComponent],
 })
 export class TasksModule {}

@@ -3,6 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
@@ -12,10 +13,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.data.domain.Pageable;
@@ -38,23 +36,27 @@ import java.util.*;
 public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL = """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
+        PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
 
         CONSTRUCT { ?assignment ?predicate ?object.
-        			?assignment etutor:isAssignmentOf ?othergoal.}
+        			?assignment etutor:isAssignmentOf ?othergoal.
+        			?othergoal rdfs:label ?goalName. }
         WHERE {
             {
             ?goal etutor:hasTaskAssignment ?assignment.
             ?assignment etutor:isPrivateTask false.
             ?assignment ?predicate ?object.
             ?othergoal etutor:hasTaskAssignment ?assignment.
+            ?othergoal rdfs:label ?goalName.
           } UNION {
             ?goal etutor:hasTaskAssignment ?assignment.
             ?assignment etutor:isPrivateTask true.
             ?assignment etutor:hasInternalTaskCreator ?internalTaskOwner.
             ?assignment ?predicate ?object.
             ?othergoal etutor:hasTaskAssignment ?assignment.
+            ?othergoal rdfs:label ?goalName.
           }
         }
         """;
@@ -81,16 +83,19 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         """;
 
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS = """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
+        PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
 
         CONSTRUCT { ?assignment ?predicate ?object.
-          ?assignment etutor:isAssignmentOf ?goal.}
+          ?assignment etutor:isAssignmentOf ?goal.
+          ?othergoal rdfs:label ?goalName. }
         WHERE {
           ?assignment ?predicate ?object.
           ?assignment a etutor:TaskAssignment.
           OPTIONAL {
             ?goal etutor:hasTaskAssignment ?assignment.
+            ?othergoal rdfs:label ?goalName.
           }
         }
         """;
@@ -132,8 +137,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         Resource newTaskAssignment = constructTaskAssignmentFromDTO(newTaskAssignmentDTO, newId, now, model, internalCreator);
 
-        for (String learningGoalId : newTaskAssignmentDTO.getLearningGoalIds()) {
-            Resource assignmentResource = model.createResource(learningGoalId);
+        for (LearningGoalDisplayDTO learningGoalDisplayDTO : newTaskAssignmentDTO.getLearningGoalIds()) {
+            Resource assignmentResource = model.createResource(learningGoalDisplayDTO.getId());
             assignmentResource.addProperty(ETutorVocabulary.hasTaskAssignment, newTaskAssignment);
         }
 
@@ -171,10 +176,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             try {
                 while (subjectIterator.hasNext()) {
                     Resource taskAssignmentResource = subjectIterator.nextResource();
-                    try {
-                        taskAssignments.add(new TaskAssignmentDTO(taskAssignmentResource));
-                    } catch (ParseException | MalformedURLException e) {
-                        throw new InternalModelException(e);
+                    if (taskAssignmentResource.hasProperty(RDF.type, ETutorVocabulary.TaskAssignment)) {
+                        try {
+                            taskAssignments.add(new TaskAssignmentDTO(taskAssignmentResource));
+                        } catch (ParseException | MalformedURLException e) {
+                            throw new InternalModelException(e);
+                        }
                     }
                 }
             } finally {
@@ -341,9 +348,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         qry.append("""
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 
             CONSTRUCT { ?assignment ?predicate ?object.
-              ?assignment etutor:isAssignmentOf ?othergoal.}
+              ?assignment etutor:isAssignmentOf ?othergoal.
+              ?othergoal rdfs:label ?goalName. }
             WHERE {
                 {
             """);
@@ -358,6 +367,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 ?assignment etutor:isPrivateTask false.
                 OPTIONAL {
                   ?othergoal etutor:hasTaskAssignment ?assignment.
+                  ?othergoal rdfs:label ?goalName.
                 }
               } UNION {
             """);
@@ -409,7 +419,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             try {
                 while (iterator.hasNext()) {
                     Resource resource = iterator.nextResource();
-                    taskList.add(new TaskAssignmentDTO(resource));
+                    if (resource.hasProperty(RDF.type, ETutorVocabulary.TaskAssignment)) {
+                        taskList.add(new TaskAssignmentDTO(resource));
+                    }
                 }
             } finally {
                 iterator.close();
@@ -437,7 +449,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             if (model.isEmpty()) {
                 return Optional.empty();
             }
-            ResIterator iterator = model.listSubjects();
+            ResIterator iterator = model.listResourcesWithProperty(RDF.type, ETutorVocabulary.TaskAssignment);
 
             try {
                 Resource resource = iterator.nextResource();
