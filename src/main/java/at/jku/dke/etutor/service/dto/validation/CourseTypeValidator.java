@@ -15,23 +15,6 @@ public class CourseTypeValidator implements ConstraintValidator<CourseTypeConstr
     private static final String[] AVAILABLE_COURSE_TYPES = {"LVA", "Klasse", "Modul", "Fach"};
 
     /**
-     * Initializes the validator in preparation for
-     * {@link #isValid(String, ConstraintValidatorContext)} calls.
-     * The constraint annotation for a given constraint declaration
-     * is passed.
-     * <p>
-     * This method is guaranteed to be called before any use of this instance for
-     * validation.
-     * <p>
-     * The default implementation is a no-op.
-     *
-     * @param constraintAnnotation annotation instance for a given constraint declaration
-     */
-    @Override
-    public void initialize(CourseTypeConstraint constraintAnnotation) {
-    }
-
-    /**
      * Implements the validation logic.
      * The state of {@code value} must not be altered.
      * <p>

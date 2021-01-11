@@ -107,6 +107,11 @@ public class ExceptionTranslatorTestController {
         throw new LearningGoalAssignmentNonExistentException();
     }
 
+    @GetMapping("/task-assignment-non-existent")
+    public void taskAssignmentNonExistent() {
+        throw new TaskAssignmentNonexistentException();
+    }
+
     public static class TestDTO {
 
         @NotNull

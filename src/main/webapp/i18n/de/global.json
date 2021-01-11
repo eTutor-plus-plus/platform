@@ -34,7 +34,8 @@
       "language": "Sprache",
       "learningGoals": {
         "main": "Lernziele",
-        "management": "Lernzielverwaltung"
+        "management": "Lernzielverwaltung",
+        "taskManagement": "Aufgabenverwaltung"
       },
       "courses": {
         "main": "LVAs",
@@ -153,7 +154,9 @@
     "courseAlreadyExists": "Die LVA existiert bereits!",
     "courseNotFound": "Die LVA existiert nicht!",
     "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
-    "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!"
+    "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!",
+    "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
+    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!"
   },
   "footer": {
     "contact": "Kontakt",

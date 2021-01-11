@@ -1,0 +1,50 @@
+{
+  "taskManagement": {
+    "title": "Task management",
+    "createText": "Create new task",
+    "searchPlaceholder": "Search...",
+    "noItems": "There are no items existent!",
+    "difficultyPlaceholder": "Select difficulty",
+    "difficulties": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "veryHard": "Very hard"
+    },
+    "fields": {
+      "header": "Header:",
+      "creator": "Creator:",
+      "organisationUnit": "Organisation unit:",
+      "privateTask": "Private task",
+      "taskDifficulty": "Task difficulty:",
+      "processingTime": "Processing time:",
+      "url": "Url:",
+      "instruction": "Task instruction:"
+    },
+    "error": {
+      "required": "This field is required!",
+      "urlPattern": "This optional field has to conform the URL standard!"
+    },
+    "modal": {
+      "newHeader": "Create new task",
+      "editHeader": "Edit task '{{taskHeader}}'",
+      "learningGoalAssignmentEditHeader": "Edit learning goal assignment"
+    },
+    "display": {
+      "header": "Display task '{{taskHeader}}'",
+      "assignedLearningGoals": "Assigned learning goals"
+    },
+    "tooltip": {
+      "viewTask": "Display task '{{taskHeader}}'",
+      "editTask": "Edit task '{{taskHeader}}'",
+      "editLearningGoalAssignments": "Edit learning goal assignment of task '{{taskHeader}}'",
+      "deleteTask": "Delete task '{{taskHeader}}'"
+    },
+    "popover": {
+      "title": "Information",
+      "message": "Should the selected task be removed?",
+      "cancelBtn": "No",
+      "confirmBtn": "Yes"
+    }
+  }
+}

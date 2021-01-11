@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
-import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
-import { TreeviewComponent, TreeviewConfig, TreeviewI18n } from 'ngx-treeview';
+import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
+import { TreeviewComponent } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from '../../core/auth/account.service';
-import { DefaultTreeviewI18n } from '../../shared/util/default-treeview-i18n';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -14,7 +13,6 @@ import { DefaultTreeviewI18n } from '../../shared/util/default-treeview-i18n';
   selector: 'jhi-learning-goals',
   templateUrl: './learning-goals.component.html',
   styleUrls: ['./learning-goals.component.scss'],
-  providers: [{ provide: TreeviewI18n, useClass: DefaultTreeviewI18n }],
 })
 export class LearningGoalsComponent implements OnInit {
   @ViewChild(TreeviewComponent, { static: false })
@@ -23,11 +21,6 @@ export class LearningGoalsComponent implements OnInit {
   public learningGoalCtxMenu?: ContextMenuComponent;
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoal?: LearningGoalTreeviewItem;
-  public config = TreeviewConfig.create({
-    hasAllCheckBox: false,
-    hasFilter: true,
-    hasCollapseExpand: true,
-  });
 
   @ViewChild(LearningGoalCreationComponent)
   public learningGoalCreationComponent!: LearningGoalCreationComponent;
@@ -76,6 +69,7 @@ export class LearningGoalsComponent implements OnInit {
    * @param parent the parent treeview item of the sub goal which should be created
    */
   public onCreateSubGoal(parent: LearningGoalTreeviewItem): void {
+    this.learningGoalCreationComponent.clear();
     this.learningGoalCreationComponent.subGoalCreationRequest(parent.text);
     this.showCreateLearningGoalComponent = true;
   }
@@ -84,6 +78,7 @@ export class LearningGoalsComponent implements OnInit {
    * Event handler which handles the creation request for a new goal.
    */
   public onCreateGoalRequested(): void {
+    this.learningGoalCreationComponent.clear();
     this.learningGoalCreationComponent.learningGoal = undefined;
     this.showCreateLearningGoalComponent = true;
   }
@@ -95,7 +90,7 @@ export class LearningGoalsComponent implements OnInit {
    */
   public onEditGoalRequested(goalItem: LearningGoalTreeviewItem): void {
     const goalModel = goalItem.toILearningGoalModel();
-
+    this.learningGoalCreationComponent.clear();
     this.learningGoalCreationComponent.learningGoal = goalModel;
     this.showCreateLearningGoalComponent = true;
   }

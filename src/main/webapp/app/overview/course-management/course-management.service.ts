@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CourseModel, ILearningGoalUpdateAssignment } from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
-import { LearningGoalTreeviewItem } from '../learning-goals/learning-goal-treeview-item.model';
-import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../learning-goals/learning-goal-model';
+import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
+import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../shared/learning-goal-model';
 import { map } from 'rxjs/operators';
 
 /**

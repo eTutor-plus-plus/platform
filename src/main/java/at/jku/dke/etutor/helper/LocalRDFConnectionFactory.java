@@ -1,11 +1,16 @@
 package at.jku.dke.etutor.helper;
 
-import io.github.jhipster.config.JHipsterConstants;
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.text.EntityDefinition;
+import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.query.text.TextIndexConfig;
+import org.apache.jena.query.text.analyzer.Util;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.RAMDirectory;
 
 /**
  * Class which is used to created local RDF connections to an in-memory
@@ -21,7 +26,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      * Constructor.
      */
     public LocalRDFConnectionFactory() {
-        dataset = DatasetFactory.createTxnMem();
+        this(DatasetFactory.createTxnMem());
     }
 
     /**
@@ -30,7 +35,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      * @param dataset the dataset for the tests
      */
     public LocalRDFConnectionFactory(Dataset dataset) {
-        this.dataset = dataset;
+        createLuceneDataset(dataset);
     }
 
     /**
@@ -48,6 +53,24 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      */
     @Override
     public void clearDataset() {
-        dataset = DatasetFactory.createTxnMem();
+        createLuceneDataset(DatasetFactory.createTxnMem());
+    }
+
+    /**
+     * Creates a lucene dataset around the given dataset.
+     *
+     * @param dataset the dataset which should be wrapped
+     */
+    private void createLuceneDataset(Dataset dataset) {
+        @SuppressWarnings("deprecation")
+        Directory luceneDirectory = new RAMDirectory();
+
+        EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
+        TextIndexConfig textIndexConfig = new TextIndexConfig(entDef);
+        Analyzer analyzer = Util.getLocalizedAnalyzer("de");
+        textIndexConfig.setAnalyzer(analyzer);
+        textIndexConfig.setValueStored(true);
+
+        this.dataset = TextDatasetFactory.createLucene(dataset, luceneDirectory, textIndexConfig);
     }
 }

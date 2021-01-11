@@ -206,4 +206,13 @@ public class ExceptionTranslatorIT {
             .andExpect(jsonPath("$.message").value("error.learningGoalAssignmentNonExistent"))
             .andExpect(jsonPath("$.title").value("The learning goal assignment does not exist!"));
     }
+
+    @Test
+    public void testTaskAssignmentNonExistent() throws Exception {
+        mockMvc.perform(get("/api/exception-translator-test/task-assignment-non-existent"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.taskAssignmentNotFound"))
+            .andExpect(jsonPath("$.title").value("The task assignment does not exist!"));
+    }
 }

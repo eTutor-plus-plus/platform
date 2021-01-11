@@ -211,13 +211,41 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
       subGoals: [],
     };
 
-    if (!isNil(this.children)) {
-      for (const child of this.children) {
-        model.subGoals.push((child as LearningGoalTreeviewItem).toILearningGoalModel());
+    if (!isNil(this.childItems)) {
+      for (const child of this.childItems) {
+        model.subGoals.push(child.toILearningGoalModel());
       }
     }
 
     return model;
+  }
+
+  /**
+   * Converts this object into the corresponding {@link LearningGoalTreeItem} representation.
+   */
+  public toLearningGoalTreeItem(): LearningGoalTreeItem {
+    const treeItem: LearningGoalTreeItem = {
+      markedAsPrivate: this._markedAsPrivate,
+      description: this._description,
+      children: [],
+      referencedFromCnt: this._referencedFromCnt,
+      owner: this._owner,
+      changeDate: this._changeDate,
+      rootId: this._rootId,
+      value: this.value,
+      text: this.text,
+      disabled: this.disabled,
+      checked: this.checked,
+      collapsed: this.collapsed,
+    };
+
+    if (!isNil(this.childItems)) {
+      for (const child of this.childItems) {
+        treeItem.children!.push(child.toLearningGoalTreeItem());
+      }
+    }
+
+    return treeItem;
   }
 
   /**
@@ -227,5 +255,79 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    */
   public isUserAllowedToModify(): boolean {
     return this._currentUser === this._owner;
+  }
+
+  /**
+   * Returns the current user.
+   */
+  public get currentUser(): string {
+    return this._currentUser;
+  }
+
+  /**
+   * Returns the children as `LearningGoalTreeviewItem[]`.
+   */
+  public get childItems(): LearningGoalTreeviewItem[] {
+    return super.children as LearningGoalTreeviewItem[];
+  }
+
+  /**
+   * Sets the children.
+   *
+   * @param value the children to set
+   */
+  public set childItems(value: LearningGoalTreeviewItem[]) {
+    super.children = value;
+  }
+}
+
+/**
+ * Class which represents a filtered learning goal treeview item.
+ */
+export class FilterLearningGoalTreeviewItem extends LearningGoalTreeviewItem {
+  private readonly refItem: LearningGoalTreeviewItem;
+
+  constructor(item: LearningGoalTreeviewItem) {
+    super(
+      {
+        text: item.text,
+        markedAsPrivate: item.markedAsPrivate,
+        description: item.description,
+        children: item.toLearningGoalTreeItem().children,
+        referencedFromCnt: item.referencedFromCnt,
+        owner: item.owner,
+        changeDate: item.changeDate,
+        rootId: item.rootId,
+        value: item.value,
+        disabled: item.disabled,
+        checked: item.checked,
+        collapsed: item.collapsed,
+      },
+      item.currentUser,
+      item.parent
+    );
+    this.refItem = item;
+  }
+
+  /**
+   * Updates the reference check.
+   */
+  public updateRefChecked(): void {
+    this.children.forEach(child => {
+      if (child instanceof FilterLearningGoalTreeviewItem) {
+        child.updateRefChecked();
+      }
+    });
+
+    let refChecked = this.checked;
+    if (refChecked) {
+      for (const refChild of this.refItem.children) {
+        if (!refChild.checked) {
+          refChecked = false;
+          break;
+        }
+      }
+    }
+    this.refItem.checked = refChecked;
   }
 }

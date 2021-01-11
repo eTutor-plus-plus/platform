@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LearningGoalTreeviewItem } from './learning-goal-treeview-item.model';
-import { convertLearningGoal, ILearningGoalModel, INewLearningGoalModel } from './learning-goal-model';
+import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
+import { convertLearningGoal, ILearningGoalModel, INewLearningGoalModel } from '../shared/learning-goal-model';
 import { SERVER_API_URL } from '../../app.constants';
 import { map } from 'rxjs/operators';
 

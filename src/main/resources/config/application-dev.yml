@@ -37,6 +37,7 @@ spring:
   jackson:
     serialization:
       indent-output: true
+    default-property-inclusion: non_null
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/etutorplusplus

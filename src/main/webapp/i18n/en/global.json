@@ -34,7 +34,8 @@
       "language": "Language",
       "learningGoals": {
         "main": "Learning goals",
-        "management": "Learning goal management"
+        "management": "Learning goal management",
+        "taskManagement": "Task management"
       },
       "courses": {
         "main": "Courses",
@@ -153,7 +154,9 @@
     "courseAlreadyExists": "The course already exists!",
     "courseNotFound": "The course does not exist!",
     "learningGoalAssignmentNonExistent": "The learning goal assignment does not exist!",
-    "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!"
+    "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!",
+    "taskAssignmentNotFound": "The task assignment does not exist!",
+    "taskNotOwner": "Only the creator of the task is allowed to edit it!"
   },
   "footer": {
     "contact": "Contact",

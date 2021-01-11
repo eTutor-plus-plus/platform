@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LearningGoalsService } from '../learning-goals.service';
-import { ILearningGoalModel, INewLearningGoalModel } from '../learning-goal-model';
+import { ILearningGoalModel, INewLearningGoalModel } from '../../shared/learning-goal-model';
 import { isNil } from 'lodash';
 
 /**
@@ -175,5 +175,18 @@ export class LearningGoalCreationComponent implements OnInit {
   public subGoalCreationRequest(parentGoalId: string): void {
     this.learningGoal = undefined;
     this.parentGoal = parentGoalId;
+  }
+
+  /**
+   * Clears this control.
+   */
+  public clear(): void {
+    this._learningGoal = undefined;
+    this._parentGoal = undefined;
+    this.learningGoalForm.patchValue({
+      learningGoalName: '',
+      learningGoalDescription: '',
+      privateGoal: false,
+    });
   }
 }

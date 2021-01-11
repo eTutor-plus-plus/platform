@@ -3,9 +3,7 @@ import { ICourseModel } from '../course-mangement.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
 import { AccountService } from '../../../core/auth/account.service';
-import { LearningGoalTreeviewItem } from '../../learning-goals/learning-goal-treeview-item.model';
-import { TreeviewConfig, TreeviewI18n } from 'ngx-treeview';
-import { DefaultTreeviewI18n } from '../../../shared/util/default-treeview-i18n';
+import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 
 /**
  * Component which is used to display a course's assigned goals.
@@ -14,18 +12,12 @@ import { DefaultTreeviewI18n } from '../../../shared/util/default-treeview-i18n'
   selector: 'jhi-learning-goal-assignment-display',
   templateUrl: './learning-goal-assignment-display.component.html',
   styleUrls: ['./learning-goal-assignment-display.component.scss'],
-  providers: [{ provide: TreeviewI18n, useClass: DefaultTreeviewI18n }],
 })
 export class LearningGoalAssignmentDisplayComponent implements OnInit {
   private _selectedCourse?: ICourseModel;
   private loginName = '';
 
   public goals: LearningGoalTreeviewItem[] = [];
-  public config = TreeviewConfig.create({
-    hasAllCheckBox: false,
-    hasFilter: true,
-    hasCollapseExpand: true,
-  });
 
   /**
    * Constructor.

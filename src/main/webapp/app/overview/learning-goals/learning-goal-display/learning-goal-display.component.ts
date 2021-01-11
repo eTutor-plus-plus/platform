@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { LearningGoalTreeviewItem } from '../learning-goal-treeview-item.model';
+import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 
 /**
  * Component for displaying the current selected learning goal.
