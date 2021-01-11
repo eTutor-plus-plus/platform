@@ -92,4 +92,15 @@ export class TasksService {
 
     return this.http.put(`api/tasks/assignments/${id}`, learningGoalIds, { observe: 'response' });
   }
+
+  /**
+   * Deletes the given assignment by its id.
+   *
+   * @param internalId the internal assignment's id
+   */
+  public deleteAssignment(internalId: string): Observable<HttpResponse<any>> {
+    const id = internalId.substr(internalId.lastIndexOf('#') + 1);
+
+    return this.http.delete(`api/tasks/assignments/${id}`, { observe: 'response' });
+  }
 }

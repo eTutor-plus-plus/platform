@@ -9,6 +9,8 @@ import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
 import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-assignment-update.component';
 import { TaskDisplayComponent } from './task-display/task-display.component';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AccountService } from '../../../core/auth/account.service';
 
 /**
  * Component which provides an overview of the tasks.
@@ -17,15 +19,22 @@ import { TaskDisplayComponent } from './task-display/task-display.component';
   selector: 'jhi-tasks-overview',
   templateUrl: './tasks-overview.component.html',
   styleUrls: ['./tasks-overview.component.scss'],
+  providers: [TranslatePipe],
 })
 export class TasksOverviewComponent implements OnInit, OnDestroy {
   private itemsPerPage: number;
   private subscription?: Subscription;
+  private userLogin = '';
 
   public hasNextPage = false;
   public page = 0;
   public entries: ITaskDisplayModel[] = [];
   public filterString = '';
+
+  public popoverTitle = 'taskManagement.popover.title';
+  public popoverMessage = 'taskManagement.popover.message';
+  public popoverCancelButtonTxt = 'taskManagement.popover.cancelBtn';
+  public popoverConfirmBtnTxt = 'taskManagement.popover.confirmBtn';
 
   /**
    * Constructor.
@@ -33,8 +42,16 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param tasksService the injected tasks service
    * @param modalService the injected modal service
    * @param eventManager the injected event manager service
+   * @param translatePipe the injected translation pipe
+   * @param accountService the injected account service
    */
-  constructor(private tasksService: TasksService, private modalService: NgbModal, private eventManager: JhiEventManager) {
+  constructor(
+    private tasksService: TasksService,
+    private modalService: NgbModal,
+    private eventManager: JhiEventManager,
+    private translatePipe: TranslatePipe,
+    private accountService: AccountService
+  ) {
     this.itemsPerPage = ITEMS_PER_SLICE;
   }
 
@@ -42,6 +59,12 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
+    this.userLogin = this.accountService.getLoginName() ?? '';
+    this.popoverTitle = this.translatePipe.transform(this.popoverTitle);
+    this.popoverMessage = this.translatePipe.transform(this.popoverMessage);
+    this.popoverCancelButtonTxt = this.translatePipe.transform(this.popoverCancelButtonTxt);
+    this.popoverConfirmBtnTxt = this.translatePipe.transform(this.popoverConfirmBtnTxt);
+
     this.subscription = this.eventManager.subscribe('taskModification', () => {
       this.entries.length = 0;
       this.loadPage(0);
@@ -130,6 +153,27 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
         this.loadPage(0);
       }
     }, 500);
+  }
+
+  /**
+   * Returns whether the currently logged-in user is allowed to edit the given task or not.
+   *
+   * @param currentModel the current task model
+   */
+  public isCurrentUserAllowedToEdit(currentModel: ITaskDisplayModel): boolean {
+    return currentModel.internalCreator === this.userLogin;
+  }
+
+  /**
+   * Deletes the given task assignment.
+   *
+   * @param currentModel the current task model
+   */
+  public deleteAssignment(currentModel: ITaskDisplayModel): void {
+    this.tasksService.deleteAssignment(currentModel.taskId).subscribe(() => {
+      this.entries.length = 0;
+      this.loadPage(0);
+    });
   }
 
   // region Private helper methods

@@ -29,6 +29,10 @@
       "newHeader": "Create new task",
       "editHeader": "Edit task '{{taskHeader}}'",
       "learningGoalAssignmentEditHeader": "Edit learning goal assignment"
+    },
+    "display": {
+      "header": "Display task '{{taskHeader}}'",
+      "assignedLearningGoals": "Assigned learning goals"
     }
   }
 }

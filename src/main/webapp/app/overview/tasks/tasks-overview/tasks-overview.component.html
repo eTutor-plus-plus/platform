@@ -16,11 +16,28 @@
 </div>
 <ul [hidden]="!entries.length" class="list-group" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
     <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
-        <a (click)="displayTask(entry)" [ngClass]="{'privateTask': entry.privateTask}">{{entry.header}}</a>
+        <a ngbTooltip="{{'taskManagement.tooltip.viewTask' | translate:{ taskHeader: entry.header } }}" (click)="displayTask(entry)"
+           [ngClass]="{'privateTask': entry.privateTask}">{{entry.header}}</a>
 
-        <span class="float-right">
-            <a (click)="editLearningGoalAssignments(entry)" style="margin-right: 10px;"><fa-icon icon="pen-fancy"></fa-icon></a>
-            <a (click)="editTask(entry)"><fa-icon icon="edit"></fa-icon></a>
+        <span *ngIf="isCurrentUserAllowedToEdit(entry)" class="float-right">
+            <a ngbTooltip="{{'taskManagement.tooltip.editLearningGoalAssignments' | translate:{ taskHeader: entry.header } }}"
+               (click)="editLearningGoalAssignments(entry)" style="margin-right: 10px;">
+                <fa-icon icon="pen-fancy"></fa-icon>
+            </a>
+            <a ngbTooltip="{{'taskManagement.tooltip.editTask' | translate:{ taskHeader: entry.header } }}" (click)="editTask(entry)"
+               style="margin-right: 10px;">
+                <fa-icon icon="edit"></fa-icon>
+            </a>
+            <a ngbTooltip="{{'taskManagement.tooltip.deleteTask' | translate:{ taskHeader: entry.header } }}"
+               mwlConfirmationPopover
+               placement="left"
+               [popoverTitle]="popoverTitle"
+               [popoverMessage]="popoverMessage"
+               [cancelText]="popoverCancelButtonTxt"
+               [confirmText]="popoverConfirmBtnTxt"
+               (confirm)="deleteAssignment(entry)">
+                <fa-icon icon="trash"></fa-icon>
+            </a>
         </span>
     </li>
 </ul>
