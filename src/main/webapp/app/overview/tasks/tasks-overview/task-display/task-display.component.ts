@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ITaskDisplayModel, ITaskModel } from '../../task.model';
+import { ITaskDisplayModel, ITaskModel, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -13,6 +13,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 export class TaskDisplayComponent implements OnInit {
   private _taskDisplayModel?: ITaskDisplayModel;
   private _taskModel?: ITaskModel;
+  private readonly difficulties = TaskDifficulty.Values;
 
   /**
    * Constructor.
@@ -56,6 +57,15 @@ export class TaskDisplayComponent implements OnInit {
    */
   public get taskModel(): ITaskModel | undefined {
     return this._taskModel;
+  }
+
+  /**
+   * Returns the task difficulty object for the given URL.
+   *
+   * @param taskDifficultyUrl the task difficulty url
+   */
+  public getTaskDifficultyForURL(taskDifficultyUrl: string): TaskDifficulty {
+    return this.difficulties.find(x => x.value === taskDifficultyUrl)!;
   }
 
   /**

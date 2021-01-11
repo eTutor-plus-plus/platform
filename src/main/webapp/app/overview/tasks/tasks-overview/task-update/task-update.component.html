@@ -53,7 +53,7 @@
             <label class="form-control-label" for="taskDifficulty" jhiTranslate="taskManagement.fields.taskDifficulty">Task difficulty:</label>
             <select class="form-control" name="taskDifficulty" id="taskDifficulty" formControlName="taskDifficulty">
                 <option value="" disabled>{{'taskManagement.difficultyPlaceholder' | translate}}</option>
-                <option *ngFor="let difficulty of difficulties" [value]="difficulty">{{difficulty.text | translate}}</option>
+                <option *ngFor="let difficulty of difficulties" [ngValue]="difficulty">{{difficulty.text | translate}}</option>
             </select>
 
             <div *ngIf="updateForm.get('taskDifficulty')!.invalid">

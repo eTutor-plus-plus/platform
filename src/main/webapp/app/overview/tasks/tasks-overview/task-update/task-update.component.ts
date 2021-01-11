@@ -87,6 +87,7 @@ export class TaskUpdateComponent implements OnInit {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
           this.isSaving = false;
+          this.eventManager.broadcast('taskModification');
           this.close();
         },
         () => (this.isSaving = false)
