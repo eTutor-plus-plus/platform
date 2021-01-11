@@ -6,11 +6,11 @@ import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
-import liquibase.pro.packaged.L;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -19,10 +19,13 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -354,6 +357,70 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         tasks = assignmentSPARQLEndpointService.getTaskAssignments("1", OWNER);
         assertThat(tasks).hasSize(2);
+    }
+
+    /**
+     * Tests the get task assignment by internal id method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetTaskAssignmentByInternalId() throws Exception {
+        insertTestAssignmentsForFulltextSearch();
+
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
+        TaskAssignmentDTO task = tasks.get(0);
+
+        String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
+        Optional<TaskAssignmentDTO> optionalTaskFromDb = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
+
+        assertThat(optionalTaskFromDb).isPresent();
+        TaskAssignmentDTO taskFromDb = optionalTaskFromDb.get();
+
+        assertThat(taskFromDb).isEqualToComparingFieldByField(task);
+
+        optionalTaskFromDb = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId("123");
+        assertThat(optionalTaskFromDb).isEmpty();
+    }
+
+    /**
+     * Tests the find all tasks method.‚
+     */
+    @Test
+    public void testFindAllTasks() {
+        int cnt = insertTestAssignmentsForFulltextSearch();
+        PageRequest pageRequest = PageRequest.of(0, cnt - 1);
+
+        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks("for", pageRequest, OWNER);
+        assertThat(slice.hasNext()).isFalse();
+        assertThat(slice.getContent()).hasSize(1);
+
+        slice = assignmentSPARQLEndpointService.findAllTasks("", pageRequest, OWNER);
+
+        assertThat(slice.getContent()).hasSize(cnt - 1);
+        assertThat(slice.hasNext()).isTrue();
+    }
+
+    /**
+     * Tests the get assigned learning goal ids of task assignment method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetLearningGoalIdsOfTaskAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        insertTestAssignmentsForFulltextSearch();
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
+        TaskAssignmentDTO task = tasks.get(0);
+
+        String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
+        List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+
+        List<String> goalIdsFromDb = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(id);
+
+        assertThat(goalIdsFromDb).containsExactlyInAnyOrder(goalIds.toArray(new String[0]));
     }
 
     //region Private methods

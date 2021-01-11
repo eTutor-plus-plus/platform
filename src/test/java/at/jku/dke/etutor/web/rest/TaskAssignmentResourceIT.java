@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
@@ -288,7 +289,7 @@ public class TaskAssignmentResourceIT {
 
         String assignmentId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
 
-        List<String> displayGoalsToSerialize = StreamEx.of(displayGoals).map(x -> x.getId()).toList();
+        List<String> displayGoalsToSerialize = StreamEx.of(displayGoals).map(LearningGoalDisplayDTO::getId).toList();
 
         restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -338,4 +339,138 @@ public class TaskAssignmentResourceIT {
 
         assertThat(assignments).hasSize(1);
     }
+
+    /**
+     * Tests the get display task endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(11)
+    @SuppressWarnings("unchecked")
+    public void testGetAllTaskDisplayList() throws Exception {
+        insertTestAssignmentsForFulltextSearch();
+
+        int page = 0;
+        int size = 5;
+
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/display?page={page}&size={size}", page, size))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        List<TaskDisplayDTO> displayList = TestUtil.convertCollectionFromJSONString(jsonData, TaskDisplayDTO.class, List.class);
+        assertThat(result.getResponse().getHeader("X-Has-Next-Page")).isEqualTo("true");
+        assertThat(displayList).hasSize(5);
+
+        page++;
+        result = restTaskAssignmentMockMvc.perform(get("/api/tasks/display?page={page}&size={size}", page, size))
+            .andExpect(status().isOk())
+            .andReturn();
+        jsonData = result.getResponse().getContentAsString();
+        displayList = TestUtil.convertCollectionFromJSONString(jsonData, TaskDisplayDTO.class, List.class);
+        assertThat(result.getResponse().getHeader("X-Has-Next-Page")).isEqualTo("false");
+        assertThat(displayList).hasSize(1);
+    }
+
+    /**
+     * Tests the get task assignment by internal id method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(12)
+    public void testGetTaskAssignmentByInternalId() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var testGoal1 = goals.first();
+
+        List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+
+        var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
+        var assignment = assignments.first();
+
+        String assignmentId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
+
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/{assignmentId}", assignmentId))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+
+        TaskAssignmentDTO taskAssignmentDTO = TestUtil.convertFromJSONString(jsonData, TaskAssignmentDTO.class);
+        assertThat(taskAssignmentDTO).isEqualToComparingFieldByField(assignment);
+    }
+
+    /**
+     * Tests the get task assignment by internal id method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(13)
+    public void testGetTaskAssignmentByInternalIdEmpty() throws Exception {
+        restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/5"))
+            .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Tests the get assigned learning goals of assignment endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(14)
+    @SuppressWarnings("unchecked")
+    public void testGetAssignedLearningGoalsOfAssignment() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        insertTestAssignmentsForFulltextSearch();
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", USERNAME);
+        TaskAssignmentDTO task = tasks.get(0);
+
+        String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
+        List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/{id}/learninggoals", id))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        List<String> goalIdsFromWeb = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        assertThat(goalIdsFromWeb).containsExactlyInAnyOrder(goalIds.toArray(new String[0]));
+    }
+
+    //region Private methods
+
+    /**
+     * Inserts the test assignments for the fulltext search.
+     *
+     * @return count of inserted assignments
+     */
+    private int insertTestAssignmentsForFulltextSearch() {
+        insertTaskAssignmentForFulltextSearch("Testheader");
+        insertTaskAssignmentForFulltextSearch("New header for");
+        insertTaskAssignmentForFulltextSearch("Beispielaufgabe");
+        insertTaskAssignmentForFulltextSearch("Aufgabe1");
+        insertTaskAssignmentForFulltextSearch("Test123");
+
+        return 5;
+    }
+
+    /**
+     * Inserts a new task assignment for the fulltext search.
+     *
+     * @param header the header of the assignment (will be indexed)
+     */
+    private void insertTaskAssignmentForFulltextSearch(String header) {
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setCreator("TestCreator");
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setHeader(header);
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, USERNAME);
+    }
+    //endregion
 }

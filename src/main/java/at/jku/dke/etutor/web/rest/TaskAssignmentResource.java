@@ -110,7 +110,7 @@ public class TaskAssignmentResource {
 
         if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
             throw new BadRequestAlertException("Only the creator of the task is allowed to edit it!",
-                "taskManagmeent", "taskNotOwner");
+                "taskManagement", "taskNotOwner");
         }
 
         try {
