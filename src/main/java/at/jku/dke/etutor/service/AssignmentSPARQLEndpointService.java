@@ -592,6 +592,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      */
     public List<String> getTasksOfLearningGoal(String learningGoalName, String user) {
         Objects.requireNonNull(learningGoalName);
+        Objects.requireNonNull(user);
+
         String encodedName = URLEncoder.encode(learningGoalName.replace(' ', '_'), Charsets.UTF_8);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_TASK_HEADERS_OF_GOAL);

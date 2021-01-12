@@ -441,6 +441,33 @@ public class TaskAssignmentResourceIT {
         assertThat(goalIdsFromWeb).containsExactlyInAnyOrder(goalIds.toArray(new String[0]));
     }
 
+    /**
+     * Tests the get tasks of learning goal endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(15)
+    @SuppressWarnings("unchecked")
+    public void testGetTasksOfLearningGoal() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var firstGoal = goals.first();
+
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), firstGoal.getName()))
+            .andExpect(status().isOk())
+            .andReturn();
+        String jsonData = result.getResponse().getContentAsString();
+        List<String> list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        assertThat(list).hasSize(2);
+
+        result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), "Test"))
+            .andExpect(status().isOk())
+            .andReturn();
+        jsonData = result.getResponse().getContentAsString();
+        list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        assertThat(list).isEmpty();
+    }
+
     //region Private methods
 
     /**

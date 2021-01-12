@@ -423,6 +423,34 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(goalIdsFromDb).containsExactlyInAnyOrder(goalIds.toArray(new String[0]));
     }
 
+    /**
+     * Tests the get tasks of learning goal method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetTasksOfLearningGoal() throws Exception {
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        insertTestAssignmentsForFulltextSearch();
+        List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
+        TaskAssignmentDTO task = tasks.get(0);
+
+        String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
+        List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
+        var firstGoal = goals.first();
+
+
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+
+        List<String> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(firstGoal.getName(), firstGoal.getOwner());
+        assertThat(assignmentHeaders).hasSize(1);
+        String assignmentHeader = assignmentHeaders.get(0);
+        assertThat(assignmentHeader).isEqualTo(task.getHeader());
+
+        assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal("test", firstGoal.getOwner());
+        assertThat(assignmentHeaders).isEmpty();
+    }
+
     //region Private methods
 
     /**
