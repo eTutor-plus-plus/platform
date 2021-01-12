@@ -17,4 +17,8 @@
         <input id="learningGoalLastChangeDate" disabled type="text" class="form-control"
                value="{{learningGoalTreeviewItem?.changeDate | date:'dd.MM.yyyy HH:mm'}}"/>
     </div>
+    <h5 jhiTranslate="learningGoalManagement.assignedTasks">Assigned tasks</h5>
+    <ul class="list-group">
+        <li class="list-group-item" *ngFor="let assignment of assignments">{{assignment}}</li>
+    </ul>
 </form>

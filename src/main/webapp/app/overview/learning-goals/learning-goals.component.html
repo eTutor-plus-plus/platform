@@ -41,7 +41,8 @@
         </jhi-learning-goal-treeview>
     </div>
     <div class="col-6">
-        <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal" [hidden]="showCreateLearningGoalComponent"></jhi-learning-goal-display>
+        <jhi-learning-goal-display [learningGoalTreeviewItem]="selectedLearningGoal" [assignments]="learningGoalTasks"
+                                   [hidden]="showCreateLearningGoalComponent"></jhi-learning-goal-display>
         <jhi-learning-goal-creation (learningGoalCreated)="loadLearningGoalsAsync()" (learningGoalUpdated)="loadLearningGoalsAsync()"
                                     (subGoalCreated)="loadLearningGoalsAsync()" [loggedInUser]="username"
                                     [hidden]="!showCreateLearningGoalComponent">

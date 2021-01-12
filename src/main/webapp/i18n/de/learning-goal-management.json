@@ -13,6 +13,7 @@
     },
     "newLearningGoalHeader": "Neues Lernziel erstellen",
     "updateLearningGoalHeader": "Lernziel bearbeiten",
-    "createSubGoalHeader": "Teilziel erstellen"
+    "createSubGoalHeader": "Teilziel erstellen",
+    "assignedTasks": "Zugeordnete Aufgaben"
   }
 }

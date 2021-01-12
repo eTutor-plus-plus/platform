@@ -206,4 +206,20 @@ public class TaskAssignmentResource {
         List<String> learningGoalIds = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(assignmentId);
         return ResponseEntity.ok(learningGoalIds);
     }
+
+    /**
+     * REST endpoint for retrieving the list of associated tasks of a given
+     * learning goal.
+     *
+     * @param goalOwner the goal's owner
+     * @param goalName  the goal's name
+     * @return the {@link ResponseEntity} containing the list of associated goals
+     */
+    @GetMapping("tasks/of/{goalOwner}/{goalName}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<String>> getTasksOfLearningGoal(@PathVariable String goalOwner,
+                                                               @PathVariable String goalName) {
+        List<String> taskHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(goalName, goalOwner);
+        return ResponseEntity.ok(taskHeaders);
+    }
 }

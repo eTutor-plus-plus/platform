@@ -12,6 +12,8 @@ import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-it
 export class LearningGoalDisplayComponent implements OnInit {
   @Input()
   public learningGoalTreeviewItem?: LearningGoalTreeviewItem;
+  @Input()
+  public assignments: string[] = [];
 
   /**
    * Constructor

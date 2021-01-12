@@ -7,6 +7,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serial;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -108,6 +110,17 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
           ?assignment a etutor:TaskAssignment.
           ?goal etutor:hasTaskAssignment ?assignment.
         }
+        """;
+
+    private static final String QRY_SELECT_TASK_HEADERS_OF_GOAL = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT DISTINCT ?assignmentHeader
+        WHERE {
+          ?goal etutor:hasTaskAssignment ?assignment.
+          ?assignment etutor:hasTaskHeader ?assignmentHeader
+        }
+        ORDER BY (LCASE(?assignmentHeader))
         """;
 
     /**
@@ -566,6 +579,34 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 }
 
                 return goalIds;
+            }
+        }
+    }
+
+    /**
+     * Returns the list of task which are associated with the given learning goal.
+     *
+     * @param learningGoalName the learning goal's name
+     * @param user the user name
+     * @return list of task headers
+     */
+    public List<String> getTasksOfLearningGoal(String learningGoalName, String user) {
+        Objects.requireNonNull(learningGoalName);
+        String encodedName = URLEncoder.encode(learningGoalName.replace(' ', '_'), Charsets.UTF_8);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_TASK_HEADERS_OF_GOAL);
+        Resource goalResource = ETutorVocabulary.createUserGoalResourceOfModel(user, encodedName, ModelFactory.createDefaultModel());
+        query.setIri("?goal", goalResource.getURI());
+
+        try(RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                List<String> taskHeaders = new ArrayList<>();
+                ResultSet set = execution.execSelect();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    taskHeaders.add(solution.getLiteral("?assignmentHeader").getString());
+                }
+                return taskHeaders;
             }
         }
     }

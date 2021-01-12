@@ -103,4 +103,16 @@ export class TasksService {
 
     return this.http.delete(`api/tasks/assignments/${id}`, { observe: 'response' });
   }
+
+  /**
+   * Returns the associated tasks of a given learning goal.
+   *
+   * @param goalName the learning goal's name
+   * @param goalOwner the learning goal's owner
+   */
+  public getTasksOfLearningGoal(goalName: string, goalOwner: string): Observable<StringArrayResponseType> {
+    const encodedName = encodeURIComponent(goalName);
+
+    return this.http.get<string[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
+  }
 }

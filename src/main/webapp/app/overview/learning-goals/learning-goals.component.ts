@@ -5,6 +5,7 @@ import { TreeviewComponent } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from '../../core/auth/account.service';
+import { TasksService } from '../tasks/tasks.service';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -21,6 +22,7 @@ export class LearningGoalsComponent implements OnInit {
   public learningGoalCtxMenu?: ContextMenuComponent;
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoal?: LearningGoalTreeviewItem;
+  public learningGoalTasks: string[] = [];
 
   @ViewChild(LearningGoalCreationComponent)
   public learningGoalCreationComponent!: LearningGoalCreationComponent;
@@ -32,8 +34,13 @@ export class LearningGoalsComponent implements OnInit {
    *
    * @param learningGoalsService the injected learning goals service
    * @param accountService the injected account service
+   * @param tasksService the injected task service
    */
-  constructor(private learningGoalsService: LearningGoalsService, private accountService: AccountService) {}
+  constructor(
+    private learningGoalsService: LearningGoalsService,
+    private accountService: AccountService,
+    private tasksService: TasksService
+  ) {}
 
   /**
    * Implements the on init method. See {@link OnInit}
@@ -59,8 +66,15 @@ export class LearningGoalsComponent implements OnInit {
    * @param item the selected learning goal
    */
   public onSelect(item: LearningGoalTreeviewItem): void {
-    this.selectedLearningGoal = item;
-    this.showCreateLearningGoalComponent = false;
+    this.learningGoalTasks = [];
+    this.tasksService.getTasksOfLearningGoal(item.text, item.owner).subscribe(value => {
+      if (value.body) {
+        this.learningGoalTasks = value.body;
+      }
+
+      this.selectedLearningGoal = item;
+      this.showCreateLearningGoalComponent = false;
+    });
   }
 
   /**
