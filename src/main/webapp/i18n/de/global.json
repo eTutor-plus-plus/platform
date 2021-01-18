@@ -35,7 +35,8 @@
       "learningGoals": {
         "main": "Lernziele",
         "management": "Lernzielverwaltung",
-        "taskManagement": "Aufgabenverwaltung"
+        "taskManagement": "Aufgabenverwaltung",
+        "exerciseSheets": "Übungszettelverwaltung"
       },
       "courses": {
         "main": "LVAs",

@@ -35,4 +35,12 @@ export const overviewRoute: Routes = [
     },
     loadChildren: () => import('./tasks/tasks.module').then(m => m.TasksModule),
   },
+  {
+    path: 'exercise-sheets',
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.INSTRUCTOR],
+    },
+    loadChildren: () => import('./exercise-sheets/exercise-sheets.module').then(m => m.ExerciseSheetsModule),
+  },
 ];

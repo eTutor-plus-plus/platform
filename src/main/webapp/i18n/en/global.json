@@ -35,7 +35,8 @@
       "learningGoals": {
         "main": "Learning goals",
         "management": "Learning goal management",
-        "taskManagement": "Task management"
+        "taskManagement": "Task management",
+        "exerciseSheets": "Exercise sheet management"
       },
       "courses": {
         "main": "Courses",
