@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,6 +28,23 @@ import java.util.UUID;
  */
 @Service
 public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
+
+    private static final String QRY_CONSTRUCT_EXERCISE_BY_ID = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        CONSTRUCT { ?exerciseSheet ?p ?o.
+        			?exerciseSheet etutor:containsLearningGoal ?goal.
+        			?goal rdfs:label ?goalName.
+        			?goal a etutor:Goal }
+        WHERE {
+          ?exerciseSheet a etutor:ExerciseSheet.
+          ?exerciseSheet ?p ?o.
+          ?exerciseSheet etutor:containsLearningGoal ?goal.
+          ?goal rdfs:label ?goalName
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -58,6 +77,30 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         }
 
         return new ExerciseSheetDTO(newExerciseSheetDTO, resource.getURI(), instantFromRDFString(instantToRDFString(now)), user);
+    }
+
+    /**
+     * Returns an exercise sheet by its id.
+     *
+     * @param id the internal id
+     * @return {@link Optional} which is either empty or contains the corresponding exercise sheet dto
+     * @throws ParseException if an internal parsing error occurs
+     */
+    public Optional<ExerciseSheetDTO> getExerciseSheetById(String id) throws ParseException {
+        Objects.requireNonNull(id);
+
+        String exerciseURL = ETutorVocabulary.createExerciseSheetURLString(id);
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_EXERCISE_BY_ID);
+        query.setIri("?exerciseSheet", exerciseURL);
+
+        try (RDFConnection connection = getConnection()) {
+            Model model = connection.queryConstruct(query.asQuery());
+            if (model.isEmpty()) {
+                return Optional.empty();
+            }
+            Resource exerciseSheetResource = model.getResource(exerciseURL);
+            return Optional.of(new ExerciseSheetDTO(exerciseSheetResource));
+        }
     }
 
     //region Private helper methods

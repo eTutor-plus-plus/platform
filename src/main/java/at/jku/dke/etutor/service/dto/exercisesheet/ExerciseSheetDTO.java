@@ -1,6 +1,17 @@
 package at.jku.dke.etutor.service.dto.exercisesheet;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.RDFS;
+
+import java.text.ParseException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO class for an existing exercise sheet.
@@ -28,13 +39,41 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
      * @param internalCreator the internal creator
      */
     public ExerciseSheetDTO(NewExerciseSheetDTO baseDTO, String id, Instant creationDate, String internalCreator) {
-        setName(baseDTO.getName());
+        setName(baseDTO.getName().trim());
         setDifficultyId(baseDTO.getDifficultyId());
         setLearningGoals(baseDTO.getLearningGoals());
 
         this.id = id;
         this.creationDate = creationDate;
         this.internalCreator = internalCreator;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param resource the rdf resource from the knowledge graph
+     * @throws ParseException if a date can not be parsed
+     */
+    public ExerciseSheetDTO(Resource resource) throws ParseException {
+        super();
+
+        setName(resource.getProperty(RDFS.label).getString());
+        setDifficultyId(resource.getProperty(ETutorVocabulary.hasExerciseSheetDifficulty).getResource().getURI());
+        setId(resource.getURI());
+        setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalExerciseSheetCreator).getString());
+        setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(resource.getProperty(ETutorVocabulary.hasExerciseSheetCreationTime).getString()).toInstant());
+
+        List<LearningGoalDisplayDTO> goals = new ArrayList<>();
+        StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoal);
+        try {
+            while (stmtIterator.hasNext()) {
+                Statement statement = stmtIterator.nextStatement();
+                goals.add(new LearningGoalDisplayDTO(statement.getSubject().getURI(), statement.getProperty(RDFS.label).getString()));
+            }
+        } finally {
+            stmtIterator.close();
+        }
+        setLearningGoals(goals);
     }
 
     /**

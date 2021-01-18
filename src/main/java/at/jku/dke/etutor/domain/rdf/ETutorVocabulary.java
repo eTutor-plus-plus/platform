@@ -267,6 +267,16 @@ public final class ETutorVocabulary {
      * @return the individual exercise sheet resource
      */
     public static final Resource createExerciseSheetOfModel(String uuid, Model model) {
-        return model.createResource(URI + CLASS_EXERCISE_SHEET + "#" + uuid);
+        return model.createResource(createExerciseSheetURLString(uuid));
+    }
+
+    /**
+     * Creates the url of an exercise sheet.
+     *
+     * @param uuid the uuid
+     * @return the internal url of an individual exercise sheet
+     */
+    public static final String createExerciseSheetURLString(String uuid) {
+        return URI + CLASS_EXERCISE_SHEET + "#" + uuid;
     }
 }
