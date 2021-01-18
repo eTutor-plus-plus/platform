@@ -49,7 +49,7 @@ public class ExerciseSheetResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
 
         ExerciseSheetDTO newExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, currentLogin);
-        String uuid = newExerciseSheet.getId().substring(newExerciseSheet.getId().lastIndexOf('#'));
+        String uuid = newExerciseSheet.getId().substring(newExerciseSheet.getId().lastIndexOf('#') + 1);
 
         return ResponseEntity.created(new URI(String.format("/api/exercise-sheet/%s", uuid))).body(newExerciseSheet);
     }
