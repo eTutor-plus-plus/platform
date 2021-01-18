@@ -1,6 +1,5 @@
 package at.jku.dke.etutor.domain.rdf;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -16,6 +15,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_COURSE = "Course";
     private static final String CLASS_TASK_ASSIGNMENT = "TaskAssignment";
     private static final String CLASS_DIFFICULTY_RANKING = "DifficultyRanking";
+    private static final String CLASS_EXERCISE_SHEET = "ExerciseSheet";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -44,6 +44,11 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_INSTRUCTION = "hasTaskInstruction";
     private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
+
+    private static final String PROP_CONTAINS_LEARNING_GOAL = "containsLearningGoal";
+    private static final String PROP_HAS_EXERCISE_SHEET_DIFFICULTY = "hasExerciseSheetDifficulty";
+    private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
+    private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -161,6 +166,22 @@ public final class ETutorVocabulary {
      * The isAssignmentOf property.
      */
     public static final Property isAssignmentOf = m.createProperty(URI + PROP_IS_ASSIGNMENT_OF);
+    /**
+     * The containsLearningGoal property.
+     */
+    public static final Property containsLearningGoal = m.createProperty(URI + PROP_CONTAINS_LEARNING_GOAL);
+    /**
+     * The hasExerciseSheetDifficulty property.
+     */
+    public static final Property hasExerciseSheetDifficulty = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
+    /**
+     * The hasInternalExerciseSheetCreator property.
+     */
+    public static final Property hasInternalExerciseSheetCreator = m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
+    /**
+     * The hasExerciseSheetCreationTime property.
+     */
+    public static final Property hasExerciseSheetCreationTime = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
 
     /**
      * The goal resource.
@@ -182,6 +203,10 @@ public final class ETutorVocabulary {
      * The difficulty ranking resource.
      */
     public static final Resource DifficultyRanking = m.createResource(URI + CLASS_DIFFICULTY_RANKING);
+    /**
+     * The exercise sheet resource.
+     */
+    public static final Resource ExerciseSheet = m.createResource(URI + CLASS_EXERCISE_SHEET);
 
     /**
      * The easy difficulty instance.
@@ -232,5 +257,16 @@ public final class ETutorVocabulary {
      */
     public static final Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
         return model.createResource(URI + CLASS_TASK_ASSIGNMENT + "#" + uuid);
+    }
+
+    /**
+     * Creates an individual exercise sheet from a given model.
+     *
+     * @param uuid  the uuid
+     * @param model the base model
+     * @return the individual exercise sheet resource
+     */
+    public static final Resource createExerciseSheetOfModel(String uuid, Model model) {
+        return model.createResource(URI + CLASS_EXERCISE_SHEET + "#" + uuid);
     }
 }

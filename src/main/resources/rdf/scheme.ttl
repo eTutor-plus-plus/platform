@@ -169,3 +169,29 @@ etutor-difficulty:Hard
 etutor-difficulty:VeryHard
     a               etutor:DifficultyRanking ;
     rdfs:rdfs:label "VeryHard" .
+
+## Exercise sheets
+# Classes
+etutor:ExerciseSheet
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:containsLearningGoal
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  etutor:Goal .
+
+etutor:hasExerciseSheetDifficulty
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  etutor:DifficultyRanking .
+
+etutor:hasInternalExerciseSheetCreator
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  xsd:string .
+
+etutor:hasExerciseSheetCreationTime
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  xsd:dateTime .
