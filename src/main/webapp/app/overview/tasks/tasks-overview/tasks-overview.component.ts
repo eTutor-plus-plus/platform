@@ -11,7 +11,7 @@ import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-ass
 import { TaskDisplayComponent } from './task-display/task-display.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AccountService } from '../../../core/auth/account.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 /**
  * Component which provides an overview of the tasks.
@@ -27,6 +27,8 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;
   private routingSubscription?: Subscription;
   private userLogin = '';
+
+  public singleEntryDisplay = false;
 
   public hasNextPage = false;
   public page = 0;
@@ -47,6 +49,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param translatePipe the injected translation pipe
    * @param accountService the injected account service
    * @param activatedRoute the injected activated route
+   * @param router the injected routing service
    */
   constructor(
     private tasksService: TasksService,
@@ -54,7 +57,8 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
     private eventManager: JhiEventManager,
     private translatePipe: TranslatePipe,
     private accountService: AccountService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {
     this.itemsPerPage = ITEMS_PER_SLICE;
   }
@@ -87,14 +91,23 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
               header: response.body.header,
               internalCreator: response.body.internalCreator,
             });
+            this.singleEntryDisplay = true;
           }
         });
       } else {
         this.filterString = '';
         this.entries.length = 0;
+        this.singleEntryDisplay = false;
         this.loadPage(0);
       }
     });
+  }
+
+  /**
+   * Resets the single entry view.
+   */
+  public reset(): void {
+    this.router.navigate(['overview', 'tasks']);
   }
 
   /**
@@ -233,5 +246,6 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
       this.entries.push(...data);
     }
   }
+
   // endregion
 }

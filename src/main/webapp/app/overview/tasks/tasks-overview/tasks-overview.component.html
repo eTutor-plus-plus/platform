@@ -8,13 +8,15 @@
 <div class="row">
     <div class="col-12  d-flex">
         <div class="ml-auto search-box">
-            <input placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}" style="max-width: 200px;"
+            <input *ngIf="!singleEntryDisplay" placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}" style="max-width: 200px;"
                    type="text" class="form-control"
                    [(ngModel)]="filterString" (keyup)="performFiltering()">
+
+            <button *ngIf="singleEntryDisplay" type="button" (click)="reset()" class="btn btn-secondary">Reset</button>
         </div>
     </div>
 </div>
-<ul [hidden]="!entries.length" class="list-group" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
+<ul [hidden]="!entries.length" class="list-group mt-20" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
     <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
         <a ngbTooltip="{{'taskManagement.tooltip.viewTask' | translate:{ taskHeader: entry.header } }}" (click)="displayTask(entry)"
            [ngClass]="{'privateTask': entry.privateTask}">{{entry.header}}</a>
@@ -41,6 +43,6 @@
         </span>
     </li>
 </ul>
-<span [hidden]="entries.length > 0">
+<span class="mt-20" [hidden]="entries.length > 0">
     {{ 'taskManagement.noItems' | translate }}
 </span>
