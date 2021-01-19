@@ -6,6 +6,7 @@ import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from '../../core/auth/account.service';
 import { TasksService } from '../tasks/tasks.service';
+import { ITaskAssignmentDisplay } from '../tasks/task.model';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -22,7 +23,7 @@ export class LearningGoalsComponent implements OnInit {
   public learningGoalCtxMenu?: ContextMenuComponent;
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoal?: LearningGoalTreeviewItem;
-  public learningGoalTasks: string[] = [];
+  public learningGoalTasks: ITaskAssignmentDisplay[] = [];
 
   @ViewChild(LearningGoalCreationComponent)
   public learningGoalCreationComponent!: LearningGoalCreationComponent;

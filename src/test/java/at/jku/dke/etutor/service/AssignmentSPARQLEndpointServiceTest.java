@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
@@ -442,10 +443,11 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
 
-        List<String> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(firstGoal.getName(), firstGoal.getOwner());
+        List<TaskAssignmentDisplayDTO> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(firstGoal.getName(), firstGoal.getOwner());
         assertThat(assignmentHeaders).hasSize(1);
-        String assignmentHeader = assignmentHeaders.get(0);
-        assertThat(assignmentHeader).isEqualTo(task.getHeader());
+        TaskAssignmentDisplayDTO assignmentHeader = assignmentHeaders.get(0);
+        assertThat(assignmentHeader.getHeader()).isEqualTo(task.getHeader());
+        assertThat(assignmentHeader.getId()).isEqualTo(task.getId());
 
         assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal("test", firstGoal.getOwner());
         assertThat(assignmentHeaders).isEmpty();

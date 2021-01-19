@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { INewTaskModel, ITaskDisplayModel, ITaskModel } from './task.model';
+import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel } from './task.model';
 import { Observable } from 'rxjs';
 import { createRequestOption } from '../../shared/util/request-util';
 
@@ -8,6 +8,7 @@ type TaskDisplayResponseType = HttpResponse<ITaskDisplayModel>;
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
 type StringArrayResponseType = HttpResponse<string[]>;
+type TaskAssignmentDisplayResponseType = HttpResponse<ITaskAssignmentDisplay[]>;
 
 /**
  * Service which manages the tasks
@@ -45,9 +46,16 @@ export class TasksService {
    * object by its id.
    *
    * @param internalId the internal task's id
+   * @param alreadyParsed indicates whether the given internalId is already parsed or not (default = false)
    */
-  public getTaskAssignmentById(internalId: string): Observable<TaskResponseType> {
-    const id = internalId.substr(internalId.lastIndexOf('#') + 1);
+  public getTaskAssignmentById(internalId: string, alreadyParsed = false): Observable<TaskResponseType> {
+    let id;
+
+    if (alreadyParsed) {
+      id = internalId;
+    } else {
+      id = internalId.substr(internalId.lastIndexOf('#') + 1);
+    }
 
     return this.http.get<ITaskModel>(`api/tasks/assignments/${id}`, { observe: 'response' });
   }
@@ -110,9 +118,9 @@ export class TasksService {
    * @param goalName the learning goal's name
    * @param goalOwner the learning goal's owner
    */
-  public getTasksOfLearningGoal(goalName: string, goalOwner: string): Observable<StringArrayResponseType> {
+  public getTasksOfLearningGoal(goalName: string, goalOwner: string): Observable<TaskAssignmentDisplayResponseType> {
     const encodedName = encodeURIComponent(goalName);
 
-    return this.http.get<string[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
+    return this.http.get<ITaskAssignmentDisplay[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
   }
 }

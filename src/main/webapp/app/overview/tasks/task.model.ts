@@ -163,3 +163,17 @@ export class TaskDifficulty {
     return this.text;
   };
 }
+
+/**
+ * Interface for displaying a task assignment.
+ */
+export interface ITaskAssignmentDisplay {
+  /**
+   * The task assignment's header.
+   */
+  header: string;
+  /**
+   * The task assignment's internal id.
+   */
+  id: string;
+}

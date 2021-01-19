@@ -14,6 +14,7 @@ import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -457,14 +458,14 @@ public class TaskAssignmentResourceIT {
             .andExpect(status().isOk())
             .andReturn();
         String jsonData = result.getResponse().getContentAsString();
-        List<String> list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        List<TaskAssignmentDisplayDTO> list = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDisplayDTO.class, List.class);
         assertThat(list).hasSize(2);
 
         result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), "Test"))
             .andExpect(status().isOk())
             .andReturn();
         jsonData = result.getResponse().getContentAsString();
-        list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        list = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDisplayDTO.class, List.class);
         assertThat(list).isEmpty();
     }
 

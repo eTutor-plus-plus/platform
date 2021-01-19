@@ -19,6 +19,8 @@
     </div>
     <h5 jhiTranslate="learningGoalManagement.assignedTasks">Assigned tasks</h5>
     <ul class="list-group">
-        <li class="list-group-item" *ngFor="let assignment of assignments">{{assignment}}</li>
+        <li class="list-group-item" *ngFor="let assignment of assignments">
+            <span class="taskAssignmentName" (click)="navigateToAssignment(assignment)">{{assignment.header}}</span>
+        </li>
     </ul>
 </form>

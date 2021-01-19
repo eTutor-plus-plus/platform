@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
+import { Router } from '@angular/router';
+import { ITaskAssignmentDisplay } from '../../tasks/task.model';
 
 /**
  * Component for displaying the current selected learning goal.
@@ -13,15 +15,32 @@ export class LearningGoalDisplayComponent implements OnInit {
   @Input()
   public learningGoalTreeviewItem?: LearningGoalTreeviewItem;
   @Input()
-  public assignments: string[] = [];
+  public assignments: ITaskAssignmentDisplay[] = [];
 
   /**
-   * Constructor
+   * Constructor.
+   *
+   * @param router the injected routing service
    */
-  constructor() {}
+  constructor(private router: Router) {}
 
   /**
    * Implements the on init method. See {@link OnInit}
    */
   public ngOnInit(): void {}
+
+  /**
+   * Navigates to the assignment overview.
+   *
+   * @param assignment the name of the assignment
+   */
+  public navigateToAssignment(assignment: ITaskAssignmentDisplay): void {
+    const id = assignment.id.substr(assignment.id.lastIndexOf('#') + 1);
+
+    this.router.navigate(['overview', 'tasks'], {
+      queryParams: {
+        selectedTaskAssignment: id,
+      },
+    });
+  }
 }

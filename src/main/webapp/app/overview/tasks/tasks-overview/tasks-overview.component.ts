@@ -11,6 +11,7 @@ import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-ass
 import { TaskDisplayComponent } from './task-display/task-display.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AccountService } from '../../../core/auth/account.service';
+import { ActivatedRoute, Params } from '@angular/router';
 
 /**
  * Component which provides an overview of the tasks.
@@ -24,6 +25,7 @@ import { AccountService } from '../../../core/auth/account.service';
 export class TasksOverviewComponent implements OnInit, OnDestroy {
   private itemsPerPage: number;
   private subscription?: Subscription;
+  private routingSubscription?: Subscription;
   private userLogin = '';
 
   public hasNextPage = false;
@@ -44,13 +46,15 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param eventManager the injected event manager service
    * @param translatePipe the injected translation pipe
    * @param accountService the injected account service
+   * @param activatedRoute the injected activated route
    */
   constructor(
     private tasksService: TasksService,
     private modalService: NgbModal,
     private eventManager: JhiEventManager,
     private translatePipe: TranslatePipe,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private activatedRoute: ActivatedRoute
   ) {
     this.itemsPerPage = ITEMS_PER_SLICE;
   }
@@ -69,7 +73,28 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
       this.entries.length = 0;
       this.loadPage(0);
     });
-    this.loadEntries();
+
+    this.routingSubscription = this.activatedRoute.queryParams.subscribe((queryParams: Params) => {
+      if (queryParams['selectedTaskAssignment']) {
+        const id = queryParams['selectedTaskAssignment'];
+
+        this.tasksService.getTaskAssignmentById(id, true).subscribe(response => {
+          if (response.body) {
+            this.entries.length = 0;
+            this.entries.push({
+              taskId: response.body.id,
+              privateTask: response.body.privateTask,
+              header: response.body.header,
+              internalCreator: response.body.internalCreator,
+            });
+          }
+        });
+      } else {
+        this.filterString = '';
+        this.entries.length = 0;
+        this.loadPage(0);
+      }
+    });
   }
 
   /**
@@ -78,6 +103,9 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
+    }
+    if (this.routingSubscription) {
+      this.routingSubscription.unsubscribe();
     }
   }
 

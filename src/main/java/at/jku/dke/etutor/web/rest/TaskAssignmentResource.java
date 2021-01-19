@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
@@ -213,13 +214,13 @@ public class TaskAssignmentResource {
      *
      * @param goalOwner the goal's owner
      * @param goalName  the goal's name
-     * @return the {@link ResponseEntity} containing the list of associated goals
+     * @return the {@link ResponseEntity} containing the list of associated display task assignments
      */
     @GetMapping("tasks/of/{goalOwner}/{goalName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<String>> getTasksOfLearningGoal(@PathVariable String goalOwner,
-                                                               @PathVariable String goalName) {
-        List<String> taskHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(goalName, goalOwner);
+    public ResponseEntity<List<TaskAssignmentDisplayDTO>> getTasksOfLearningGoal(@PathVariable String goalOwner,
+                                                                                 @PathVariable String goalName) {
+        List<TaskAssignmentDisplayDTO> taskHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(goalName, goalOwner);
         return ResponseEntity.ok(taskHeaders);
     }
 }
