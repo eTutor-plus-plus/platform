@@ -1,3 +1,5 @@
+import { ILearningGoalDisplayModel } from '../shared/learning-goal-model';
+
 /**
  * Interface for a task display model.
  */
@@ -18,20 +20,6 @@ export interface ITaskDisplayModel {
    * Indicates whether this task is a private task or not.
    */
   privateTask: boolean;
-}
-
-/**
- * Interface for a learning goal display model.
- */
-export interface ILearningGoalDisplayModel {
-  /**
-   * The learning goal's id.
-   */
-  id: string;
-  /**
-   * The learning goal's name.
-   */
-  name?: string;
 }
 
 /**
@@ -140,6 +128,15 @@ export class TaskDifficulty {
   constructor(value: string, text: string) {
     this._value = value;
     this._text = text;
+  }
+
+  /**
+   * Returns the task difficulty from the given string.
+   *
+   * @param url the url
+   */
+  public static fromString(url: string): TaskDifficulty | undefined {
+    return TaskDifficulty.Values.find(x => x.value === url);
   }
 
   /**
