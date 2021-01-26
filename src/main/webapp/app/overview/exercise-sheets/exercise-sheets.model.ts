@@ -35,3 +35,18 @@ export interface IExerciseSheetDTO extends INewExerciseSheetDTO {
    */
   internalCreator: string;
 }
+
+/**
+ * Interface which represents a displayable
+ * exercise sheet entry.
+ */
+export interface IExerciseSheetDisplayDTO {
+  /**
+   * The internal id.
+   */
+  internalId: string;
+  /**
+   * The display name.
+   */
+  name: string;
+}

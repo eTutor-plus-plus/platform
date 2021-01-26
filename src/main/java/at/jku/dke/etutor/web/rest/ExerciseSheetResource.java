@@ -4,7 +4,12 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.ExerciseSheetSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +18,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -37,7 +43,7 @@ public class ExerciseSheetResource {
     /**
      * {@code POST} : Creates a new exercise sheet.
      *
-     * @param newExerciseSheetDTO the dto class from the requeset body
+     * @param newExerciseSheetDTO the dto class from the request body
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with the new exercise sheet in body
      * @throws URISyntaxException if the location URI syntax is incorrect
      * @throws ParseException     if an internal parsing exception occurs
@@ -55,7 +61,20 @@ public class ExerciseSheetResource {
     }
 
     /**
-     * {@code GET} : Retrieves an exercise sheet by its id.
+     * {@code PUT} : Updates an existing exercise sheet.
+     *
+     * @param exerciseSheetDTO the dto class form the request body
+     * @return the {@link ResponseEntity} with no content
+     */
+    @PutMapping
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> updateExerciseSheet(@Valid @RequestBody ExerciseSheetDTO exerciseSheetDTO) {
+        exerciseSheetSPARQLEndpointService.updateExerciseSheet(exerciseSheetDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET :id} : Retrieves an exercise sheet by its id.
      *
      * @param id the id of the exercise sheet (from the request path)
      * @return the {@link ResponseEntity} containing the exercise sheet
@@ -64,5 +83,23 @@ public class ExerciseSheetResource {
     public ResponseEntity<ExerciseSheetDTO> getExerciseSheetById(@PathVariable String id) throws ParseException {
         Optional<ExerciseSheetDTO> optionalSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         return ResponseEntity.of(optionalSheet);
+    }
+
+    /**
+     * {@code GET display/paged} : Retrieves the paged exercise sheet displays.
+     *
+     * @param name     the optional name filter query parameter
+     * @param pageable the pagination object
+     * @return {@link ResponseEntity} containing the list of exercise sheet dispalys of the current "page"
+     */
+    @GetMapping("display/paged")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<ExerciseSheetDisplayDTO>> getExerciseDisplayList(
+        @RequestParam(required = false, defaultValue = "") String name, Pageable pageable) {
+        Slice<ExerciseSheetDisplayDTO> slice = exerciseSheetSPARQLEndpointService.getFilteredExerciseSheetDisplayDTOs(name, pageable);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
+        return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);
     }
 }
