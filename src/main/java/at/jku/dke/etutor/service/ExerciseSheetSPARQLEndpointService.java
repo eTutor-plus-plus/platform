@@ -101,6 +101,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
      * @param exerciseSheetDTO the exercise sheet data
      */
     public void updateExerciseSheet(ExerciseSheetDTO exerciseSheetDTO) {
+        Objects.requireNonNull(exerciseSheetDTO);
+
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -227,6 +229,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
      * @param internalId the exercise sheet's id
      */
     public void deleteExerciseSheetById(String internalId) {
+        Objects.requireNonNull(internalId);
         ParameterizedSparqlString query = new ParameterizedSparqlString(DELETE_EXERCISE_BY_ID);
         String exerciseURL = ETutorVocabulary.createExerciseSheetURLString(internalId);
         query.setIri("?exerciseSheet", exerciseURL);

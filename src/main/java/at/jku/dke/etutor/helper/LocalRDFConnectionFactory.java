@@ -8,6 +8,7 @@ import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.query.text.TextIndexConfig;
 import org.apache.jena.query.text.analyzer.Util;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
@@ -66,6 +67,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
         Directory luceneDirectory = new RAMDirectory();
 
         EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
+        entDef.setPrimaryPredicate(RDFS.label);
         TextIndexConfig textIndexConfig = new TextIndexConfig(entDef);
         Analyzer analyzer = Util.getLocalizedAnalyzer("de");
         textIndexConfig.setAnalyzer(analyzer);
