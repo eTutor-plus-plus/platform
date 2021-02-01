@@ -68,7 +68,9 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
         try {
             while (stmtIterator.hasNext()) {
                 Statement statement = stmtIterator.nextStatement();
-                goals.add(new LearningGoalDisplayDTO(statement.getSubject().getURI(), statement.getProperty(RDFS.label).getString()));
+                Resource goalResource = statement.getObject().asResource();
+                String goalName = goalResource.getProperty(RDFS.label).getString();
+                goals.add(new LearningGoalDisplayDTO(goalResource.getURI(), goalName));
             }
         } finally {
             stmtIterator.close();
