@@ -29,6 +29,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/exercise-sheet")
 public class ExerciseSheetResource {
+
     private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
 
     /**
@@ -83,6 +84,19 @@ public class ExerciseSheetResource {
     public ResponseEntity<ExerciseSheetDTO> getExerciseSheetById(@PathVariable String id) throws ParseException {
         Optional<ExerciseSheetDTO> optionalSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         return ResponseEntity.of(optionalSheet);
+    }
+
+    /**
+     * {@code DELETE :id} : Deletes an exercise sheet by its id.
+     *
+     * @param id the id of the exercise sheet (from the request path)
+     * @return the {@link ResponseEntity} with no content
+     */
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> removeExerciseSheetById(@PathVariable String id) {
+        exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**

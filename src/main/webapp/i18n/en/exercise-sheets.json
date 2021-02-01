@@ -16,6 +16,16 @@
         "required": "This field is required!"
       },
       "difficultyPlaceholder": "Select difficulty"
+    },
+    "popover": {
+      "title": "Information",
+      "message": "Should the current exercise sheet by deleted?",
+      "cancelBtn": "No",
+      "confirmBtn": "Yes"
+    },
+    "tooltip": {
+      "deleteExerciseSheet": "Delete exercise sheet '{{name}}'",
+      "editExerciseSheet": "Edit exercise sheet '{{name}}'"
     }
   }
 }

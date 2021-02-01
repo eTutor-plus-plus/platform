@@ -76,9 +76,9 @@ export class ExerciseSheetUpdateComponent implements OnInit {
    */
   public save(): void {
     this.isSaving = true;
-    if (this.isNew) {
-      const difficultyId = (this.updateForm.get(['difficulty'])!.value as TaskDifficulty).value;
+    const difficultyId = (this.updateForm.get(['difficulty'])!.value as TaskDifficulty).value;
 
+    if (this.isNew) {
       const newExerciseSheet: INewExerciseSheetDTO = {
         name: (this.updateForm.get(['name'])!.value as string).trim(),
         difficultyId,
@@ -96,7 +96,25 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         }
       );
     } else {
-      // TODO: Implement
+      const exerciseSheet: IExerciseSheetDTO = {
+        name: (this.updateForm.get(['name'])!.value as string).trim(),
+        difficultyId,
+        learningGoals: this._selectedGoals,
+        creationDate: this.exerciseSheet!.creationDate,
+        internalCreator: this.exerciseSheet!.internalCreator,
+        id: this.exerciseSheet!.id,
+      };
+
+      this.exerciseSheetService.updateExerciseSheet(exerciseSheet).subscribe(
+        () => {
+          this.eventManager.broadcast('exercise-sheets-changed');
+          this.isSaving = false;
+          this.activeModal.close();
+        },
+        () => {
+          this.isSaving = false;
+        }
+      );
     }
   }
 

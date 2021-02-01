@@ -51,6 +51,16 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         }
         """;
 
+    private static final String DELETE_EXERCISE_BY_ID = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE { ?exerciseSheet ?predicate ?object }
+        WHERE {
+          ?exerciseSheet a etutor:ExerciseSheet.
+          ?exerciseSheet ?predicate ?object.
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -208,6 +218,21 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 boolean hasNext = page.isPaged() && resultList.size() > page.getPageSize();
                 return new SliceImpl<>(hasNext ? resultList.subList(0, page.getPageSize()) : resultList, page, hasNext);
             }
+        }
+    }
+
+    /**
+     * Deletes an exercise sheet by id.
+     *
+     * @param internalId the exercise sheet's id
+     */
+    public void deleteExerciseSheetById(String internalId) {
+        ParameterizedSparqlString query = new ParameterizedSparqlString(DELETE_EXERCISE_BY_ID);
+        String exerciseURL = ETutorVocabulary.createExerciseSheetURLString(internalId);
+        query.setIri("?exerciseSheet", exerciseURL);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
         }
     }
 

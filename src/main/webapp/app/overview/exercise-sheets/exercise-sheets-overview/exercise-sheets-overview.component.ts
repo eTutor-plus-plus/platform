@@ -8,6 +8,7 @@ import { IExerciseSheetDisplayDTO } from '../exercise-sheets.model';
 import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { HttpHeaders } from '@angular/common/http';
 import { Pagination } from '../../../shared/util/request-util';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Component for displaying the exercise sheets.
@@ -16,6 +17,7 @@ import { Pagination } from '../../../shared/util/request-util';
   selector: 'jhi-exercise-sheets-overview',
   templateUrl: './exercise-sheets-overview.component.html',
   styleUrls: ['./exercise-sheets-overview.component.scss'],
+  providers: [TranslatePipe],
 })
 export class ExerciseSheetsOverviewComponent implements OnInit {
   private exerciseSubscription?: Subscription;
@@ -26,15 +28,31 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
   public entries: IExerciseSheetDisplayDTO[] = [];
   public filterString = '';
 
+  public popoverTitle = 'exerciseSheets.popover.title';
+  public popoverMessage = 'exerciseSheets.popover.message';
+  public popoverCancelButtonTxt = 'exerciseSheets.popover.cancelBtn';
+  public popoverConfirmBtnTxt = 'exerciseSheets.popover.confirmBtn';
+
   /**
    * Constructor.
    *
    * @param modalService the injected modal service
    * @param eventManager the injected event manager service
    * @param exerciseSheetsService the injected exercise sheets service
+   * @param translationPipe the injected translation pipe
    */
-  constructor(private modalService: NgbModal, private eventManager: JhiEventManager, private exerciseSheetsService: ExerciseSheetsService) {
+  constructor(
+    private modalService: NgbModal,
+    private eventManager: JhiEventManager,
+    private exerciseSheetsService: ExerciseSheetsService,
+    private translationPipe: TranslatePipe
+  ) {
     this.itemsPerPage = ITEMS_PER_SLICE;
+
+    this.popoverTitle = this.translationPipe.transform(this.popoverTitle);
+    this.popoverMessage = this.translationPipe.transform(this.popoverMessage);
+    this.popoverCancelButtonTxt = this.translationPipe.transform(this.popoverCancelButtonTxt);
+    this.popoverConfirmBtnTxt = this.translationPipe.transform(this.popoverConfirmBtnTxt);
   }
 
   /**
@@ -53,6 +71,26 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
    */
   public createNewExerciseSheet(): void {
     this.modalService.open(ExerciseSheetUpdateComponent, { size: 'lg', backdrop: 'static' });
+  }
+
+  /**
+   * Opens the edit dialog for the given exercise sheet.
+   *
+   * @param exerciseSheet the exercise sheet to edit
+   */
+  public editExerciseSheet(exerciseSheet: IExerciseSheetDisplayDTO): void {
+    this.editExerciseSheetAsync(exerciseSheet);
+  }
+
+  /**
+   * Deletes the given exercise sheet.
+   *
+   * @param exerciseSheet the exercise sheet to remove
+   */
+  public deleteExerciseSheet(exerciseSheet: IExerciseSheetDisplayDTO): void {
+    this.exerciseSheetsService.deleteExerciseSheetById(exerciseSheet.internalId).subscribe(() => {
+      this.eventManager.broadcast('exercise-sheets-changed');
+    });
   }
 
   /**
@@ -113,5 +151,17 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
     };
     const response = await this.exerciseSheetsService.getExerciseSheetPage(pagination, this.filterString).toPromise();
     this.paginate(response.body, response.headers);
+  }
+
+  /**
+   * Asynchronously opens the edit dialog.
+   *
+   * @param exerciseSheetDisplay the exercise sheet to edit
+   */
+  private async editExerciseSheetAsync(exerciseSheetDisplay: IExerciseSheetDisplayDTO): Promise<any> {
+    const exerciseSheetResponse = await this.exerciseSheetsService.getExerciseSheetById(exerciseSheetDisplay.internalId).toPromise();
+    const exerciseSheet = exerciseSheetResponse.body!;
+    const modalRef = this.modalService.open(ExerciseSheetUpdateComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as ExerciseSheetUpdateComponent).exerciseSheet = exerciseSheet;
   }
 }

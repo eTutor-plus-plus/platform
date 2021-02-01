@@ -17,6 +17,20 @@
 </div>
 <ul [hidden]="!entries.length" class="list-group" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
     <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
-        {{entry.name}}
+        <a>{{entry.name}}</a>
+        <span class="float-right">
+            <a ngbTooltip="{{'exerciseSheets.tooltip.editExerciseSheet' | translate: {name: entry.name} }}"
+               (click)="editExerciseSheet(entry)" style="margin-right: 10px;"><fa-icon icon="pencil-alt"></fa-icon></a>
+            <a ngbTooltip="{{'exerciseSheets.tooltip.deleteExerciseSheet' | translate:{ name: entry.name } }}"
+               mwlConfirmationPopover
+               placement="left"
+               [popoverTitle]="popoverTitle"
+               [popoverMessage]="popoverMessage"
+               [cancelText]="popoverCancelButtonTxt"
+               [confirmText]="popoverConfirmBtnTxt"
+               (confirm)="deleteExerciseSheet(entry)">
+                <fa-icon icon="trash"></fa-icon>
+            </a>
+        </span>
     </li>
 </ul>

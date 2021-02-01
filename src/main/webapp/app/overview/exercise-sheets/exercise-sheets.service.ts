@@ -46,4 +46,33 @@ export class ExerciseSheetsService {
 
     return this.http.get<IExerciseSheetDisplayDTO[]>(url, { params: options, observe: 'response' });
   }
+
+  /**
+   * Returns an exercise sheet model by its id.
+   *
+   * @param exerciseSheetId the exercise sheet's id
+   */
+  public getExerciseSheetById(exerciseSheetId: string): Observable<ExerciseSheetResult> {
+    const internalId = exerciseSheetId.substring(exerciseSheetId.lastIndexOf('#') + 1);
+    return this.http.get<IExerciseSheetDTO>(`/api/exercise-sheet/${internalId}`, { observe: 'response' });
+  }
+
+  /**
+   * Deletes an exercise sheet.
+   *
+   * @param exerciseSheetId the exercise sheet's id
+   */
+  public deleteExerciseSheetById(exerciseSheetId: string): Observable<HttpResponse<any>> {
+    const internalId = exerciseSheetId.substring(exerciseSheetId.lastIndexOf('#') + 1);
+    return this.http.delete(`/api/exercise-sheet/${internalId}`, { observe: 'response' });
+  }
+
+  /**
+   * Updates the given exercise sheet.
+   *
+   * @param exerciseSheet the exercise sheet to update
+   */
+  public updateExerciseSheet(exerciseSheet: IExerciseSheetDTO): Observable<HttpResponse<any>> {
+    return this.http.put('/api/exercise-sheet', exerciseSheet, { observe: 'response' });
+  }
 }

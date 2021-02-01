@@ -16,6 +16,16 @@
         "required": "Dieses Feld ist erforderlich!"
       },
       "difficultyPlaceholder": "Schwierigkeit auswählen"
+    },
+    "popover": {
+      "title": "Information",
+      "message": "Soll der ausgewählte Übungszettel gelöscht werden?",
+      "cancelBtn": "Nein",
+      "confirmBtn": "Ja"
+    },
+    "tooltip": {
+      "deleteExerciseSheet": "Übungszettel '{{name}}' löschen",
+      "editExerciseSheet": "Übungszettel '{{name}}' bearbeiten"
     }
   }
 }
