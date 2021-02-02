@@ -46,8 +46,10 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         WHERE {
           ?exerciseSheet a etutor:ExerciseSheet.
           ?exerciseSheet ?p ?o.
-          ?exerciseSheet etutor:containsLearningGoal ?goal.
-          ?goal rdfs:label ?goalName
+          OPTIONAL {
+            ?exerciseSheet etutor:containsLearningGoal ?goal.
+            ?goal rdfs:label ?goalName
+          }
         }
         """;
 
@@ -129,7 +131,9 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?lbl.
               ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-              ?exerciseSheet etutor:containsLearningGoal ?goal.
+              OPTIONAL {
+                ?exerciseSheet etutor:containsLearningGoal ?goal.
+              }
             }
             """);
 
