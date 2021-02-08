@@ -99,4 +99,17 @@ export class LearningGoalsService {
     const encodedName = encodeURIComponent(goalName);
     return this.http.get<string[]>(SERVER_API_URL + `api/learninggoals/${owner}/${encodedName}/dependencies`, { observe: 'response' });
   }
+
+  /**
+   * Returns the displayable dependencies of a given goal.
+   *
+   * @param owner the goal's owner
+   * @param goalName the goal's na,e
+   */
+  public getDisplayableDependencies(owner: string, goalName: string): Observable<HttpResponse<string[]>> {
+    const encodedName = encodeURIComponent(goalName);
+    return this.http.get<string[]>(SERVER_API_URL + `api/learninggoals/${owner}/${encodedName}/dependencies/displayable`, {
+      observe: 'response',
+    });
+  }
 }

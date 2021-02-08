@@ -9,10 +9,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
@@ -104,6 +101,19 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
           ?otherGoal rdfs:label ?otherName
         }
         ORDER BY (LCASE(?otherName))
+        """;
+
+    private static final String QRY_GOAL_DEPENDENCIES_TEXT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?goalName
+        WHERE {
+          ?goal a etutor:Goal.
+          ?goal etutor:dependsOn ?otherGoal.
+          ?otherGoal rdfs:label ?goalName
+        }
+        ORDER BY (LCASE(?goalName))
         """;
     //endregion
 
@@ -476,6 +486,39 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 }
                 return resultIds;
             }
+        }
+    }
+
+    /**
+     * Returns the displayable dependencies (dependency names)
+     * of a given goal.
+     *
+     * @param owner    the goal's owner
+     * @param goalName the goal's name
+     * @return list of dependency names
+     */
+    public List<String> getDisplayableDependencies(String owner, String goalName) {
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_DEPENDENCIES_TEXT);
+        qry.setIri("?goal", goalUri);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution queryExecution = connection.query(qry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+
+                List<String> retList = new ArrayList<>();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    retList.add(solution.getLiteral("?goalName").getString());
+                }
+                return retList;
+            }
+        } catch (QueryParseException queryParseException) {
+            log.warn("Faulty query - Owner: {}, goal name: {}, query: {}", owner, goalName, qry.toString());
+
+            throw queryParseException;
         }
     }
     //endregion

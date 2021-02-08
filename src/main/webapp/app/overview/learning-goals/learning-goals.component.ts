@@ -9,6 +9,7 @@ import { TasksService } from '../tasks/tasks.service';
 import { ITaskAssignmentDisplay } from '../tasks/task.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
+import { combineLatest } from 'rxjs';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -26,6 +27,7 @@ export class LearningGoalsComponent implements OnInit {
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoal?: LearningGoalTreeviewItem;
   public learningGoalTasks: ITaskAssignmentDisplay[] = [];
+  public learningGoalDependencies: string[] = [];
 
   @ViewChild(LearningGoalCreationComponent)
   public learningGoalCreationComponent!: LearningGoalCreationComponent;
@@ -72,13 +74,17 @@ export class LearningGoalsComponent implements OnInit {
    */
   public onSelect(item: LearningGoalTreeviewItem): void {
     this.learningGoalTasks = [];
-    this.tasksService.getTasksOfLearningGoal(item.text, item.owner).subscribe(value => {
-      if (value.body) {
-        this.learningGoalTasks = value.body;
-      }
+    const obs1 = this.tasksService.getTasksOfLearningGoal(item.text, item.owner);
+    const obs2 = this.learningGoalsService.getDisplayableDependencies(item.owner, item.text);
 
-      this.selectedLearningGoal = item;
-      this.showCreateLearningGoalComponent = false;
+    combineLatest([obs1, obs2]).subscribe(([ret1, ret2]) => {
+      if (ret1.body && ret2.body) {
+        this.learningGoalTasks = ret1.body;
+        this.learningGoalDependencies = ret2.body;
+
+        this.selectedLearningGoal = item;
+        this.showCreateLearningGoalComponent = false;
+      }
     });
   }
 

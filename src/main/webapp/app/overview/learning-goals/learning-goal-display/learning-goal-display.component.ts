@@ -16,6 +16,8 @@ export class LearningGoalDisplayComponent implements OnInit {
   public learningGoalTreeviewItem?: LearningGoalTreeviewItem;
   @Input()
   public assignments: ITaskAssignmentDisplay[] = [];
+  @Input()
+  public dependencies: string[] = [];
 
   /**
    * Constructor.
