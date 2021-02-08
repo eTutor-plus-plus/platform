@@ -17,6 +17,10 @@
     "assignedTasks": "Assigned tasks",
     "dependencies": "Dependencies",
     "manageDependencies": "Manage dependencies",
-    "manageDependenciesHeader": "Manage dependencies of learning goal '{{goalName}}'"
+    "manageDependenciesHeader": "Manage dependencies of learning goal '{{goalName}}'",
+    "filter": {
+      "filter": "Filter:",
+      "onlyShowOwnGoals": "Only show own learning goals?"
+    }
   }
 }

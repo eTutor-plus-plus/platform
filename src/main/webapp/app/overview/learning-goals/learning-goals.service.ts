@@ -24,10 +24,14 @@ export class LearningGoalsService {
    * Returns all visible learning goal tree view items.
    *
    * @param userLogin the login of the current user
+   * @param onlyShowOwnGoals indicated whehter only the currently logged-in user's goals
+   * should be displayed (default: false)
    * @returns an observable which contains the list of {@link LearningGoalTreeviewItem}.
    */
-  public getAllVisibleLearningGoalsAsTreeViewItems(userLogin: string): Observable<LearningGoalTreeviewItem[]> {
-    return this.http.get<ILearningGoalModel[]>(SERVER_API_URL + 'api/learninggoals').pipe(
+  public getAllVisibleLearningGoalsAsTreeViewItems(userLogin: string, onlyShowOwnGoals = false): Observable<LearningGoalTreeviewItem[]> {
+    const url = `${SERVER_API_URL}api/learninggoals?showOnlyOwnGoals=${onlyShowOwnGoals ? 'true' : false}`;
+
+    return this.http.get<ILearningGoalModel[]>(url).pipe(
       map(list => {
         const retList: LearningGoalTreeviewItem[] = [];
 

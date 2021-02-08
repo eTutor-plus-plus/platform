@@ -41,6 +41,13 @@
 </div>
 <div class="row">
     <div class="col-3">
+        <h5 jhiTranslate="learningGoalManagement.filter.filter">Filter:</h5>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="showOnlyUserGoals" [ngModelOptions]="{standalone: true}" (change)="onFilterChanged()" />
+            <label class="form-check-label" jhiTranslate="learningGoalManagement.filter.onlyShowOwnGoals">Only show own learning goals?</label>
+        </div>
+        <br />
+
         <jhi-learning-goal-treeview [items]="learningGoals" [itemTemplate]="goalTemplate">
         </jhi-learning-goal-treeview>
     </div>

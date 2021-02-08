@@ -17,6 +17,10 @@
     "assignedTasks": "Zugeordnete Aufgaben",
     "dependencies": "Abhängigkeiten",
     "manageDependencies": "Abhängigkeiten verwalten",
-    "manageDependenciesHeader": "Abhängigkeiten vom Lernziel '{{goalName}}' verwalten"
+    "manageDependenciesHeader": "Abhängigkeiten vom Lernziel '{{goalName}}' verwalten",
+    "filter": {
+      "filter": "Filter:",
+      "onlyShowOwnGoals": "Nur die eigenen Lernziele anzeigen?"
+    }
   }
 }

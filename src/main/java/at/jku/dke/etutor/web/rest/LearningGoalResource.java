@@ -192,14 +192,15 @@ public class LearningGoalResource {
      * Returns a list of all learning goals which are visible to the current user.
      * </p>
      *
+     * @param showOnlyOwnGoals indicated whether only the user's goals should be displayed or all goals (from the query parameters)
      * @return {@link ResponseEntity} with status {@code 200 (OK)} and the list of visible learning goals in body
      */
     @GetMapping("/learninggoals")
-    public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals() {
+    public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals(@RequestParam(value = "showOnlyOwnGoals", required = false, defaultValue = "false") boolean showOnlyOwnGoals) {
 
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
-            var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin);
+            var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin, showOnlyOwnGoals);
             return ResponseEntity.ok(goals);
         } catch (InternalModelException ex) {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");

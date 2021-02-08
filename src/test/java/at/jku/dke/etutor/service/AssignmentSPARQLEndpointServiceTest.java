@@ -99,7 +99,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testInsertNewTaskAssignmentAndGetAssignmentsOfGoal() throws InternalModelException {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -125,7 +125,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testInsertNewTaskAssignmentWithoutBlankFields() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -163,7 +163,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testRemoveTaskAssignment() throws InternalModelException {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -202,7 +202,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testUpdateTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -226,7 +226,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testUpdateTaskAssignmentWithAllFields() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -285,7 +285,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testSetAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -409,7 +409,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testGetLearningGoalIdsOfTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         insertTestAssignmentsForFulltextSearch();
         List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
         TaskAssignmentDTO task = tasks.get(0);
@@ -431,7 +431,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testGetTasksOfLearningGoal() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         insertTestAssignmentsForFulltextSearch();
         List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", OWNER);
         TaskAssignmentDTO task = tasks.get(0);

@@ -76,7 +76,7 @@ public class SPARQLEndpointServiceTest {
 
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
 
-        SortedSet<LearningGoalDTO> goals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin");
+        SortedSet<LearningGoalDTO> goals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", false);
 
         assertThat(goals.size()).isEqualTo(1);
 
@@ -245,7 +245,7 @@ public class SPARQLEndpointServiceTest {
 
         sparqlEndpointService.updateLearningGoal(learningGoalDTO);
 
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(owner);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(owner, false);
 
         assertThat(goals.size()).isEqualTo(1);
 
@@ -310,7 +310,7 @@ public class SPARQLEndpointServiceTest {
         goal.setPrivateGoal(true);
         sparqlEndpointService.updateLearningGoal(goal);
 
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(owner);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(owner, false);
 
         assertThat(goals.size()).isEqualTo(1);
         goal = goals.first();

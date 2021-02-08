@@ -20,6 +20,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -324,60 +325,109 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     /**
      * Returns all learning goals which are visible for the given owner.
      *
-     * @param owner the owner of requested learning goals
+     * @param owner            the owner of requested learning goals
+     * @param showOnlyOwnGoals {@code} true, if only the user's own goals should be displayed, otherwise {@code false}
      * @return a list of all {@link LearningGoalDTO} which are visible for the given owner
      * @throws InternalModelException if the internal date format is not valid
      */
-    public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner) throws InternalModelException {
-        String queryStr = String.format("""
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    public SortedSet<LearningGoalDTO> getVisibleLearningGoalsForUser(String owner, boolean showOnlyOwnGoals) throws InternalModelException {
+        String queryStr;
 
-            CONSTRUCT {
-              ?subject ?predicate ?object.
-              ?subject etutor:hasReferenceCnt ?cnt.
-              ?subject etutor:hasRoot ?root
-            } WHERE {
-              {
-                ?subject ?predicate ?object.
-                ?subject a etutor:Goal.
-                ?subject rdfs:label ?lbl
-                {
-                  ?subject etutor:isPrivate false.
-                }
-                UNION
-                {
-                  ?subject etutor:isPrivate true.
-                  ?subject etutor:hasOwner "%s".
-                }\s
-              } UNION {
-                BIND(rdf:type AS ?predicate)
-                BIND(etutor:SubGoal AS ?object)
-                ?goal etutor:hasSubGoal ?subject .
-              } {
-                SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                  ?subject a etutor:Goal.
-                  OPTIONAL { ?course etutor:hasGoal ?subject }
-                }
-                GROUP BY ?subject
-              } {
-                SELECT ?subject ?root WHERE {
-                  ?root etutor:hasSubGoal* ?subject.
-                  FILTER (
-                    !EXISTS {
-                      ?otherGoal etutor:hasSubGoal ?root.
+        if (showOnlyOwnGoals) {
+            queryStr = """
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+                CONSTRUCT {
+                  ?subject ?predicate ?object.
+                  ?subject etutor:hasReferenceCnt ?cnt.
+                  ?subject etutor:hasRoot ?root
+                } WHERE {
+                  {
+                    ?subject ?predicate ?object.
+                    ?subject a etutor:Goal.
+                    ?subject rdfs:label ?lbl
+                    {
+                      ?subject etutor:hasOwner ?currentUser.
                     }
-                  )
+                  } UNION {
+                    BIND(rdf:type AS ?predicate)
+                    BIND(etutor:SubGoal AS ?object)
+                    ?goal etutor:hasSubGoal ?subject .
+                    ?goal etutor:hasOwner ?currentUser.
+                  } {
+                    SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                      ?subject a etutor:Goal.
+                      OPTIONAL { ?course etutor:hasGoal ?subject }
+                    }
+                    GROUP BY ?subject
+                  } {
+                    SELECT ?subject ?root WHERE {
+                      ?root etutor:hasSubGoal* ?subject.
+                      FILTER (
+                        !EXISTS {
+                          ?otherGoal etutor:hasSubGoal ?root.
+                        }
+                      )
+                    }
+                  }
                 }
-              }
-            }
-              """, owner);
+                """;
+        } else {
+            queryStr = """
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+                CONSTRUCT {
+                  ?subject ?predicate ?object.
+                  ?subject etutor:hasReferenceCnt ?cnt.
+                  ?subject etutor:hasRoot ?root
+                } WHERE {
+                  {
+                    ?subject ?predicate ?object.
+                    ?subject a etutor:Goal.
+                    ?subject rdfs:label ?lbl
+                    {
+                      ?subject etutor:isPrivate false.
+                    }
+                    UNION
+                    {
+                      ?subject etutor:isPrivate true.
+                      ?subject etutor:hasOwner ?currentUser.
+                    }
+                  } UNION {
+                    BIND(rdf:type AS ?predicate)
+                    BIND(etutor:SubGoal AS ?object)
+                    ?goal etutor:hasSubGoal ?subject .
+                  } {
+                    SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                      ?subject a etutor:Goal.
+                      OPTIONAL { ?course etutor:hasGoal ?subject }
+                    }
+                    GROUP BY ?subject
+                  } {
+                    SELECT ?subject ?root WHERE {
+                      ?root etutor:hasSubGoal* ?subject.
+                      FILTER (
+                        !EXISTS {
+                          ?otherGoal etutor:hasSubGoal ?root.
+                        }
+                      )
+                    }
+                  }
+                }
+                """;
+        }
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(queryStr);
+        qry.setLiteral("?currentUser", owner);
 
         SortedSet<LearningGoalDTO> goalList = new TreeSet<>();
 
         try (RDFConnection conn = getConnection()) {
-            Model resultModel = conn.queryConstruct(queryStr);
+            Model resultModel = conn.queryConstruct(qry.asQuery());
             ResIterator iterator = null;
 
             try {

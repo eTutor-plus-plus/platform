@@ -34,6 +34,8 @@ export class LearningGoalsComponent implements OnInit {
   public showCreateLearningGoalComponent = false;
   public username!: string;
 
+  public showOnlyUserGoals = false;
+
   /**
    * Constructor
    *
@@ -63,7 +65,9 @@ export class LearningGoalsComponent implements OnInit {
    */
   public async loadLearningGoalsAsync(): Promise<void> {
     this.learningGoals.length = 0;
-    const list = await this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this.username).toPromise();
+    const list = await this.learningGoalsService
+      .getAllVisibleLearningGoalsAsTreeViewItems(this.username, this.showOnlyUserGoals)
+      .toPromise();
     list.forEach(x => this.learningGoals.push(x));
   }
 
@@ -139,5 +143,12 @@ export class LearningGoalsComponent implements OnInit {
    */
   public isCurrentUserAllowedToEdit(item: LearningGoalTreeviewItem): boolean {
     return item.isUserAllowedToModify();
+  }
+
+  /**
+   * Event handler for filter changes
+   */
+  public onFilterChanged(): void {
+    this.loadLearningGoalsAsync();
   }
 }

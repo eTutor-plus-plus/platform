@@ -89,7 +89,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(1)
     public void testAddNewTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -123,7 +123,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(2)
     public void testGetTaskAssignmentsOfGoal() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
 
         var result = restTaskAssignmentMockMvc.perform(get(String.format("/api/tasks/assignments/%s/goal/%s", firstGoal.getOwner(), firstGoal.getName())))
@@ -146,7 +146,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(3)
     public void testGetTaskAssignmentsOfEmptyGoal() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var secondGoal = goals.last();
 
         var result = restTaskAssignmentMockMvc.perform(get(String.format("/api/tasks/assignments/%s/goal/%s", secondGoal.getOwner(), secondGoal.getName())))
@@ -168,7 +168,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(4)
     public void testRemoveTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
         assertThat(assignments).isNotEmpty();
@@ -191,7 +191,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(5)
     public void testUpdateNonexistentTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
         TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
@@ -222,7 +222,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(6)
     public void testUpdateTaskAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
         NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
@@ -280,7 +280,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(8)
     public void testSetAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
         List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
@@ -382,7 +382,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(12)
     public void testGetTaskAssignmentByInternalId() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
         List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
@@ -423,7 +423,7 @@ public class TaskAssignmentResourceIT {
     @Order(14)
     @SuppressWarnings("unchecked")
     public void testGetAssignedLearningGoalsOfAssignment() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         insertTestAssignmentsForFulltextSearch();
         List<TaskAssignmentDTO> tasks = assignmentSPARQLEndpointService.getTaskAssignments("for", USERNAME);
         TaskAssignmentDTO task = tasks.get(0);
@@ -451,7 +451,7 @@ public class TaskAssignmentResourceIT {
     @Order(15)
     @SuppressWarnings("unchecked")
     public void testGetTasksOfLearningGoal() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
 
         var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), firstGoal.getName()))

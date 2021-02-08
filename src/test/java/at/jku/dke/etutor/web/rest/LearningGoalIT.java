@@ -306,7 +306,7 @@ public class LearningGoalIT {
     @Order(12)
     @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin1")
     public void testUpdateLearningGoalWithOtherUser() throws Exception {
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin");
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", false);
         var goal = goals.first();
 
         restLearningGoalMockMvc.perform(put("/api/learninggoals")
