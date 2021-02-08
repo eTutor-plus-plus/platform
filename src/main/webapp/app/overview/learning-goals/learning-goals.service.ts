@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
 import { convertLearningGoal, ILearningGoalModel, INewLearningGoalModel } from '../shared/learning-goal-model';
@@ -75,5 +75,28 @@ export class LearningGoalsService {
       SERVER_API_URL + `api/learninggoals/${currentUser}/${encodedParentGoalName}/subGoal`,
       newGoal
     );
+  }
+
+  /**
+   * Sets the dependencies of a given goal.
+   *
+   * @param owner the goal's owner
+   * @param goalName the goal's name
+   * @param dependencies the dependency ids
+   */
+  public setDependencies(owner: string, goalName: string, dependencies: string[]): Observable<HttpResponse<any>> {
+    const encodedName = encodeURIComponent(goalName);
+    return this.http.put(SERVER_API_URL + `api/learninggoals/${owner}/${encodedName}/dependencies`, dependencies, { observe: 'response' });
+  }
+
+  /**
+   * Returns the dependencies of a given goal.
+   *
+   * @param owner the goal's owner
+   * @param goalName the goal's name
+   */
+  public getDependencies(owner: string, goalName: string): Observable<HttpResponse<string[]>> {
+    const encodedName = encodeURIComponent(goalName);
+    return this.http.get<string[]>(SERVER_API_URL + `api/learninggoals/${owner}/${encodedName}/dependencies`, { observe: 'response' });
   }
 }

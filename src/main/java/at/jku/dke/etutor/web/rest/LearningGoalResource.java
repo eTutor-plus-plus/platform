@@ -6,9 +6,12 @@ import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException;
+import one.util.streamex.IntStreamEx;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.minidev.json.JSONArray;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +21,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * REST controller for managing learning goals.
@@ -100,6 +105,34 @@ public class LearningGoalResource {
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code PUT /learninggoals/:owner/:goalName/dependencies} : Sets the dependencies of a learning goal
+     *
+     * @param owner    the learning goal's owner (from the request path)
+     * @param goalName the learning goal's name (from the request path)
+     * @param goalIds  the dependency ids (from the request body)
+     * @return {@link ResponseEntity} with no content
+     */
+    @PutMapping("/learninggoals/{owner}/{goalName}/dependencies")
+    public ResponseEntity<Void> setDependencies(@PathVariable String owner, @PathVariable String goalName, @RequestBody JSONArray goalIds) {
+        sparqlEndpointService.setDependencies(owner, goalName, StreamEx.of(goalIds).map(x -> (String)x).toList());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET /learninggoals/:owner/:goalName/dependencies} : Returns the dependencies of a learning goal.
+     *
+     * @param owner    the learning goal's owner (from the request path)
+     * @param goalName the learning goal's name (from the request path)
+     * @return the {@link ResponseEntity} containing the goal ids
+     */
+    @GetMapping("/learninggoals/{owner}/{goalName}/dependencies")
+    public ResponseEntity<Collection<String>> getDependencies(@PathVariable String owner, @PathVariable String goalName) {
+        Collection<String> dependencies = sparqlEndpointService.getDependencies(owner, goalName);
+        return ResponseEntity.ok(dependencies);
     }
 
     /**

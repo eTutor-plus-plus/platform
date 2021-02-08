@@ -14,6 +14,8 @@
     "newLearningGoalHeader": "Create new learning goal",
     "updateLearningGoalHeader": "Update learning goal",
     "createSubGoalHeader": "Create sub goal",
-    "assignedTasks": "Assigned tasks"
+    "assignedTasks": "Assigned tasks",
+    "manageDependencies": "Manage dependencies",
+    "manageDependenciesHeader": "Manage dependencies of learning goal '{{goalName}}'"
   }
 }

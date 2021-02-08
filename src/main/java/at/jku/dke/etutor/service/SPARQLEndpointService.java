@@ -92,6 +92,19 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         	?course etutor:hasGoal ?goal
         }
         """;
+
+    private static final String QRY_GOAL_DEPENDENCIES = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT (STR(?otherGoal) AS ?goalId)
+        WHERE {
+          ?goal a etutor:Goal.
+          ?goal etutor:dependsOn ?otherGoal.
+          ?otherGoal rdfs:label ?otherName
+        }
+        ORDER BY (LCASE(?otherName))
+        """;
     //endregion
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
@@ -389,6 +402,80 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     public Boolean isLearningGoalPrivate(String owner, String learningGoalName) {
         try (RDFConnection conn = getConnection()) {
             return isLearningGoalPrivate(conn, owner, learningGoalName);
+        }
+    }
+
+    /**
+     * Sets the dependencies of a specific goal.
+     *
+     * @param owner    the goal's owner
+     * @param goalName the goal's name
+     * @param goalIds  the list of dependency ids
+     */
+    public void setDependencies(String owner, String goalName, List<String> goalIds) {
+        Objects.requireNonNull(owner);
+        Objects.requireNonNull(goalName);
+        Objects.requireNonNull(goalIds);
+
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
+
+        ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?goal etutor:dependsOn ?otherGoal
+            }
+            INSERT {
+            """);
+
+        for (String goalId : goalIds) {
+            updateQry.append("?goal etutor:dependsOn ");
+            updateQry.appendIri(goalId);
+            updateQry.append(".\n");
+        }
+
+        updateQry.append("""
+            }
+            WHERE {
+              ?goal a etutor:Goal
+              OPTIONAL {
+                ?goal etutor:dependsOn ?otherGoal
+              }
+            }
+            """);
+
+        updateQry.setIri("?goal", goalUri);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(updateQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the list of a given goal's dependencies.
+     *
+     * @param owner    the goal's owner
+     * @param goalName the goal's name
+     * @return list of dependency ids
+     */
+    public List<String> getDependencies(String owner, String goalName) {
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_DEPENDENCIES);
+        qry.setIri("?goal", goalUri);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(qry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                List<String> resultIds = new ArrayList<>();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    resultIds.add(solution.getLiteral("?goalId").getString());
+                }
+                return resultIds;
+            }
         }
     }
     //endregion

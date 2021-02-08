@@ -7,6 +7,8 @@ import { LearningGoalCreationComponent } from './learning-goal-creation/learning
 import { AccountService } from '../../core/auth/account.service';
 import { TasksService } from '../tasks/tasks.service';
 import { ITaskAssignmentDisplay } from '../tasks/task.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -36,11 +38,13 @@ export class LearningGoalsComponent implements OnInit {
    * @param learningGoalsService the injected learning goals service
    * @param accountService the injected account service
    * @param tasksService the injected task service
+   * @param modalService the injected modal service
    */
   constructor(
     private learningGoalsService: LearningGoalsService,
     private accountService: AccountService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private modalService: NgbModal
   ) {}
 
   /**
@@ -108,6 +112,16 @@ export class LearningGoalsComponent implements OnInit {
     this.learningGoalCreationComponent.clear();
     this.learningGoalCreationComponent.learningGoal = goalModel;
     this.showCreateLearningGoalComponent = true;
+  }
+
+  /**
+   * Event handler which handles the dependency manager window request for a goal.
+   *
+   * @param goalItem the selected goal item
+   */
+  public onManageDependentGoalsRequested(goalItem: LearningGoalTreeviewItem): void {
+    const modalRef = this.modalService.open(DependencyManagerWindowComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as DependencyManagerWindowComponent).currentGoal = goalItem;
   }
 
   /**
