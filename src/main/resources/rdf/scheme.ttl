@@ -2,6 +2,7 @@
 @prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
 @prefix etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/> .
 @prefix etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#> .
+@prefix etutor-term:       <http://www.dke.uni-linz.ac.at/etutorpp/Term#> .
 @prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 ## Learning goals
@@ -53,7 +54,7 @@ etutor:hasRootGoal
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
-## Coureses
+## Courses
 # Classes
 etutor:Course
     rdf:type rdfs:Class .
@@ -88,6 +89,57 @@ etutor:hasGoal
     rdf:type    rdfs:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  etutor:Goal .
+
+## Course instances
+# Classes
+etutor:CourseInstance
+    rdf:type rdfs:Class .
+
+etutor:Term
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:hasInstanceYear
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  xsd:int .
+
+etutor:hasTerm
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  etutor:Term .
+
+etutor:hasInstanceDescription
+    rdf:type    rdfs:Propery ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  xsd:string .
+
+etutor:hasCourse
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  etutor:Course .
+
+etutor:hasStudent
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  etutor:Student .
+
+# Instances
+etutor-term:Winter
+    a          etutor:Term ;
+    rdfs:label "Wintersemester" .
+
+etutor-term:Summer
+    a          etutor:Term ;
+    rdfs:label "Sommersemester" .
+
+## Students
+# Classes
+etutor:Student
+    rdf:type rdfs:Class .
+
+# Properties
+
 
 ## Assignments
 # Classes
