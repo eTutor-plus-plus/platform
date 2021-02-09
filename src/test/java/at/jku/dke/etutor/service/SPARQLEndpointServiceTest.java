@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 
@@ -349,6 +351,85 @@ public class SPARQLEndpointServiceTest {
 
         assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal))
             .isInstanceOf(PrivateSuperGoalException.class);
+    }
+
+    /**
+     * Tests the get visible learning goals for user method with the option
+     * which only shows the learning goal of the currently logged-in user.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetVisibleLearningGoalsForUser() throws Exception {
+        String newOwner = "test123";
+        String owner = "admin";
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, newOwner);
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        newLearningGoalDTO.setName("Testziel1");
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, newOwner);
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        newLearningGoalDTO.setName("Testziel2");
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, newOwner);
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        var resultList = sparqlEndpointService.getVisibleLearningGoalsForUser(newOwner, true);
+        assertThat(resultList).hasSize(3);
+
+        resultList = sparqlEndpointService.getVisibleLearningGoalsForUser(newOwner, false);
+        assertThat(resultList).hasSize(6);
+    }
+
+    /**
+     * Tests the set dependency method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testSetDependencies() throws Exception {
+        String owner = "admin";
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testziel");
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        List<String> ids = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+
+        String mainGoalName = "Testziel";
+
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        for (int i = 1; i <= 5; i++) {
+            String name = "Test " + i;
+            names.add(name);
+            newLearningGoalDTO.setName(name);
+            ids.add(sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner).getId());
+        }
+
+        sparqlEndpointService.setDependencies(owner, mainGoalName, ids);
+
+        List<String> dependenciesFromService = sparqlEndpointService.getDependencies(owner, mainGoalName);
+        assertThat(dependenciesFromService).containsExactlyInAnyOrderElementsOf(ids);
+
+        List<String> dependencyNames = sparqlEndpointService.getDisplayableDependencies(owner, mainGoalName);
+        assertThat(dependencyNames).containsExactlyInAnyOrderElementsOf(names);
+
+        sparqlEndpointService.setDependencies(owner, mainGoalName, new ArrayList<>());
+        dependenciesFromService = sparqlEndpointService.getDependencies(owner, mainGoalName);
+        assertThat(dependenciesFromService).isEmpty();
+
+        dependencyNames = sparqlEndpointService.getDisplayableDependencies(owner, mainGoalName);
+        assertThat(dependencyNames).isEmpty();
     }
     //endregion
 

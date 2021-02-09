@@ -17,6 +17,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -314,5 +316,77 @@ public class LearningGoalIT {
             .content(TestUtil.convertObjectToJsonBytes(goal)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("learningGoalNotOwner"));
+    }
+
+    /**
+     * Tests the set and get dependencies endpoints.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(13)
+    public void testSetGetDependencies() throws Exception {
+        String owner = "admin";
+        String mainGoalName = "Testziel123";
+
+        NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName(mainGoalName);
+        newLearningGoalDTO.setDescription(null);
+        newLearningGoalDTO.setPrivateGoal(false);
+
+        List<String> ids = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+
+        sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
+
+        for (int i = 1; i <= 5; i++) {
+            String name = "Test " + i;
+            names.add(name);
+            newLearningGoalDTO.setName(name);
+            ids.add(sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner).getId());
+        }
+
+        restLearningGoalMockMvc.perform(put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(ids)))
+            .andExpect(status().isNoContent());
+
+        var result = restLearningGoalMockMvc.perform(get("/api/learninggoals/{owner}/{goalName}/dependencies",
+            owner, mainGoalName))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        List<String> list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+        assertThat(list).containsExactlyInAnyOrderElementsOf(ids);
+    }
+
+    /**
+     * Tests the set and get dependencies endpoint with empty dependencies
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(14)
+    public void testSetGetDependenciesEmpty() throws Exception {
+        String owner = "admin";
+        String mainGoalName = "Testziel123";
+
+        restLearningGoalMockMvc.perform(put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(new ArrayList<String>())))
+            .andExpect(status().isNoContent());
+
+        var result = restLearningGoalMockMvc.perform(get("/api/learninggoals/{owner}/{goalName}/dependencies",
+            owner, mainGoalName))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        @SuppressWarnings("unchecked")
+        List<String> list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
+
+        assertThat(list).isEmpty();
     }
 }
