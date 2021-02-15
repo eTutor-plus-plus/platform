@@ -6,6 +6,7 @@ import at.jku.dke.etutor.repository.*;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.dto.UserDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import io.github.jhipster.security.RandomUtil;
 import one.util.streamex.StreamEx;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -340,5 +340,27 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
         return authorityRepository.getClientAuthorities();
+    }
+
+    /**
+     * Returns the list of those students whose matriculation number
+     * is in the given list.
+     *
+     * @param matriculationNumbers list of matriculation numbers
+     * @return list of student info dtos
+     */
+    @Transactional(readOnly = true)
+    public List<StudentInfoDTO> getStudentInfo(List<String> matriculationNumbers) {
+        return studentRepository.getStudentInfos(matriculationNumbers);
+    }
+
+    /**
+     * Returns the list of available students.
+     *
+     * @return the list of available students
+     */
+    @Transactional(readOnly = true)
+    public List<StudentInfoDTO> getAvailableStudents() {
+        return studentRepository.getAvailableStudentInfos();
     }
 }
