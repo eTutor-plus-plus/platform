@@ -20,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -362,5 +359,17 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<StudentInfoDTO> getAvailableStudents() {
         return studentRepository.getAvailableStudentInfos();
+    }
+
+    /**
+     * Returns the map of those students whose matriculation number
+     * is in the given list
+     *
+     * @param matriculationNumbers list of matriculation numbers
+     * @return map of students (the matriculation number is the key)
+     */
+    @Transactional(readOnly = true)
+    public Map<String, StudentInfoDTO> getStudentInfoAsMap(List<String> matriculationNumbers) {
+        return studentRepository.getStudentInfosAsMap(matriculationNumbers);
     }
 }

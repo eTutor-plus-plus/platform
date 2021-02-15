@@ -3,6 +3,7 @@ package at.jku.dke.etutor.repository;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Custom student repository.
@@ -25,4 +26,13 @@ public interface StudentRepositoryCustom {
      * @return the list of available students
      */
     List<StudentInfoDTO> getAvailableStudentInfos();
+
+    /**
+     * Returns the student information map for the given
+     * matriculation numbers.
+     *
+     * @param matriculationNumbers the list of matriculation numbers
+     * @return the map of student info dtos (the matriculation number is the key)
+     */
+    Map<String, StudentInfoDTO> getStudentInfosAsMap(List<String> matriculationNumbers);
 }

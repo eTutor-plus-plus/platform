@@ -16,6 +16,7 @@ public class CourseInstanceDTO {
     private String id;
     private List<StudentInfoDTO> students;
     private String courseName;
+    private String instanceName;
 
     /**
      * Constructor.
@@ -27,20 +28,23 @@ public class CourseInstanceDTO {
     /**
      * Constructor.
      *
-     * @param year        the year
-     * @param termId      the term id
-     * @param description the description
-     * @param id          the internal id
-     * @param students    the list of students
-     * @param courseName  the name of the underlying course
+     * @param year         the year
+     * @param termId       the term id
+     * @param description  the description
+     * @param id           the internal id
+     * @param students     the list of students
+     * @param courseName   the name of the underlying course
+     * @param instanceName the instance name
      */
-    public CourseInstanceDTO(int year, String termId, String description, String id, List<StudentInfoDTO> students, String courseName) {
+    public CourseInstanceDTO(int year, String termId, String description, String id, List<StudentInfoDTO> students, String courseName,
+                             String instanceName) {
         this.year = year;
         this.termId = termId;
         this.description = description;
         this.id = id;
         this.students = students;
         this.courseName = courseName;
+        this.instanceName = instanceName;
     }
 
     /**
@@ -149,5 +153,23 @@ public class CourseInstanceDTO {
      */
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    /**
+     * Returns the instance name.
+     *
+     * @return the instance name
+     */
+    public String getInstanceName() {
+        return instanceName;
+    }
+
+    /**
+     * Sets the instance name.
+     *
+     * @param instanceName the instance name to set
+     */
+    public void setInstanceName(String instanceName) {
+        this.instanceName = instanceName;
     }
 }

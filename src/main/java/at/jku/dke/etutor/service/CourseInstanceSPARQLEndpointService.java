@@ -4,30 +4,26 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * SPARQL endpoint service for managing course instances.
  */
 @Service
 public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
-
     private static final String QRY_ASK_COURSE_INSTANCE_EXISTS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
@@ -36,13 +32,50 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         """;
 
+    private static final String QRY_ASK_COURSE_EXISTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?course a etutor:Course
+        }
+        """;
+
+    private static final String QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE = """
+         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+         CONSTRUCT {
+           ?courseInstance ?predicate ?object.
+           ?course rdfs:label ?courseName.
+           ?course a etutor:Course.
+           ?courseInstance etutor:hasStudent ?student.
+           ?student rdfs:label ?matriklNr.
+           ?student a etutor:Student.
+         }
+         WHERE {
+           ?courseInstance etutor:hasCourse ?course.
+           ?course rdfs:label ?courseName.
+           ?courseInstance a etutor:CourseInstance.
+           ?courseInstance ?predicate ?object.
+           OPTIONAL {
+             ?courseInstance etutor:hasStudent ?student.
+             ?student rdfs:label ?matriklNr.
+           }
+         }
+        """;
+
+    private final UserService userService;
+
     /**
      * Constructor.
      *
      * @param rdfConnectionFactory the injected rdf connection factory
+     * @param userService          the injected user service
      */
-    public CourseInstanceSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
+    public CourseInstanceSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory, UserService userService) {
         super(rdfConnectionFactory);
+
+        this.userService = userService;
     }
 
     /**
@@ -127,6 +160,60 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
     }
 
     /**
+     * Returns the instances of the given course.
+     *
+     * @param courseName the name of the course
+     * @return sorted set of course instances
+     * @throws CourseNotFoundException if the given course can not be found
+     */
+    public SortedSet<CourseInstanceDTO> getInstancesOfCourse(String courseName) throws CourseNotFoundException {
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE);
+        String courseId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Course#%s", courseName.replace(' ', '_'));
+        qry.setIri("?course", courseId);
+
+        ParameterizedSparqlString courseExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_EXISTS);
+        courseExistsQry.setIri("?course", courseId);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseExists = connection.queryAsk(courseExistsQry.asQuery());
+
+            if (!courseExists) {
+                throw new CourseNotFoundException();
+            }
+
+            Model model = connection.queryConstruct(qry.asQuery());
+
+            SortedSet<CourseInstanceDTO> courseInstances = new TreeSet<>(Comparator.comparing(CourseInstanceDTO::getInstanceName)
+                .thenComparing(CourseInstanceDTO::getId));
+
+            List<String> matriculationNumbers = new ArrayList<>();
+            ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
+            try {
+                while (iterator.hasNext()) {
+                    Resource resource = iterator.nextResource();
+                    String matriculationNumber = resource.getProperty(RDFS.label).getLiteral().getString();
+                    matriculationNumbers.add(matriculationNumber);
+                }
+            } finally {
+                iterator.close();
+            }
+            Map<String, StudentInfoDTO> studentCache = userService.getStudentInfoAsMap(matriculationNumbers);
+
+            iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.CourseInstance);
+            try {
+                while (iterator.hasNext()) {
+                    Resource courseInstanceResource = iterator.nextResource();
+                    courseInstances.add(constructCourseInstanceDTOFromResource(courseInstanceResource, studentCache));
+                }
+            } finally {
+                iterator.close();
+            }
+
+            return courseInstances;
+        }
+    }
+
+    /**
      * Creates a new course instance from the given dto.
      *
      * @param newCourseInstanceDTO the dto
@@ -202,5 +289,40 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         query.setIri("?instance", courseInstanceId);
 
         connection.update(query.asUpdate());
+    }
+
+    /**
+     * Constructs a course instance DTO from the given resource and student cache.
+     *
+     * @param resource     the resource from the rdf graph
+     * @param studentCache the student cache (the key represents the matriculation number)
+     * @return course instance DTO
+     */
+    private CourseInstanceDTO constructCourseInstanceDTOFromResource(Resource resource, Map<String, StudentInfoDTO> studentCache) {
+        int year = resource.getProperty(ETutorVocabulary.hasInstanceYear).getInt();
+        String termId = resource.getProperty(ETutorVocabulary.hasTerm).getObject().asResource().getURI();
+
+        Statement descriptionStatement = resource.getProperty(ETutorVocabulary.hasInstanceDescription);
+        String description = null;
+        if (descriptionStatement != null) {
+            description = descriptionStatement.getLiteral().getString();
+        }
+        String id = resource.getURI();
+        String courseName = resource.getProperty(ETutorVocabulary.hasCourse).getProperty(RDFS.label).getString();
+        String instanceName = resource.getProperty(RDFS.label).getString();
+        List<StudentInfoDTO> students = new ArrayList<>();
+
+        StmtIterator studentIterator = resource.listProperties(ETutorVocabulary.hasStudent);
+        try {
+            while (studentIterator.hasNext()) {
+                Statement statement = studentIterator.nextStatement();
+                String matriculationNumber = statement.getObject().asResource().getProperty(RDFS.label).getString();
+                students.add(studentCache.get(matriculationNumber));
+            }
+        } finally {
+            studentIterator.close();
+        }
+
+        return new CourseInstanceDTO(year, termId, description, id, students, courseName, instanceName);
     }
 }
