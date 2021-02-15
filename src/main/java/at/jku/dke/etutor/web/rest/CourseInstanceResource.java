@@ -15,6 +15,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * REST controller for managing course instances.
@@ -87,5 +88,18 @@ public class CourseInstanceResource {
         } catch (at.jku.dke.etutor.service.CourseNotFoundException courseNotFoundException) {
             throw new CourseNotFoundException();
         }
+    }
+
+    /**
+     * {@code GET /api/course-instance/:uuid} : Retrieves a specific course instance.
+     *
+     * @param uuid the course instance's uuid
+     * @return {@link ResponseEntity} containing the course instance object
+     */
+    @GetMapping("{uuid}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<CourseInstanceDTO> getCourseInstance(@PathVariable(name = "uuid") String uuid) {
+        Optional<CourseInstanceDTO> optionalCourseInstance = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
+        return ResponseEntity.of(optionalCourseInstance);
     }
 }

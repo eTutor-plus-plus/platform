@@ -186,18 +186,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             SortedSet<CourseInstanceDTO> courseInstances = new TreeSet<>(Comparator.comparing(CourseInstanceDTO::getInstanceName)
                 .thenComparing(CourseInstanceDTO::getId));
 
-            List<String> matriculationNumbers = new ArrayList<>();
             ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
-            try {
-                while (iterator.hasNext()) {
-                    Resource resource = iterator.nextResource();
-                    String matriculationNumber = resource.getProperty(RDFS.label).getLiteral().getString();
-                    matriculationNumbers.add(matriculationNumber);
-                }
-            } finally {
-                iterator.close();
-            }
-            Map<String, StudentInfoDTO> studentCache = userService.getStudentInfoAsMap(matriculationNumbers);
+            Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
 
             iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.CourseInstance);
             try {
@@ -211,6 +201,52 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             return courseInstances;
         }
+    }
+
+    /**
+     * Returns a specific course instance.
+     *
+     * @param uuid the internal uuid of the course instance
+     * @return {@link Optional} which is either empty or contains the specific course instance object
+     */
+    public Optional<CourseInstanceDTO> getCourseInstance(String uuid) {
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(uuid);
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE);
+        qry.setIri("?courseInstance", courseInstanceId);
+
+        try (RDFConnection connection = getConnection()) {
+            Model model = connection.queryConstruct(qry.asQuery());
+
+            if (model.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Resource courseInstanceResource = model.getResource(courseInstanceId);
+            ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
+            Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
+
+            return Optional.of(constructCourseInstanceDTOFromResource(courseInstanceResource, studentCache));
+        }
+    }
+
+    /**
+     * Returns the student info cache from a given student iterator.
+     *
+     * @param studentIterator the student iterator
+     * @return map of student infos where the key is the matriculation number
+     */
+    private Map<String, StudentInfoDTO> getStudentCache(ResIterator studentIterator) {
+        List<String> matriculationNumbers = new ArrayList<>();
+        try {
+            while (studentIterator.hasNext()) {
+                Resource resource = studentIterator.nextResource();
+                String matriculationNumber = resource.getProperty(RDFS.label).getLiteral().getString();
+                matriculationNumbers.add(matriculationNumber);
+            }
+        } finally {
+            studentIterator.close();
+        }
+        return userService.getStudentInfoAsMap(matriculationNumbers);
     }
 
     /**
