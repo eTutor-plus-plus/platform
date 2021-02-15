@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -17,6 +18,8 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -24,6 +27,15 @@ import java.util.UUID;
  */
 @Service
 public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
+
+    private static final String QRY_ASK_COURSE_INSTANCE_EXISTS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?courseInstance a etutor:CourseInstance
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -51,6 +63,66 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             copyLearningGoalsIntoNamedCourseInstanceGraph(resource.getURI(), connection);
 
             return resource.getURI();
+        }
+    }
+
+    /**
+     * Sets the students for this course instance.
+     *
+     * @param matriculationNumbers the list of the students' matriculation numbers.
+     * @param courseInstanceId     the internal id of the course instance
+     * @throws CourseInstanceNotFoundException if the course instance cannot be found.
+     */
+    public void setStudentsOfCourseInstance(List<String> matriculationNumbers, String courseInstanceId) throws CourseInstanceNotFoundException {
+        Objects.requireNonNull(matriculationNumbers);
+        Objects.requireNonNull(courseInstanceId);
+
+        ParameterizedSparqlString courseInstanceExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_INSTANCE_EXISTS);
+        courseInstanceExistsQry.setIri("?courseInstance", courseInstanceId);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseInstanceExists = connection.queryAsk(courseInstanceExistsQry.asQuery());
+
+            if (!courseInstanceExists) {
+                throw new CourseInstanceNotFoundException();
+            }
+
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+                DELETE {
+                  ?courseInstance etutor:hasStudent ?student.
+                  ?student a etutor:Student.
+                  ?student rdfs:label ?matriculationNr.
+                } INSERT {
+                """);
+
+            for (String matriculationNumber : matriculationNumbers) {
+                String studentUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Student#%s", matriculationNumber);
+                updateQry.appendIri(courseInstanceId);
+                updateQry.append(" etutor:hasStudent ");
+                updateQry.appendIri(studentUri);
+                updateQry.append(".\n");
+                updateQry.appendIri(studentUri);
+                updateQry.append(" a etutor:Student.\n");
+                updateQry.appendIri(studentUri);
+                updateQry.append(" rdfs:label ");
+                updateQry.appendLiteral(matriculationNumber);
+                updateQry.append(".\n");
+            }
+
+            updateQry.append("""
+                } WHERE {
+                  ?courseInstance a etutor:CourseInstance.
+                  OPTIONAL {
+                    ?courseInstance etutor:hasStudent ?student.
+                    ?student rdfs:label ?matriculationNr.
+                  }
+                }
+                """);
+
+            connection.update(updateQry.asUpdate());
         }
     }
 

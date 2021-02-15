@@ -157,7 +157,8 @@
     "learningGoalAssignmentNonExistent": "The learning goal assignment does not exist!",
     "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!",
     "taskAssignmentNotFound": "The task assignment does not exist!",
-    "taskNotOwner": "Only the creator of the task is allowed to edit it!"
+    "taskNotOwner": "Only the creator of the task is allowed to edit it!",
+    "courseInstanceNotFound": "The course instance can not be found!"
   },
   "footer": {
     "contact": "Contact",

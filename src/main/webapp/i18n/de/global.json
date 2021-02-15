@@ -157,7 +157,8 @@
     "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
     "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!",
     "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
-    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!"
+    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!",
+    "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!"
   },
   "footer": {
     "contact": "Kontakt",
