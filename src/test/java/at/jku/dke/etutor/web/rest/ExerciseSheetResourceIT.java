@@ -31,6 +31,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Test class for the exercise sheet resource endpoint.
+ *
+ * @author fne
+ */
 @AutoConfigureMockMvc
 @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
@@ -61,6 +66,8 @@ public class ExerciseSheetResourceIT {
     @BeforeAll
     public void initBeforeAllTests() throws Exception {
         rdfConnectionFactory.clearDataset();
+
+        sparqlEndpointService.insertScheme();
 
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("TestGoal1");

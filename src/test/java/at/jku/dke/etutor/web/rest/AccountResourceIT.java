@@ -12,8 +12,11 @@ import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser(value = TEST_USER_LOGIN)
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AccountResourceIT {
     static final String TEST_USER_LOGIN = "test";
 
@@ -60,6 +64,15 @@ public class AccountResourceIT {
 
     @Autowired
     private MockMvc restAccountMockMvc;
+
+    @Autowired
+    private SpringLiquibase springLiquibase;
+
+    @BeforeAll
+    public void setup() throws Exception {
+        springLiquibase.setDropFirst(true);
+        springLiquibase.afterPropertiesSet();
+    }
 
     @Test
     @WithUnauthenticatedMockUser
