@@ -50,7 +50,7 @@ public class CourseInstanceResource {
             String id = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
             String uuid = id.substring(id.lastIndexOf('#') + 1);
 
-            return ResponseEntity.created(new URI(String.format("/api/course-instance/%s", uuid))).body(id);
+            return ResponseEntity.created(new URI(String.format("/api/course-instance/%s", uuid))).body(String.format("\"%s\"", id));
         } catch (at.jku.dke.etutor.service.CourseNotFoundException courseNotFoundException) {
             throw new CourseNotFoundException();
         }

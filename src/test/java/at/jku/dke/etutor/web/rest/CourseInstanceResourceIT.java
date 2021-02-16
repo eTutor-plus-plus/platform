@@ -155,7 +155,7 @@ public class CourseInstanceResourceIT {
 
         String jsonData = result.getResponse().getContentAsString();
         CourseInstanceDTO courseInstanceDTO = TestUtil.convertFromJSONString(jsonData, CourseInstanceDTO.class);
-        assertThat(courseInstanceDTO.getId()).isEqualTo(newId);
+        assertThat(newId).isEqualTo(String.format("\"%s\"", courseInstanceDTO.getId()));
         assertThat(courseInstanceDTO.getCourseName()).isEqualTo(course.getName());
         assertThat(courseInstanceDTO.getTermId()).isEqualTo(newCourseInstanceDTO.getTermId());
         assertThat(courseInstanceDTO.getStudents()).isEmpty();
@@ -166,7 +166,7 @@ public class CourseInstanceResourceIT {
                 }
             }
             """);
-        graphQry.setIri("?graph", newId);
+        graphQry.setIri("?graph", newId.substring(1, newId.length() - 1));
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             assertThat(connection.queryAsk(graphQry.asQuery())).isTrue();
         }

@@ -10,6 +10,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 import { OverviewSharedModule } from '../shared/overview-shared.module';
+import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
 
 /**
  * The module for course management related components.
@@ -32,6 +33,7 @@ import { OverviewSharedModule } from '../shared/overview-shared.module';
     ViewCourseComponent,
     LearningGoalAssignmentUpdateComponent,
     LearningGoalAssignmentDisplayComponent,
+    CourseInstanceCreationComponent,
   ],
 })
 export class CourseManagementModule {}

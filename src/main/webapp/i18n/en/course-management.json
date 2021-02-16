@@ -41,6 +41,18 @@
       "availableGoals": "Available learning goals",
       "selectedGoals": "Selected learning goals",
       "displayModalHeader": "Display learning goal assignment"
+    },
+    "showInstances": "Show instances",
+    "createInstance": "Create instance",
+    "instances": {
+      "modalHeader": "Create new course instance of the course '{{courseName}}'",
+      "year": "Year:",
+      "term": "Term:",
+      "description": "Description:"
+    },
+    "terms": {
+      "summer": "Summer term",
+      "winter": "Winter term"
     }
   }
 }

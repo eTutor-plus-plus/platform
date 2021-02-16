@@ -27,6 +27,7 @@
     "angular-confirmation-popover": "^6.0.0",
     "bootstrap": "4.5.0",
     "bootswatch": "4.5.0",
+    "date-fns": "^2.17.0",
     "lodash": "^4.17.20",
     "moment": "2.27.0",
     "ng-jhipster": "0.14.0",

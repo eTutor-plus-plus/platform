@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CourseModel, ILearningGoalUpdateAssignment } from './course-mangement.model';
+import { CourseModel, ICourseInstanceDTO, ILearningGoalUpdateAssignment, INewCourseInstanceDTO } from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
 import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../shared/learning-goal-model';
@@ -86,5 +86,24 @@ export class CourseManagementService {
    */
   public setLearningGoalAssignment(learningGoalAssignment: ILearningGoalUpdateAssignment): Observable<any> {
     return this.http.put(SERVER_API_URL + 'api/course/goal', learningGoalAssignment);
+  }
+
+  /**
+   * Creates a new course instance.
+   *
+   * @param newInstance the instance dto
+   */
+  public createInstance(newInstance: INewCourseInstanceDTO): Observable<HttpResponse<string>> {
+    return this.http.post<string>(SERVER_API_URL + 'api/course-instance', newInstance, { observe: 'response' });
+  }
+
+  /**
+   * Returns the instances of the given course name.
+   *
+   * @param courseName the course's name
+   */
+  public getInstancesOfCourse(courseName: string): Observable<ICourseInstanceDTO[]> {
+    const encodedName = encodeURIComponent(courseName);
+    return this.http.get<ICourseInstanceDTO[]>(`${SERVER_API_URL}api/course-instance/instances/of/${encodedName}`);
   }
 }

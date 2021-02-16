@@ -41,6 +41,18 @@
       "availableGoals": "Verfügbare Lernziele",
       "selectedGoals": "Ausgewählte Lernziele",
       "displayModalHeader": "Lernzielzuordnung darstellen"
+    },
+    "showInstances": "Instanzen anzeigen",
+    "createInstance": "Instanz anlegen",
+    "instances": {
+      "modalHeader": "Neue Kursinstanz des Kurses '{{courseName}}' anlegen",
+      "year": "Jahr:",
+      "term": "Semester:",
+      "description": "Beschreibung:"
+    },
+    "terms": {
+      "summer": "Sommersemester",
+      "winter": "Wintersemester"
     }
   }
 }
