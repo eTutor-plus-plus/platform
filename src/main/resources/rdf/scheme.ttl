@@ -53,18 +53,13 @@ etutor:hasRootGoal
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
-## Coureses
+## Courses
 # Classes
 etutor:Course
     rdf:type rdfs:Class .
 
 # Properties
 etutor:hasCourseDescription
-    rdf:type    rdfs:Property ;
-    rdfs:domain etutor:Course ;
-    rdfs:range  xsd:string .
-
-etutor:hasCourseName
     rdf:type    rdfs:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  xsd:string .
