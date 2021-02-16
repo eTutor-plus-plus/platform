@@ -11,25 +11,25 @@ import java.util.List;
  */
 public class CourseInstanceStudentsVM {
     @NotBlank
-    private String courseId;
+    private String courseInstanceId;
     private List<String> matriculationNumbers;
 
     /**
-     * Returns the course id.
+     * Returns the course instance id.
      *
-     * @return the course id
+     * @return the course instance id
      */
-    public String getCourseId() {
-        return courseId;
+    public String getCourseInstanceId() {
+        return courseInstanceId;
     }
 
     /**
-     * Sets the course id.
+     * Sets the course instance id.
      *
-     * @param courseId the course id to set
+     * @param courseInstanceId the course instance id to set
      */
-    public void setCourseId(String courseId) {
-        this.courseId = courseId;
+    public void setCourseInstanceId(String courseInstanceId) {
+        this.courseInstanceId = courseInstanceId;
     }
 
     /**

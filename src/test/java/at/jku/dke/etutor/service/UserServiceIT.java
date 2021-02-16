@@ -8,15 +8,16 @@ import at.jku.dke.etutor.repository.*;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.mapper.UserMapper;
-import at.jku.dke.etutor.startup.ApplicationReadyListener;
 import io.github.jhipster.security.RandomUtil;
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.when;
  */
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 public class UserServiceIT {
 
@@ -71,10 +73,19 @@ public class UserServiceIT {
     @Autowired
     private AuditingHandler auditingHandler;
 
+    @Autowired
+    private SpringLiquibase springLiquibase;
+
     @Mock
     private DateTimeProvider dateTimeProvider;
 
     private User user;
+
+    @BeforeAll
+    public void setup() throws Exception {
+        springLiquibase.setDropFirst(true);
+        springLiquibase.afterPropertiesSet();
+    }
 
     @BeforeEach
     public void init() {

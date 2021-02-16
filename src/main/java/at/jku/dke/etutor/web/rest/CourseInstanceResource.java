@@ -66,7 +66,7 @@ public class CourseInstanceResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> setStudents(@Valid @RequestBody CourseInstanceStudentsVM body) {
         try {
-            courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(body.getMatriculationNumbers(), body.getCourseId());
+            courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(body.getMatriculationNumbers(), body.getCourseInstanceId());
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
