@@ -3,18 +3,26 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
+import io.github.jhipster.web.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -101,5 +109,20 @@ public class CourseInstanceResource {
     public ResponseEntity<CourseInstanceDTO> getCourseInstance(@PathVariable(name = "uuid") String uuid) {
         Optional<CourseInstanceDTO> optionalCourseInstance = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
         return ResponseEntity.of(optionalCourseInstance);
+    }
+
+    /**
+     * {@code GET /api/course-instance/overview-instances/of/:name} : Retrieves the paged overview instances.
+     *
+     * @param name the course name from the request path
+     * @param page the paging information from the request path
+     * @return {@link ResponseEntity} containing the page content
+     */
+    @GetMapping("overview-instances/of/{name}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<DisplayableCourseInstanceDTO>> getPagedCourseInstanceOverview(@PathVariable(name = "name") String name, Pageable page) {
+        Page<DisplayableCourseInstanceDTO> overviewPage = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(name, page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), overviewPage);
+        return new ResponseEntity<>(overviewPage.getContent(), headers, HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,9 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -167,6 +171,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @throws CourseNotFoundException if the given course can not be found
      */
     public SortedSet<CourseInstanceDTO> getInstancesOfCourse(String courseName) throws CourseNotFoundException {
+        Objects.requireNonNull(courseName);
+
         ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE);
         String courseId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Course#%s", courseName.replace(' ', '_'));
         qry.setIri("?course", courseId);
@@ -226,6 +232,82 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
 
             return Optional.of(constructCourseInstanceDTOFromResource(courseInstanceResource, studentCache));
+        }
+    }
+
+    /**
+     * Returns the page of displayable course instances.
+     *
+     * @param courseName the course name
+     * @param page       the paging information
+     * @return page of the course instance
+     */
+    public Page<DisplayableCourseInstanceDTO> getDisplayableCourseInstancesOfCourse(String courseName, Pageable page) {
+        Objects.requireNonNull(courseName);
+        Objects.requireNonNull(page);
+
+        String courseId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Course#%s", courseName.replace(' ', '_'));
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT (str(?instance) as ?instanceId) ?year (str(?term) as ?termId) ?instanceName (COUNT(?student) as ?studentCnt)
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?instance etutor:hasCourse ?course.
+              ?instance rdfs:label ?instanceName.
+              ?instance etutor:hasInstanceYear ?year.
+              ?instance etutor:hasTerm ?term.
+              OPTIONAL {
+                ?instance etutor:hasStudent ?student
+              }
+            }
+            GROUP BY ?instance ?year ?term ?instanceName
+            ORDER BY ?year ?term ?instanceName
+            """);
+
+        if (page.isPaged()) {
+            query.append("LIMIT ");
+            query.append(page.getPageSize() + 1);
+            query.append("\nOFFSET ");
+            query.append(page.getOffset());
+        }
+        query.setIri("?course", courseId);
+
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (COUNT(DISTINCT ?instance) as ?cnt)
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?instance etutor:hasCourse ?course.
+            }
+            """);
+        countQry.setIri("?course", courseId);
+
+        try (RDFConnection connection = getConnection()) {
+            List<DisplayableCourseInstanceDTO> list = new ArrayList<>();
+            int count;
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String id = solution.getLiteral("?instanceId").getString();
+                    int year = solution.getLiteral("?year").getInt();
+                    String termId = solution.getLiteral("?termId").getString();
+                    int studentCount = solution.getLiteral("?studentCnt").getInt();
+                    String name = solution.getLiteral("?instanceName").getString();
+                    list.add(new DisplayableCourseInstanceDTO(id, name, studentCount, year, termId));
+                }
+            }
+            try (QueryExecution execution = connection.query(countQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+                set.hasNext();
+                QuerySolution solution = set.nextSolution();
+                count = solution.getLiteral("?cnt").getInt();
+            }
+            return PageableExecutionUtils.getPage(list, page, () -> count);
         }
     }
 
