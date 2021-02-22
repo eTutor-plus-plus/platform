@@ -48,7 +48,15 @@
       "modalHeader": "Neue Kursinstanz des Kurses '{{courseName}}' anlegen",
       "year": "Jahr:",
       "term": "Semester:",
-      "description": "Beschreibung:"
+      "description": "Beschreibung:",
+      "overview": {
+        "back": "Zurück",
+        "header": "Instanzen des Kurses '{{courseName}}'",
+        "name": "Name",
+        "year": "Jahr",
+        "term": "Semester",
+        "studentCount": "Studierendenanzahl"
+      }
     },
     "terms": {
       "summer": "Sommersemester",

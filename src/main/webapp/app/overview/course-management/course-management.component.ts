@@ -12,6 +12,7 @@ import { filter } from 'lodash';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 /**
  * Component which is used to display the course management
@@ -50,13 +51,17 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    * @param eventManager the injected event manager
    * @param translatePipe the injected translate pipe
    * @param modalService the injected modal service
+   * @param router the injected routing service
+   * @param activatedRoute the injected activated route
    */
   constructor(
     private accountService: AccountService,
     private courseService: CourseManagementService,
     private eventManager: JhiEventManager,
     private translatePipe: TranslatePipe,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   /**
@@ -180,7 +185,11 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    *
    * @param course the course whose instances should be displayed
    */
-  public viewInstances(course: CourseModel): void {}
+  public viewInstances(course: CourseModel): void {
+    this.router.navigate(['course-instances', 'of', course.name], {
+      relativeTo: this.activatedRoute,
+    });
+  }
 
   /**
    * Loads the courses asynchronously from the service.

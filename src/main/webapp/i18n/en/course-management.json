@@ -48,7 +48,15 @@
       "modalHeader": "Create new course instance of the course '{{courseName}}'",
       "year": "Year:",
       "term": "Term:",
-      "description": "Description:"
+      "description": "Description:",
+      "overview": {
+        "back": "Back",
+        "header": "Instances of the course '{{courseName}}'",
+        "name": "Name",
+        "year": "Year",
+        "term": "Term",
+        "studentCount": "Student count"
+      }
     },
     "terms": {
       "summer": "Summer term",

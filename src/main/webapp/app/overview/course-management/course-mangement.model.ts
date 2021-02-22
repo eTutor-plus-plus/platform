@@ -89,7 +89,7 @@ export class Term {
    * @param url the url
    */
   public static fromString(url: string): Term | undefined {
-    return Term.Values.find(x => x.text === url);
+    return Term.Values.find(x => x.value === url);
   }
 
   /**
@@ -186,4 +186,31 @@ export interface ICourseInstanceDTO {
    * The course instance name.
    */
   instanceName: string;
+}
+
+/**
+ * Interface which represents a displayable
+ * course instance overview entry.
+ */
+export interface IDisplayableCourseInstanceDTO {
+  /**
+   * The internal course instance id.
+   */
+  id: string;
+  /**
+   * The instance name.
+   */
+  name: string;
+  /**
+   * The count of assigned students.
+   */
+  studentCount: number;
+  /**
+   * The year of the holding.
+   */
+  year: number;
+  /**
+   * The term id url
+   */
+  termId: string;
 }

@@ -1,1 +1,43 @@
-<p>course-instance-overview works!</p>
+<h4>{{'courseManagement.instances.overview.header' | translate: {courseName: courseName} }}</h4>
+
+<jhi-alert-error></jhi-alert-error>
+<jhi-alert></jhi-alert>
+
+<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="courseManagement.instances.overview.back">Back</button>
+
+<br >
+<br >
+
+<div class="table-responsive" *ngIf="items">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{'courseManagement.instances.overview.name' | translate}}</th>
+                <th>{{'courseManagement.instances.overview.year' | translate}}</th>
+                <th>{{'courseManagement.instances.overview.term' | translate}}</th>
+                <th>{{'courseManagement.instances.overview.studentCount' | translate}}</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of items; trackBy: trackIdentity">
+                <td>{{item.name}}</td>
+                <td>{{item.year}}</td>
+                <td>{{getTermI18NStringFromURL(item.termId) | translate}}</td>
+                <td>{{item.studentCount}}</td>
+                <td>&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div *ngIf="items">
+    <div class="row justify-content-center">
+        <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+    </div>
+
+    <div class="row justify-content-center">
+        <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [rotate]="true"
+                        [boundaryLinks]="true" (pageChange)="transition()"></ngb-pagination>
+    </div>
+</div>

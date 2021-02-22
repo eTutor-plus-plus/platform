@@ -1,11 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CourseModel, ICourseInstanceDTO, ILearningGoalUpdateAssignment, INewCourseInstanceDTO } from './course-mangement.model';
+import {
+  CourseModel,
+  ICourseInstanceDTO,
+  IDisplayableCourseInstanceDTO,
+  ILearningGoalUpdateAssignment,
+  INewCourseInstanceDTO,
+} from './course-mangement.model';
 import { SERVER_API_URL } from '../../app.constants';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
 import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../shared/learning-goal-model';
 import { map } from 'rxjs/operators';
+import { createRequestOption, Pagination } from '../../shared/util/request-util';
 
 /**
  * Service which manages the courses.
@@ -104,6 +111,23 @@ export class CourseManagementService {
    */
   public getInstancesOfCourse(courseName: string): Observable<ICourseInstanceDTO[]> {
     const encodedName = encodeURIComponent(courseName);
+
     return this.http.get<ICourseInstanceDTO[]>(`${SERVER_API_URL}api/course-instance/instances/of/${encodedName}`);
+  }
+
+  /**
+   * Returns the page data for the instance overview.
+   *
+   * @param courseName the course name
+   * @param page the paging information
+   */
+  public getOverviewInstances(courseName: string, page: Pagination): Observable<HttpResponse<IDisplayableCourseInstanceDTO[]>> {
+    const encodedName = encodeURIComponent(courseName);
+    const options = createRequestOption(page);
+
+    return this.http.get<IDisplayableCourseInstanceDTO[]>(`${SERVER_API_URL}api/course-instance/overview-instances/of/${encodedName}`, {
+      params: options,
+      observe: 'response',
+    });
   }
 }
