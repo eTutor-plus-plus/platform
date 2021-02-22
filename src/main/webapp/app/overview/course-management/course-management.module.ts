@@ -12,6 +12,7 @@ import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignme
 import { OverviewSharedModule } from '../shared/overview-shared.module';
 import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
 import { CourseInstanceOverviewComponent } from './course-instances/course-instance-overview/course-instance-overview.component';
+import { StudentAssignmentModalComponent } from './course-instances/course-instance-overview/student-assignment-modal/student-assignment-modal.component';
 
 /**
  * The module for course management related components.
@@ -36,6 +37,7 @@ import { CourseInstanceOverviewComponent } from './course-instances/course-insta
     LearningGoalAssignmentDisplayComponent,
     CourseInstanceCreationComponent,
     CourseInstanceOverviewComponent,
+    StudentAssignmentModalComponent,
   ],
 })
 export class CourseManagementModule {}

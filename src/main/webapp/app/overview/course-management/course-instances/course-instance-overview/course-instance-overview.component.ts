@@ -4,6 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { IDisplayableCourseInstanceDTO, Term } from '../../course-mangement.model';
 import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { StudentAssignmentModalComponent } from './student-assignment-modal/student-assignment-modal.component';
+import { JhiEventManager } from 'ng-jhipster';
 
 /**
  * Component for displaying instances from a course.
@@ -15,7 +18,8 @@ import { Subscription } from 'rxjs';
 })
 export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   private _courseName?: string;
-  private routingSubscriptions?: Subscription;
+  private routingSubscription?: Subscription;
+  private studentAssignmentChangedSubscription?: Subscription;
 
   public page = 1;
   public itemsPerPage: number;
@@ -28,8 +32,16 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
    * @param courseService the injected course service
    * @param router the injected routing service
    * @param activatedRoute the injected activated route service
+   * @param modalService the injected modal service
+   * @param eventManager the injected jhi event manager
    */
-  constructor(private courseService: CourseManagementService, private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private courseService: CourseManagementService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private modalService: NgbModal,
+    private eventManager: JhiEventManager
+  ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
 
@@ -37,15 +49,21 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
    * Implements the init method. See {@code OnInit}.
    */
   public ngOnInit(): void {
-    this.routingSubscriptions = this.activatedRoute.paramMap.subscribe(paramMap => (this.courseName = paramMap.get('courseName')!));
+    this.routingSubscription = this.activatedRoute.paramMap.subscribe(paramMap => (this.courseName = paramMap.get('courseName')!));
+    this.studentAssignmentChangedSubscription = this.eventManager.subscribe('course-instance-stud-assignment-changed', () =>
+      this.loadPageAsync()
+    );
   }
 
   /**
    * Implements the destroy method. See {@code OnDestroy}.
    */
   public ngOnDestroy(): void {
-    if (this.routingSubscriptions) {
-      this.routingSubscriptions.unsubscribe();
+    if (this.routingSubscription) {
+      this.routingSubscription.unsubscribe();
+    }
+    if (this.studentAssignmentChangedSubscription) {
+      this.studentAssignmentChangedSubscription.unsubscribe();
     }
   }
 
@@ -100,6 +118,16 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['../../../'], {
       relativeTo: this.activatedRoute,
     });
+  }
+
+  /**
+   * Opens the student assignment window for the given course instance.
+   *
+   * @param item the current course instance
+   */
+  public showAssignStudentsModalWindow(item: IDisplayableCourseInstanceDTO): void {
+    const modalRef = this.modalService.open(StudentAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as StudentAssignmentModalComponent).courseInstance = item;
   }
 
   /**

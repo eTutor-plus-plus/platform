@@ -5,6 +5,7 @@ import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
@@ -79,6 +80,19 @@ public class CourseInstanceResource {
         } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }
+    }
+
+    /**
+     * {@code GET /api/course-instance/students/of/:uuid} : Retrieves the students of a course instance.
+     *
+     * @param uuid the uuid of the course instance from teh request path
+     * @return the {@link ResponseEntity} containing the assigned students
+     */
+    @GetMapping("students/of/{uuid}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Collection<StudentInfoDTO>> getStudentsOfCourseInstance(@PathVariable(name = "uuid") String uuid) {
+        Collection<StudentInfoDTO> students = courseInstanceSPARQLEndpointService.getStudentsOfCourseInstance(uuid);
+        return ResponseEntity.ok(students);
     }
 
     /**

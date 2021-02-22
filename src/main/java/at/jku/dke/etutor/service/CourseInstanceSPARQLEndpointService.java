@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -66,6 +67,22 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
              ?student rdfs:label ?matriklNr.
            }
          }
+        """;
+
+    public static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        CONSTRUCT {
+          ?student rdfs:label ?matriklNr.
+          ?student a etutor:Student.
+        } WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          OPTIONAL {
+            ?courseInstance etutor:hasStudent ?student.
+            ?student rdfs:label ?matriklNr.
+          }
+        }
         """;
 
     private final UserService userService;
@@ -206,6 +223,35 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             }
 
             return courseInstances;
+        }
+    }
+
+    /**
+     * Returns the assigned students of a given course instance id.
+     *
+     * @param uuid the uuid of the course instance
+     * @return collection containing the assigned students
+     */
+    public Collection<StudentInfoDTO> getStudentsOfCourseInstance(String uuid) {
+        Objects.requireNonNull(uuid);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(uuid);
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_STUDENTS_OF_INSTANCE);
+        query.setIri("?courseInstance", courseInstanceId);
+
+        try (RDFConnection connection = getConnection()) {
+            Model model = connection.queryConstruct(query.asQuery());
+
+            if (model.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
+            Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
+            return StreamEx.of(studentCache.values())
+                .sorted(Comparator.comparing(StudentInfoDTO::getLastName)
+                    .thenComparing(StudentInfoDTO::getFirstName))
+                .toList();
         }
     }
 

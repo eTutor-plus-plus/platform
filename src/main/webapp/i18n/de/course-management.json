@@ -55,7 +55,12 @@
         "name": "Name",
         "year": "Jahr",
         "term": "Semester",
-        "studentCount": "Studierendenanzahl"
+        "studentCount": "Studierendenanzahl",
+        "assignStudents": "Studierende zuordnen",
+        "assignStudentsHeader": "Studierendenzuordnung anpassen",
+        "assignStudentsLabel": "Studierende:",
+        "assignStudentsPlaceholder": "Studierende auswählen",
+        "assignStudentsNotFoundText": "Studiernde/n nicht gefunden!"
       }
     },
     "terms": {

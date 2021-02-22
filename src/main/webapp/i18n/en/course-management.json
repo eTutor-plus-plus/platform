@@ -55,7 +55,12 @@
         "name": "Name",
         "year": "Year",
         "term": "Term",
-        "studentCount": "Student count"
+        "studentCount": "Student count",
+        "assignStudents": "Assign students",
+        "assignStudentsHeader": "Adjust student assignments",
+        "assignStudentsLabel": "Students:",
+        "assignStudentsPlaceholder": "Select students",
+        "assignStudentsNotFoundText": "Student not found!"
       }
     },
     "terms": {

@@ -13,6 +13,7 @@ import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.
 import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../shared/learning-goal-model';
 import { map } from 'rxjs/operators';
 import { createRequestOption, Pagination } from '../../shared/util/request-util';
+import { IStudentInfoDTO } from '../shared/students/students.model';
 
 /**
  * Service which manages the courses.
@@ -128,6 +129,29 @@ export class CourseManagementService {
     return this.http.get<IDisplayableCourseInstanceDTO[]>(`${SERVER_API_URL}api/course-instance/overview-instances/of/${encodedName}`, {
       params: options,
       observe: 'response',
+    });
+  }
+
+  /**
+   * Returns the assigned students of a course instance.
+   *
+   * @param courseInstanceId the internal course instance id
+   */
+  public getAssignedStudentsOfCourseInstance(courseInstanceId: string): Observable<IStudentInfoDTO[]> {
+    const uuid = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<IStudentInfoDTO[]>(`${SERVER_API_URL}api/course-instance/students/of/${uuid}`);
+  }
+
+  /**
+   * Sets the assigned students for a course instance.
+   *
+   * @param courseInstanceId the internal course instance id
+   * @param matriculationNumbers the list of matriculation numbers
+   */
+  public setAssignedStudents(courseInstanceId: string, matriculationNumbers: string[]): Observable<any> {
+    return this.http.put(`${SERVER_API_URL}api/course-instance/students`, {
+      courseInstanceId,
+      matriculationNumbers,
     });
   }
 }

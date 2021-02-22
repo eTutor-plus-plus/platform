@@ -1,3 +1,5 @@
+import { IStudentInfoDTO } from '../shared/students/students.model';
+
 /**
  * Interface for a course.
  */
@@ -134,24 +136,6 @@ export interface INewCourseInstanceDTO {
    * The optional description.
    */
   description?: string;
-}
-
-/**
- * Interface which represents a student
- */
-export interface IStudentInfoDTO {
-  /**
-   * The student's first name.
-   */
-  firstName: string;
-  /**
-   * The student's last name.
-   */
-  lastName: string;
-  /**
-   * The student's unique matriculation number.
-   */
-  matriculationNumber: string;
 }
 
 /**

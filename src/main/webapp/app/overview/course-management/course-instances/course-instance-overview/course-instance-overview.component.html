@@ -25,7 +25,15 @@
                 <td>{{item.year}}</td>
                 <td>{{getTermI18NStringFromURL(item.termId) | translate}}</td>
                 <td>{{item.studentCount}}</td>
-                <td>&nbsp;</td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-sm"
+                                (click)="showAssignStudentsModalWindow(item)">
+                            <fa-icon icon="user-friends"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignStudents">Assign students</span>
+                        </button>
+                    </div>
+                </td>
             </tr>
         </tbody>
     </table>

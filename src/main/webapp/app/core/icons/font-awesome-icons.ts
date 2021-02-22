@@ -43,6 +43,7 @@ import {
   faStickyNote,
   // jhipster-needle-add-icon-import
   faHome,
+  faUserFriends,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const fontAwesomeIcons = [
@@ -88,6 +89,7 @@ export const fontAwesomeIcons = [
   faAngleDoubleRight,
   faPenFancy,
   faStickyNote,
+  faUserFriends,
   // jhipster-needle-add-icon-import
   faAsterisk,
 ];

@@ -1,0 +1,37 @@
+<form role="form" [formGroup]="assignmentForm" (ngSubmit)="save()">
+    <div class="modal-header">
+        <h4 class="modal-title" jhiTranslate="courseManagement.instances.overview.assignStudentsHeader">Adjust student assignments</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group">
+            <label class="form-control-label" for="students" jhiTranslate="courseManagement.instances.overview.assignStudentsLabel">Students:</label>
+
+            <ng-select #students formControlName="students"
+                       placeholder="{{'courseManagement.instances.overview.assignStudentsPlaceholder' | translate}}"
+                       id="students"
+                       [items]="availableStudents"
+                       bindValue="matriculationNumber" [multiple]="true" [closeOnSelect]="false"
+                       bindLabel="fullName"
+                       notFoundText="{{'courseManagement.instances.overview.assignStudentsNotFoundText' | translate}}">
+                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                    <input [ngModelOptions]="{standalone: true}" id="item-{{index}}" type="checkbox"
+                           [ngModel]="item$.selected"/> &nbsp;{{ item.firstName + ' ' + item.lastName }}
+                </ng-template>
+            </ng-select>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
+        </button>
+
+        <button type="submit" [disabled]="assignmentForm.invalid || isSaving" class="btn btn-primary">
+            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+        </button>
+    </div>
+</form>
