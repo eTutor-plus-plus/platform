@@ -154,8 +154,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             for (String matriculationNumber : matriculationNumbers) {
                 String studentUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Student#%s", matriculationNumber);
-                updateQry.appendIri(courseInstanceId);
-                updateQry.append(" etutor:hasStudent ");
+                updateQry.append("?courseInstance etutor:hasStudent ");
                 updateQry.appendIri(studentUri);
                 updateQry.append(".\n");
                 updateQry.appendIri(studentUri);
@@ -175,7 +174,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                   }
                 }
                 """);
-
+            updateQry.setIri("?courseInstance", courseInstanceId);
             connection.update(updateQry.asUpdate());
         }
     }
@@ -349,6 +348,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             }
             try (QueryExecution execution = connection.query(countQry.asQuery())) {
                 ResultSet set = execution.execSelect();
+                //noinspection ResultOfMethodCallIgnored
                 set.hasNext();
                 QuerySolution solution = set.nextSolution();
                 count = solution.getLiteral("?cnt").getInt();
