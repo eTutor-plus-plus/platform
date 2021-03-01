@@ -1,15 +1,16 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
-import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
-import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
-import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
-import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.StudentService;
+import at.jku.dke.etutor.service.dto.courseinstance.*;
 import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
+import at.jku.dke.etutor.web.rest.errors.StudentCSVImportException;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
 import io.github.jhipster.web.util.PaginationUtil;
+import one.util.streamex.StreamEx;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -34,14 +36,17 @@ import java.util.Optional;
 public class CourseInstanceResource {
 
     private final CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService;
+    private final StudentService studentService;
 
     /**
      * Constructor.
      *
      * @param courseInstanceSPARQLEndpointService the injected course instance sparql endpoint service
+     * @param studentService                      the injected student service
      */
-    public CourseInstanceResource(CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService) {
+    public CourseInstanceResource(CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService, StudentService studentService) {
         this.courseInstanceSPARQLEndpointService = courseInstanceSPARQLEndpointService;
+        this.studentService = studentService;
     }
 
     /**
@@ -138,5 +143,32 @@ public class CourseInstanceResource {
         Page<DisplayableCourseInstanceDTO> overviewPage = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(name, page);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), overviewPage);
         return new ResponseEntity<>(overviewPage.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * {@code PUT /api/course-instance/students/of/:uuid/csvupload} : Sets the course instance's
+     * students from the given csv file.
+     *
+     * @param uuid the uuid of the course instance (from the request path)
+     * @param file the csv file (from the request body)
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("students/of/{uuid}/csvupload")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> uploadStudents(@PathVariable(name = "uuid") String uuid, @RequestParam("file") MultipartFile file) {
+        try {
+            List<StudentImportDTO> students = studentService.importStudentsFromFile(file);
+            String courseInstanceURI = ETutorVocabulary.createCourseInstanceURLString(uuid);
+            courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(
+                StreamEx.of(students)
+                    .map(StudentInfoDTO::getMatriculationNumber)
+                    .toList(), courseInstanceURI);
+
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.StudentCSVImportException studentCSVImportException) {
+            throw new StudentCSVImportException();
+        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+            throw new CourseInstanceNotFoundException();
+        }
     }
 }

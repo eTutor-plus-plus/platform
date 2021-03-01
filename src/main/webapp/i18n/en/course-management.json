@@ -60,7 +60,9 @@
         "assignStudentsHeader": "Adjust student assignments",
         "assignStudentsLabel": "Students:",
         "assignStudentsPlaceholder": "Select students",
-        "assignStudentsNotFoundText": "Student not found!"
+        "assignStudentsNotFoundText": "Student not found!",
+        "studentUploadLabel": "Import KUSSS CSV list",
+        "studentUploadInfoTooltip": "The columns <i>MATRIKELNR</i>, VORNAME, NACHNAME and EMAIL are mandatory"
       }
     },
     "terms": {

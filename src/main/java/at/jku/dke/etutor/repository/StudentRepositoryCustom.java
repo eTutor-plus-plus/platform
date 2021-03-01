@@ -35,4 +35,13 @@ public interface StudentRepositoryCustom {
      * @return the map of student info dtos (the matriculation number is the key)
      */
     Map<String, StudentInfoDTO> getStudentInfosAsMap(List<String> matriculationNumbers);
+
+    /**
+     * Returns whether a student exists for the given matriculation number
+     * or not.
+     *
+     * @param matriculationNumber the matriculation number to check
+     * @return {@code true} if the student exists, otherwise {@code false}
+     */
+    boolean studentExists(String matriculationNumber);
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   CourseModel,
@@ -153,5 +153,24 @@ export class CourseManagementService {
       courseInstanceId,
       matriculationNumbers,
     });
+  }
+
+  /**
+   * Uploads the csv file which contains the KUSSS student export.
+   *
+   * @param courseInstanceId the internal id of the course instance
+   * @param csvFile the KUSSS exported csv file
+   */
+  public uploadStudents(courseInstanceId: string, csvFile: File): Observable<any> {
+    const id = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    const formData = new FormData();
+    formData.append('file', csvFile);
+
+    const options = {
+      params: new HttpParams(),
+      reportProgress: false,
+    };
+    const req = new HttpRequest('PUT', `${SERVER_API_URL}api/course-instance/students/of/${id}/csvupload`, formData, options);
+    return this.http.request(req);
   }
 }

@@ -20,6 +20,7 @@ export class StudentAssignmentModalComponent implements OnInit {
   public isSaving = false;
   public assignmentForm = this.fb.group({
     students: [[], []],
+    csvFile: [null, []],
   });
 
   public availableStudents: IStudentFullNameInfoDTO[] = [];
@@ -89,6 +90,24 @@ export class StudentAssignmentModalComponent implements OnInit {
    */
   private async saveAsync(): Promise<any> {
     this.isSaving = true;
+
+    if (this.assignmentForm.get(['csvFile'])!.value !== null) {
+      const fileList = this.assignmentForm.get(['csvFile'])!.value as FileList;
+      if (fileList.length === 1) {
+        const csvFile = fileList.item(0)!;
+
+        try {
+          await this.courseService.uploadStudents(this.courseInstance.id, csvFile).toPromise();
+        } catch (e) {
+          this.isSaving = false;
+          throw e;
+        }
+        this.eventManager.broadcast('course-instance-stud-assignment-changed');
+        this.isSaving = false;
+        this.activeModal.close();
+        return;
+      }
+    }
 
     try {
       await this.courseService.setAssignedStudents(this.courseInstance.id, this.assignmentForm.get(['students'])!.value).toPromise();

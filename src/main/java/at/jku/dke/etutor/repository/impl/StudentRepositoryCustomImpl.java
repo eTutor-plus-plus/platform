@@ -79,4 +79,20 @@ public class StudentRepositoryCustomImpl implements StudentRepositoryCustom {
 
         return StreamEx.of(qry.getResultStream()).collect(Collectors.toMap(StudentInfoDTO::getMatriculationNumber, tuple -> tuple));
     }
+
+    /**
+     * Returns whether a student exists for the given matriculation number
+     * or not.
+     *
+     * @param matriculationNumber the matriculation number to check
+     * @return {@code true} if the student exists, otherwise {@code false}
+     */
+    @Override
+    public boolean studentExists(String matriculationNumber) {
+        TypedQuery<Long> query = entityManager.createQuery("""
+            SELECT COUNT(u) FROM User u WHERE u.login = :matriculationNumber
+            """, Long.class);
+        query.setParameter("matriculationNumber", matriculationNumber);
+        return query.getSingleResult() == 1;
+    }
 }

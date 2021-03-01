@@ -60,7 +60,9 @@
         "assignStudentsHeader": "Studierendenzuordnung anpassen",
         "assignStudentsLabel": "Studierende:",
         "assignStudentsPlaceholder": "Studierende auswählen",
-        "assignStudentsNotFoundText": "Studiernde/n nicht gefunden!"
+        "assignStudentsNotFoundText": "Studiernde/n nicht gefunden!",
+        "studentUploadLabel": "KUSSS-CSV-Liste importieren",
+        "studentUploadInfoTooltip": "Die Spalten MATRIKELNR, VORNAME, NACHNAME und EMAIL sind erforderlich!"
       }
     },
     "terms": {

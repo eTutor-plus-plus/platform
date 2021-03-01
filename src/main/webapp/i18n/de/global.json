@@ -158,7 +158,8 @@
     "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!",
     "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
     "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!",
-    "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!"
+    "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!",
+    "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!"
   },
   "footer": {
     "contact": "Kontakt",

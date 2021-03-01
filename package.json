@@ -24,6 +24,7 @@
     "@ng-select/ng-select": "^5.0.9",
     "@ngx-translate/core": "12.1.2",
     "@ngx-translate/http-loader": "5.0.0",
+    "@rxweb/reactive-form-validators": "^2.1.2",
     "angular-confirmation-popover": "^6.0.0",
     "bootstrap": "4.5.0",
     "bootswatch": "4.5.0",
