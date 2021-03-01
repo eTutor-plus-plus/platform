@@ -1,0 +1,12 @@
+{
+  "overview": {
+    "header": "Übersicht",
+    "student": {
+      "header": "Meine Kurse",
+      "designation": "Bezeichnung",
+      "term": "Semester",
+      "year": "Jahr",
+      "instructor": "Kursleiter"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+<hr>
+<h4 jhiTranslate="overview.student.header">My courses</h4>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th jhiTranslate="overview.student.designation">Designation</th>
+                <th jhiTranslate="overview.student.term">Term</th>
+                <th jhiTranslate="overview.student.year">Year</th>
+                <th jhiTranslate="overview.student.instructor">Intructor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let course of courses">
+                <td>{{course.courseName}}</td>
+                <td>{{getTermI18NStringFromURL(course.termId) | translate}}</td>
+                <td>{{course.year}}</td>
+                <td>{{course.instructor}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

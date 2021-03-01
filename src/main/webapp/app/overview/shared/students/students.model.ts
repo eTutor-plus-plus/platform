@@ -26,3 +26,29 @@ export interface IStudentFullNameInfoDTO extends IStudentInfoDTO {
    */
   fullName: string;
 }
+
+/**
+ * Interface which represents a course instance.
+ */
+export interface CourseInstanceInformationDTO {
+  /**
+   * The course name.
+   */
+  courseName: string;
+  /**
+   * The internal term id.
+   */
+  termId: string;
+  /**
+   * The course instructor.
+   */
+  instructor: string;
+  /**
+   * The internal instance id.
+   */
+  instanceId: string;
+  /**
+   * The year.
+   */
+  year: number;
+}

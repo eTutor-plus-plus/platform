@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../app.constants';
-import { IStudentFullNameInfoDTO, IStudentInfoDTO } from './students.model';
+import { CourseInstanceInformationDTO, IStudentFullNameInfoDTO, IStudentInfoDTO } from './students.model';
 import { map } from 'rxjs/operators';
 
 /**
@@ -35,5 +35,12 @@ export class StudentService {
         })
       )
     );
+  }
+
+  /**
+   * Retrieves the courses of the currently logged-in student.
+   */
+  public getCourseInstancesOfLoggedInStudent(): Observable<CourseInstanceInformationDTO[]> {
+    return this.http.get<CourseInstanceInformationDTO[]>(`${SERVER_API_URL}api/student/courses`);
   }
 }

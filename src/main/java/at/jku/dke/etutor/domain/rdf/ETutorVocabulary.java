@@ -383,4 +383,14 @@ public final class ETutorVocabulary {
                 return null;
         }
     }
+
+    /**
+     * Returns the student url from a given matriculation number.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @return student url based on the given matriculation number
+     */
+    public static final String getStudentURLFromMatriculationNumber(String matriculationNumber) {
+        return URI + CLASS_STUDENT + "#" + matriculationNumber;
+    }
 }

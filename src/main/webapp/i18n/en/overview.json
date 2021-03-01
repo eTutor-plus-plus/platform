@@ -1,0 +1,12 @@
+{
+  "overview": {
+    "header": "Overview",
+    "student": {
+      "header": "My courses",
+      "designation": "Designation",
+      "term": "Term",
+      "year": "Year",
+      "instructor": "Instructor"
+    }
+  }
+}
