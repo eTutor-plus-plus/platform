@@ -55,7 +55,7 @@ public class StudentService {
                 UserDTO userDTO = new UserDTO();
                 userDTO.setFirstName(student.getFirstName());
                 userDTO.setLastName(student.getLastName());
-                userDTO.setEmail(userDTO.getEmail());
+                userDTO.setEmail(student.getEmail());
                 userDTO.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
                 userDTO.setLogin(student.getMatriculationNumber());
                 userService.createUser(userDTO);
