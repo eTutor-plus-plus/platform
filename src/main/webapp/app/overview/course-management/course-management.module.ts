@@ -13,6 +13,7 @@ import { OverviewSharedModule } from '../shared/overview-shared.module';
 import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
 import { CourseInstanceOverviewComponent } from './course-instances/course-instance-overview/course-instance-overview.component';
 import { StudentAssignmentModalComponent } from './course-instances/course-instance-overview/student-assignment-modal/student-assignment-modal.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 /**
  * The module for course management related components.
@@ -28,6 +29,7 @@ import { StudentAssignmentModalComponent } from './course-instances/course-insta
       appendToBody: true,
     }),
     NgSelectModule,
+    NgxSpinnerModule,
   ],
   declarations: [
     CourseManagementComponent,

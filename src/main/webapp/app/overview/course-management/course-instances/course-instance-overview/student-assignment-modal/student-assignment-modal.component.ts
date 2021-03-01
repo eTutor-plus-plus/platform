@@ -6,6 +6,7 @@ import { StudentService } from '../../../../shared/students/student-service';
 import { IStudentFullNameInfoDTO } from '../../../../shared/students/students.model';
 import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
 import { JhiEventManager } from 'ng-jhipster';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 /**
  * Component for managing the student assignment.
@@ -37,13 +38,15 @@ export class StudentAssignmentModalComponent implements OnInit {
    * @param fb the injected form builder
    * @param studentService the injected student service
    * @param eventManager the injected jhi event manager
+   * @param spinner the injected spinner service
    */
   constructor(
     private courseService: CourseManagementService,
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private studentService: StudentService,
-    private eventManager: JhiEventManager
+    private eventManager: JhiEventManager,
+    private spinner: NgxSpinnerService
   ) {}
 
   /**
@@ -112,6 +115,7 @@ export class StudentAssignmentModalComponent implements OnInit {
    */
   private async saveAsync(): Promise<any> {
     this.isSaving = true;
+    this.spinner.show();
 
     if (this.assignmentForm.get(['csvFile'])!.value !== undefined) {
       const fileList = this.assignmentForm.get(['csvFile'])!.value as FileList;
@@ -121,10 +125,12 @@ export class StudentAssignmentModalComponent implements OnInit {
         try {
           await this.courseService.uploadStudents(this.courseInstance.id, csvFile).toPromise();
         } catch (e) {
+          this.spinner.hide();
           this.isSaving = false;
           throw e;
         }
         this.eventManager.broadcast('course-instance-stud-assignment-changed');
+        this.spinner.hide();
         this.isSaving = false;
         this.activeModal.close();
         return;
@@ -134,11 +140,13 @@ export class StudentAssignmentModalComponent implements OnInit {
     try {
       await this.courseService.setAssignedStudents(this.courseInstance.id, this.assignmentForm.get(['students'])!.value).toPromise();
     } catch (e) {
+      this.spinner.hide();
       this.isSaving = false;
       throw e;
     }
 
     this.eventManager.broadcast('course-instance-stud-assignment-changed');
+    this.spinner.hide();
     this.isSaving = false;
     this.activeModal.close();
   }
