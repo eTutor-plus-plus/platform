@@ -27,7 +27,7 @@
             <label class="form-control-label">{{'courseManagement.instances.overview.studentUploadLabel' | translate}} <fa-icon icon="info-circle" ngbTooltip="{{'courseManagement.instances.overview.studentUploadInfoTooltip' | translate}}" placement="right"></fa-icon> </label>
             <input type="file" placeholder="Fileupload" accept=".csv,.CSV"
                    [writeFile]="true"
-                   class="form-control" id="csvFile" #csvFile formControlName="csvFile">
+                   class="form-control-file" id="csvFile" #csvFile formControlName="csvFile">
         </div>
     </div>
 
