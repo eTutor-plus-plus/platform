@@ -6,7 +6,8 @@
       "designation": "Designation",
       "term": "Term",
       "year": "Year",
-      "instructor": "Instructor"
+      "instructor": "Instructor",
+      "showAssignments": "Show assignments"
     }
   }
 }

@@ -6,7 +6,8 @@
       "designation": "Bezeichnung",
       "term": "Semester",
       "year": "Jahr",
-      "instructor": "Kursleiter"
+      "instructor": "Kursleiter",
+      "showAssignments": "Aufgaben anzeigen"
     }
   }
 }
