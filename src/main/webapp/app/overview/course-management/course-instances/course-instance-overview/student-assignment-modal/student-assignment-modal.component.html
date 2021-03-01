@@ -24,10 +24,21 @@
             </ng-select>
         </div>
         <div class="form-group">
-            <label class="form-control-label">{{'courseManagement.instances.overview.studentUploadLabel' | translate}} <fa-icon icon="info-circle" ngbTooltip="{{'courseManagement.instances.overview.studentUploadInfoTooltip' | translate}}" placement="right"></fa-icon> </label>
-            <input type="file" placeholder="Fileupload" accept=".csv,.CSV"
-                   [writeFile]="true"
-                   class="form-control-file" id="csvFile" #csvFile formControlName="csvFile">
+            <label class="form-control-label">
+                {{'courseManagement.instances.overview.studentUploadLabel' | translate}}
+                <fa-icon icon="info-circle" ngbTooltip="{{'courseManagement.instances.overview.studentUploadInfoTooltip' | translate}}" placement="right"></fa-icon>
+            </label>
+            <div class="form-row">
+                <div class="col-md-10">
+                    <input type="file" placeholder="Fileupload" accept=".csv,.CSV"
+                           [writeFile]="true"
+                           (change)="fileChanged()"
+                           class="form-control-file" id="csvFile" #csvFile formControlName="csvFile">
+                </div>
+                <div class="col-md-2">
+                    <button [disabled]="!fileSelected" type="button" class="btn btn-secondary" (click)="removeFile()" jhiTranslate="courseManagement.instances.overview.csvReset">Remove CSV file</button>
+                </div>
+            </div>
         </div>
     </div>
 

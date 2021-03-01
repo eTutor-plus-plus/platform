@@ -62,7 +62,8 @@
         "assignStudentsPlaceholder": "Select students",
         "assignStudentsNotFoundText": "Student not found!",
         "studentUploadLabel": "Import KUSSS CSV list",
-        "studentUploadInfoTooltip": "The columns <i>MATRIKELNR</i>, VORNAME, NACHNAME and EMAIL are mandatory"
+        "studentUploadInfoTooltip": "The columns <i>MATRIKELNR</i>, VORNAME, NACHNAME and EMAIL are mandatory",
+        "csvReset": "Remove CSV file"
       }
     },
     "terms": {

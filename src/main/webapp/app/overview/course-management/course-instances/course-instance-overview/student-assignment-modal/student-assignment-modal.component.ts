@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CourseManagementService } from '../../../course-management.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder } from '@angular/forms';
@@ -18,10 +18,14 @@ import { JhiEventManager } from 'ng-jhipster';
 export class StudentAssignmentModalComponent implements OnInit {
   private _courseInstance?: IDisplayableCourseInstanceDTO;
   public isSaving = false;
+  public fileSelected = false;
   public assignmentForm = this.fb.group({
     students: [[], []],
     csvFile: [null, []],
   });
+
+  @ViewChild('csvFile', { static: true })
+  public fileInputRef!: ElementRef;
 
   public availableStudents: IStudentFullNameInfoDTO[] = [];
 
@@ -86,12 +90,30 @@ export class StudentAssignmentModalComponent implements OnInit {
   }
 
   /**
+   * Removes the file from the file input dialog
+   */
+  public removeFile(): void {
+    this.assignmentForm.patchValue({
+      csvFile: undefined,
+    });
+    this.fileSelected = false;
+    this.fileInputRef.nativeElement.value = '';
+  }
+
+  /**
+   * Detects a file fileupload
+   */
+  public fileChanged(): void {
+    this.fileSelected = true;
+  }
+
+  /**
    * Asynchronously saves the assigned students.
    */
   private async saveAsync(): Promise<any> {
     this.isSaving = true;
 
-    if (this.assignmentForm.get(['csvFile'])!.value !== null) {
+    if (this.assignmentForm.get(['csvFile'])!.value !== undefined) {
       const fileList = this.assignmentForm.get(['csvFile'])!.value as FileList;
       if (fileList.length === 1) {
         const csvFile = fileList.item(0)!;

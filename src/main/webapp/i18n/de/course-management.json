@@ -62,7 +62,8 @@
         "assignStudentsPlaceholder": "Studierende auswählen",
         "assignStudentsNotFoundText": "Studiernde/n nicht gefunden!",
         "studentUploadLabel": "KUSSS-CSV-Liste importieren",
-        "studentUploadInfoTooltip": "Die Spalten MATRIKELNR, VORNAME, NACHNAME und EMAIL sind erforderlich!"
+        "studentUploadInfoTooltip": "Die Spalten MATRIKELNR, VORNAME, NACHNAME und EMAIL sind erforderlich!",
+        "csvReset": "CSV-Datei entfernen"
       }
     },
     "terms": {
