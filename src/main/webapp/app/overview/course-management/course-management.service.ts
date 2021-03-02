@@ -164,7 +164,7 @@ export class CourseManagementService {
   public uploadStudents(courseInstanceId: string, csvFile: File): Observable<any> {
     const id = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
     const formData = new FormData();
-    formData.append('file', csvFile);
+    formData.append('file', new Blob([csvFile], { type: 'text/csv' }), csvFile.name);
 
     const options = {
       params: new HttpParams(),
