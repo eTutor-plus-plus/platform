@@ -42,6 +42,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INSTANCE_DESCRIPTION = "hasInstanceDescription";
     private static final String PROP_HAS_COURSE = "hasCourse";
     private static final String PROP_HAS_STUDENT = "hasStudent";
+    private static final String PROP_HAS_EXERCISE_SHEET = "hasExerciseSheet";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -156,6 +157,10 @@ public final class ETutorVocabulary {
      * The hasStudent property.
      */
     public static final Property hasStudent = m.createProperty(URI + PROP_HAS_STUDENT);
+    /**
+     * The hasExerciseSheet property.
+     */
+    public static final Property hasExerciseSheet = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET);
     /**
      * The hasTaskAssignment property.
      */

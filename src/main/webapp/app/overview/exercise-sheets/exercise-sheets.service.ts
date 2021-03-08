@@ -38,6 +38,23 @@ export class ExerciseSheetsService {
    */
   public getExerciseSheetPage(page: Pagination, nameFilter?: string): Observable<ExerciseSheetDisplayArrayResult> {
     const options = createRequestOption(page);
+    let url = '/api/exercise-sheet/display/sliced';
+
+    if (nameFilter && nameFilter.trim().length > 0) {
+      url += `?name=${nameFilter.trim()}`;
+    }
+
+    return this.http.get<IExerciseSheetDisplayDTO[]>(url, { params: options, observe: 'response' });
+  }
+
+  /**
+   * Gets the paged data from the rest endpoint.
+   *
+   * @param page the pagination info
+   * @param nameFilter the optional name fulltext filter
+   */
+  public getPagedExerciseSheetPage(page: Pagination, nameFilter?: string): Observable<ExerciseSheetDisplayArrayResult> {
+    const options = createRequestOption(page);
     let url = '/api/exercise-sheet/display/paged';
 
     if (nameFilter && nameFilter.trim().length > 0) {

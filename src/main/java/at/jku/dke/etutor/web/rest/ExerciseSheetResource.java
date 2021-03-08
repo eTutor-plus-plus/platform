@@ -6,6 +6,8 @@ import at.jku.dke.etutor.service.ExerciseSheetSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import io.github.jhipster.web.util.PaginationUtil;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -100,13 +103,13 @@ public class ExerciseSheetResource {
     }
 
     /**
-     * {@code GET display/paged} : Retrieves the paged exercise sheet displays.
+     * {@code GET display/sliced} : Retrieves the sliced exercise sheet displays.
      *
      * @param name     the optional name filter query parameter
      * @param pageable the pagination object
-     * @return {@link ResponseEntity} containing the list of exercise sheet dispalys of the current "page"
+     * @return {@link ResponseEntity} containing the list of exercise sheet displays of the current "page"
      */
-    @GetMapping("display/paged")
+    @GetMapping("display/sliced")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<ExerciseSheetDisplayDTO>> getExerciseDisplayList(
         @RequestParam(required = false, defaultValue = "") String name, Pageable pageable) {
@@ -115,5 +118,22 @@ public class ExerciseSheetResource {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
         return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * {@code GET display/paged} : Retrieves the paged exercise sheet displays.
+     *
+     * @param name     the optional name filter query parameter
+     * @param pageable the pagination object
+     * @return {@link ResponseEntity} containing the list of exercise sheet displays of the currently
+     * selected page
+     */
+    @GetMapping("display/paged")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<ExerciseSheetDisplayDTO>> getPagedExerciseDisplayList(
+        @RequestParam(required = false, defaultValue = "") String name, Pageable pageable) {
+        Page<ExerciseSheetDisplayDTO> page = exerciseSheetSPARQLEndpointService.getFilteredExerciseSheetDisplayDTOsAsPage(name, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

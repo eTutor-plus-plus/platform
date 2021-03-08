@@ -28,6 +28,11 @@
                 <td class="text-right">
                     <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm"
+                                (click)="showAssignExerciseSheetModalWindow(item)">
+                            <fa-icon icon="tasks"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignExerciseSheet">Assign exercise sheet</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm"
                                 (click)="showAssignStudentsModalWindow(item)">
                             <fa-icon icon="user-friends"></fa-icon>
                             <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignStudents">Assign students</span>

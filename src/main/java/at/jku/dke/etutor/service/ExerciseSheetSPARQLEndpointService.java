@@ -18,9 +18,11 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -224,6 +226,84 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 boolean hasNext = page.isPaged() && resultList.size() > page.getPageSize();
                 return new SliceImpl<>(hasNext ? resultList.subList(0, page.getPageSize()) : resultList, page, hasNext);
             }
+        }
+    }
+
+    /**
+     * Returns a paged exercise sheet display (name + id). An optional name filter can be passed to this method.
+     *
+     * @param nameQry the optional name filter, might be null
+     * @param page    the mandatory pageable object
+     * @return {@code Page} containing the elements
+     */
+    public Page<ExerciseSheetDisplayDTO> getFilteredExerciseSheetDisplayDTOsAsPage(String nameQry, Pageable page) {
+        Objects.requireNonNull(nameQry);
+        Objects.requireNonNull(page);
+
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT (COUNT(DISTINCT ?exerciseSheet) as ?cnt)
+            WHERE {
+            """);
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT DISTINCT (STR(?exerciseSheet) as ?id) ?name
+            WHERE {
+            """);
+
+        if (StringUtils.isNotBlank(nameQry)) {
+            query.append(String.format("?exerciseSheet text:query (rdfs:label \"*%s*\").%n", nameQry));
+            countQry.append(String.format("?exerciseSheet text:query (rdfs:label \"*%s*\").%n", nameQry));
+        }
+
+        query.append("""
+              ?exerciseSheet a etutor:ExerciseSheet.
+              ?exerciseSheet rdfs:label ?name.
+            }
+            ORDER BY (LCASE(?name))
+            """);
+
+        countQry.append("""
+              ?exerciseSheet a etutor:ExerciseSheet.
+              ?exerciseSheet rdfs:label ?name.
+            }
+            """);
+
+        if (page.isPaged()) {
+            query.append("LIMIT ");
+            query.append(page.getPageSize());
+            query.append("\nOFFSET ");
+            query.append(page.getOffset());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            List<ExerciseSheetDisplayDTO> list = new ArrayList<>();
+            int count;
+
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution querySolution = set.nextSolution();
+
+                    String id = querySolution.getLiteral("?id").getString();
+                    String name = querySolution.getLiteral("?name").getString();
+                    list.add(new ExerciseSheetDisplayDTO(id, name));
+                }
+            }
+            try (QueryExecution execution = connection.query(countQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+                set.hasNext();
+                count = set.nextSolution().getLiteral("?cnt").getInt();
+            }
+
+            return PageableExecutionUtils.getPage(list, page, () -> count);
         }
     }
 

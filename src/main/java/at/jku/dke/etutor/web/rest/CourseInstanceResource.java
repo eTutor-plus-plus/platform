@@ -5,11 +5,13 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.dto.courseinstance.*;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.StudentCSVImportException;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
 import io.github.jhipster.web.util.PaginationUtil;
+import net.minidev.json.JSONArray;
 import one.util.streamex.StreamEx;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -167,6 +169,44 @@ public class CourseInstanceResource {
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.StudentCSVImportException studentCSVImportException) {
             throw new StudentCSVImportException();
+        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+            throw new CourseInstanceNotFoundException();
+        }
+    }
+
+    /**
+     * {@code POST /api/course-instance/:uuid/exercise-sheets} : Assigns exercise sheets to the given
+     * course instance.
+     *
+     * @param uuid the uuid of the course instance (from the request path)
+     * @param body the json array containing the exercise sheet urls (from the request body)
+     * @return empty {@link ResponseEntity}
+     */
+    @PostMapping("{uuid}/exercise-sheets")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> allocateNewExerciseSheets(@PathVariable String uuid, @RequestBody JSONArray body) {
+        List<String> newExerciseSheetIds = StreamEx.of(body.stream()).map(x -> (String) x).toList();
+
+        try {
+            courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(uuid, newExerciseSheetIds);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+            throw new CourseInstanceNotFoundException();
+        }
+    }
+
+    /**
+     * {@code GET /api/course-instance/:uuid/exercise-sheets} : Retrieves the exercise sheets of a given course
+     * instance.
+     *
+     * @param uuid the uuid of the course instance (from the request path)
+     * @return the {@link ResponseEntity} containing the elements
+     */
+    @GetMapping("{uuid}/exercise-sheets")
+    public ResponseEntity<Collection<ExerciseSheetDisplayDTO>> getExerciseSheetsOfInstance(@PathVariable String uuid) {
+        try {
+            Collection<ExerciseSheetDisplayDTO> sheets = courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance(uuid);
+            return ResponseEntity.ok(sheets);
         } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }

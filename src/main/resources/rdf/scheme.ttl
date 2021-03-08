@@ -110,7 +110,7 @@ etutor:hasTerm
     rdfs:range  etutor:Term .
 
 etutor:hasInstanceDescription
-    rdf:type    rdfs:Propery ;
+    rdf:type    rdfs:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  xsd:string .
 
@@ -123,6 +123,11 @@ etutor:hasStudent
     rdf:type    rdfs:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Student .
+
+etutor:hasExerciseSheet
+    rdf:type    rdfs:Property ;
+    rdfs:domain etutor:CourseInstance ;
+    rdfs:range  etutor:ExerciseSheet .
 
 # Instances
 etutor-term:Winter

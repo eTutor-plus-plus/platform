@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -83,6 +84,19 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             ?student rdfs:label ?matriklNr.
           }
         }
+        """;
+
+    public static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT (STR(?sheet) as ?sheetId) ?lbl
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?courseInstance etutor:hasExerciseSheet ?sheet.
+          ?sheet rdfs:label ?lbl
+        }
+        ORDER BY (LCASE(?lbl))
         """;
 
     private final UserService userService;
@@ -358,6 +372,86 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
     }
 
     /**
+     * Adds exercise sheet assignments to the given course instance.
+     *
+     * @param uuid           course instance uuid
+     * @param exerciseSheets the list of exercise sheet urls
+     * @throws CourseInstanceNotFoundException if the requested course instance can not be found
+     */
+    public void addExerciseSheetCourseInstanceAssignments(String uuid, List<String> exerciseSheets) throws CourseInstanceNotFoundException {
+        String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            INSERT DATA {
+            """);
+
+        for (String exerciseSheetUri : exerciseSheets) {
+            qry.appendIri(courseInstanceUri);
+            qry.append(" etutor:hasExerciseSheet ");
+            qry.appendIri(exerciseSheetUri);
+            qry.append(".\n");
+        }
+
+        qry.append("}");
+
+        ParameterizedSparqlString courseInstanceExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_INSTANCE_EXISTS);
+        courseInstanceExistsQry.setIri("?courseInstance", courseInstanceUri);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseInstanceExists = connection.queryAsk(courseInstanceExistsQry.asQuery());
+
+            if (!courseInstanceExists) {
+                throw new CourseInstanceNotFoundException();
+            }
+
+            connection.update(qry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the exercise sheets of a given course instance.
+     *
+     * @param uuid the course instance's intern uuid
+     * @return list of exercise sheets
+     * @throws CourseInstanceNotFoundException if the requested course instance does not exist
+     */
+    public List<ExerciseSheetDisplayDTO> getExerciseSheetsOfCourseInstance(String uuid) throws CourseInstanceNotFoundException {
+        String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
+
+        ParameterizedSparqlString courseInstanceExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_INSTANCE_EXISTS);
+        courseInstanceExistsQry.setIri("?courseInstance", courseInstanceUri);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE);
+        query.setIri("?courseInstance", courseInstanceUri);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseInstanceExists = connection.queryAsk(courseInstanceExistsQry.asQuery());
+
+            if (!courseInstanceExists) {
+                throw new CourseInstanceNotFoundException();
+            }
+
+            List<ExerciseSheetDisplayDTO> list = new ArrayList<>();
+            try (QueryExecution queryExecution = connection.query(query.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String id = solution.getLiteral("?sheetId").getString();
+                    String name = solution.getLiteral("?lbl").getString();
+
+                    list.add(new ExerciseSheetDisplayDTO(id, name));
+                }
+                return list;
+            }
+        }
+    }
+
+    //region Private helper methods
+
+    /**
      * Returns the student info cache from a given student iterator.
      *
      * @param studentIterator the student iterator
@@ -489,4 +583,5 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         return new CourseInstanceDTO(year, termId, description, id, students, courseName, instanceName);
     }
+    //endregion
 }

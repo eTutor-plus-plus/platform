@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CourseManagementService } from '../../course-management.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { IDisplayableCourseInstanceDTO, Term } from '../../course-mangement.model';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentAssignmentModalComponent } from './student-assignment-modal/student-assignment-modal.component';
 import { JhiEventManager } from 'ng-jhipster';
+import { CourseExerciseSheetAllocationComponent } from './course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
 
 /**
  * Component for displaying instances from a course.
@@ -131,6 +132,16 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Opens the exercise sheet assignment window for the given course instance.
+   *
+   * @param item the current course instance
+   */
+  public showAssignExerciseSheetModalWindow(item: IDisplayableCourseInstanceDTO): void {
+    const modalRef = this.modalService.open(CourseExerciseSheetAllocationComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as CourseExerciseSheetAllocationComponent).courseInstance = item;
+  }
+
+  /**
    * Asynchronously loads the page.
    */
   private async loadPageAsync(): Promise<any> {
@@ -142,7 +153,7 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
       })
       .toPromise();
 
-    this.totalItems = Number(response.headers.get('X-Total-Count'));
+    this.totalItems = Number(response.headers.get(COUNT_HEADER));
     this.items = response.body ?? [];
   }
 }

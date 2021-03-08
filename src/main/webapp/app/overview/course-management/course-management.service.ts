@@ -14,6 +14,7 @@ import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../sha
 import { map } from 'rxjs/operators';
 import { createRequestOption, Pagination } from '../../shared/util/request-util';
 import { IStudentInfoDTO } from '../shared/students/students.model';
+import { IExerciseSheetDisplayDTO } from '../exercise-sheets/exercise-sheets.model';
 
 /**
  * Service which manages the courses.
@@ -172,5 +173,28 @@ export class CourseManagementService {
     };
     const req = new HttpRequest('PUT', `${SERVER_API_URL}api/course-instance/students/of/${id}/csvupload`, formData, options);
     return this.http.request(req);
+  }
+
+  /**
+   * Adds new exercise sheet assignments for a given course instance.
+   *
+   * @param courseInstanceId the internal course instance uri
+   * @param exerciseSheetIds the list of exercise sheet id uris
+   */
+  public addExerciseSheetAssignment(courseInstanceId: string, exerciseSheetIds: string[]): Observable<any> {
+    const id = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.post(`${SERVER_API_URL}api/course-instance/${id}/exercise-sheets`, exerciseSheetIds);
+  }
+
+  /**
+   * Returns the exercise sheets of a given course instance.
+   *
+   * @param courseInstanceId the course instance url
+   */
+  public getExerciseSheetsOfCourseInstance(courseInstanceId: string): Observable<IExerciseSheetDisplayDTO[]> {
+    const uuid = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<IExerciseSheetDisplayDTO[]>(`${SERVER_API_URL}api/course-instance/${uuid}/exercise-sheets`);
   }
 }

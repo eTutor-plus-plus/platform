@@ -191,13 +191,14 @@ public class ExerciseSheetResourceIT {
      */
     @Test
     @Order(5)
+    @SuppressWarnings("unchecked")
     public void testGetExerciseDisplayList() throws Exception {
         int cnt = insertExerciseSheetsForFulltextSearch();
         int page = 0;
         int size = cnt -1;
         String nameFilter = "for";
 
-        var result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/paged?page={page}&size={size}&name={nameFilter}", page, size, nameFilter))
+        var result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/sliced?page={page}&size={size}&name={nameFilter}", page, size, nameFilter))
             .andExpect(status().isOk())
             .andReturn();
         String jsonData = result.getResponse().getContentAsString();
@@ -206,7 +207,7 @@ public class ExerciseSheetResourceIT {
         assertThat(displayList).hasSize(1);
         assertThat(result.getResponse().getHeader("X-Has-Next-Page")).isEqualTo("false");
 
-        result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/paged?page={page}&size={size}", page, size))
+        result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/sliced?page={page}&size={size}", page, size))
             .andExpect(status().isOk())
             .andReturn();
         jsonData = result.getResponse().getContentAsString();
