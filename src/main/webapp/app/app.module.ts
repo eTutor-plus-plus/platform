@@ -16,6 +16,7 @@ import { ActiveMenuDirective } from './layouts/navbar/active-menu.directive';
 import { ErrorComponent } from './layouts/error/error.component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { QuillModule } from 'ngx-quill';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { QuillModule } from 'ngx-quill';
     QuillModule.forRoot({
       theme: 'snow',
     }),
+    BrowserAnimationsModule,
     // jhipster-needle-angular-add-module JHipster will add new module here
     EtutorPlusPlusEntityModule,
     EtutorPlusPlusAppRoutingModule,

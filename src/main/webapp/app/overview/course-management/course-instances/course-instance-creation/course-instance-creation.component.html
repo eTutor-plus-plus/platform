@@ -1,0 +1,35 @@
+<form role="form" [formGroup]="instanceForm">
+    <div class="modal-header">
+        <h4 class="modal-title">{{'courseManagement.instances.modalHeader' | translate: {courseName: course.name} }}</h4>
+
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <div class="form-group">
+            <label class="form-control-label" for="year" jhiTranslate="courseManagement.instances.year">Year:</label>
+            <input type="number" [min]="currentYear" class="form-control" name="year" id="year" formControlName="year">
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="termId" jhiTranslate="courseManagement.instances.term">Term:</label>
+            <select class="form-control" name="termId" id="termId" formControlName="termId">
+                <option *ngFor="let term of terms" [ngValue]="term">{{term.text | translate}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="description" jhiTranslate="courseManagement.instances.description">Description:</label>
+            <quill-editor [placeholder]="''" id="description" #description formControlName="description">
+            </quill-editor>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
+        </button>
+
+        <button type="button" [disabled]="isSaving" class="btn btn-primary" (click)="save()">
+            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+        </button>
+    </div>
+</form>

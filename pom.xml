@@ -102,11 +102,30 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Custom dependencies -->
+        <!-- Custom dependencies - Utils -->
         <dependency>
             <groupId>one.util</groupId>
             <artifactId>streamex</artifactId>
             <version>0.7.3</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+        <!-- Apache Commons CSV -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+        <!-- Apache Commons Collections -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
         </dependency>
 
         <!-- Apache Jena -->

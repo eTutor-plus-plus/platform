@@ -1,10 +1,11 @@
 package at.jku.dke.etutor.domain.rdf;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+
+import java.util.Objects;
 
 /**
  * RDF vocabulary class.
@@ -16,6 +17,10 @@ public final class ETutorVocabulary {
     private static final String CLASS_COURSE = "Course";
     private static final String CLASS_TASK_ASSIGNMENT = "TaskAssignment";
     private static final String CLASS_DIFFICULTY_RANKING = "DifficultyRanking";
+    private static final String CLASS_EXERCISE_SHEET = "ExerciseSheet";
+    private static final String CLASS_COURSE_INSTANCE = "CourseInstance";
+    private static final String CLASS_TERM = "Term";
+    private static final String CLASS_STUDENT = "Student";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -32,6 +37,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_COURSE_CREATOR = "hasCourseCreator";
     private static final String PROP_HAS_GOAL = "hasGoal";
 
+    private static final String PROP_HAS_INSTANCE_YEAR = "hasInstanceYear";
+    private static final String PROP_HAS_TERM = "hasTerm";
+    private static final String PROP_HAS_INSTANCE_DESCRIPTION = "hasInstanceDescription";
+    private static final String PROP_HAS_COURSE = "hasCourse";
+    private static final String PROP_HAS_STUDENT = "hasStudent";
+    private static final String PROP_HAS_EXERCISE_SHEET = "hasExerciseSheet";
+
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
     private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
@@ -45,10 +57,18 @@ public final class ETutorVocabulary {
     private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
+    private static final String PROP_CONTAINS_LEARNING_GOAL = "containsLearningGoal";
+    private static final String PROP_HAS_EXERCISE_SHEET_DIFFICULTY = "hasExerciseSheetDifficulty";
+    private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
+    private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
+
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
     private static final String INSTANCE_HARD = "Hard";
     private static final String INSTANCE_VERY_HARD = "VeryHard";
+
+    private static final String INSTANCE_WINTER = "Winter";
+    private static final String INSTANCE_SUMMER = "Summer";
 
     /**
      * The namespace of the vocabulary.
@@ -58,6 +78,10 @@ public final class ETutorVocabulary {
      * The namespace of the difficulty types.
      */
     public static final String DIFFICULTY_URI = "http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#";
+    /**
+     * The namespace of the terms.
+     */
+    public static final String TERM_URI = "http://www.dke.uni-linz.ac.at/etutorpp/Term#";
 
     private static final Model m = ModelFactory.createDefaultModel();
 
@@ -114,6 +138,30 @@ public final class ETutorVocabulary {
      */
     public static final Property hasGoal = m.createProperty(URI + PROP_HAS_GOAL);
     /**
+     * The hasInstanceYear property.
+     */
+    public static final Property hasInstanceYear = m.createProperty(URI + PROP_HAS_INSTANCE_YEAR);
+    /**
+     * The hasTerm property.
+     */
+    public static final Property hasTerm = m.createProperty(URI + PROP_HAS_TERM);
+    /**
+     * The hasInstanceDescription property.
+     */
+    public static final Property hasInstanceDescription = m.createProperty(URI + PROP_HAS_INSTANCE_DESCRIPTION);
+    /**
+     * The hasCourse property.
+     */
+    public static final Property hasCourse = m.createProperty(URI + PROP_HAS_COURSE);
+    /**
+     * The hasStudent property.
+     */
+    public static final Property hasStudent = m.createProperty(URI + PROP_HAS_STUDENT);
+    /**
+     * The hasExerciseSheet property.
+     */
+    public static final Property hasExerciseSheet = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET);
+    /**
      * The hasTaskAssignment property.
      */
     public static final Property hasTaskAssignment = m.createProperty(URI + PROP_HAS_TASK_ASSIGNMENT);
@@ -161,6 +209,22 @@ public final class ETutorVocabulary {
      * The isAssignmentOf property.
      */
     public static final Property isAssignmentOf = m.createProperty(URI + PROP_IS_ASSIGNMENT_OF);
+    /**
+     * The containsLearningGoal property.
+     */
+    public static final Property containsLearningGoal = m.createProperty(URI + PROP_CONTAINS_LEARNING_GOAL);
+    /**
+     * The hasExerciseSheetDifficulty property.
+     */
+    public static final Property hasExerciseSheetDifficulty = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
+    /**
+     * The hasInternalExerciseSheetCreator property.
+     */
+    public static final Property hasInternalExerciseSheetCreator = m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
+    /**
+     * The hasExerciseSheetCreationTime property.
+     */
+    public static final Property hasExerciseSheetCreationTime = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
 
     /**
      * The goal resource.
@@ -182,6 +246,22 @@ public final class ETutorVocabulary {
      * The difficulty ranking resource.
      */
     public static final Resource DifficultyRanking = m.createResource(URI + CLASS_DIFFICULTY_RANKING);
+    /**
+     * The exercise sheet resource.
+     */
+    public static final Resource ExerciseSheet = m.createResource(URI + CLASS_EXERCISE_SHEET);
+    /**
+     * The course instance resource.
+     */
+    public static final Resource CourseInstance = m.createResource(URI + CLASS_COURSE_INSTANCE);
+    /**
+     * The term resource.
+     */
+    public static final Resource Term = m.createResource(URI + CLASS_TERM);
+    /**
+     * The student resource.
+     */
+    public static final Resource Student = m.createResource(URI + CLASS_STUDENT);
 
     /**
      * The easy difficulty instance.
@@ -196,9 +276,22 @@ public final class ETutorVocabulary {
      */
     public static final Resource Hard = m.createResource(DIFFICULTY_URI + INSTANCE_HARD);
     /**
-     * The very hard difficulty instance
+     * The very hard difficulty instance.
      */
     public static final Resource VeryHard = m.createProperty(DIFFICULTY_URI + INSTANCE_VERY_HARD);
+
+
+    private static final String TERM_WINTER_URI = TERM_URI + INSTANCE_WINTER;
+    private static final String TERM_SUMMER_URI = TERM_URI + INSTANCE_SUMMER;
+
+    /**
+     * The winter term instance.
+     */
+    public static final Resource Winter = m.createResource(TERM_WINTER_URI);
+    /**
+     * The summer term instance.
+     */
+    public static final Resource Summer = m.createResource(TERM_SUMMER_URI);
 
     /**
      * Creates an individual goal resource from a given model.
@@ -232,5 +325,77 @@ public final class ETutorVocabulary {
      */
     public static final Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
         return model.createResource(URI + CLASS_TASK_ASSIGNMENT + "#" + uuid);
+    }
+
+    /**
+     * Creates an individual exercise sheet from a given model.
+     *
+     * @param uuid  the uuid
+     * @param model the base model
+     * @return the individual exercise sheet resource
+     */
+    public static final Resource createExerciseSheetOfModel(String uuid, Model model) {
+        return model.createResource(createExerciseSheetURLString(uuid));
+    }
+
+    /**
+     * Creates the url of an exercise sheet.
+     *
+     * @param uuid the uuid
+     * @return the internal url of an individual exercise sheet
+     */
+    public static final String createExerciseSheetURLString(String uuid) {
+        return URI + CLASS_EXERCISE_SHEET + "#" + uuid;
+    }
+
+    /**
+     * Creates the url of a course instance.
+     *
+     * @param uuid the uuid
+     * @return the internal url of a course instance
+     */
+    public static final String createCourseInstanceURLString(String uuid) {
+        return URI + CLASS_COURSE_INSTANCE + "#" + uuid;
+    }
+
+    /**
+     * Creates an individual course instance from a given model.
+     *
+     * @param uuid  the uuid
+     * @param model the base model
+     * @return the individual course instance
+     */
+    public static final Resource createCourseInstanceOfModel(String uuid, Model model) {
+        return model.createResource(createCourseInstanceURLString(uuid));
+    }
+
+    /**
+     * Returns the term text from a given uri. If the uri does not
+     * represent a term, {@code null} will be returned.
+     *
+     * @param termUri the term uri, must not be null
+     * @return string representation, or {@code null}
+     */
+    public static final String getTermTextFromUri(String termUri) {
+        Objects.requireNonNull(termUri);
+
+        switch (termUri) {
+            case TERM_WINTER_URI:
+                return "Wintersemester";
+            case TERM_SUMMER_URI:
+                return "Sommersemester";
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Returns the student url from a given matriculation number.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @return student url based on the given matriculation number
+     */
+    public static final String getStudentURLFromMatriculationNumber(String matriculationNumber) {
+        return URI + CLASS_STUDENT + "#" + matriculationNumber;
     }
 }

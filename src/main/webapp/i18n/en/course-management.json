@@ -41,6 +41,39 @@
       "availableGoals": "Available learning goals",
       "selectedGoals": "Selected learning goals",
       "displayModalHeader": "Display learning goal assignment"
+    },
+    "showInstances": "Show instances",
+    "createInstance": "Create instance",
+    "instances": {
+      "modalHeader": "Create new course instance of the course '{{courseName}}'",
+      "year": "Year:",
+      "term": "Term:",
+      "description": "Description:",
+      "overview": {
+        "back": "Back",
+        "header": "Instances of the course '{{courseName}}'",
+        "name": "Name",
+        "year": "Year",
+        "term": "Term",
+        "studentCount": "Student count",
+        "assignStudents": "Assign students",
+        "assignExerciseSheet": "Assign exercise sheet",
+        "assignExerciseSheetHeader": "Adjust exercise sheet allocation",
+        "assignStudentsHeader": "Adjust student assignments",
+        "assignStudentsLabel": "Students:",
+        "assignStudentsPlaceholder": "Select students",
+        "assignStudentsNotFoundText": "Student not found!",
+        "studentUploadLabel": "Import KUSSS CSV list",
+        "studentUploadInfoTooltip": "The columns MATRIKELNR, VORNAME, NACHNAME and EMAIL are mandatory",
+        "csvReset": "Remove CSV file",
+        "designation": "Designation",
+        "exerciseSheetsHeader": "Exercise sheets",
+        "selected": "Selected"
+      }
+    },
+    "terms": {
+      "summer": "Summer term",
+      "winter": "Winter term"
     }
   }
 }

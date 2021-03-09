@@ -41,6 +41,39 @@
       "availableGoals": "Verfügbare Lernziele",
       "selectedGoals": "Ausgewählte Lernziele",
       "displayModalHeader": "Lernzielzuordnung darstellen"
+    },
+    "showInstances": "Instanzen anzeigen",
+    "createInstance": "Instanz anlegen",
+    "instances": {
+      "modalHeader": "Neue Kursinstanz des Kurses '{{courseName}}' anlegen",
+      "year": "Jahr:",
+      "term": "Semester:",
+      "description": "Beschreibung:",
+      "overview": {
+        "back": "Zurück",
+        "header": "Instanzen des Kurses '{{courseName}}'",
+        "name": "Name",
+        "year": "Jahr",
+        "term": "Semester",
+        "studentCount": "Studierendenanzahl",
+        "assignStudents": "Studierende zuordnen",
+        "assignExerciseSheet": "Übungszettel zuordnen",
+        "assignExerciseSheetHeader": "Übungszettelzuordnung anpassen",
+        "assignStudentsHeader": "Studierendenzuordnung anpassen",
+        "assignStudentsLabel": "Studierende:",
+        "assignStudentsPlaceholder": "Studierende auswählen",
+        "assignStudentsNotFoundText": "Studiernde/n nicht gefunden!",
+        "studentUploadLabel": "KUSSS-CSV-Liste importieren",
+        "studentUploadInfoTooltip": "Die Spalten MATRIKELNR, VORNAME, NACHNAME und EMAIL sind erforderlich!",
+        "csvReset": "CSV-Datei entfernen",
+        "designation": "Bezeichnung",
+        "exerciseSheetsHeader": "Übungszettel",
+        "selected": "Ausgewählt"
+      }
+    },
+    "terms": {
+      "summer": "Sommersemester",
+      "winter": "Wintersemester"
     }
   }
 }

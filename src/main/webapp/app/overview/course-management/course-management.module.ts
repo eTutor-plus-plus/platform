@@ -10,6 +10,11 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 import { OverviewSharedModule } from '../shared/overview-shared.module';
+import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
+import { CourseInstanceOverviewComponent } from './course-instances/course-instance-overview/course-instance-overview.component';
+import { StudentAssignmentModalComponent } from './course-instances/course-instance-overview/student-assignment-modal/student-assignment-modal.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { CourseExerciseSheetAllocationComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
 
 /**
  * The module for course management related components.
@@ -25,6 +30,7 @@ import { OverviewSharedModule } from '../shared/overview-shared.module';
       appendToBody: true,
     }),
     NgSelectModule,
+    NgxSpinnerModule,
   ],
   declarations: [
     CourseManagementComponent,
@@ -32,6 +38,10 @@ import { OverviewSharedModule } from '../shared/overview-shared.module';
     ViewCourseComponent,
     LearningGoalAssignmentUpdateComponent,
     LearningGoalAssignmentDisplayComponent,
+    CourseInstanceCreationComponent,
+    CourseInstanceOverviewComponent,
+    StudentAssignmentModalComponent,
+    CourseExerciseSheetAllocationComponent,
   ],
 })
 export class CourseManagementModule {}

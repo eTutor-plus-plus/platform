@@ -35,7 +35,8 @@
       "learningGoals": {
         "main": "Learning goals",
         "management": "Learning goal management",
-        "taskManagement": "Task management"
+        "taskManagement": "Task management",
+        "exerciseSheets": "Exercise sheet management"
       },
       "courses": {
         "main": "Courses",
@@ -156,7 +157,9 @@
     "learningGoalAssignmentNonExistent": "The learning goal assignment does not exist!",
     "learningGoalAssignmentAlreadyExists": "The learning goal assignment already exists!",
     "taskAssignmentNotFound": "The task assignment does not exist!",
-    "taskNotOwner": "Only the creator of the task is allowed to edit it!"
+    "taskNotOwner": "Only the creator of the task is allowed to edit it!",
+    "courseInstanceNotFound": "The course instance can not be found!",
+    "studentCSVImportError": "A CSV import error occurred!"
   },
   "footer": {
     "contact": "Contact",

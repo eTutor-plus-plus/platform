@@ -1,0 +1,27 @@
+<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<br>
+<br>
+
+<h3>{{'overview.student.exerciseSheetOverviewHeader' | translate: {courseName: instance?.courseName} }}</h3>
+
+<div class="table-responsive" *ngIf="items">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th jhiTranslate="overview.student.difficulty">Difficulty</th>
+                <th jhiTranslate="overview.student.completed">Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of items; trackBy: trackIdentity">
+                <td>{{item.assignmentHeader}}</td>
+                <td>{{getDifficultyI18nString(item.difficultyURI) | translate}}</td>
+                <td [ngSwitch]="item.completed">
+                    <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+                    <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,5 +1,17 @@
 {
   "overview": {
-    "header": "Overview"
+    "header": "Overview",
+    "student": {
+      "header": "My courses",
+      "designation": "Designation",
+      "term": "Term",
+      "year": "Year",
+      "instructor": "Instructor",
+      "showAssignments": "Show assignments",
+      "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
+      "back": "Back",
+      "difficulty": "Difficulty",
+      "completed": "Completed"
+    }
   }
 }

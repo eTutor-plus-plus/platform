@@ -1,0 +1,32 @@
+<hr>
+<h4 jhiTranslate="overview.student.header">My courses</h4>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th jhiTranslate="overview.student.designation">Designation</th>
+                <th jhiTranslate="overview.student.term">Term</th>
+                <th jhiTranslate="overview.student.year">Year</th>
+                <th jhiTranslate="overview.student.instructor">Intructor</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let course of courses">
+                <td>{{course.courseName}}</td>
+                <td>{{getTermI18NStringFromURL(course.termId) | translate}}</td>
+                <td>{{course.year}}</td>
+                <td>{{course.instructor}}</td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-sm"
+                                (click)="navigateToCourseAssignments(course)">
+                            <fa-icon icon="tasks"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="overview.student.showAssignments">Show assignments</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,5 +1,17 @@
 {
   "overview": {
-    "header": "Übersicht"
+    "header": "Übersicht",
+    "student": {
+      "header": "Meine Kurse",
+      "designation": "Bezeichnung",
+      "term": "Semester",
+      "year": "Jahr",
+      "instructor": "Kursleiter",
+      "showAssignments": "Aufgaben anzeigen",
+      "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
+      "back": "Zurück",
+      "difficulty": "Schwierigkeit",
+      "completed": "Abgeschlossen"
+    }
   }
 }

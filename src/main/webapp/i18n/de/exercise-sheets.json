@@ -1,0 +1,31 @@
+{
+  "exerciseSheets": {
+    "header": "Übungszettelverwaltung",
+    "createText": "Neuen Übungszettel anlegen",
+    "form": {
+      "headerNew": "Neuen Übungszettel anlegen",
+      "headerEdit": "Übungszettel '{{header}}' bearbeiten",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "fields": {
+        "name": "Name:",
+        "difficulty": "Schwierigkeit:",
+        "learningGoals": "Lernziele"
+      },
+      "error": {
+        "required": "Dieses Feld ist erforderlich!"
+      },
+      "difficultyPlaceholder": "Schwierigkeit auswählen"
+    },
+    "popover": {
+      "title": "Information",
+      "message": "Soll der ausgewählte Übungszettel gelöscht werden?",
+      "cancelBtn": "Nein",
+      "confirmBtn": "Ja"
+    },
+    "tooltip": {
+      "deleteExerciseSheet": "Übungszettel '{{name}}' löschen",
+      "editExerciseSheet": "Übungszettel '{{name}}' bearbeiten"
+    }
+  }
+}

@@ -11,6 +11,8 @@ import { ViewCourseComponent } from './view-course/view-course.component';
 import { filter } from 'lodash';
 import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignment-update/learning-goal-assignment-update.component';
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
+import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 /**
  * Component which is used to display the course management
@@ -49,13 +51,17 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    * @param eventManager the injected event manager
    * @param translatePipe the injected translate pipe
    * @param modalService the injected modal service
+   * @param router the injected routing service
+   * @param activatedRoute the injected activated route
    */
   constructor(
     private accountService: AccountService,
     private courseService: CourseManagementService,
     private eventManager: JhiEventManager,
     private translatePipe: TranslatePipe,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   /**
@@ -162,6 +168,27 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   public editGoalAssignments(course: CourseModel): void {
     const modalRef = this.modalService.open(LearningGoalAssignmentUpdateComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as LearningGoalAssignmentUpdateComponent).selectedCourse = course;
+  }
+
+  /**
+   * Opens the create instance window for the given course.
+   *
+   * @param course the course
+   */
+  public createInstance(course: CourseModel): void {
+    const modalRef = this.modalService.open(CourseInstanceCreationComponent, { size: 'lg', backdrop: 'static' });
+    (modalRef.componentInstance as CourseInstanceCreationComponent).course = course;
+  }
+
+  /**
+   * Displays the instances of the given course.
+   *
+   * @param course the course whose instances should be displayed
+   */
+  public viewInstances(course: CourseModel): void {
+    this.router.navigate(['course-instances', 'of', course.name], {
+      relativeTo: this.activatedRoute,
+    });
   }
 
   /**

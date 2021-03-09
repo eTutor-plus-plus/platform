@@ -45,6 +45,20 @@ export interface ILearningGoalModel extends INewLearningGoalModel {
 }
 
 /**
+ * Interface for a learning goal display model.
+ */
+export interface ILearningGoalDisplayModel {
+  /**
+   * The learning goal's id.
+   */
+  id: string;
+  /**
+   * The learning goal's name.
+   */
+  name?: string;
+}
+
+/**
  * Interface for a displayable learning goal assignment.
  */
 export interface IDisplayLearningGoalAssignmentModel extends ILearningGoalModel {

@@ -485,8 +485,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * @return {@code Slice} containing the elements
      */
     public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user) {
-        Objects.requireNonNull(headerFilter);
         Objects.requireNonNull(pageable);
+        Objects.requireNonNull(user);
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString();
         qry.append("""

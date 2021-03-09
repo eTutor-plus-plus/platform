@@ -35,7 +35,8 @@
       "learningGoals": {
         "main": "Lernziele",
         "management": "Lernzielverwaltung",
-        "taskManagement": "Aufgabenverwaltung"
+        "taskManagement": "Aufgabenverwaltung",
+        "exerciseSheets": "Übungszettelverwaltung"
       },
       "courses": {
         "main": "LVAs",
@@ -156,7 +157,9 @@
     "learningGoalAssignmentNonExistent": "Die Lernzielzuordnung existiert nicht!",
     "learningGoalAssignmentAlreadyExists": "Die Lernzielzuordnung existiert bereits!",
     "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
-    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!"
+    "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!",
+    "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!",
+    "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!"
   },
   "footer": {
     "contact": "Kontakt",
