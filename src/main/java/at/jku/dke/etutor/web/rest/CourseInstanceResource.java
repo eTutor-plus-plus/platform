@@ -185,7 +185,7 @@ public class CourseInstanceResource {
     @PostMapping("{uuid}/exercise-sheets")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> allocateNewExerciseSheets(@PathVariable String uuid, @RequestBody JSONArray body) {
-        List<String> newExerciseSheetIds = StreamEx.of(body.stream()).map(x -> (String) x).toList();
+        List<String> newExerciseSheetIds = StreamEx.of(body.stream()).map(String.class::cast).toList();
 
         try {
             courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(uuid, newExerciseSheetIds);
