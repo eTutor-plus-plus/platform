@@ -52,3 +52,25 @@ export interface ICourseInstanceInformationDTO {
    */
   year: number;
 }
+
+/**
+ * Interface which represents the progress overview of a course instance.
+ */
+export interface ICourseInstanceProgressOverviewDTO {
+  /**
+   * The internal exercise sheet id.
+   */
+  exerciseSheetId: string;
+  /**
+   * The assignment header.
+   */
+  assignmentHeader: string;
+  /**
+   * The difficulty URI.
+   */
+  difficultyURI: string;
+  /**
+   * The status of the assignment.
+   */
+  completed: boolean;
+}

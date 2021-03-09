@@ -7,7 +7,11 @@
       "term": "Semester",
       "year": "Jahr",
       "instructor": "Kursleiter",
-      "showAssignments": "Aufgaben anzeigen"
+      "showAssignments": "Aufgaben anzeigen",
+      "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
+      "back": "Zurück",
+      "difficulty": "Schwierigkeit",
+      "completed": "Abgeschlossen"
     }
   }
 }

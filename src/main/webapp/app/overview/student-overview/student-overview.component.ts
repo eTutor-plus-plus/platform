@@ -44,5 +44,7 @@ export class StudentOverviewComponent implements OnInit {
    *
    * @param course the course instance
    */
-  public navigateToCourseAssignments(course: ICourseInstanceInformationDTO): void {}
+  public navigateToCourseAssignments(course: ICourseInstanceInformationDTO): void {
+    this.router.navigate(['/overview/student/exercises'], { state: { instance: course } });
+  }
 }

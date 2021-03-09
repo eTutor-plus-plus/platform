@@ -7,6 +7,7 @@ import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -45,6 +46,22 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?course etutor:hasCourseCreator ?instructor.
         }
         ORDER BY(?courseName)
+        """;
+
+    private static final String QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed
+        WHERE {
+          ?instance a etutor:CourseInstance.
+          ?instance etutor:hasStudent ?student.
+          ?instance etutor:hasExerciseSheet ?exerciseSheet.
+          ?exerciseSheet rdfs:label ?exerciseSheetName.
+          ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+          BIND(false AS ?completed).
+        }
+        ORDER BY (LCASE(?exerciseSheetName))
         """;
 
     private final UserService userService;
@@ -121,6 +138,44 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     retList.add(new CourseInstanceInformationDTO(courseName, termId, instructor, instanceId, year));
                 }
                 return retList;
+            }
+        }
+    }
+
+    /**
+     * Returns the progress overview of the single exercise sheets from a course instance of a
+     * specific student.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @param courseInstanceUUID  the course instance uuid
+     * @return list containing the elements
+     */
+    public List<CourseInstanceProgressOverviewDTO> getProgressOverview(String matriculationNumber, String courseInstanceUUID) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+
+        String studentURI = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+        String courseInstanceURI = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW);
+        qry.setIri("?instance", courseInstanceURI);
+        qry.setIri("?student", studentURI);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(qry.asQuery())) {
+                ResultSet set = execution.execSelect();
+                List<CourseInstanceProgressOverviewDTO> items = new ArrayList<>();
+                while (set.hasNext()) {
+                    var solution = set.nextSolution();
+
+                    String sheetId = solution.getLiteral("?exerciseSheetId").getString();
+                    String sheetName = solution.getLiteral("?exerciseSheetName").getString();
+                    String difficultyUri = solution.getLiteral("?difficultyURI").getString();
+                    boolean completed = solution.getLiteral("?completed").getBoolean();
+
+                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed));
+                }
+                return items;
             }
         }
     }

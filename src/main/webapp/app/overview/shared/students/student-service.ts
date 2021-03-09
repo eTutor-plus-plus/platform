@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../app.constants';
-import { ICourseInstanceInformationDTO, IStudentFullNameInfoDTO, IStudentInfoDTO } from './students.model';
+import {
+  ICourseInstanceInformationDTO,
+  ICourseInstanceProgressOverviewDTO,
+  IStudentFullNameInfoDTO,
+  IStudentInfoDTO,
+} from './students.model';
 import { map } from 'rxjs/operators';
 
 /**
@@ -42,5 +47,16 @@ export class StudentService {
    */
   public getCourseInstancesOfLoggedInStudent(): Observable<ICourseInstanceInformationDTO[]> {
     return this.http.get<ICourseInstanceInformationDTO[]>(`${SERVER_API_URL}api/student/courses`);
+  }
+
+  /**
+   * Returns the progress on course assignments from a given course of the currently logged-in
+   * student.
+   *
+   * @param courseInstanceId the course instance URI
+   */
+  public getStudentCourseInstanceProgressOverview(courseInstanceId: string): Observable<ICourseInstanceProgressOverviewDTO[]> {
+    const uuid = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<ICourseInstanceProgressOverviewDTO[]>(`${SERVER_API_URL}api/student/courses/${uuid}/progress`);
   }
 }

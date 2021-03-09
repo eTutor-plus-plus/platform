@@ -7,7 +7,11 @@
       "term": "Term",
       "year": "Year",
       "instructor": "Instructor",
-      "showAssignments": "Show assignments"
+      "showAssignments": "Show assignments",
+      "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
+      "back": "Back",
+      "difficulty": "Difficulty",
+      "completed": "Completed"
     }
   }
 }
