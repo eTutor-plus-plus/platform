@@ -82,7 +82,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
@@ -142,7 +142,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
@@ -180,7 +180,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
         var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);

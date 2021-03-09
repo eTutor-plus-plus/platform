@@ -89,7 +89,7 @@ public class ExerciseSheetResourceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME);
+        var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
