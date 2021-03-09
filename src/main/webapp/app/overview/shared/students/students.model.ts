@@ -30,7 +30,7 @@ export interface IStudentFullNameInfoDTO extends IStudentInfoDTO {
 /**
  * Interface which represents a course instance.
  */
-export interface CourseInstanceInformationDTO {
+export interface ICourseInstanceInformationDTO {
   /**
    * The course name.
    */

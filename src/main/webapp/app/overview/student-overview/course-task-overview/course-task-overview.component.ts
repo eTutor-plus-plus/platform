@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { StudentService } from '../../shared/students/student-service';
 
 /**
  * Component for displaying the student's task of a given course instance.
@@ -9,7 +10,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./course-task-overview.component.scss'],
 })
 export class CourseTaskOverviewComponent implements OnInit {
-  constructor() {}
+  constructor(private studentService: StudentService) {}
 
   /**
    * Implements the init method. See {@link OnInit}.

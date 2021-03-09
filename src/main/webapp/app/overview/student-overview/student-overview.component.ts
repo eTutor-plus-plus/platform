@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { StudentService } from '../shared/students/student-service';
-import { CourseInstanceInformationDTO } from '../shared/students/students.model';
+import { ICourseInstanceInformationDTO } from '../shared/students/students.model';
 import { Term } from '../course-management/course-mangement.model';
 import { Router } from '@angular/router';
 
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./student-overview.component.scss'],
 })
 export class StudentOverviewComponent implements OnInit {
-  public courses: CourseInstanceInformationDTO[] = [];
+  public courses: ICourseInstanceInformationDTO[] = [];
 
   /**
    * Constructor.
@@ -44,5 +44,5 @@ export class StudentOverviewComponent implements OnInit {
    *
    * @param course the course instance
    */
-  public navigateToCourseAssignments(course: CourseInstanceInformationDTO): void {}
+  public navigateToCourseAssignments(course: ICourseInstanceInformationDTO): void {}
 }
