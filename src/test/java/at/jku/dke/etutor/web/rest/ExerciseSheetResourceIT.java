@@ -249,7 +249,7 @@ public class ExerciseSheetResourceIT {
         jsonData = result.getResponse().getContentAsString();
         list = TestUtil.convertCollectionFromJSONString(jsonData, ExerciseSheetDisplayDTO.class, List.class);
 
-        assertThat(result.getResponse().getHeader("X-Total-Count")).isEqualTo(String.valueOf(fullTextCount));
+        assertThat(result.getResponse().getHeader("X-Total-Count")).isEqualTo(String.valueOf(fullTextCount + 2));
         assertThat(list).hasSize(size);
     }
 
