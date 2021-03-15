@@ -6,7 +6,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.LearningGoalAlreadyExistsException;
+import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;

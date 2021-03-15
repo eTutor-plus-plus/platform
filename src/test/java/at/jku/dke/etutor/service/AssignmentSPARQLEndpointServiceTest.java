@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;

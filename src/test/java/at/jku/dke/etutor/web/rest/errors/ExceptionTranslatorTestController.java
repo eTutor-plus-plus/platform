@@ -1,6 +1,6 @@
 package at.jku.dke.etutor.web.rest.errors;
 
-import at.jku.dke.etutor.service.EmailAlreadyUsedException;
+import at.jku.dke.etutor.service.exception.EmailAlreadyUsedException;
 import at.jku.dke.etutor.service.UsernameAlreadyUsedException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;

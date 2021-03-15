@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service;
+package at.jku.dke.etutor.service.exception;
 
 /**
  * Validation exception which will be thrown if a course name already exists.

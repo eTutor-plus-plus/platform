@@ -63,7 +63,7 @@ public class CourseResource {
 
             return ResponseEntity.created(new URI(String.format("/api/course/%s", newCourse.getNameForRDF())))
                 .body(newCourse);
-        } catch (at.jku.dke.etutor.service.CourseAlreadyExistsException e) {
+        } catch (at.jku.dke.etutor.service.exception.CourseAlreadyExistsException e) {
             throw new CourseAlreadyExistsException();
         }
     }
@@ -115,7 +115,7 @@ public class CourseResource {
         try {
             sparqlEndpointService.deleteCourse(name, currentLogin);
             return ResponseEntity.noContent().build();
-        } catch (at.jku.dke.etutor.service.CourseNotFoundException e) {
+        } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException e) {
             throw new CourseNotFoundException();
         }
     }
@@ -136,7 +136,7 @@ public class CourseResource {
         try {
             sparqlEndpointService.updateCourse(body);
             return ResponseEntity.noContent().build();
-        } catch (at.jku.dke.etutor.service.CourseNotFoundException e) {
+        } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException e) {
             throw new CourseNotFoundException();
         }
     }
@@ -195,7 +195,7 @@ public class CourseResource {
         try {
             var goals = sparqlEndpointService.getLearningGoalsForCourse(courseName);
             return ResponseEntity.ok(goals);
-        } catch (at.jku.dke.etutor.service.CourseNotFoundException e) {
+        } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException e) {
             throw new CourseNotFoundException();
         } catch (InternalModelException ex) {
             throw new BadRequestAlertException("An internal error occurred!", "learningGoalManagement", "parsingError");

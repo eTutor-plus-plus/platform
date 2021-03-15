@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;

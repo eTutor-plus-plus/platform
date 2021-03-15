@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service;
+package at.jku.dke.etutor.service.exception;
 
 import java.io.Serial;
 

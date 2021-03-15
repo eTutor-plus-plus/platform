@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service;
+package at.jku.dke.etutor.service.exception;
 
 /**
  * Validation exception which is thrown when a goal which should be marked as public

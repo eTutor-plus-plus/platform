@@ -67,7 +67,7 @@ public class CourseInstanceResource {
             String uuid = id.substring(id.lastIndexOf('#') + 1);
 
             return ResponseEntity.created(new URI(String.format("/api/course-instance/%s", uuid))).body(String.format("\"%s\"", id));
-        } catch (at.jku.dke.etutor.service.CourseNotFoundException courseNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException courseNotFoundException) {
             throw new CourseNotFoundException();
         }
     }
@@ -84,7 +84,7 @@ public class CourseInstanceResource {
         try {
             courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(body.getMatriculationNumbers(), body.getCourseInstanceId());
             return ResponseEntity.noContent().build();
-        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }
     }
@@ -114,7 +114,7 @@ public class CourseInstanceResource {
         try {
             Collection<CourseInstanceDTO> instances = courseInstanceSPARQLEndpointService.getInstancesOfCourse(name);
             return ResponseEntity.ok(instances);
-        } catch (at.jku.dke.etutor.service.CourseNotFoundException courseNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException courseNotFoundException) {
             throw new CourseNotFoundException();
         }
     }
@@ -169,7 +169,7 @@ public class CourseInstanceResource {
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.StudentCSVImportException studentCSVImportException) {
             throw new StudentCSVImportException();
-        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }
     }
@@ -190,7 +190,7 @@ public class CourseInstanceResource {
         try {
             courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(uuid, newExerciseSheetIds);
             return ResponseEntity.noContent().build();
-        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }
     }
@@ -207,7 +207,7 @@ public class CourseInstanceResource {
         try {
             Collection<ExerciseSheetDisplayDTO> sheets = courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance(uuid);
             return ResponseEntity.ok(sheets);
-        } catch (at.jku.dke.etutor.service.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
             throw new CourseInstanceNotFoundException();
         }
     }

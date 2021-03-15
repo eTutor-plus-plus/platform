@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service;
+package at.jku.dke.etutor.service.exception;
 
 public class EmailAlreadyUsedException extends RuntimeException {
 

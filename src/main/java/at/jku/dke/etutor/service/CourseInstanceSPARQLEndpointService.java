@@ -7,6 +7,8 @@ import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
+import at.jku.dke.etutor.service.exception.CourseNotFoundException;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
