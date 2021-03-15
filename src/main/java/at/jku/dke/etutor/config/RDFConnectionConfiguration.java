@@ -2,7 +2,6 @@ package at.jku.dke.etutor.config;
 
 import at.jku.dke.etutor.helper.FusekiRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
-import org.apache.jena.rdfconnection.RDFConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

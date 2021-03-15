@@ -398,4 +398,11 @@ public final class ETutorVocabulary {
     public static final String getStudentURLFromMatriculationNumber(String matriculationNumber) {
         return URI + CLASS_STUDENT + "#" + matriculationNumber;
     }
+
+    /**
+     * Constructor.
+     */
+    private ETutorVocabulary() {
+        throw new IllegalStateException("Utility class");
+    }
 }

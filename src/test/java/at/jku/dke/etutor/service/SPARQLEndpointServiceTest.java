@@ -85,8 +85,8 @@ public class SPARQLEndpointServiceTest {
         LearningGoalDTO goal = goals.first();
 
         assertThat(goal.getOwner()).isEqualTo("admin");
-        assertThat(goal.getReferencedFromCount()).isEqualTo(0);
-        assertThat(goal.getSubGoals().size()).isEqualTo(0);
+        assertThat(goal.getReferencedFromCount()).isZero();
+        assertThat(goal.getSubGoals().size()).isZero();
         assertThat(goal.getId()).isEqualTo("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Testziel");
     }
 
@@ -457,7 +457,7 @@ public class SPARQLEndpointServiceTest {
         CourseDTO courseFromService = courses.first();
         assertThat(courseFromService.getName()).isEqualTo("TestCourse");
         assertThat(courseFromService.getCourseType()).isEqualTo("LVA");
-        assertThat(courseFromService.getLink().toString()).isEqualTo("https://www.dke.uni-linz.ac.at");
+        assertThat(courseFromService.getLink()).hasToString("https://www.dke.uni-linz.ac.at");
     }
 
     /**
@@ -468,7 +468,8 @@ public class SPARQLEndpointServiceTest {
         assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(null, null))
             .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(new CourseDTO(), null))
+        var courseDTO = new CourseDTO();
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(courseDTO, null))
             .isInstanceOf(NullPointerException.class);
     }
 
@@ -506,7 +507,7 @@ public class SPARQLEndpointServiceTest {
         course = sparqlEndpointService.insertNewCourse(course, user);
         assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(1);
         sparqlEndpointService.deleteCourse(course.getNameForRDF(), user);
-        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isEqualTo(0);
+        assertThat(RDFTestUtil.getCourseCount(rdfConnectionFactory)).isZero();
     }
 
     /**
@@ -816,8 +817,10 @@ public class SPARQLEndpointServiceTest {
         sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignmentDTO);
 
         var assignedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
-        assertThat(assignedGoals).isNotEmpty();
-        assertThat(assignedGoals).hasSize(1);
+        assertThat(assignedGoals)
+            .isNotEmpty()
+            .hasSize(1);
+
         var assignedGoal = assignedGoals.first();
         assertThat(assignedGoal.getId()).isEqualTo(goal.getId());
     }

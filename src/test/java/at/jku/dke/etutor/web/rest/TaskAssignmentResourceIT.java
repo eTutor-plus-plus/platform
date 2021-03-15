@@ -245,8 +245,9 @@ public class TaskAssignmentResourceIT {
             .andExpect(status().isNoContent());
 
         var assignmentsFromDB = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
-        assertThat(assignmentsFromDB).isNotEmpty();
-        assertThat(assignmentsFromDB).hasSize(1);
+        assertThat(assignmentsFromDB)
+            .isNotEmpty()
+            .hasSize(1);
 
         var assignmentFromDB = assignmentsFromDB.first();
         assertThat(assignmentFromDB).isEqualToIgnoringGivenFields(assignment, "creationDate");

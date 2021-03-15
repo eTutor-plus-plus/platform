@@ -155,8 +155,6 @@ public class UserService {
             throw new IllegalArgumentException("The parameter 'userDTO' must not be null!");
         }
 
-        //TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-
         if (userDTO.getAuthorities() != null) {
             if (userDTO.getAuthorities().contains(AuthoritiesConstants.ADMIN)) {
                 Administrator admin = new Administrator();

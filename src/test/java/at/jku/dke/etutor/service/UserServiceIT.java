@@ -237,7 +237,7 @@ public class UserServiceIT {
         assertThat(userRepository.count()).isEqualTo(3);
         assertThat(tutorRepository.count()).isEqualTo(1);
         assertThat(studentRepository.count()).isEqualTo(1);
-        assertThat(instructorRepository.count()).isEqualTo(0);
+        assertThat(instructorRepository.count()).isZero();
         assertThat(administratorRepository.count()).isEqualTo(2);
     }
 
@@ -249,8 +249,8 @@ public class UserServiceIT {
         long id = userService.createUser(userDTO).getId();
 
         assertThat(userRepository.count()).isEqualTo(3);
-        assertThat(tutorRepository.count()).isEqualTo(0);
-        assertThat(studentRepository.count()).isEqualTo(0);
+        assertThat(tutorRepository.count()).isZero();
+        assertThat(studentRepository.count()).isZero();
         assertThat(instructorRepository.count()).isEqualTo(1);
         assertThat(administratorRepository.count()).isEqualTo(2);
 
@@ -260,7 +260,7 @@ public class UserServiceIT {
 
         assertThat(userRepository.count()).isEqualTo(3);
         assertThat(tutorRepository.count()).isEqualTo(1);
-        assertThat(studentRepository.count()).isEqualTo(0);
+        assertThat(studentRepository.count()).isZero();
         assertThat(instructorRepository.count()).isEqualTo(1);
         assertThat(administratorRepository.count()).isEqualTo(1);
     }

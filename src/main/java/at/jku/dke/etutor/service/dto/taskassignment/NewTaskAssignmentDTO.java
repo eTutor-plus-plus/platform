@@ -1,6 +1,5 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
-import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

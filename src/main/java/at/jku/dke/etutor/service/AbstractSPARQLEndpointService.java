@@ -23,7 +23,7 @@ public abstract class AbstractSPARQLEndpointService {
      *
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public AbstractSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
+    protected AbstractSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
         this.rdfConnectionFactory = rdfConnectionFactory;
     }
 

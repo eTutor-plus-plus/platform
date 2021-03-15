@@ -27,10 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -200,7 +197,8 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(null, null))
             .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.emptyList(), null))
+        List<String> emptyList = Collections.emptyList();
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(emptyList, null))
             .isInstanceOf(NullPointerException.class);
     }
 

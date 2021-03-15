@@ -114,7 +114,7 @@ public class LearningGoalResource {
      */
     @PutMapping("/learninggoals/{owner}/{goalName}/dependencies")
     public ResponseEntity<Void> setDependencies(@PathVariable String owner, @PathVariable String goalName, @RequestBody JSONArray goalIds) {
-        sparqlEndpointService.setDependencies(owner, goalName, StreamEx.of(goalIds).map(x -> (String) x).toList());
+        sparqlEndpointService.setDependencies(owner, goalName, StreamEx.of(goalIds).map(String.class::cast).toList());
 
         return ResponseEntity.noContent().build();
     }

@@ -82,10 +82,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
                 Statement statement = stmtIterator.nextStatement();
                 Resource goalResource = statement.getObject().asResource();
 
-                String id = goalResource.getURI();
+                String goalId = goalResource.getURI();
                 String name = goalResource.getProperty(RDFS.label).getString();
 
-                learningGoalIds.add(new LearningGoalDisplayDTO(id, name));
+                learningGoalIds.add(new LearningGoalDisplayDTO(goalId, name));
             }
         } finally {
             stmtIterator.close();

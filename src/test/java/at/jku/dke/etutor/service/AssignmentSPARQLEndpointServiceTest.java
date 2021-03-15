@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for the {@code AssignmentSPARQLEndpointService} class.
@@ -75,7 +74,8 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(null, null))
             .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(new NewTaskAssignmentDTO(), null))
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new NewTaskAssignmentDTO();
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, null))
             .isInstanceOf(NullPointerException.class);
     }
 
@@ -216,7 +216,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         insertedAssignment.setHeader("Newheader");
 
-        assignmentSPARQLEndpointService.updateTaskAssignment(insertedAssignment);
+        assertThatCode(() -> assignmentSPARQLEndpointService.updateTaskAssignment(insertedAssignment)).doesNotThrowAnyException();
     }
 
     /**
@@ -242,7 +242,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         assignment.setUrl(new URL("http://www.test.at"));
         assignment.setInstruction("<b>Testinstructions</b>");
 
-        assignmentSPARQLEndpointService.updateTaskAssignment(assignment);
+        assertThatCode(() -> assignmentSPARQLEndpointService.updateTaskAssignment(assignment)).doesNotThrowAnyException();
     }
 
     /**

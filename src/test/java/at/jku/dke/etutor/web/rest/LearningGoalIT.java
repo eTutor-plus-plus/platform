@@ -207,7 +207,7 @@ public class LearningGoalIT {
         assertThat(goals.size()).isEqualTo(1);
 
         var goal = goals.first();
-        assertThat(goal.getSubGoals().size()).isEqualTo(0);
+        assertThat(goal.getSubGoals().size()).isZero();
         assertThat(goal.getName()).isEqualTo("Testziel");
     }
 

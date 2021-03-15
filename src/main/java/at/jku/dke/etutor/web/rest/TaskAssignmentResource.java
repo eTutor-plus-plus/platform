@@ -11,8 +11,6 @@ import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentExce
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
@@ -37,8 +35,6 @@ import java.util.SortedSet;
 @RestController
 @RequestMapping("/api")
 public class TaskAssignmentResource {
-
-    private final Logger log = LoggerFactory.getLogger(TaskAssignmentResource.class);
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 

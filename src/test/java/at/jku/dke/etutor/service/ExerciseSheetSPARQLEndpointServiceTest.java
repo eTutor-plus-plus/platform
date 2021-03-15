@@ -68,7 +68,8 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(null, null))
             .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(new NewExerciseSheetDTO(), null))
+        var newExerciseSheetDTO = new NewExerciseSheetDTO();
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, null))
             .isInstanceOf(NullPointerException.class);
     }
 

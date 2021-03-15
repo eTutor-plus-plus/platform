@@ -20,7 +20,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -566,7 +565,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 return retList;
             }
         } catch (QueryParseException queryParseException) {
-            log.warn("Faulty query - Owner: {}, goal name: {}, query: {}", owner, goalName, qry.toString());
+            log.warn("Faulty query - Owner: {}, goal name: {}, query: {}", owner, goalName, qry);
 
             throw queryParseException;
         }

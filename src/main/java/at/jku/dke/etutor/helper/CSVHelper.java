@@ -60,7 +60,7 @@ public class CSVHelper {
                  .withNullString("").withAllowDuplicateHeaderNames(false).withTrim(true).withFirstRecordAsHeader().withSkipHeaderRecord(true))) {
             List<String> csvColumnHeaders = csvParser.getHeaderNames();
 
-            if (CollectionUtils.subtract(Arrays.asList(COLUMN_NAMES), csvColumnHeaders).size() > 0) {
+            if (!CollectionUtils.subtract(Arrays.asList(COLUMN_NAMES), csvColumnHeaders).isEmpty()) {
                 throw new StudentCSVImportException();
             }
 

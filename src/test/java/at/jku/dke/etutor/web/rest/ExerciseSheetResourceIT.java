@@ -108,8 +108,9 @@ public class ExerciseSheetResourceIT {
 
         String location = result.getResponse().getHeader("Location");
 
-        assertThat(location).isNotNull();
-        assertThat(location).isNotBlank();
+        assertThat(location)
+            .isNotNull()
+            .isNotBlank();
 
         result = restExerciseSheetMockMvc.perform(get(location))
             .andExpect(status().isOk())
