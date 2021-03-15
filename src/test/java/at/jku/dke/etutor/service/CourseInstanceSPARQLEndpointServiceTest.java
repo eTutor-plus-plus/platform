@@ -10,7 +10,10 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import liquibase.integration.spring.SpringLiquibase;
+import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -21,8 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -43,6 +48,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
     private static final String OWNER = "admin";
 
     private CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService;
+    private ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
     private SPARQLEndpointService sparqlEndpointService;
     private RDFConnectionFactory rdfConnectionFactory;
 
@@ -97,6 +103,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(rdfConnectionFactory, userService);
+        exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(rdfConnectionFactory);
 
         sparqlEndpointService.insertScheme();
 
@@ -195,5 +202,117 @@ public class CourseInstanceSPARQLEndpointServiceTest {
 
         assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.emptyList(), null))
             .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the get displayable course instances of course method with null values.
+     */
+    @Test
+    public void testGetDisplayableCourseInstancesOfCourseNullValues() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse("Test", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the get displayable course instances of course method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetDisplayableCourseInstancesOfCourse() throws Exception {
+        for (int i = 0; i < 6; i++) {
+            NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+            newCourseInstanceDTO.setCourseId(course.getId());
+            newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+            newCourseInstanceDTO.setYear(2021 + i);
+            courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+        }
+
+        PageRequest pageRequest = PageRequest.of(0, 5);
+
+        var result = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(course.getName(), pageRequest);
+
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent()).hasSize(5);
+    }
+
+    /**
+     * Tests the add exercise sheet course instance assignments method with null values.
+     */
+    @Test
+    public void testAddExerciseSheetCourseInstanceAssignmentsNullValues() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(null, null))
+            .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments("test", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the add exercise sheet course instance assignments method with an invalid course instance.
+     */
+    @Test
+    public void testAddExerciseSheetCourseInstanceAssignmentsWithInvalidCourseInstance() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments("test", new ArrayList<>()))
+            .isInstanceOf(CourseInstanceNotFoundException.class);
+    }
+
+    /**
+     * Tests the add exercise sheet course instance assignments and get exercise
+     * sheets of course instance methods.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testAddExerciseSheetCourseInstanceAssignmentsAndGetExerciseSheetsOf() throws Exception {
+        NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+        newCourseInstanceDTO.setCourseId(course.getId());
+        newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+        newCourseInstanceDTO.setYear(2021);
+        String uri = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+        String instanceUUID = uri.substring(uri.lastIndexOf('#') + 1);
+
+        NewExerciseSheetDTO firstNewExerciseSheet = new NewExerciseSheetDTO();
+        firstNewExerciseSheet.setName("TestSheet 1");
+        firstNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        firstNewExerciseSheet.setLearningGoals(new ArrayList<>());
+
+        var firstExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(firstNewExerciseSheet, "admin");
+
+        NewExerciseSheetDTO secondNewExerciseSheet = new NewExerciseSheetDTO();
+        secondNewExerciseSheet.setName("TestSheet 2");
+        secondNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        secondNewExerciseSheet.setLearningGoals(new ArrayList<>());
+
+        var secondExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(secondNewExerciseSheet, "admin");
+
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(instanceUUID, Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId()));
+
+        var exerciseSheets = courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance(instanceUUID);
+
+        assertThat(exerciseSheets).hasSize(2);
+        assertThat(StreamEx.of(exerciseSheets).map(ExerciseSheetDisplayDTO::getInternalId).toList()).containsExactlyInAnyOrder(firstExerciseSheet.getId(), secondExerciseSheet.getId());
+    }
+
+    /**
+     * Tests the get exercise sheets of course instance method with a null value.
+     */
+    @Test
+    public void testGetExerciseSheetsOfCourseInstanceNullValue() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the get exercise sheets of course instance method with an invalid
+     * course instance uuid.
+     */
+    @Test
+    public void testGetExerciseSheetsOfCourseInstanceWithInvalidCourseInstanceUUID() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance("test"))
+            .isInstanceOf(CourseInstanceNotFoundException.class);
     }
 }

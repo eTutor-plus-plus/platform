@@ -327,7 +327,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         if (page.isPaged()) {
             query.append("LIMIT ");
-            query.append(page.getPageSize() + 1);
+            query.append(page.getPageSize());
             query.append("\nOFFSET ");
             query.append(page.getOffset());
         }
@@ -379,6 +379,9 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @throws CourseInstanceNotFoundException if the requested course instance can not be found
      */
     public void addExerciseSheetCourseInstanceAssignments(String uuid, List<String> exerciseSheets) throws CourseInstanceNotFoundException {
+        Objects.requireNonNull(uuid);
+        Objects.requireNonNull(exerciseSheets);
+
         String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString("""
@@ -418,6 +421,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @throws CourseInstanceNotFoundException if the requested course instance does not exist
      */
     public List<ExerciseSheetDisplayDTO> getExerciseSheetsOfCourseInstance(String uuid) throws CourseInstanceNotFoundException {
+        Objects.requireNonNull(uuid);
+
         String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
 
         ParameterizedSparqlString courseInstanceExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_INSTANCE_EXISTS);

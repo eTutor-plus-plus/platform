@@ -26,7 +26,6 @@ import java.text.ParseException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,6 +56,8 @@ public class ExerciseSheetResourceIT {
 
     @Autowired
     private MockMvc restExerciseSheetMockMvc;
+
+    private int fullTextCount;
 
     /**
      * Init method which is called before the rest run.
@@ -193,9 +194,9 @@ public class ExerciseSheetResourceIT {
     @Order(5)
     @SuppressWarnings("unchecked")
     public void testGetExerciseDisplayList() throws Exception {
-        int cnt = insertExerciseSheetsForFulltextSearch();
+        fullTextCount = insertExerciseSheetsForFulltextSearch();
         int page = 0;
-        int size = cnt -1;
+        int size = fullTextCount - 1;
         String nameFilter = "for";
 
         var result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/sliced?page={page}&size={size}&name={nameFilter}", page, size, nameFilter))
@@ -215,6 +216,41 @@ public class ExerciseSheetResourceIT {
 
         assertThat(displayList).hasSize(size);
         assertThat(result.getResponse().getHeader("X-Has-Next-Page")).isEqualTo("true");
+    }
+
+    /**
+     * Tests the get paged exercise display list endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(6)
+    @SuppressWarnings("unchecked")
+    public void testGetPagedExerciseDisplayList() throws Exception {
+        int page = 0;
+        int size = fullTextCount - 1;
+        String nameFilter = "for";
+
+        var result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/paged?page={page}&size={size}&name={nameFilter}", page, size, nameFilter))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+
+        List<ExerciseSheetDisplayDTO> list = TestUtil.convertCollectionFromJSONString(jsonData, ExerciseSheetDisplayDTO.class, List.class);
+        assertThat(result.getResponse().getHeader("X-Total-Count")).isEqualTo("1");
+
+        assertThat(list).hasSize(1);
+
+        result = restExerciseSheetMockMvc.perform(get("/api/exercise-sheet/display/paged?page={page}&size={size}", page, size))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        jsonData = result.getResponse().getContentAsString();
+        list = TestUtil.convertCollectionFromJSONString(jsonData, ExerciseSheetDisplayDTO.class, List.class);
+
+        assertThat(result.getResponse().getHeader("X-Total-Count")).isEqualTo(String.valueOf(fullTextCount));
+        assertThat(list).hasSize(size);
     }
 
     //region Private helper methods

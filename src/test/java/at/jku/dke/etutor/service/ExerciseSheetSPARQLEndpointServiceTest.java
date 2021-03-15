@@ -237,6 +237,26 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         assertThat(slice.getContent()).hasSize(cnt - 1);
     }
 
+    /**
+     * Tests the get filtered exercise sheet display DTO as page method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testGetFilteredExerciseSheetDisplayDTOAsPage() throws Exception {
+        int cnt = insertExerciseSheetsForFulltextSearch();
+        PageRequest pageRequest = PageRequest.of(0, cnt - 1);
+
+        var page = exerciseSheetSPARQLEndpointService.getFilteredExerciseSheetDisplayDTOsAsPage("for", pageRequest);
+        assertThat(page.getTotalPages()).isEqualTo(1);
+        assertThat(page.getContent()).hasSize(1);
+
+        page = exerciseSheetSPARQLEndpointService.getFilteredExerciseSheetDisplayDTOsAsPage("", pageRequest);
+
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.getContent()).hasSize(cnt - 1);
+    }
+
     //region Private helper methods
 
     /**
