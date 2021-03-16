@@ -21,6 +21,7 @@
     "filter": {
       "filter": "Filter:",
       "onlyShowOwnGoals": "Nur die eigenen Lernziele anzeigen?"
-    }
+    },
+    "delete": "Löschen"
   }
 }

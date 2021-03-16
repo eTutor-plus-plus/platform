@@ -116,4 +116,14 @@ export class LearningGoalsService {
       observe: 'response',
     });
   }
+
+  /**
+   * Deletes the given goal and its sub goals.
+   *
+   * @param goalName the goal's name
+   */
+  public deleteGoalWithSubGoals(goalName: string): Observable<HttpResponse<any>> {
+    const encodedName = encodeURIComponent(goalName);
+    return this.http.delete(`${SERVER_API_URL}api/learninggoals/${encodedName}`, { observe: 'response' });
+  }
 }

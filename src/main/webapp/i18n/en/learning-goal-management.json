@@ -21,6 +21,7 @@
     "filter": {
       "filter": "Filter:",
       "onlyShowOwnGoals": "Only show own learning goals?"
-    }
+    },
+    "delete": "Delete"
   }
 }

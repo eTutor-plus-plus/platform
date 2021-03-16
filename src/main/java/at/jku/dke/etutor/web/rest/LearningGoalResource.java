@@ -1,7 +1,8 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.*;
+import at.jku.dke.etutor.service.InternalModelException;
+import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
@@ -73,6 +74,25 @@ public class LearningGoalResource {
                 .body(newGoal);
         } catch (LearningGoalAlreadyExistsException ex) {
             throw new at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException();
+        }
+    }
+
+    /**
+     * {@code DELETE /learninggoals/:goalName} : Deletes the given goal and its sub goals.
+     *
+     * @param goalName the goal's name from the request path
+     * @return the {@link ResponseEntity} with no content
+     */
+    @DeleteMapping("/learninggoals/{goalName}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> deleteLearningGoal(@PathVariable String goalName) {
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        try {
+            sparqlEndpointService.removeLearningGoalAndSubGoals(currentLogin, goalName);
+            return ResponseEntity.noContent().build();
+        } catch (LearningGoalNotExistsException ex) {
+            throw new LearningGoalNotFoundException();
         }
     }
 

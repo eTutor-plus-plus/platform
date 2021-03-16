@@ -32,6 +32,10 @@
     <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onManageDependentGoalsRequested($event.item)">
         <span jhiTranslate="learningGoalManagement.manageDependencies">Manage dependencies</span>
     </ng-template>
+    <ng-template contextMenuItem [divider]="true"></ng-template>
+    <ng-template contextMenuItem [enabled]="canGoalBeRemoved" (execute)="onDelete($event.item)">
+        <span jhiTranslate="learningGoalManagement.delete">Delete</span>
+    </ng-template>
 </context-menu>
 
 <h1 class="text-center" jhiTranslate="learningGoalManagement.header">Learning goal management</h1>

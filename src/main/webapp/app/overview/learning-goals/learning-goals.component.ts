@@ -125,6 +125,24 @@ export class LearningGoalsComponent implements OnInit {
   }
 
   /**
+   * Event handler which handles the delete learning goal event.
+   *
+   * @param goalItem the goal item which should be deleted
+   */
+  public onDelete(goalItem: LearningGoalTreeviewItem): void {
+    this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).subscribe(() => this.onFilterChanged());
+  }
+
+  /**
+   * Checks the whether given goal can be removed or not
+   *
+   * @param goalItem the goal item to check
+   */
+  public canGoalBeRemoved = (goalItem: LearningGoalTreeviewItem): boolean => {
+    return goalItem.isUserAllowedToModify() && this.getReferenceCntRecursive(goalItem) === 0;
+  };
+
+  /**
    * Event handler which handles the dependency manager window request for a goal.
    *
    * @param goalItem the selected goal item
@@ -150,5 +168,20 @@ export class LearningGoalsComponent implements OnInit {
    */
   public onFilterChanged(): void {
     this.loadLearningGoalsAsync();
+  }
+
+  /**
+   * Returns the recursive cumulated reference count.
+   *
+   * @param goalItem the goal item to check
+   */
+  private getReferenceCntRecursive(goalItem: LearningGoalTreeviewItem): number {
+    let count = goalItem.referencedFromCnt;
+    if (goalItem.childItems !== undefined) {
+      for (const child of goalItem.childItems) {
+        count += this.getReferenceCntRecursive(child);
+      }
+    }
+    return count;
   }
 }

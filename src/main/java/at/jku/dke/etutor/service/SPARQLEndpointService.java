@@ -114,6 +114,34 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         ORDER BY (LCASE(?goalName))
         """;
+
+    private static final String DELETE_GOAL_WITH_SUBGOALS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?goal ?predicate ?object.
+          ?secondGoal ?secondPredicate ?secondObject.
+          ?otherGoal etutor:dependsOn ?goal.
+          ?otherGoal1 etutor:dependsOn ?secondGoal.
+          ?parent etutor:hasSubGoal ?goal.
+        } WHERE {
+          ?goal a etutor:Goal.
+          ?goal ?predicate ?object.
+          OPTIONAL {
+            ?goal etutor:hasSubGoal* ?secondGoal.
+            ?secondGoal ?secondPredicate ?secondObject.
+            OPTIONAL {
+              ?otherGoal1 etutor:dependsOn ?secondGoal.
+            }
+          }
+          OPTIONAL {
+            ?otherGoal etutor:dependsOn ?goal.
+          }
+          OPTIONAL {
+            ?parent etutor:hasSubGoal ?goal.
+          }
+        }
+        """;
     //endregion
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
@@ -177,6 +205,38 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
 
         return new LearningGoalDTO(newLearningGoalDTO, owner, now, goal.getURI());
+    }
+
+    /**
+     * Removes a learning goal with its sub goals.
+     *
+     * @param owner    the learning goal's owner
+     * @param goalName the learning goal's name
+     * @throws LearningGoalNotExistsException if the learning goal can not be found
+     */
+    public void removeLearningGoalAndSubGoals(String owner, String goalName) throws LearningGoalNotExistsException {
+        Objects.requireNonNull(owner);
+        Objects.requireNonNull(goalName);
+
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(DELETE_GOAL_WITH_SUBGOALS);
+        query.setIri("?goal", goalUri);
+
+        try (RDFConnection conn = getConnection()) {
+            int cnt;
+
+            try (QueryExecution qExec = conn.query(String.format(QRY_ID_SUBJECT_COUNT, goalUri))) {
+                cnt = qExec.execSelect().next().getLiteral("?count").getInt();
+            }
+
+            if (cnt == 0) {
+                throw new LearningGoalNotExistsException();
+            }
+
+            conn.update(query.asUpdate());
+        }
     }
 
     /**
