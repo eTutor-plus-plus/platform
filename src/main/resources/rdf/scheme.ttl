@@ -139,7 +139,26 @@ etutor:Student
     rdf:type rdfs:Class .
 
 # Properties
+etutor:hasIndividualTaskAssignment
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:Student ;
+    rdfs:range  etutor:IndividualTaskAssignment .
 
+## Individual task assignments
+# Classes
+etutor:IndividualTaskAssignment
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:fromCourseInstance
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskAssignment ;
+    rdfs:range  etutor:CourseInstance .
+
+etutor:fromExerciseSheet
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskAssignment ;
+    rdfs:range  etutor:ExerciseSheet .
 
 ## Assignments
 # Classes
@@ -219,7 +238,7 @@ etutor-difficulty:Hard
     rdfs:label "Hard" .
 
 etutor-difficulty:VeryHard
-    a               etutor:DifficultyRanking ;
+    a          etutor:DifficultyRanking ;
     rdfs:label "VeryHard" .
 
 ## Exercise sheets

@@ -14,7 +14,11 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.vocabulary.RDF;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +66,19 @@ public class StudentService extends AbstractSPARQLEndpointService {
           BIND(false AS ?completed).
         }
         ORDER BY (LCASE(?exerciseSheetName))
+        """;
+
+    private static final String QRY_ASK_STUDENT_OPENED_EXERCISE_SHEET = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?instance etutor:hasStudent ?student.
+          ?student etutor:hasIndividualTaskAssignment [
+            a etutor:IndividualTaskAssignment ;
+            etutor:fromCourseInstance ?instance;
+          	etutor:fromExerciseSheet ?exerciseSheet
+          ]
+        }
         """;
 
     private final UserService userService;
@@ -177,6 +194,67 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }
                 return items;
             }
+        }
+    }
+
+    /**
+     * Returns whether a student opened an exercise sheet and therefore, the exercise sheet's questions were assigned.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     * @return {@code true} if the student has already opened the sheet, otherwise {@code false}
+     */
+    public boolean hasStudentOpenedTheExerciseSheet(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_STUDENT_OPENED_EXERCISE_SHEET);
+        query.setIri("?instance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?exerciseSheet", exerciseSheetURL);
+
+        try (RDFConnection connection = getConnection()) {
+            return connection.queryAsk(query.asQuery());
+        }
+    }
+
+    /**
+     * Opens a new exercise sheet for a student and  assigns the tasks according
+     * to the student's learning curve.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     */
+    public void openExerciseSheetForStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        Model model = ModelFactory.createDefaultModel();
+        Resource studentResource = model.createResource(studentURL);
+
+        Resource individualTaskAssignmentResource = model.createResource();
+        individualTaskAssignmentResource.addProperty(RDF.type, ETutorVocabulary.IndividualTaskAssignment);
+        individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromCourseInstance, model.createResource(courseInstanceURL));
+        individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromExerciseSheet, model.createResource(exerciseSheetURL));
+
+        studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
+
+        // TODO: Implement task assignment according to the individual learning curve
+
+        try (RDFConnection connection = getConnection()) {
+            connection.load(model);
         }
     }
 }

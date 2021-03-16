@@ -256,4 +256,77 @@ public class StudentServiceIT {
         assertThatThrownBy(() -> studentService.getProgressOverview("k11804012", null))
             .isInstanceOf(NullPointerException.class);
     }
+
+    /**
+     * Tests the has student opened the exercise sheet method with null values
+     */
+    @Test
+    public void testHasStudentOpenedTheExerciseSheetNullValues() {
+        assertThatThrownBy(() -> studentService.hasStudentOpenedTheExerciseSheet(null, null, null))
+            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.hasStudentOpenedTheExerciseSheet("test", null, null))
+            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.hasStudentOpenedTheExerciseSheet("test", "test", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the open exercise sheet for student method with null values.
+     */
+    @Test
+    public void testOpenExerciseSheetForStudentNullValues() {
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent(null, null, null))
+            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", null, null))
+            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", "test", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the open exercise sheet for student method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Transactional
+    public void testOpenExerciseSheetForStudent() throws Exception {
+        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+
+        var importedStudents = studentService.importStudentsFromFile(file);
+
+        String mNr = importedStudents.get(0).getMatriculationNumber();
+
+        CourseDTO newCourseDTO = new CourseDTO();
+        newCourseDTO.setName("New test course");
+        newCourseDTO.setCourseType("LVA");
+
+        newCourseDTO = sparqlEndpointService.insertNewCourse(newCourseDTO, "admin");
+
+
+        NewCourseInstanceDTO firstInstance = new NewCourseInstanceDTO();
+        firstInstance.setYear(2021);
+        firstInstance.setCourseId(newCourseDTO.getId());
+        firstInstance.setTermId(ETutorVocabulary.Summer.getURI());
+
+        String firstInstanceId = courseInstanceSPARQLEndpointService.createNewCourseInstance(firstInstance);
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(mNr), firstInstanceId);
+
+        NewExerciseSheetDTO firstNewExerciseSheet = new NewExerciseSheetDTO();
+        firstNewExerciseSheet.setName("TestSheet 1");
+        firstNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        firstNewExerciseSheet.setLearningGoals(new ArrayList<>());
+
+        var exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(firstNewExerciseSheet, "admin");
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        String courseInstanceUUID = firstInstanceId.substring(firstInstanceId.lastIndexOf('#') + 1);
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUUID, Collections.singletonList(exerciseSheetDTO.getId()));
+
+        studentService.openExerciseSheetForStudent(mNr, courseInstanceUUID, exerciseSheetUUID);
+
+        assertThat(studentService.hasStudentOpenedTheExerciseSheet(mNr, courseInstanceUUID, exerciseSheetUUID)).isTrue();
+    }
 }

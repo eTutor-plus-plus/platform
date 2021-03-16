@@ -21,6 +21,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_COURSE_INSTANCE = "CourseInstance";
     private static final String CLASS_TERM = "Term";
     private static final String CLASS_STUDENT = "Student";
+    private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -43,6 +44,9 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_COURSE = "hasCourse";
     private static final String PROP_HAS_STUDENT = "hasStudent";
     private static final String PROP_HAS_EXERCISE_SHEET = "hasExerciseSheet";
+    private static final String PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT = "hasIndividualTaskAssignment";
+    private static final String PROP_FROM_COURSE_INSTANCE = "fromCourseInstance";
+    private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -162,6 +166,18 @@ public final class ETutorVocabulary {
      */
     public static final Property hasExerciseSheet = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET);
     /**
+     * The hasIndividualTaskAssignment property.
+     */
+    public static final Property hasIndividualTaskAssignment = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT);
+    /**
+     * The fromCourseInstance property.
+     */
+    public static final Property fromCourseInstance = m.createProperty(URI + PROP_FROM_COURSE_INSTANCE);
+    /**
+     * The fromExerciseSheet property.
+     */
+    public static final Property fromExerciseSheet = m.createProperty(URI + PROP_FROM_EXERCISE_SHEET);
+    /**
      * The hasTaskAssignment property.
      */
     public static final Property hasTaskAssignment = m.createProperty(URI + PROP_HAS_TASK_ASSIGNMENT);
@@ -262,6 +278,10 @@ public final class ETutorVocabulary {
      * The student resource.
      */
     public static final Resource Student = m.createResource(URI + CLASS_STUDENT);
+    /**
+     * The individual task assignment resource.
+     */
+    public static final Resource IndividualTaskAssignment = m.createResource(URI + CLASS_INDIVIDUAL_TASK_ASSIGNMENT);
 
     /**
      * The easy difficulty instance.
