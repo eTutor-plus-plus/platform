@@ -15,42 +15,42 @@ etutor:SubGoal
 
 # Properties
 etutor:hasSubGoal
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
 etutor:dependsOn
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
 etutor:hasDescription
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  xsd:string .
 
 etutor:isPrivate
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  xsd:boolean .
 
 etutor:hasChangeDate
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  xsd:dateTime .
 
 etutor:hasOwner
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  xsd:string .
 
 etutor:hasReferenceCnt
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  xsd:int .
 
 etutor:hasRootGoal
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
@@ -61,27 +61,27 @@ etutor:Course
 
 # Properties
 etutor:hasCourseDescription
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  xsd:string .
 
 etutor:hasCourseLink
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  xsd:anyURI .
 
 etutor:hasCourseType
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  xsd:string .
 
 etutor:hasCourseCreator
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  xsd:string .
 
 etutor:hasGoal
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Course ;
     rdfs:range  etutor:Goal .
 
@@ -95,32 +95,32 @@ etutor:Term
 
 # Properties
 etutor:hasInstanceYear
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  xsd:int .
 
 etutor:hasTerm
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Term .
 
 etutor:hasInstanceDescription
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  xsd:string .
 
 etutor:hasCourse
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Course .
 
 etutor:hasStudent
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Student .
 
 etutor:hasExerciseSheet
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:ExerciseSheet .
 
@@ -151,57 +151,57 @@ etutor:DifficultyRanking
 
 # Properties
 etutor:hasTaskAssignment
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:TaskAssignment .
 
 etutor:hasTaskCreator
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasInternalTaskCreator
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasTaskHeader
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasTaskCreationDate
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:dateTime .
 
 etutor:hasTypicalProcessingTime
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasTaskDifficulty
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  etutor:DifficultyRanking .
 
 etutor:hasTaskOrganisationUnit
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasTaskUrl
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:hasTaskInstruction
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:string .
 
 etutor:isPrivateTask
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:boolean .
 
@@ -220,7 +220,7 @@ etutor-difficulty:Hard
 
 etutor-difficulty:VeryHard
     a               etutor:DifficultyRanking ;
-    rdfs:rdfs:label "VeryHard" .
+    rdfs:label "VeryHard" .
 
 ## Exercise sheets
 # Classes
@@ -229,21 +229,21 @@ etutor:ExerciseSheet
 
 # Properties
 etutor:containsLearningGoal
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  etutor:Goal .
 
 etutor:hasExerciseSheetDifficulty
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  etutor:DifficultyRanking .
 
 etutor:hasInternalExerciseSheetCreator
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:string .
 
 etutor:hasExerciseSheetCreationTime
-    rdf:type    rdfs:Property ;
+    rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:dateTime .
