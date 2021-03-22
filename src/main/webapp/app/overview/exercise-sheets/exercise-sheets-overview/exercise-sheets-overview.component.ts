@@ -21,7 +21,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class ExerciseSheetsOverviewComponent implements OnInit {
   private exerciseSubscription?: Subscription;
-  private itemsPerPage: number;
+  private readonly itemsPerPage: number;
 
   public hasNextPage = false;
   public page = 0;
