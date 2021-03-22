@@ -211,4 +211,21 @@ public class CourseInstanceResource {
             throw new CourseInstanceNotFoundException();
         }
     }
+
+    /**
+     * {@code DELETE /api/course-instance/:uuid} : Removes the given course instance
+     *
+     * @param uuid the course instance's internal uuid
+     * @return empty {@link ResponseEntity}
+     */
+    @DeleteMapping("{uuid}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> removeCourseInstance(@PathVariable String uuid) {
+        try {
+            courseInstanceSPARQLEndpointService.removeCourseInstance(uuid);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+            throw new CourseInstanceNotFoundException();
+        }
+    }
 }

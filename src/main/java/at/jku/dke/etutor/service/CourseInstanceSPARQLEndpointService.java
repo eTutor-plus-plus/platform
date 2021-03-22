@@ -72,7 +72,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
          }
         """;
 
-    public static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE = """
+    private static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -88,7 +88,7 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         """;
 
-    public static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE = """
+    private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -99,6 +99,29 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
           ?sheet rdfs:label ?lbl
         }
         ORDER BY (LCASE(?lbl))
+        """;
+
+    private static final String QRY_DROP_NAMED_GRAPH = """
+        DROP SILENT GRAPH ?graph
+        """;
+
+    private static final String QRY_DELETE_COURSE_INSTANCE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?instance ?predicate ?object.
+          ?individualTaskAssignment etutor:fromCourseInstance ?instance.
+          ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+          ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
+        } WHERE {
+          ?instance a etutor:CourseInstance.
+          ?instance ?predicate ?object.
+          OPTIONAL {
+            ?individualTaskAssignment etutor:fromCourseInstance ?instance.
+            ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+            ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
+          }
+        }
         """;
 
     private final UserService userService;
@@ -453,6 +476,38 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                 }
                 return list;
             }
+        }
+    }
+
+    /**
+     * Removes a given course instance.
+     *
+     * @param uuid the uuid of the course instance
+     * @throws CourseInstanceNotFoundException if the course instance can not be found
+     */
+    public void removeCourseInstance(String uuid) throws CourseInstanceNotFoundException {
+        Objects.requireNonNull(uuid);
+
+        String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
+
+        ParameterizedSparqlString courseInstanceExistsQry = new ParameterizedSparqlString(QRY_ASK_COURSE_INSTANCE_EXISTS);
+        courseInstanceExistsQry.setIri("?courseInstance", courseInstanceUri);
+
+        ParameterizedSparqlString dropNamedGraphQry = new ParameterizedSparqlString(QRY_DROP_NAMED_GRAPH);
+        dropNamedGraphQry.setIri("?graph", courseInstanceUri);
+
+        ParameterizedSparqlString deleteCourseInstanceQry = new ParameterizedSparqlString(QRY_DELETE_COURSE_INSTANCE);
+        deleteCourseInstanceQry.setIri("?instance", courseInstanceUri);
+
+        try (RDFConnection connection = getConnection()) {
+            boolean courseInstanceExists = connection.queryAsk(courseInstanceExistsQry.asQuery());
+
+            if (!courseInstanceExists) {
+                throw new CourseInstanceNotFoundException();
+            }
+
+            connection.update(dropNamedGraphQry.asUpdate());
+            connection.update(deleteCourseInstanceQry.asUpdate());
         }
     }
 

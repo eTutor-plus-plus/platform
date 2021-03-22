@@ -35,8 +35,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Test class for the course instance resource endpoint.
@@ -269,6 +268,11 @@ public class CourseInstanceResourceIT {
             .andExpect(jsonPath("$.title").value("The course instance can not be found!"));
     }
 
+    /**
+     * Tests the get instance of course endpoint with an invalid course.
+     *
+     * @throws Exception must not be thrown
+     */
     @Test
     @Order(6)
     public void testGetInstancesOfInvalidCourse() throws Exception {
@@ -276,5 +280,44 @@ public class CourseInstanceResourceIT {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseNotFound"))
             .andExpect(jsonPath("$.title").value("The course does not exist!"));
+    }
+
+    /**
+     * Tests the remove course instance endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(7)
+    public void testRemoveCourseInstance() throws Exception {
+        NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+        newCourseInstanceDTO.setCourseId(course.getId());
+        newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+        newCourseInstanceDTO.setYear(2021);
+
+        String uri = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+        String uuid = uri.substring(uri.lastIndexOf('#') + 1);
+
+        restCourseInstanceMockMvc.perform(delete("/api/course-instance/{uuid}", uuid))
+            .andExpect(status().isNoContent());
+
+        var optional = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
+
+        assertThat(optional).isEmpty();
+    }
+
+    /**
+     * Tests the removal of a nonexistent course instance.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(8)
+    public void testRemoveNonexistentCourseInstance() throws Exception {
+        restCourseInstanceMockMvc.perform(delete("/api/course-instance/123"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.courseInstanceNotFound"))
+            .andExpect(jsonPath("$.title").value("The course instance can not be found!"));
     }
 }

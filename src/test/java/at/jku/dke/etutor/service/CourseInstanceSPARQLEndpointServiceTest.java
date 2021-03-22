@@ -314,4 +314,44 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance("test"))
             .isInstanceOf(CourseInstanceNotFoundException.class);
     }
+
+    /**
+     * Tests the remove course instance method with a null value.
+     */
+    @Test
+    public void testRemoveCourseInstanceNullValue() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.removeCourseInstance(null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the removal of a nonexistent course instance.
+     */
+    @Test
+    public void testRemoveNonexistentCourseInstance() {
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.removeCourseInstance("123"))
+            .isInstanceOf(CourseInstanceNotFoundException.class);
+    }
+
+    /**
+     * Tests the removal of a course instance.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testRemoveCourseInstance() throws Exception {
+        NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+        newCourseInstanceDTO.setCourseId(course.getId());
+        newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+        newCourseInstanceDTO.setYear(2021);
+
+        String uri = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+
+        String uuid = uri.substring(uri.lastIndexOf('#') + 1);
+        courseInstanceSPARQLEndpointService.removeCourseInstance(uuid);
+
+        var optional = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
+
+        assertThat(optional).isEmpty();
+    }
 }
