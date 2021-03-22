@@ -22,6 +22,7 @@
       "filter": "Filter:",
       "onlyShowOwnGoals": "Nur die eigenen Lernziele anzeigen?"
     },
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "learningGoalRemovedMsg": "Das Lernziel '{{name}}' wurde erfolgreich entfernt!"
   }
 }

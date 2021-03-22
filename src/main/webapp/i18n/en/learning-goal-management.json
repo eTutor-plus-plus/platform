@@ -22,6 +22,7 @@
       "filter": "Filter:",
       "onlyShowOwnGoals": "Only show own learning goals?"
     },
-    "delete": "Delete"
+    "delete": "Delete",
+    "learningGoalRemovedMsg": "The learning goal '{{name}}' was successfully removed!"
   }
 }

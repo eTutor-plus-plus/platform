@@ -10,6 +10,7 @@ import { ITaskAssignmentDisplay } from '../tasks/task.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
 import { combineLatest } from 'rxjs';
+import { JhiAlertService } from 'ng-jhipster';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -43,12 +44,14 @@ export class LearningGoalsComponent implements OnInit {
    * @param accountService the injected account service
    * @param tasksService the injected task service
    * @param modalService the injected modal service
+   * @param alertService the injected alert service
    */
   constructor(
     private learningGoalsService: LearningGoalsService,
     private accountService: AccountService,
     private tasksService: TasksService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private alertService: JhiAlertService
   ) {}
 
   /**
@@ -130,7 +133,14 @@ export class LearningGoalsComponent implements OnInit {
    * @param goalItem the goal item which should be deleted
    */
   public onDelete(goalItem: LearningGoalTreeviewItem): void {
-    this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).subscribe(() => this.onFilterChanged());
+    (async () => {
+      await this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).toPromise();
+      await this.loadLearningGoalsAsync();
+      this.alertService.addAlert(
+        { type: 'success', msg: 'learningGoalManagement.learningGoalRemovedMsg', params: { name: goalItem.text }, timeout: 5000 },
+        []
+      );
+    })();
   }
 
   /**
