@@ -430,6 +430,55 @@ public class SPARQLEndpointServiceTest {
         dependencyNames = sparqlEndpointService.getDisplayableDependencies(owner, mainGoalName);
         assertThat(dependencyNames).isEmpty();
     }
+
+
+    /**
+     * Tests the remove learning goal and sub goals method with null values.
+     */
+    @Test
+    public void testRemoveLearningGoalAndSubGoalsNullValues() {
+        assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals(null, null))
+            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals("admin", null))
+            .isInstanceOf(NullPointerException.class);
+    }
+
+    /**
+     * Tests the remove learning goal and sub goals method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testRemoveLearningGoalAndSubGoals() throws Exception {
+        var newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testgoal1");
+        var firstGoal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, "admin");
+
+        newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testgoal2");
+        var secondGoal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, "admin");
+
+        newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Subgoal1");
+
+        var subGoal = sparqlEndpointService.insertSubGoal(newLearningGoalDTO, "admin", firstGoal.getName());
+
+        sparqlEndpointService.removeLearningGoalAndSubGoals("admin", firstGoal.getName());
+
+        var visibleGoals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", true);
+        assertThat(visibleGoals).hasSize(1);
+        assertThat(visibleGoals.first().getId()).isEqualTo(secondGoal.getId());
+    }
+
+    /**
+     * Tests the removal of a nonexistent learning goal.
+     */
+    @Test
+    public void testRemoveNonexistentLearningGoal() {
+        assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals("admin", "NonexistentGoal"))
+            .isInstanceOf(LearningGoalNotExistsException.class);
+    }
+
     //endregion
 
     //region Courses

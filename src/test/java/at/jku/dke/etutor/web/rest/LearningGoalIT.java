@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,8 +25,7 @@ import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for the {@link LearningGoalResource} REST controller.
@@ -388,5 +388,52 @@ public class LearningGoalIT {
         List<String> list = TestUtil.convertCollectionFromJSONString(jsonData, String.class, List.class);
 
         assertThat(list).isEmpty();
+    }
+
+    /**
+     * Tests the removal of a learning goal.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(15)
+    public void testDeleteLearningGoal() throws Exception {
+        var newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testgoal1 1");
+        var firstGoal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, "admin");
+
+        newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Testgoal2 2");
+        var secondGoal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, "admin");
+
+        newLearningGoalDTO = new NewLearningGoalDTO();
+        newLearningGoalDTO.setName("Subgoal1 1");
+
+        var subGoal = sparqlEndpointService.insertSubGoal(newLearningGoalDTO, "admin", firstGoal.getName());
+
+        restLearningGoalMockMvc.perform(delete("/api/learninggoals/{name}", firstGoal.getName()))
+            .andExpect(status().isNoContent())
+            .andReturn();
+
+        var visibleGoals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", true);
+        List<String> ids = StreamEx.of(visibleGoals).map(LearningGoalDTO::getId).toList();
+        assertThat(ids)
+            .doesNotContain(firstGoal.getId(), subGoal.getId())
+            .contains(secondGoal.getId());
+    }
+
+    /**
+     * Tests the removal of a nonexistent learning goal.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(16)
+    public void testDeleteNonexistentLearningGoal() throws Exception {
+        restLearningGoalMockMvc.perform(delete("/api/learninggoals/{name}", "Testgoal 1 1"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.learningGoalNotFound"))
+            .andExpect(jsonPath("$.title").value("The learning goal does not exist!"));
     }
 }
