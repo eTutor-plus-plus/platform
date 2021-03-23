@@ -197,4 +197,15 @@ export class CourseManagementService {
 
     return this.http.get<IExerciseSheetDisplayDTO[]>(`${SERVER_API_URL}api/course-instance/${uuid}/exercise-sheets`);
   }
+
+  /**
+   * Deletes the given course instance.
+   *
+   * @param courseInstanceId the course instance url
+   */
+  public deleteCourseInstance(courseInstanceId: string): Observable<any> {
+    const uuid = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.delete(`${SERVER_API_URL}api/course-instance/${uuid}`);
+  }
 }

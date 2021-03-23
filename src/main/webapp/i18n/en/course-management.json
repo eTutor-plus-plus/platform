@@ -68,7 +68,15 @@
         "csvReset": "Remove CSV file",
         "designation": "Designation",
         "exerciseSheetsHeader": "Exercise sheets",
-        "selected": "Selected"
+        "selected": "Selected",
+        "delete": "Delete course instance",
+        "courseInstanceRemoved": "The course instance '{{name}}' is successfully removed!",
+        "deletePopover": {
+          "title": "Information",
+          "message": "Should the selected course instance be deleted?",
+          "cancelBtn": "No",
+          "confirmBtn": "Yes"
+        }
       }
     },
     "terms": {

@@ -37,6 +37,17 @@
                             <fa-icon icon="user-friends"></fa-icon>
                             <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignStudents">Assign students</span>
                         </button>
+                        <button type="button" class="btn btn-danger btn-sm"
+                            mwlConfirmationPopover
+                            [popoverTitle]="deletePopoverTitle"
+                            [popoverMessage]="deletePopoverMessage"
+                            [cancelText]="deletePopoverCancelBtnText"
+                            [confirmText]="deletePopoverConfirmBtnText"
+                            placement="left"
+                            (confirm)="deleteCourseInstance(item)">
+                            <fa-icon icon="trash"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.delete">Delete course instance</span>
+                        </button>
                     </div>
                 </td>
             </tr>

@@ -6,8 +6,9 @@ import { IDisplayableCourseInstanceDTO, Term } from '../../course-mangement.mode
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentAssignmentModalComponent } from './student-assignment-modal/student-assignment-modal.component';
-import { JhiEventManager } from 'ng-jhipster';
+import { JhiAlertService, JhiEventManager } from 'ng-jhipster';
 import { CourseExerciseSheetAllocationComponent } from './course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Component for displaying instances from a course.
@@ -16,6 +17,7 @@ import { CourseExerciseSheetAllocationComponent } from './course-exercise-sheet-
   selector: 'jhi-course-instance-overview',
   templateUrl: './course-instance-overview.component.html',
   styleUrls: ['./course-instance-overview.component.scss'],
+  providers: [TranslatePipe],
 })
 export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   private _courseName?: string;
@@ -23,9 +25,14 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   private studentAssignmentChangedSubscription?: Subscription;
 
   public page = 1;
-  public itemsPerPage: number;
+  public readonly itemsPerPage: number;
   public totalItems = 0;
   public items: IDisplayableCourseInstanceDTO[] = [];
+
+  public deletePopoverTitle = 'courseManagement.instances.overview.deletePopover.title';
+  public deletePopoverMessage = 'courseManagement.instances.overview.deletePopover.message';
+  public deletePopoverCancelBtnText = 'courseManagement.instances.overview.deletePopover.cancelBtn';
+  public deletePopoverConfirmBtnText = 'courseManagement.instances.overview.deletePopover.confirmBtn';
 
   /**
    * Constructor.
@@ -35,13 +42,17 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
    * @param activatedRoute the injected activated route service
    * @param modalService the injected modal service
    * @param eventManager the injected jhi event manager
+   * @param alertService the injected alert service
+   * @param translatePipe the injected translation pipe
    */
   constructor(
     private courseService: CourseManagementService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private modalService: NgbModal,
-    private eventManager: JhiEventManager
+    private eventManager: JhiEventManager,
+    private alertService: JhiAlertService,
+    private translatePipe: TranslatePipe
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -50,6 +61,11 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
    * Implements the init method. See {@code OnInit}.
    */
   public ngOnInit(): void {
+    this.deletePopoverTitle = this.translatePipe.transform(this.deletePopoverTitle);
+    this.deletePopoverMessage = this.translatePipe.transform(this.deletePopoverMessage);
+    this.deletePopoverCancelBtnText = this.translatePipe.transform(this.deletePopoverCancelBtnText);
+    this.deletePopoverConfirmBtnText = this.translatePipe.transform(this.deletePopoverConfirmBtnText);
+
     this.routingSubscription = this.activatedRoute.paramMap.subscribe(paramMap => (this.courseName = paramMap.get('courseName')!));
     this.studentAssignmentChangedSubscription = this.eventManager.subscribe('course-instance-stud-assignment-changed', () =>
       this.loadPageAsync()
@@ -139,6 +155,27 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   public showAssignExerciseSheetModalWindow(item: IDisplayableCourseInstanceDTO): void {
     const modalRef = this.modalService.open(CourseExerciseSheetAllocationComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as CourseExerciseSheetAllocationComponent).courseInstance = item;
+  }
+
+  /**
+   * Deletes the given course instance.
+   *
+   * @param item the current course instance
+   */
+  public deleteCourseInstance(item: IDisplayableCourseInstanceDTO): void {
+    (async () => {
+      await this.courseService.deleteCourseInstance(item.id).toPromise();
+      const newItemLength = this.totalItems - 1;
+      if (newItemLength > 0 && newItemLength % this.itemsPerPage === 0) {
+        this.page -= 1;
+      }
+
+      await this.loadPageAsync();
+      this.alertService.addAlert(
+        { type: 'success', msg: 'courseManagement.instances.overview.courseInstanceRemoved', params: { name: item.name }, timeout: 5000 },
+        []
+      );
+    })();
   }
 
   /**

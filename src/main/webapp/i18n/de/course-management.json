@@ -68,7 +68,15 @@
         "csvReset": "CSV-Datei entfernen",
         "designation": "Bezeichnung",
         "exerciseSheetsHeader": "Übungszettel",
-        "selected": "Ausgewählt"
+        "selected": "Ausgewählt",
+        "delete": "Kursinstanz löschen",
+        "courseInstanceRemoved": "Die Kursinstanz '{{name}}' wurde erfolgreich gelöscht!",
+        "deletePopover": {
+          "title": "Information",
+          "message": "Soll die ausgewählte Kursinstanz gelöscht werden?",
+          "cancelBtn": "Nein",
+          "confirmBtn": "Ja"
+        }
       }
     },
     "terms": {
