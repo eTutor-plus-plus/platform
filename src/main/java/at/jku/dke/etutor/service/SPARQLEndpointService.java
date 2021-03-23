@@ -730,17 +730,31 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     public Optional<CourseDTO> getCourse(String name) {
         Objects.requireNonNull(name);
 
-        String query = String.format("""
-            CONSTRUCT { ?subject ?predicate ?object }
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            CONSTRUCT { ?course ?predicate ?object.
+                        ?course etutor:hasInstanceCount ?instanceCnt }
             WHERE {
-                ?subject ?predicate ?object.
-                FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s>)
+              {
+                ?course a etutor:Course.
+                FILTER(?course = ?courseUri)
+              	?course ?predicate ?object.
+              } UNION {
+                SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                WHERE {
+                  ?courseInstance etutor:hasCourse ?course.
+                  FILTER(?course = ?courseUri)
+                }
+                GROUP BY ?course
+              }
             }
-            """, name);
+            """);
+        query.setIri("?courseUri", ETutorVocabulary.createCourseURL(name));
 
         try (RDFConnection conn = getConnection()) {
 
-            Model model = conn.queryConstruct(query);
+            Model model = conn.queryConstruct(query.asQuery());
             ResIterator iterator = null;
 
             try {
@@ -799,10 +813,19 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         String query = """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            CONSTRUCT { ?subject ?predicate ?object }
+            CONSTRUCT { ?course ?predicate ?object.
+                        ?course etutor:hasInstanceCount ?instanceCnt }
             WHERE {
-                ?subject ?predicate ?object.
-                ?subject a etutor:Course
+              {
+                ?course a etutor:Course.
+              	?course ?predicate ?object.
+              } UNION {
+                SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                WHERE {
+                  ?courseInstance etutor:hasCourse ?course.
+                }
+                GROUP BY ?course
+              }
             }
             """;
 

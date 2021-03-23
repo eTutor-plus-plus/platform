@@ -28,6 +28,10 @@ export interface ICourseModel {
    * The optional creator of this course.
    */
   creator?: string;
+  /**
+   * The instance count.
+   */
+  instanceCount: number;
 }
 
 /**
@@ -39,6 +43,7 @@ export class CourseModel implements ICourseModel {
    *
    * @param name the mandatory course name
    * @param courseType the mandatory course type
+   * @param instanceCount the instance count
    * @param id the optional id
    * @param description the optional description
    * @param link the optional link
@@ -47,6 +52,7 @@ export class CourseModel implements ICourseModel {
   constructor(
     public name: string,
     public courseType: string,
+    public instanceCount: number,
     public id?: string,
     public description?: string,
     public link?: URL,

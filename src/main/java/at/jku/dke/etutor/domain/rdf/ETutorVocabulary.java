@@ -41,6 +41,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INSTANCE_YEAR = "hasInstanceYear";
     private static final String PROP_HAS_TERM = "hasTerm";
     private static final String PROP_HAS_INSTANCE_DESCRIPTION = "hasInstanceDescription";
+    private static final String PROP_HAS_INSTANCE_COUNT = "hasInstanceCount";
     private static final String PROP_HAS_COURSE = "hasCourse";
     private static final String PROP_HAS_STUDENT = "hasStudent";
     private static final String PROP_HAS_EXERCISE_SHEET = "hasExerciseSheet";
@@ -153,6 +154,10 @@ public final class ETutorVocabulary {
      * The hasInstanceDescription property.
      */
     public static final Property hasInstanceDescription = m.createProperty(URI + PROP_HAS_INSTANCE_DESCRIPTION);
+    /**
+     * The hasInstanceCount property.
+     */
+    public static final Property hasInstanceCount = m.createProperty(URI + PROP_HAS_INSTANCE_COUNT);
     /**
      * The hasCourse property.
      */
@@ -333,7 +338,17 @@ public final class ETutorVocabulary {
      * @return the individual course resource
      */
     public static final Resource createCourseResourceOfModel(String courseName, Model model) {
-        return model.createResource(URI + CLASS_COURSE + "#" + courseName);
+        return model.createResource(createCourseURL(courseName));
+    }
+
+    /**
+     * Returns the course url from a given course name
+     *
+     * @param courseName the course's name
+     * @return the course url
+     */
+    public static final String createCourseURL(String courseName) {
+        return URI + CLASS_COURSE + "#" + courseName;
     }
 
     /**
@@ -399,14 +414,11 @@ public final class ETutorVocabulary {
     public static final String getTermTextFromUri(String termUri) {
         Objects.requireNonNull(termUri);
 
-        switch (termUri) {
-            case TERM_WINTER_URI:
-                return "Wintersemester";
-            case TERM_SUMMER_URI:
-                return "Sommersemester";
-            default:
-                return null;
-        }
+        return switch (termUri) {
+            case TERM_WINTER_URI -> "Wintersemester";
+            case TERM_SUMMER_URI -> "Sommersemester";
+            default -> null;
+        };
     }
 
     /**

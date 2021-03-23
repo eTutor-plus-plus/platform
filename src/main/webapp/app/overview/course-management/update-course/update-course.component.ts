@@ -61,6 +61,7 @@ export class UpdateCourseComponent implements OnInit {
       name: this.updateForm.get(['name'])!.value,
       description: this.updateForm.get(['description'])!.value,
       courseType: this.updateForm.get(['type'])!.value,
+      instanceCount: 0,
     };
 
     if (this.updateForm.get(['link'])!.value) {

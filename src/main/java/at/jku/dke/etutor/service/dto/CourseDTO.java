@@ -7,6 +7,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDFS;
 
 import javax.validation.constraints.NotBlank;
@@ -30,6 +31,7 @@ public class CourseDTO implements Comparable<CourseDTO> {
     @CourseTypeConstraint
     private String courseType;
     private String creator;
+    private int instanceCount;
 
     /**
      * Empty constructor; needed for serialization.
@@ -50,8 +52,15 @@ public class CourseDTO implements Comparable<CourseDTO> {
         setDescription(resource.getProperty(ETutorVocabulary.hasCourseDescription).getString());
         setCourseType(resource.getProperty(ETutorVocabulary.hasCourseType).getString());
         setCreator(resource.getProperty(ETutorVocabulary.hasCourseCreator).getString());
-        String courseLink = resource.getProperty(ETutorVocabulary.hasCourseLink).getString();
+        Statement instanceCountStmt = resource.getProperty(ETutorVocabulary.hasInstanceCount);
 
+        if (instanceCountStmt != null) {
+            setInstanceCount(instanceCountStmt.getInt());
+        } else {
+            setInstanceCount(0);
+        }
+
+        String courseLink = resource.getProperty(ETutorVocabulary.hasCourseLink).getString();
         try {
             URL url = new URL(courseLink);
             setLink(url);
@@ -179,6 +188,24 @@ public class CourseDTO implements Comparable<CourseDTO> {
      */
     public void setCreator(String creator) {
         this.creator = creator;
+    }
+
+    /**
+     * Returns the instance count.
+     *
+     * @return the instance count
+     */
+    public int getInstanceCount() {
+        return instanceCount;
+    }
+
+    /**
+     * Sets the course instance count.
+     *
+     * @param instanceCount the course instance count to set
+     */
+    public void setInstanceCount(int instanceCount) {
+        this.instanceCount = instanceCount;
     }
 
     /**

@@ -1,6 +1,7 @@
 {
   "courseManagement": {
     "title": "Courses",
+    "instanceCount": "Instances: {{count}}",
     "popover": {
       "title": "Information",
       "message": "Should the selected course be deleted?",
