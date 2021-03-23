@@ -92,12 +92,16 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?sheet) as ?sheetId) ?lbl
+        SELECT (STR(?sheet) as ?sheetId) ?lbl (COUNT(?individualAssignment) AS ?cnt)
         WHERE {
           ?courseInstance a etutor:CourseInstance.
           ?courseInstance etutor:hasExerciseSheet ?sheet.
           ?sheet rdfs:label ?lbl
+          OPTIONAL {
+            ?individualAssignment etutor:fromExerciseSheet ?sheet.
+          }
         }
+        GROUP BY ?sheet ?lbl
         ORDER BY (LCASE(?lbl))
         """;
 
@@ -471,8 +475,9 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                     QuerySolution solution = set.nextSolution();
                     String id = solution.getLiteral("?sheetId").getString();
                     String name = solution.getLiteral("?lbl").getString();
+                    int count = solution.getLiteral("?cnt").getInt();
 
-                    list.add(new ExerciseSheetDisplayDTO(id, name));
+                    list.add(new ExerciseSheetDisplayDTO(id, name, count));
                 }
                 return list;
             }

@@ -49,4 +49,8 @@ export interface IExerciseSheetDisplayDTO {
    * The display name.
    */
   name: string;
+  /**>
+   * The individual assignment count.
+   */
+  individualAssignmentCnt: number;
 }

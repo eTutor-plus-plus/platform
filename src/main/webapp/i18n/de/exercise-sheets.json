@@ -26,6 +26,7 @@
     "tooltip": {
       "deleteExerciseSheet": "Übungszettel '{{name}}' löschen",
       "editExerciseSheet": "Übungszettel '{{name}}' bearbeiten"
-    }
+    },
+    "referencedFrom": "Referenziert von {{count}}:"
   }
 }

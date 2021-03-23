@@ -19,13 +19,17 @@
     <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
         <a>{{entry.name}}</a>
         <span class="float-right">
+            <span style="margin-right: 20px;">
+                {{'exerciseSheets.referencedFrom' | translate: {count: entry.individualAssignmentCnt} }}
+            </span>
             <a ngbTooltip="{{'exerciseSheets.tooltip.editExerciseSheet' | translate: {name: entry.name} }}"
                (click)="editExerciseSheet(entry)" style="margin-right: 10px;"><fa-icon icon="pencil-alt"></fa-icon></a>
-            <a ngbTooltip="{{'exerciseSheets.tooltip.deleteExerciseSheet' | translate:{ name: entry.name } }}"
+            <a ngbTooltip="{{'exerciseSheets.tooltip.deleteExerciseSheet' | translate:{name: entry.name} }}"
                mwlConfirmationPopover
                placement="left"
                [popoverTitle]="popoverTitle"
                [popoverMessage]="popoverMessage"
+               [isDisabled]="entry.individualAssignmentCnt > 0"
                [cancelText]="popoverCancelButtonTxt"
                [confirmText]="popoverConfirmBtnTxt"
                (confirm)="deleteExerciseSheet(entry)">

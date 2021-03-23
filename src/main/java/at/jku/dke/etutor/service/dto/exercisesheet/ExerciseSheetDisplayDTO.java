@@ -8,10 +8,12 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 public class ExerciseSheetDisplayDTO {
     private String internalId;
     private String name;
+    private int individualAssignmentCnt;
 
     /**
      * Constructor.
      */
+    @SuppressWarnings("unused")
     public ExerciseSheetDisplayDTO() {
         // Empty for serialization
     }
@@ -19,12 +21,14 @@ public class ExerciseSheetDisplayDTO {
     /**
      * Constructor.
      *
-     * @param internalId the internal id
-     * @param name       the name
+     * @param internalId              the internal id
+     * @param name                    the name
+     * @param individualAssignmentCnt the individual assignment count
      */
-    public ExerciseSheetDisplayDTO(String internalId, String name) {
+    public ExerciseSheetDisplayDTO(String internalId, String name, int individualAssignmentCnt) {
         this.internalId = internalId;
         this.name = name;
+        this.individualAssignmentCnt = individualAssignmentCnt;
     }
 
     /**
@@ -61,5 +65,23 @@ public class ExerciseSheetDisplayDTO {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Returns the individual assignment count.
+     *
+     * @return the individual assignment count
+     */
+    public int getIndividualAssignmentCnt() {
+        return individualAssignmentCnt;
+    }
+
+    /**
+     * Sets the individual assignment count.
+     *
+     * @param individualAssignmentCnt the individual assignment count
+     */
+    public void setIndividualAssignmentCnt(int individualAssignmentCnt) {
+        this.individualAssignmentCnt = individualAssignmentCnt;
     }
 }

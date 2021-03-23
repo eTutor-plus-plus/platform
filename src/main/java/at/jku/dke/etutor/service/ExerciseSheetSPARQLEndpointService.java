@@ -188,7 +188,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT (STR(?exerciseSheet) as ?id) ?name
+            SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
             WHERE {
             """);
 
@@ -199,7 +199,11 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         query.append("""
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?name.
+              OPTIONAL {
+                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
+              }
             }
+            GROUP BY ?exerciseSheet ?name
             ORDER BY (LCASE(?name))
             """);
 
@@ -220,7 +224,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
-                    resultList.add(new ExerciseSheetDisplayDTO(id, name));
+                    int count = querySolution.getLiteral("?cnt").getInt();
+                    resultList.add(new ExerciseSheetDisplayDTO(id, name, count));
                 }
 
                 boolean hasNext = page.isPaged() && resultList.size() > page.getPageSize();
@@ -253,7 +258,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT DISTINCT (STR(?exerciseSheet) as ?id) ?name
+            SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
             WHERE {
             """);
 
@@ -265,7 +270,11 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         query.append("""
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?name.
+              OPTIONAL {
+                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
+              }
             }
+            GROUP BY ?exerciseSheet ?name
             ORDER BY (LCASE(?name))
             """);
 
@@ -294,7 +303,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
-                    list.add(new ExerciseSheetDisplayDTO(id, name));
+                    int cnt = querySolution.getLiteral("?cnt").getInt();
+                    list.add(new ExerciseSheetDisplayDTO(id, name, cnt));
                 }
             }
             try (QueryExecution execution = connection.query(countQry.asQuery())) {
