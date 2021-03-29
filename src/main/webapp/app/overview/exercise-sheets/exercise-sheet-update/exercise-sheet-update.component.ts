@@ -34,6 +34,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
   public updateForm = this.fb.group({
     name: ['', [CustomValidators.required]],
     difficulty: [this.difficulties[0], [Validators.required]],
+    taskCount: [1, [Validators.required, Validators.min(1)]],
   });
 
   /**
@@ -83,6 +84,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         name: (this.updateForm.get(['name'])!.value as string).trim(),
         difficultyId,
         learningGoals: this._selectedGoals,
+        taskCount: this.updateForm.get(['taskCount'])!.value,
       };
 
       this.exerciseSheetService.insertExerciseSheet(newExerciseSheet).subscribe(
@@ -103,6 +105,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         creationDate: this.exerciseSheet!.creationDate,
         internalCreator: this.exerciseSheet!.internalCreator,
         id: this.exerciseSheet!.id,
+        taskCount: this.updateForm.get(['taskCount'])!.value,
       };
 
       this.exerciseSheetService.updateExerciseSheet(exerciseSheet).subscribe(
@@ -163,6 +166,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
       this.updateForm.patchValue({
         name: value.name,
         difficulty,
+        taskCount: value.taskCount,
       });
 
       this._selectedGoals = value.learningGoals;

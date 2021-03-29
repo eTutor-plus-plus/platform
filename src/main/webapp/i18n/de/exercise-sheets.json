@@ -10,10 +10,12 @@
       "fields": {
         "name": "Name:",
         "difficulty": "Schwierigkeit:",
-        "learningGoals": "Lernziele"
+        "learningGoals": "Lernziele",
+        "taskCount": "Anzahl der Aufgaben:"
       },
       "error": {
-        "required": "Dieses Feld ist erforderlich!"
+        "required": "Dieses Feld ist erforderlich!",
+        "min1": "Der minimalste Wert ist 1!"
       },
       "difficultyPlaceholder": "Schwierigkeit auswählen"
     },

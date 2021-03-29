@@ -51,6 +51,23 @@
                 </small>
             </div>
         </div>
+        <div class="form-group">
+            <label class="form-control-label" for="taskCount" jhiTranslate="exerciseSheets.form.fields.taskCount">Task count:</label>
+            <input type="number" class="form-control" name="taskCount" id="taskCount" formControlName="taskCount" #taskCount>
+
+            <div *ngIf="updateForm.get('taskCount')!.invalid">
+                <small class="form-text text-danger"
+                       *ngIf="updateForm.get('taskCount')?.errors?.required"
+                       jhiTranslate="exerciseSheets.form.error.required">
+                    This field is required!
+                </small>
+                <small class="form-text text-danger"
+                       *ngIf="updateForm.get('taskCount')?.errors?.min"
+                       jhiTranslate="exerciseSheets.form.error.min1">
+                    The minimum value is 1!
+                </small>
+            </div>
+        </div>
 
         <h4 jhiTranslate="exerciseSheets.form.fields.learningGoals">Learning goals</h4>
         <jhi-learning-goal-treeview

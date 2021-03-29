@@ -266,3 +266,8 @@ etutor:hasExerciseSheetCreationTime
     rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:dateTime .
+
+etutor:hasExerciseSheetTaskCount
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  xsd:int .

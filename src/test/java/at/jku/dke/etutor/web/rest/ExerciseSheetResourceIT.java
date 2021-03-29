@@ -90,6 +90,7 @@ public class ExerciseSheetResourceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setTaskCount(1);
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
 
@@ -144,9 +145,11 @@ public class ExerciseSheetResourceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setTaskCount(2);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, USERNAME);
         exerciseSheetDTO.setName("Newname");
+        exerciseSheetDTO.setTaskCount(1);
 
         restExerciseSheetMockMvc.perform(put("/api/exercise-sheet")
             .contentType(MediaType.APPLICATION_JSON)

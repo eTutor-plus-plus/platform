@@ -4,6 +4,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ public class NewExerciseSheetDTO {
     private String difficultyId;
     @NotNull
     private List<LearningGoalDisplayDTO> learningGoals = new ArrayList<>();
+    @Min(1)
+    private int taskCount;
 
     /**
      * Returns the name.
@@ -75,6 +78,24 @@ public class NewExerciseSheetDTO {
      */
     public void setLearningGoals(List<LearningGoalDisplayDTO> learningGoals) {
         this.learningGoals = learningGoals;
+    }
+
+    /**
+     * Returns the task count.
+     *
+     * @return the task count
+     */
+    public int getTaskCount() {
+        return taskCount;
+    }
+
+    /**
+     * Sets the task count.
+     *
+     * @param taskCount the task count
+     */
+    public void setTaskCount(int taskCount) {
+        this.taskCount = taskCount;
     }
 
     /**

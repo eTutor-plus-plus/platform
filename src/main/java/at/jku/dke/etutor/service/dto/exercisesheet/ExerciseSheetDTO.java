@@ -33,15 +33,16 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
     /**
      * Constructor.
      *
-     * @param baseDTO the base dto
-     * @param id the generated id
-     * @param creationDate the creation date
+     * @param baseDTO         the base dto
+     * @param id              the generated id
+     * @param creationDate    the creation date
      * @param internalCreator the internal creator
      */
     public ExerciseSheetDTO(NewExerciseSheetDTO baseDTO, String id, Instant creationDate, String internalCreator) {
         setName(baseDTO.getName().trim());
         setDifficultyId(baseDTO.getDifficultyId());
         setLearningGoals(baseDTO.getLearningGoals());
+        setTaskCount(baseDTO.getTaskCount());
 
         this.id = id;
         this.creationDate = creationDate;
@@ -62,7 +63,7 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
         setId(resource.getURI());
         setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalExerciseSheetCreator).getString());
         setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(resource.getProperty(ETutorVocabulary.hasExerciseSheetCreationTime).getString()).toInstant());
-
+        setTaskCount(resource.getProperty(ETutorVocabulary.hasExerciseSheetTaskCount).getInt());
         List<LearningGoalDisplayDTO> goals = new ArrayList<>();
         StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoal);
         try {

@@ -115,10 +115,12 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 ?exerciseSheet rdfs:label ?lbl.
                 ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
                 ?exerciseSheet etutor:containsLearningGoal ?goal.
+                ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
             }
             INSERT {
                 ?exerciseSheet rdfs:label ?newLbl.
                 ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
+                ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
             """);
 
         for (LearningGoalDisplayDTO learningGoalDisplayDTO : exerciseSheetDTO.getLearningGoals()) {
@@ -133,6 +135,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?lbl.
               ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+              ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
               OPTIONAL {
                 ?exerciseSheet etutor:containsLearningGoal ?goal.
               }
@@ -142,6 +145,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         query.setIri("?exerciseSheet", exerciseSheetDTO.getId());
         query.setLiteral("?newLbl", exerciseSheetDTO.getName().trim());
         query.setIri("?newDifficulty", exerciseSheetDTO.getDifficultyId());
+        query.setLiteral("?newTaskCount", exerciseSheetDTO.getTaskCount());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
@@ -353,6 +357,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         resource.addProperty(RDFS.label, newExerciseSheetDTO.getName().trim());
         resource.addProperty(ETutorVocabulary.hasExerciseSheetDifficulty, model.createResource(newExerciseSheetDTO.getDifficultyId()));
         resource.addProperty(RDF.type, ETutorVocabulary.ExerciseSheet);
+        resource.addProperty(ETutorVocabulary.hasExerciseSheetTaskCount, String.valueOf(newExerciseSheetDTO.getTaskCount()), XSDDatatype.XSDint);
 
         for (LearningGoalDisplayDTO entry : newExerciseSheetDTO.getLearningGoals()) {
             resource.addProperty(ETutorVocabulary.containsLearningGoal, model.createResource(entry.getId()));

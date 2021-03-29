@@ -16,6 +16,10 @@ export interface INewExerciseSheetDTO {
    * The learning goals.
    */
   learningGoals: ILearningGoalDisplayModel[];
+  /**
+   * The exercise sheet's task count.
+   */
+  taskCount: number;
 }
 
 /**
