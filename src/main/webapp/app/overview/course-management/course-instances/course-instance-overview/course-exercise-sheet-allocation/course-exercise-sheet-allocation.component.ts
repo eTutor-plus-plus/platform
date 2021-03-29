@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
 import { FormBuilder } from '@angular/forms';
 import { IExerciseSheetDisplayDTO } from '../../../../exercise-sheets/exercise-sheets.model';
@@ -7,6 +7,7 @@ import { ExerciseSheetsService } from '../../../../exercise-sheets/exercise-shee
 import { CourseManagementService } from '../../../course-management.service';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../../shared/constants/pagination.constants';
 import { forkJoin } from 'rxjs';
+import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 
 /**
  * Modal window for displaying exercise sheet assignments.
@@ -36,12 +37,14 @@ export class CourseExerciseSheetAllocationComponent implements OnInit {
    * @param fb the injected form builder
    * @param exerciseSheetService the injected exercise sheet service
    * @param courseService the injected course service
+   * @param modalService the injected modal service
    */
   constructor(
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private exerciseSheetService: ExerciseSheetsService,
-    private courseService: CourseManagementService
+    private courseService: CourseManagementService,
+    private modalService: NgbModal
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -114,6 +117,20 @@ export class CourseExerciseSheetAllocationComponent implements OnInit {
   public markAsSelected(item: IExerciseSheetDisplayDTO): void {
     this.selectedSheetsId.push(item.internalId);
     this._selectedSheetIdsToSave.push(item.internalId);
+  }
+
+  /**
+   * Opens the lecturer assignment overview for the given exercise sheet from the
+   * currently selected course instance.
+   *
+   * @param item the selected exercise sheet
+   */
+  public openLecturerAssignmentOverview(item: IExerciseSheetDisplayDTO): void {
+    const modalRef = this.modalService.open(LecturerTaskAssignmentOverviewComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as LecturerTaskAssignmentOverviewComponent).assignedSheetInfo = {
+      courseInstanceId: this.courseInstance.id,
+      exerciseSheetId: item.internalId,
+    };
   }
 
   /**
