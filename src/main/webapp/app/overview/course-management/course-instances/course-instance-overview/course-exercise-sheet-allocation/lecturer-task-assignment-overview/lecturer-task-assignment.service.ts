@@ -1,6 +1,11 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ILecturerTaskAssignmentInfoModel, IStudentAssignmentOverviewInfo } from './lecturer-task-assignment.model';
+import {
+  ILecturerGradingInfo,
+  ILecturerStudentTaskAssignmentInfoModel,
+  ILecturerTaskAssignmentInfoModel,
+  IStudentAssignmentOverviewInfo,
+} from './lecturer-task-assignment.model';
 import { Observable } from 'rxjs';
 import { createRequestOption, Pagination } from '../../../../../../shared/util/request-util';
 import { SERVER_API_URL } from '../../../../../../app.constants';
@@ -43,5 +48,25 @@ export class LecturerTaskAssignmentService {
       params: options,
       observe: 'response',
     });
+  }
+
+  /**
+   * Returns the grading info for a lecturer.
+   *
+   * @param lecturerStudentTaskInfoModel the lecturer student task info model
+   */
+  public getGradingInfo(
+    lecturerStudentTaskInfoModel: ILecturerStudentTaskAssignmentInfoModel
+  ): Observable<HttpResponse<ILecturerGradingInfo[]>> {
+    const courseInstanceUUID = lecturerStudentTaskInfoModel.courseInstanceId.substr(
+      lecturerStudentTaskInfoModel.courseInstanceId.lastIndexOf('#') + 1
+    );
+    const exerciseSheetUUID = lecturerStudentTaskInfoModel.exerciseSheetId.substr(
+      lecturerStudentTaskInfoModel.exerciseSheetId.lastIndexOf('#') + 1
+    );
+
+    // TODO: Include uuids in URL
+
+    return this.http.get<ILecturerGradingInfo[]>(`${SERVER_API_URL}api/`, { observe: 'response' });
   }
 }

@@ -3,6 +3,7 @@ import { ILecturerTaskAssignmentInfoModel, IStudentAssignmentOverviewInfo } from
 import { LecturerTaskAssignmentService } from './lecturer-task-assignment.service';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../../../shared/constants/pagination.constants';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { LecturerGradeAssignmentComponent } from './lecturer-grade-assignment/lecturer-grade-assignment.component';
 
 /**
  * Modal window component for displaying the completed student assignments.
@@ -86,7 +87,12 @@ export class LecturerTaskAssignmentOverviewComponent implements OnInit {
    * @param entry the student assignment overview info
    */
   public grade(entry: IStudentAssignmentOverviewInfo): void {
-    // TODO: Implement
+    const modalRef = this.modalService.open(LecturerGradeAssignmentComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as LecturerGradeAssignmentComponent).lecturerStudentInfoModel = {
+      exerciseSheetId: this.assignedSheetInfo.exerciseSheetId,
+      matriculationNo: entry.matriculationNo,
+      courseInstanceId: this.assignedSheetInfo.courseInstanceId,
+    };
   }
 
   /**
