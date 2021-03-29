@@ -16,6 +16,7 @@ import { StudentAssignmentModalComponent } from './course-instances/course-insta
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { CourseExerciseSheetAllocationComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
 import { LecturerTaskAssignmentOverviewComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
+import { LecturerGradeAssignmentComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-grade-assignment/lecturer-grade-assignment.component';
 
 /**
  * The module for course management related components.
@@ -44,6 +45,7 @@ import { LecturerTaskAssignmentOverviewComponent } from './course-instances/cour
     StudentAssignmentModalComponent,
     CourseExerciseSheetAllocationComponent,
     LecturerTaskAssignmentOverviewComponent,
+    LecturerGradeAssignmentComponent,
   ],
 })
 export class CourseManagementModule {}
