@@ -25,16 +25,18 @@
             </label>
         </div>
 
+        <br>
         <button class="btn btn-primary" (click)="saveCurrentAssessment()" [disabled]="!selectedGradingInfo">Beurteilung speichern</button>
 
+        <br>
         <div class="d-flex justify-content-between">
             <div>
-                <button [disabled]="!isPreviousGradingInfoAvailable()" (click)="selectPreviousGradingInfo()">
+                <button class="btn" [disabled]="!isPreviousGradingInfoAvailable()" (click)="selectPreviousGradingInfo()">
                     <fa-icon icon="angle-left"></fa-icon>
                 </button>
             </div>
             <div>
-                <button [disabled]="!isNextGradingInfoAvailable()" (click)="selectNextGradingInfo()">
+                <button class="btn" [disabled]="!isNextGradingInfoAvailable()" (click)="selectNextGradingInfo()">
                     <fa-icon icon="angle-right"></fa-icon>
                 </button>
             </div>

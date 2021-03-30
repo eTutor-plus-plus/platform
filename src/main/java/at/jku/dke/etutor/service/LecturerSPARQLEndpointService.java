@@ -37,22 +37,24 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
               etutor:fromCourseInstance ?courseInstance;
               etutor:isAssignmentSubmitted ?submitted;
             ].
-            {
-              SELECT (COUNT(*) AS ?cnt) ?student
-              WHERE {
-                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                      etutor:fromCourseInstance ?courseInstance;
-                                      etutor:isAssignmentSubmitted ?submitted.
-                FILTER(NOT EXISTS{
-                    ?individualAssignment etutor:hasIndividualTask [
-                      etutor:isGraded false
-                    ]
-                })
+            OPTIONAL {
+              {
+                SELECT (COUNT(*) AS ?cnt) ?student
+                WHERE {
+                  ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                  ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                        etutor:fromCourseInstance ?courseInstance;
+                                        etutor:isAssignmentSubmitted ?submitted.
+                  FILTER(NOT EXISTS{
+                      ?individualAssignment etutor:hasIndividualTask [
+                        etutor:isGraded false
+                      ]
+                  })
+                }
+                GROUP BY ?student
               }
-              GROUP BY ?student
             }
-            BIND(?cnt > 0 AS ?fullyGraded)
+            BIND(bound(?cnt) AS ?fullyGraded)
           }
         }
         ORDER BY (?student)

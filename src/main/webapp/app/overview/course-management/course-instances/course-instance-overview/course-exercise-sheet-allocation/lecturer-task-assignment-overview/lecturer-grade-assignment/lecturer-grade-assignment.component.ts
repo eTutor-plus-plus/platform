@@ -102,5 +102,10 @@ export class LecturerGradeAssignmentComponent implements OnInit {
   private async loadGradingInfosAsync(): Promise<any> {
     const response = await this.lecturerTaskService.getGradingInfo(this.lecturerStudentInfoModel).toPromise();
     this.availableGradingInfos = response.body ?? [];
+
+    if (this.availableGradingInfos.length > 0) {
+      this.selectedGradingInfo = this.availableGradingInfos[0];
+      this.currentIndex = 0;
+    }
   }
 }

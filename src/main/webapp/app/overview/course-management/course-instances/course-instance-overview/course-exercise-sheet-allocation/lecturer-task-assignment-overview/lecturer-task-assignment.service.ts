@@ -67,7 +67,7 @@ export class LecturerTaskAssignmentService {
     );
 
     return this.http.get<ILecturerGradingInfo[]>(
-      `${SERVER_API_URL}api/grading/${courseInstanceUUID}/${exerciseSheetUUID}/${lecturerStudentTaskInfoModel.matriculationNo}`,
+      `${SERVER_API_URL}api/lecturer/grading/${courseInstanceUUID}/${exerciseSheetUUID}/${lecturerStudentTaskInfoModel.matriculationNo}`,
       { observe: 'response' }
     );
   }
