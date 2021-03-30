@@ -6,7 +6,39 @@
     </div>
 
     <div class="modal-body">
+        <h5>Aufgabe {{selectedGradingInfo?.orderNo}} / {{availableGradingInfos.length}} von '{{lecturerStudentInfoModel.matriculationNo}}' beurteilen</h5>
 
+        <div class="form-group">
+            <label for="assignmentText">Aufgabe:</label>
+            <input readonly type="text" value="{{selectedGradingInfo?.taskTitle}}" id="assignmentText" class="form-control">
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="completedChb" [checked]="selectedGradingInfo?.completed">
+            <label class="form-check-label" for="completedChb">
+                Lernziele der Aufgabe erreicht?
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="gradedChb" [checked]="selectedGradingInfo?.graded" disabled>
+            <label class="form-check-label" for="gradedChb">
+                Aufgabe bereits beurteilt?
+            </label>
+        </div>
+
+        <button class="btn btn-primary" (click)="saveCurrentAssessment()" [disabled]="!selectedGradingInfo">Beurteilung speichern</button>
+
+        <div class="d-flex justify-content-between">
+            <div>
+                <button [disabled]="!isPreviousGradingInfoAvailable()" (click)="selectPreviousGradingInfo()">
+                    <fa-icon icon="angle-left"></fa-icon>
+                </button>
+            </div>
+            <div>
+                <button [disabled]="!isNextGradingInfoAvailable()" (click)="selectNextGradingInfo()">
+                    <fa-icon icon="angle-right"></fa-icon>
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-footer">

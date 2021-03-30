@@ -38,7 +38,7 @@ export class LecturerGradeAssignmentComponent implements OnInit {
   public set lecturerStudentInfoModel(value: ILecturerStudentTaskAssignmentInfoModel) {
     this._lecturerStudentInfoModel = value;
 
-    // TODO: Implement loading
+    this.loadGradingInfosAsync();
   }
 
   /**
@@ -87,5 +87,20 @@ export class LecturerGradeAssignmentComponent implements OnInit {
    */
   public close(): void {
     this.activeModal.close();
+  }
+
+  /**
+   * Saves the current assessment.
+   */
+  public saveCurrentAssessment(): void {
+    // TODO: Implement saving
+  }
+
+  /**
+   * Asynchronously loads the grading info.
+   */
+  private async loadGradingInfosAsync(): Promise<any> {
+    const response = await this.lecturerTaskService.getGradingInfo(this.lecturerStudentInfoModel).toPromise();
+    this.availableGradingInfos = response.body ?? [];
   }
 }
