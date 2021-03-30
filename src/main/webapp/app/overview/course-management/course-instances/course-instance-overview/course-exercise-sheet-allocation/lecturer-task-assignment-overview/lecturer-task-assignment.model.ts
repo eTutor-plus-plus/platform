@@ -62,4 +62,8 @@ export interface ILecturerGradingInfo {
    * Indicates whether the task has already been graded or not.
    */
   graded: boolean;
+  /**
+   * The internal order number.
+   */
+  orderNo: number;
 }

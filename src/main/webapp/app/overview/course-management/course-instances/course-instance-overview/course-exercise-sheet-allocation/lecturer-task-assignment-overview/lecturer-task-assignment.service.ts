@@ -41,13 +41,14 @@ export class LecturerTaskAssignmentService {
       lecturerAssignmentInfoModel.exerciseSheetId.lastIndexOf('#') + 1
     );
 
-    // TODO: Include uuids in URL
-
     const options = createRequestOption(page);
-    return this.http.get<IStudentAssignmentOverviewInfo[]>(`${SERVER_API_URL}api/`, {
-      params: options,
-      observe: 'response',
-    });
+    return this.http.get<IStudentAssignmentOverviewInfo[]>(
+      `${SERVER_API_URL}api/lecturer/overview/${courseInstanceUUID}/${exerciseSheetUUID}`,
+      {
+        params: options,
+        observe: 'response',
+      }
+    );
   }
 
   /**
@@ -65,8 +66,9 @@ export class LecturerTaskAssignmentService {
       lecturerStudentTaskInfoModel.exerciseSheetId.lastIndexOf('#') + 1
     );
 
-    // TODO: Include uuids in URL
-
-    return this.http.get<ILecturerGradingInfo[]>(`${SERVER_API_URL}api/`, { observe: 'response' });
+    return this.http.get<ILecturerGradingInfo[]>(
+      `${SERVER_API_URL}api/grading/${courseInstanceUUID}/${exerciseSheetUUID}/${lecturerStudentTaskInfoModel.matriculationNo}`,
+      { observe: 'response' }
+    );
   }
 }
