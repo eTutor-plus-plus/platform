@@ -22,6 +22,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_TERM = "Term";
     private static final String CLASS_STUDENT = "Student";
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
+    private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -48,6 +49,11 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT = "hasIndividualTaskAssignment";
     private static final String PROP_FROM_COURSE_INSTANCE = "fromCourseInstance";
     private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
+    private static final String PROP_HAS_INDIVIDUAL_TASK = "hasIndividualTask";
+    private static final String PROP_IS_GRADED = "isGraded";
+    private static final String PROP_REFERS_TO_TASK = "refersToTask";
+    private static final String PROP_HAS_ORDER_NO = "hasOrderNo";
+    private static final String PROP_IS_LEARNING_GOAL_COMPLETED = "isLearningGoalCompleted";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -251,6 +257,26 @@ public final class ETutorVocabulary {
      * The hasExerciseSheetTaskCount property.
      */
     public static final Property hasExerciseSheetTaskCount = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_TASK_COUNT);
+    /**
+     * The hasIndividualTask property.
+     */
+    public static final Property hasIndividualTask = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK);
+    /**
+     * The isGraded property.
+     */
+    public static final Property isGraded = m.createProperty(URI + PROP_IS_GRADED);
+    /**
+     * The refersToTask property.
+     */
+    public static final Property refersToTask = m.createProperty(URI + PROP_REFERS_TO_TASK);
+    /**
+     * The hasOrderNo property.
+     */
+    public static final Property hasOrderNo = m.createProperty(URI + PROP_HAS_ORDER_NO);
+    /**
+     * The isLearningGoalCompleted property.
+     */
+    public static final Property isLearningGoalCompleted = m.createProperty(URI + PROP_IS_LEARNING_GOAL_COMPLETED);
 
     /**
      * The goal resource.
@@ -292,6 +318,10 @@ public final class ETutorVocabulary {
      * The individual task assignment resource.
      */
     public static final Resource IndividualTaskAssignment = m.createResource(URI + CLASS_INDIVIDUAL_TASK_ASSIGNMENT);
+    /**
+     * The individual task resource.
+     */
+    public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
 
     /**
      * The easy difficulty instance.

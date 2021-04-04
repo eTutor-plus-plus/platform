@@ -149,6 +149,9 @@ etutor:hasIndividualTaskAssignment
 etutor:IndividualTaskAssignment
     rdf:type rdfs:Class .
 
+etutor:IndividualTask
+    rdf:type rdfs:Class .
+
 # Properties
 etutor:fromCourseInstance
     rdf:type    rdf:Property ;
@@ -159,6 +162,31 @@ etutor:fromExerciseSheet
     rdf:type    rdf:Property ;
     rdfs:domain etutor:IndividualTaskAssignment ;
     rdfs:range  etutor:ExerciseSheet .
+
+etutor:hasIndividualTask
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskAssignment ;
+    rdfs:range  etutor:IndividualTask .
+
+etutor:isGraded
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:boolean .
+
+etutor:refersToTask
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  etutor:TaskAssignment .
+
+etutor:hasOrderNo
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:int .
+
+etutor:isLearningGoalCompleted
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:boolean .
 
 ## Assignments
 # Classes
