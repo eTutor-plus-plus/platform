@@ -115,6 +115,61 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
         """;
 
+    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_COMPLETED = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+        INSERT {
+          GRAPH ?courseinstance {
+            ?goal etutor:isCompletedFrom ?student.
+            ?subGoal etutor:isCompletedFrom ?student.
+          }
+        }
+        WHERE {
+          ?courseinstance a etutor:CourseInstance.
+          ?courseinstance etutor:hasCourse ?course.
+          ?goal a etutor:Goal.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+          ?individualTask etutor:refersToTask ?task.
+          ?goal etutor:hasTaskAssignment ?task.
+          OPTIONAL {
+          	?goal etutor:hasSubGoal+ ?subGoal.
+          }
+          GRAPH ?courseinstance {
+          	?goal a etutor:Goal.
+          }
+        }
+        """;
+    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+        DELETE {
+          GRAPH ?courseinstance {
+            ?goal etutor:isCompletedFrom ?student.
+          }
+        }
+        WHERE {
+          ?courseinstance a etutor:CourseInstance.
+          ?courseinstance etutor:hasCourse ?course.
+          ?goal a etutor:Goal.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+          ?individualTask etutor:refersToTask ?task.
+          ?goal etutor:hasTaskAssignment ?task.
+          GRAPH ?courseinstance {
+          	?goal a etutor:Goal.
+          }
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -254,8 +309,24 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
 
         try (RDFConnection connection = getConnection()) {
             connection.update(qry.asUpdate());
-        }
 
-        //TODO: Update learning goals!
+            if (goalCompleted) {
+                ParameterizedSparqlString updateCompletedGoalQry = new ParameterizedSparqlString(QRY_ADJUST_LEARNING_GOALS_GOAL_COMPLETED);
+                updateCompletedGoalQry.setIri("?courseinstance", courseInstanceURL);
+                updateCompletedGoalQry.setIri("?student", studentURL);
+                updateCompletedGoalQry.setIri("?sheet", exerciseSheetURL);
+                updateCompletedGoalQry.setLiteral("?orderNo", orderNo);
+
+                connection.update(updateCompletedGoalQry.asUpdate());
+            } else {
+                ParameterizedSparqlString updatedFailedGoalQry = new ParameterizedSparqlString(QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED);
+                updatedFailedGoalQry.setIri("?courseinstance", courseInstanceURL);
+                updatedFailedGoalQry.setIri("?student", studentURL);
+                updatedFailedGoalQry.setIri("?sheet", exerciseSheetURL);
+                updatedFailedGoalQry.setLiteral("?orderNo", orderNo);
+
+                connection.update(updatedFailedGoalQry.asUpdate());
+            }
+        }
     }
 }
