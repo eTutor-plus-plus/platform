@@ -1,0 +1,23 @@
+{
+  "lecturerOverview": {
+    "overviewModalHeader": "Lecturer assignment overview",
+    "overviewTableHeader": "Students' assignments",
+    "overviewTable": {
+      "matriculationNumber": "Matriculation number",
+      "submitted": "Submitted",
+      "fullyGraded": "Fully graded",
+      "btnGrade": "Grade"
+    },
+    "footerClose": "Close",
+    "gradingWindow": {
+      "modalHeader": "Task assessment of student '{{student}}'",
+      "windowHeader": "Evaluate task {{currTask}} / {{taskCount}} of '{{student}}'",
+      "form": {
+        "task": "Task:",
+        "goalReached": "Has the task's learning goal already been reached?",
+        "taskGraded": "Has this task already been graded?",
+        "saveEvaluation": "Save evaluation"
+      }
+    }
+  }
+}

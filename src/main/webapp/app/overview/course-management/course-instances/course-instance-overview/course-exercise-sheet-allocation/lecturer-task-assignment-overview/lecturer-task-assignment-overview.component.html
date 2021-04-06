@@ -1,19 +1,19 @@
 <div>
     <div class="modal-header">
-        <h4 class="modal-title">Lecturer assignment overview</h4>
+        <h4 class="modal-title" jhiTranslate="lecturerOverview.overviewHeader">Lecturer assignment overview</h4>
 
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
     </div>
 
     <div class="modal-body">
-        <h5>Students' assignments</h5>
+        <h5 jhiTranslate="lecturerOverview.overviewTableHeader">Students' assignments</h5>
         <div class="table-responsive" *ngIf="entries">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Matriculation number</th>
-                        <th>Submitted</th>
-                        <th>Fully graded</th>
+                        <th jhiTranslate="lecturerOverview.overviewTable.matriculationNumber">Matriculation number</th>
+                        <th jhiTranslate="lecturerOverview.overviewTable.submitted">Submitted</th>
+                        <th jhiTranslate="lecturerOverview.overviewTable.fullyGraded">Fully graded</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
@@ -29,7 +29,8 @@
                             <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
                         </td>
                         <td class="text-right">
-                            <button [disabled]="!entry.submitted" class="btn-secondary" (click)="grade(entry)">
+                            <button [disabled]="!entry.submitted" class="btn-secondary" (click)="grade(entry)"
+                                jhiTranslate="lecturerOverview.overviewTable.btnGrade">
                                 Grade
                             </button>
                         </td>
@@ -52,7 +53,7 @@
 
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="close()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span>Close</span>
+            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="lecturerOverview.footerClose">Close</span>
         </button>
     </div>
 </div>
