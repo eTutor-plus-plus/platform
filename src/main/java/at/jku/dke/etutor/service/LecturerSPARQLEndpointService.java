@@ -94,6 +94,27 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         ORDER BY (?orderNo)
         """;
 
+    private static final String QRY_UPDATE_GRADE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?task etutor:isLearningGoalCompleted ?goalComplete.
+          ?task etutor:isGraded ?graded.
+        } INSERT {
+          ?task etutor:isLearningGoalCompleted ?newCompleted.
+          ?task etutor:isGraded true.
+        } WHERE {
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?task.
+          ?task etutor:hasOrderNo ?orderNo ;
+                etutor:isLearningGoalCompleted ?goalComplete ;
+                etutor:isGraded ?graded.
+          FILTER(?orderNo = ?filterOrderNo)
+        }
+        """;
+
     /**
      * Constructor.
      *
@@ -203,5 +224,38 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
             }
             return list;
         }
+    }
+
+    /**
+     * Sets the grading info for a specific assignment.
+     *
+     * @param courseInstanceUUID the course instance uuid
+     * @param exerciseSheetUUID  the exercise sheet uuid
+     * @param matriculationNo    the matriculation number
+     * @param orderNo            the order number
+     * @param goalCompleted      indicates whether the goal has been completed or not
+     */
+    public void updateGradeForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo, boolean goalCompleted) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_UPDATE_GRADE);
+
+        qry.setIri("?student", studentURL);
+        qry.setIri("?sheet", exerciseSheetURL);
+        qry.setIri("?courseInstance", courseInstanceURL);
+        qry.setLiteral("?filterOrderNo", orderNo);
+        qry.setLiteral("?newCompleted", goalCompleted);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(qry.asUpdate());
+        }
+
+        //TODO: Update learning goals!
     }
 }

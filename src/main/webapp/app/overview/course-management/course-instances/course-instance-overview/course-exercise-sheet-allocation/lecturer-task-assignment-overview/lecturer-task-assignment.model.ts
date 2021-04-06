@@ -67,3 +67,29 @@ export interface ILecturerGradingInfo {
    */
   orderNo: number;
 }
+
+/**
+ * Interface which represents the grading info view model.
+ */
+export interface IGradingInfoVM {
+  /**
+   * The course instance uuid.
+   */
+  courseInstanceUUID: string;
+  /**
+   * The exercise sheet uuid.
+   */
+  exerciseSheetUUID: string;
+  /**
+   * The matriculation number.
+   */
+  matriculationNo: string;
+  /**
+   * The order number of the task.
+   */
+  orderNo: number;
+  /**
+   * The goal completion status.
+   */
+  goalCompleted: boolean;
+}

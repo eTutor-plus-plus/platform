@@ -4,6 +4,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.LecturerSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
 import io.github.jhipster.web.util.PaginationUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,10 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
@@ -58,7 +56,7 @@ public class LecturerResource {
     }
 
     /**
-     * {@code GET /api/lecturer/overview/:courseInstanceUUID/:exerciseSheetUUID/:matriculationNo} : Retrieves the
+     * {@code GET /api/lecturer/grading/:courseInstanceUUID/:exerciseSheetUUID/:matriculationNo} : Retrieves the
      * grading info of a specific student from a given course and exercise sheet.
      *
      * @param courseInstanceUUID the course instance uuid from the request path
@@ -74,5 +72,20 @@ public class LecturerResource {
         List<LecturerGradingInfoDTO> gradingInfoList = lecturerSPARQLEndpointService.getGradingInfo(courseInstanceUUID,
             exerciseSheetUUID, matriculationNo);
         return ResponseEntity.ok(gradingInfoList);
+    }
+
+    /**
+     * {@code PUT /api/lecturer/grading} : Updates the grading info.
+     *
+     * @param gradingInfoVM the grading info view model from the request body
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("grading")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> setGradeForAssignment(@RequestBody GradingInfoVM gradingInfoVM) {
+        lecturerSPARQLEndpointService.updateGradeForAssignment(gradingInfoVM.getCourseInstanceUUID(),
+            gradingInfoVM.getExerciseSheetUUID(), gradingInfoVM.getMatriculationNo(),
+            gradingInfoVM.getOrderNo(), gradingInfoVM.isGoalCompleted());
+        return ResponseEntity.noContent().build();
     }
 }

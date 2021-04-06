@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
+  IGradingInfoVM,
   ILecturerGradingInfo,
   ILecturerStudentTaskAssignmentInfoModel,
   ILecturerTaskAssignmentInfoModel,
@@ -70,5 +71,14 @@ export class LecturerTaskAssignmentService {
       `${SERVER_API_URL}api/lecturer/grading/${courseInstanceUUID}/${exerciseSheetUUID}/${lecturerStudentTaskInfoModel.matriculationNo}`,
       { observe: 'response' }
     );
+  }
+
+  /**
+   * Sets the grade for an assignment task.
+   *
+   * @param gradingInfoVM vm containing the grading info
+   */
+  public setGradeForAssignment(gradingInfoVM: IGradingInfoVM): Observable<any> {
+    return this.http.put(`${SERVER_API_URL}api/lecturer/grading`, gradingInfoVM);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LecturerTaskAssignmentService } from '../lecturer-task-assignment.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ILecturerGradingInfo, ILecturerStudentTaskAssignmentInfoModel } from '../lecturer-task-assignment.model';
+import { IGradingInfoVM, ILecturerGradingInfo, ILecturerStudentTaskAssignmentInfoModel } from '../lecturer-task-assignment.model';
 
 /**
  * Modal component for displaying
@@ -16,6 +16,7 @@ export class LecturerGradeAssignmentComponent implements OnInit {
   public availableGradingInfos: ILecturerGradingInfo[] = [];
   public selectedGradingInfo?: ILecturerGradingInfo;
   public currentIndex = 0;
+  public isSaving = false;
 
   /**
    * Constructor.
@@ -93,7 +94,25 @@ export class LecturerGradeAssignmentComponent implements OnInit {
    * Saves the current assessment.
    */
   public saveCurrentAssessment(): void {
-    // TODO: Implement saving
+    this.isSaving = true;
+    const gradingInfoVM: IGradingInfoVM = {
+      courseInstanceUUID: this.lecturerStudentInfoModel.courseInstanceId.substr(
+        this.lecturerStudentInfoModel.courseInstanceId.lastIndexOf('#') + 1
+      ),
+      exerciseSheetUUID: this.lecturerStudentInfoModel.exerciseSheetId.substr(
+        this.lecturerStudentInfoModel.exerciseSheetId.lastIndexOf('#') + 1
+      ),
+      matriculationNo: this.lecturerStudentInfoModel.matriculationNo,
+      orderNo: this.selectedGradingInfo!.orderNo,
+      goalCompleted: this.selectedGradingInfo!.completed,
+    };
+    this.lecturerTaskService.setGradeForAssignment(gradingInfoVM).subscribe(
+      () => {
+        this.selectedGradingInfo!.graded = true;
+        this.isSaving = false;
+      },
+      () => (this.isSaving = false)
+    );
   }
 
   /**

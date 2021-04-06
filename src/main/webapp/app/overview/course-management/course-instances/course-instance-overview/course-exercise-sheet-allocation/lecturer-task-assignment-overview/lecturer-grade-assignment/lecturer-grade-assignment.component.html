@@ -13,7 +13,9 @@
             <input readonly type="text" value="{{selectedGradingInfo?.taskTitle}}" id="assignmentText" class="form-control">
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="completedChb" [checked]="selectedGradingInfo?.completed">
+            <input class="form-check-input" type="checkbox" id="completedChb"
+                   [checked]="selectedGradingInfo?.completed"
+                (change)="selectedGradingInfo!.completed = !selectedGradingInfo!.completed">
             <label class="form-check-label" for="completedChb">
                 Lernziele der Aufgabe erreicht?
             </label>
@@ -26,7 +28,10 @@
         </div>
 
         <br>
-        <button class="btn btn-primary" (click)="saveCurrentAssessment()" [disabled]="!selectedGradingInfo">Beurteilung speichern</button>
+        <button class="btn btn-primary" (click)="saveCurrentAssessment()" [disabled]="!selectedGradingInfo || isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+            Beurteilung speichern
+        </button>
 
         <br>
         <div class="d-flex justify-content-between">
