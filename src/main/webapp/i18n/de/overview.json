@@ -8,10 +8,20 @@
       "year": "Jahr",
       "instructor": "Kursleiter",
       "showAssignments": "Aufgaben anzeigen",
+      "showSelfAssessment": "Selbstüberprüfung anzeigen",
       "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
       "back": "Zurück",
       "difficulty": "Schwierigkeit",
-      "completed": "Abgeschlossen"
+      "completed": "Abgeschlossen",
+      "selfEvaluation": {
+        "header": "Selbsteinschätzung - Kurs '{{course}}'",
+        "cardHeader": "Lernziele",
+        "cardTitle": "Lernziel {{goal}} erreicht?",
+        "no": "Nein",
+        "yes": "Ja",
+        "save": "Speichern",
+        "cancel": "Abbrechen"
+      }
     }
   }
 }

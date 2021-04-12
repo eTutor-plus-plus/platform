@@ -71,11 +71,19 @@ export class CourseManagementService {
   /**
    * Returns the learning goals of the given course.
    *
-   * @param course the course model
+   * @param course the course model or the course name
    * @param userLogin the current user's login name
    */
-  public getLearningGoalsFromCourse(course: CourseModel, userLogin: string): Observable<LearningGoalTreeviewItem[]> {
-    return this.http.get<IDisplayLearningGoalAssignmentModel[]>(SERVER_API_URL + `api/course/${course.name}/goals`).pipe(
+  public getLearningGoalsFromCourse(course: CourseModel | string, userLogin: string): Observable<LearningGoalTreeviewItem[]> {
+    let courseName: string;
+
+    if (typeof course === 'string') {
+      courseName = encodeURIComponent(course);
+    } else {
+      courseName = course.name;
+    }
+
+    return this.http.get<IDisplayLearningGoalAssignmentModel[]>(SERVER_API_URL + `api/course/${courseName}/goals`).pipe(
       map(list => {
         const retList: LearningGoalTreeviewItem[] = [];
 

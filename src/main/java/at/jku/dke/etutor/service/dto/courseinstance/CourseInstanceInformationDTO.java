@@ -11,6 +11,7 @@ public class CourseInstanceInformationDTO {
     private String instructor;
     private String instanceId;
     private int year;
+    private boolean initialSelfAssessmentCompleted;
 
     /**
      * Constructor.
@@ -22,13 +23,14 @@ public class CourseInstanceInformationDTO {
     /**
      * Constructor.
      *
-     * @param courseName the course name
-     * @param termId     the term id
-     * @param instructor the instructor's name
-     * @param instanceId the instance id
-     * @param year       the year
+     * @param courseName                     the course name
+     * @param termId                         the term id
+     * @param instructor                     the instructor's name
+     * @param instanceId                     the instance id
+     * @param year                           the year
+     * @param initialSelfAssessmentCompleted indicates whether the initial self assessment test has already been completed ot not
      */
-    public CourseInstanceInformationDTO(String courseName, String termId, String instructor, String instanceId, int year) {
+    public CourseInstanceInformationDTO(String courseName, String termId, String instructor, String instanceId, int year, boolean initialSelfAssessmentCompleted) {
         this.courseName = courseName;
         this.termId = termId;
         this.instructor = instructor;
@@ -124,5 +126,23 @@ public class CourseInstanceInformationDTO {
      */
     public void setYear(int year) {
         this.year = year;
+    }
+
+    /**
+     * Returns whether the initial self assessment test has already been completed or not.
+     *
+     * @return {@code true} if the test has already been completed, otherwise {@code false}
+     */
+    public boolean isInitialSelfAssessmentCompleted() {
+        return initialSelfAssessmentCompleted;
+    }
+
+    /**
+     * Sets whether the initial self assessment test has already been completed or not.
+     *
+     * @param initialSelfAssessmentCompleted the value to set
+     */
+    public void setInitialSelfAssessmentCompleted(boolean initialSelfAssessmentCompleted) {
+        this.initialSelfAssessmentCompleted = initialSelfAssessmentCompleted;
     }
 }

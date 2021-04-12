@@ -1,1 +1,28 @@
-<p>student-self-evaluation works!</p>
+<form [formGroup]="studentSelfEvaluationForm" (ngSubmit)="submitChanges()">
+    <h4>{{'overview.student.selfEvaluation.header' | translate:{course: courseInstanceInfo.courseName} }}</h4>
+
+    <div class="card m-3">
+        <h5 class="card-header" jhiTranslate="overview.student.selfEvaluation.cardHeader">Learning goals</h5>
+        <div class="list-group list-group-flush" *ngFor="let controlFormGroup of formArrayControlsAsFormGroup; let i = index">
+            <div class="list-group-item" [formGroup]="controlFormGroup">
+                <h6 class="card-title">{{'overview.student.selfEvaluation.cardTitle' | translate:{goal: controlFormGroup.get('text')!.value} }}</h6>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" [value]="true" formControlName="completed">
+                    <label class="form-check-label" jhiTranslate="overview.student.selfEvaluation.yes">
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" [value]="false" formControlName="completed">
+                    <label class="form-check-label" jhiTranslate="overview.student.selfEvaluation.no">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <button class="btn btn-primary mr-2" type="submit" jhiTranslate="overview.student.selfEvaluation.save">Save</button>
+            <button class="btn btn-secondary" type="button" (click)="navigateBack()" jhiTranslate="overview.student.selfEvaluation.cancel">Cancel</button>
+        </div>
+    </div>
+</form>

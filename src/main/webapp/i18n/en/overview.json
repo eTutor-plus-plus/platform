@@ -8,10 +8,20 @@
       "year": "Year",
       "instructor": "Instructor",
       "showAssignments": "Show assignments",
+      "showSelfAssessment": "Show self assessment",
       "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
       "back": "Back",
       "difficulty": "Difficulty",
-      "completed": "Completed"
+      "completed": "Completed",
+      "selfEvaluation": {
+        "header": "Self estimation of course '{{course}}'",
+        "cardHeader": "Learning goals",
+        "cardTitle": "Learning goal {{goal}} reached?",
+        "no": "No",
+        "yes": "Yes",
+        "save": "Save",
+        "cancel": "Cancel"
+      }
     }
   }
 }

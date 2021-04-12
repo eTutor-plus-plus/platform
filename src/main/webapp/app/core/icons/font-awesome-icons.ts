@@ -46,6 +46,7 @@ import {
   faUserFriends,
   faInfoCircle,
   faCheck,
+  faCheckSquare,
 } from '@fortawesome/free-solid-svg-icons';
 
 export const fontAwesomeIcons = [
@@ -94,6 +95,7 @@ export const fontAwesomeIcons = [
   faUserFriends,
   faInfoCircle,
   faCheck,
+  faCheckSquare,
   // jhipster-needle-add-icon-import
   faAsterisk,
 ];

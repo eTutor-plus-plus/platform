@@ -40,7 +40,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT DISTINCT (STR(?term) AS ?termId) ?courseName ?instructor (STR(?instance) AS ?instanceId) ?year
+        SELECT DISTINCT (STR(?term) AS ?termId) ?courseName ?instructor (STR(?instance) AS ?instanceId) ?year (COALESCE(?completed, false) AS ?testCompleted)
         WHERE {
           ?instance etutor:hasStudent ?student.
           ?instance etutor:hasTerm ?term.
@@ -48,6 +48,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?instance etutor:hasInstanceYear ?year.
           ?course rdfs:label ?courseName.
           ?course etutor:hasCourseCreator ?instructor.
+          OPTIONAL {
+            GRAPH ?instance {
+              ?student etutor:isInitialTestCompleted ?completed.
+            }
+          }
         }
         ORDER BY(?courseName)
         """;
@@ -151,8 +156,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     String instructor = solution.getLiteral("?instructor").getString();
                     String instanceId = solution.getLiteral("?instanceId").getString();
                     int year = solution.getLiteral("?year").getInt();
+                    boolean testCompleted = solution.getLiteral("?testCompleted").getBoolean();
 
-                    retList.add(new CourseInstanceInformationDTO(courseName, termId, instructor, instanceId, year));
+                    retList.add(new CourseInstanceInformationDTO(courseName, termId, instructor, instanceId, year, testCompleted));
                 }
                 return retList;
             }
