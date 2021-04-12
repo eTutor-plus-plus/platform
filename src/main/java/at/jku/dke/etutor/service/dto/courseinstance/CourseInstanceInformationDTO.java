@@ -36,6 +36,7 @@ public class CourseInstanceInformationDTO {
         this.instructor = instructor;
         this.instanceId = instanceId;
         this.year = year;
+        this.initialSelfAssessmentCompleted = initialSelfAssessmentCompleted;
     }
 
     /**

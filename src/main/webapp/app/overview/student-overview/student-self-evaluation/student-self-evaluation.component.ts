@@ -68,8 +68,29 @@ export class StudentSelfEvaluationComponent implements OnInit {
   public submitChanges(): void {
     this.isSaving = true;
 
-    this.isSaving = false;
-    this.navigateBack();
+    const goals: IStudentSelfEvaluationLearningGoal[] = [];
+
+    for (const formGroup of this.formArrayControlsAsFormGroup) {
+      const id: string = formGroup.get('id')!.value;
+      const text: string = formGroup.get('text')!.value;
+      const completed: boolean = formGroup.get('completed')!.value;
+
+      goals.push({
+        id,
+        text,
+        completed,
+      });
+    }
+
+    this.studentSelfEvaluationService.saveEvaluation(this.courseInstanceInfo.instanceId, goals).subscribe(
+      () => {
+        this.isSaving = false;
+        this.navigateBack();
+      },
+      () => {
+        this.isSaving = false;
+      }
+    );
   }
 
   /**

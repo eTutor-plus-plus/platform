@@ -69,6 +69,8 @@ public final class ETutorVocabulary {
     private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
+    private static final String PROP_IS_COMPLETED_FROM = "isCompletedFrom";
+
     private static final String PROP_CONTAINS_LEARNING_GOAL = "containsLearningGoal";
     private static final String PROP_HAS_EXERCISE_SHEET_DIFFICULTY = "hasExerciseSheetDifficulty";
     private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
@@ -238,6 +240,12 @@ public final class ETutorVocabulary {
      * The isAssignmentOf property.
      */
     public static final Property isAssignmentOf = m.createProperty(URI + PROP_IS_ASSIGNMENT_OF);
+
+    /**
+     * The isCompletedFrom property.
+     */
+    public static final Property isCompletedFrom = m.createProperty(URI + PROP_IS_COMPLETED_FROM);
+
     /**
      * The containsLearningGoal property.
      */

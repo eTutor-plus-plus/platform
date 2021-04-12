@@ -8,7 +8,7 @@
       "year": "Jahr",
       "instructor": "Kursleiter",
       "showAssignments": "Aufgaben anzeigen",
-      "showSelfAssessment": "Selbstüberprüfung anzeigen",
+      "showSelfAssessment": "Selbstüberprüfung durchführen",
       "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
       "back": "Zurück",
       "difficulty": "Schwierigkeit",

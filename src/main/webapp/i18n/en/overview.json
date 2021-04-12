@@ -8,7 +8,7 @@
       "year": "Year",
       "instructor": "Instructor",
       "showAssignments": "Show assignments",
-      "showSelfAssessment": "Show self assessment",
+      "showSelfAssessment": "Start self assessment",
       "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
       "back": "Back",
       "difficulty": "Difficulty",

@@ -1,6 +1,8 @@
 <form [formGroup]="studentSelfEvaluationForm" (ngSubmit)="submitChanges()">
     <h4>{{'overview.student.selfEvaluation.header' | translate:{course: courseInstanceInfo.courseName} }}</h4>
 
+    <jhi-alert-error></jhi-alert-error>
+
     <div class="card m-3">
         <h5 class="card-header" jhiTranslate="overview.student.selfEvaluation.cardHeader">Learning goals</h5>
         <div class="list-group list-group-flush" *ngFor="let controlFormGroup of formArrayControlsAsFormGroup; let i = index">
@@ -21,8 +23,11 @@
             </div>
         </div>
         <div class="card-footer text-center">
-            <button class="btn btn-primary mr-2" type="submit" jhiTranslate="overview.student.selfEvaluation.save">Save</button>
-            <button class="btn btn-secondary" type="button" (click)="navigateBack()" jhiTranslate="overview.student.selfEvaluation.cancel">Cancel</button>
+            <button class="btn btn-primary mr-2" [disabled]="isSaving" type="submit">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+                <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="overview.student.selfEvaluation.save">Save</span>
+            </button>
+            <button class="btn btn-secondary" [disabled]="isSaving" type="button" (click)="navigateBack()" jhiTranslate="overview.student.selfEvaluation.cancel">Cancel</button>
         </div>
     </div>
 </form>
