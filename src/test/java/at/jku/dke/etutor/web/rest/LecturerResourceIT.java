@@ -1,59 +1,85 @@
-package at.jku.dke.etutor.service;
+package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.*;
 import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for the {@link LecturerSPARQLEndpointService} class.
+ * Test class for the lecturer resource endpoint.
  *
  * @author fne
  */
+@AutoConfigureMockMvc
+@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LecturerSPARQLEndpointServiceTest {
+@SuppressWarnings("unchecked")
+public class LecturerResourceIT {
 
     private static final String OWNER = "admin";
 
-    private LecturerSPARQLEndpointService lecturerSPARQLEndpointService;
+    @Autowired
+    private MockMvc restLecturerMockMvc;
+
+    @Autowired
+    private RDFConnectionFactory rdfConnectionFactory;
+
+    @Autowired
+    private CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService;
+
+    @Autowired
+    private ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
+
+    @Autowired
+    private SPARQLEndpointService sparqlEndpointService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+
+    @Autowired
+    private LecturerSPARQLEndpointService lecturerSPARQLEndpointService;
 
     @Autowired
     private SpringLiquibase springLiquibase;
@@ -79,22 +105,6 @@ public class LecturerSPARQLEndpointServiceTest {
         userDTO.setEmail("k11805540@students.jku.at");
         userDTO.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
         student = userService.createUser(userDTO);
-    }
-
-    /**
-     * Method which initializes the dataset and endpoint service before each run.
-     *
-     * @throws Exception must not be thrown
-     */
-    @BeforeEach
-    public void setup() throws Exception {
-        Dataset dataset = DatasetFactory.createTxnMem();
-        RDFConnectionFactory rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
-        lecturerSPARQLEndpointService = new LecturerSPARQLEndpointService(rdfConnectionFactory);
-        SPARQLEndpointService sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
-        CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(rdfConnectionFactory, userService);
-        AssignmentSPARQLEndpointService assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
-        ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(rdfConnectionFactory);
 
         sparqlEndpointService.insertScheme();
 
@@ -178,93 +188,74 @@ public class LecturerSPARQLEndpointServiceTest {
     }
 
     /**
-     * Tests get paged lecturer overview method with null values.
+     * Tests the get paged lucturer overview endpoint.
+     *
+     * @throws Exception must not be thrown.
      */
     @Test
-    public void testGetPagedLecturerOverviewNullValues() {
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getPagedLecturerOverview(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getPagedLecturerOverview("test", null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getPagedLecturerOverview("test", "test", null))
-            .isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Tests the get grading info method with null values.
-     */
-    @Test
-    public void testGetGradingInfoNullValues() {
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo("test", null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo("test", "test", null))
-            .isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Tests the update grade for assignment method with null values.
-     */
-    @Test
-    public void testUpdateGradeForAssignmentNullValues() {
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.updateGradeForAssignment(null, null, null, 1, false))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.updateGradeForAssignment("test", null, null, 1, false))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.updateGradeForAssignment("test", "test", null, 1, false))
-            .isInstanceOf(NullPointerException.class);
-    }
-
-    /**
-     * Tests the get paged lecturer overview.
-     */
-    @Test
-    public void testGetPagedLecturerOverview() {
-        Pageable pageable = PageRequest.of(0, 5);
-        String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
-        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
-        var page = lecturerSPARQLEndpointService.getPagedLecturerOverview(
-            courseInstanceUUID, exerciseSheetUUID, pageable);
-        assertThat(page.getTotalElements()).isEqualTo(1);
-        assertThat(page.getContent()).hasSize(1);
-        var overviewInfo = page.getContent().get(0);
-        assertThat(overviewInfo.getMatriculationNo()).isEqualTo(student.getLogin());
-        assertThat(overviewInfo.isFullyGraded()).isFalse();
-        assertThat(overviewInfo.isSubmitted()).isTrue();
-    }
-
-    /**
-     * Tests the get grading info method.
-     */
-    @Test
-    public void testGetGradingInfo() {
+    @Order(1)
+    public void testGetPagedLecturerOverview() throws Exception {
         String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
 
-        var gradingInfoList = lecturerSPARQLEndpointService.getGradingInfo(courseInstanceUUID, exerciseSheetUUID, student.getLogin());
-        assertThat(gradingInfoList).hasSize(1);
+        var result = restLecturerMockMvc.perform(get("/api/lecturer/overview/{courseInstanceUUID}/{exerciseSheetUUID}",
+            courseInstanceUUID, exerciseSheetUUID))
+            .andExpect(status().isOk())
+            .andReturn();
 
-        var gradingInfo = gradingInfoList.get(0);
-        assertThat(gradingInfo.getOrderNo()).isEqualTo(1);
+        String jsonData = result.getResponse().getContentAsString();
+        List<StudentAssignmentOverviewInfoDTO> data = TestUtil.convertCollectionFromJSONString(jsonData,
+            StudentAssignmentOverviewInfoDTO.class, List.class);
+        assertThat(data).hasSize(1);
     }
 
     /**
-     * Tests the update grade for assignment method.
+     * Tests the get grading info endpoint.
+     *
+     * @throws Exception must not be thrown
      */
     @Test
-    public void testUpdateGradeForAssignment() {
+    @Order(2)
+    public void testGetGradingInfo() throws Exception {
         String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+        String matriculationNumber = student.getLogin();
 
-        lecturerSPARQLEndpointService.updateGradeForAssignment(courseInstanceUUID, exerciseSheetUUID, student.getLogin(), 1, true);
-        var gradingInfoList = lecturerSPARQLEndpointService.getGradingInfo(courseInstanceUUID, exerciseSheetUUID, student.getLogin());
+        var result = restLecturerMockMvc.perform(get("/api/lecturer/grading/{courseInstanceUUID}/{exerciseSheetUUID}/{matriculationNo}",
+            courseInstanceUUID, exerciseSheetUUID, matriculationNumber))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String jsonData = result.getResponse().getContentAsString();
+        List<LecturerGradingInfoDTO> data = TestUtil.convertCollectionFromJSONString(jsonData, LecturerGradingInfoDTO.class, List.class);
+        assertThat(data).hasSize(1);
+    }
+
+    /**
+     * Tests the set grade for assignment endpoint.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    @Order(3)
+    public void testSetGradeForAssignment() throws Exception {
+        String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+        String matriculationNumber = student.getLogin();
+        GradingInfoVM gradingInfoVM = new GradingInfoVM();
+
+        gradingInfoVM.setCourseInstanceUUID(courseInstanceUUID);
+        gradingInfoVM.setMatriculationNo(matriculationNumber);
+        gradingInfoVM.setExerciseSheetUUID(exerciseSheetUUID);
+        gradingInfoVM.setGoalCompleted(true);
+        gradingInfoVM.setOrderNo(1);
+
+        restLecturerMockMvc.perform(put("/api/lecturer/grading")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(gradingInfoVM)))
+            .andExpect(status().isNoContent());
+
+        var gradingInfoList = lecturerSPARQLEndpointService.getGradingInfo(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
         assertThat(gradingInfoList).hasSize(1);
 
         var gradingInfo = gradingInfoList.get(0);
