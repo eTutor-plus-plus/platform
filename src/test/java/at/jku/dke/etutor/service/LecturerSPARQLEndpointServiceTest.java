@@ -27,9 +27,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Collections;
@@ -46,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 public class LecturerSPARQLEndpointServiceTest {
 
     private static final String OWNER = "admin";
@@ -75,8 +78,8 @@ public class LecturerSPARQLEndpointServiceTest {
         UserDTO userDTO = new UserDTO();
         userDTO.setFirstName("Max");
         userDTO.setLastName("Mustermann");
-        userDTO.setLogin("k11805540");
-        userDTO.setEmail("k11805540@students.jku.at");
+        userDTO.setLogin("k11805541");
+        userDTO.setEmail("k11805541@students.jku.at");
         userDTO.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
         student = userService.createUser(userDTO);
     }
