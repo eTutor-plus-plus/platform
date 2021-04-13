@@ -184,7 +184,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
      *
      * @param courseInstanceUUID the course instance uuid
      * @param exerciseSheetUUID  the exercise sheet uuid
-     * @param page               the pageing information
+     * @param page               the paging information
      * @return page of the lecturer overview
      */
     public Page<StudentAssignmentOverviewInfoDTO> getPagedLecturerOverview(String courseInstanceUUID, String exerciseSheetUUID, Pageable page) {
