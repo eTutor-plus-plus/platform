@@ -8,7 +8,7 @@
       "fullyGraded": "Vollständig beurteilt",
       "btnGrade": "Beurteilen"
     },
-    "footerClose": "Scließen",
+    "footerClose": "Schließen",
     "gradingWindow": {
       "modalHeader": "Aufgabenbeurteilung von '{{student}}'",
       "windowHeader": "Aufgabe {{currTask}} / {{taskCount}} von '{{student}}' beurteilen",
