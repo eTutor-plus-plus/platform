@@ -4,7 +4,7 @@
       "packageName": "at.jku.dke.etutor",
       "nativeLanguage": "de"
     },
-    "jhipsterVersion": "6.10.1",
+    "jhipsterVersion": "7.0.1",
     "applicationType": "monolith",
     "baseName": "etutorPlusPlus",
     "packageName": "at.jku.dke.etutor",
@@ -37,6 +37,16 @@
     "enableTranslation": true,
     "nativeLanguage": "de",
     "languages": ["de", "en"],
-    "blueprints": []
+    "blueprints": [],
+    "skipUserManagement": false,
+    "withAdminUi": true,
+    "skipClient": false,
+    "skipServer": false,
+    "skipCheckLengthOfIdentifier": false,
+    "skipFakeData": false,
+    "pages": [],
+    "enableHibernateCache": false,
+    "reactive": false,
+    "entities": []
   }
 }

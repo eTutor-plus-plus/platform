@@ -2,17 +2,21 @@ package at.jku.dke.etutor.domain;
 
 import at.jku.dke.etutor.config.Constants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
-
+import java.io.Serializable;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Locale;
+import java.util.Set;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.*;
 
 /**
  * Represents an application user.
@@ -82,8 +86,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @ManyToMany
     @JoinTable(
         name = "jhi_user_authority",
-        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
+        joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
+        inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
+    )
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
 
@@ -223,7 +228,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
      *
      * @return {@code true} if the user is activated, otherwise {@code false}
      */
-    public boolean getActivated() {
+    public boolean isActivated() {
         return activated;
     }
 
@@ -395,7 +400,8 @@ public class User extends AbstractAuditingEntity implements Serializable {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
     // prettier-ignore

@@ -1,15 +1,12 @@
 package at.jku.dke.etutor.web.rest.errors;
 
-import at.jku.dke.etutor.service.exception.EmailAlreadyUsedException;
-import at.jku.dke.etutor.service.UsernameAlreadyUsedException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/api/exception-translator-test")
@@ -21,16 +18,13 @@ public class ExceptionTranslatorTestController {
     }
 
     @PostMapping("/method-argument")
-    public void methodArgument(@Valid @RequestBody TestDTO testDTO) {
-    }
+    public void methodArgument(@Valid @RequestBody TestDTO testDTO) {}
 
     @GetMapping("/missing-servlet-request-part")
-    public void missingServletRequestPartException(@RequestPart String part) {
-    }
+    public void missingServletRequestPartException(@RequestPart String part) {}
 
     @GetMapping("/missing-servlet-request-parameter")
-    public void missingServletRequestParameterException(@RequestParam String param) {
-    }
+    public void missingServletRequestParameterException(@RequestParam String param) {}
 
     @GetMapping("/access-denied")
     public void accessdenied() {
@@ -128,7 +122,5 @@ public class ExceptionTranslatorTestController {
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "test response status")
     @SuppressWarnings("serial")
-    public static class TestResponseStatusException extends RuntimeException {
-    }
-
+    public static class TestResponseStatusException extends RuntimeException {}
 }

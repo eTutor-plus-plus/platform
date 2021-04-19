@@ -15,7 +15,7 @@ export class ActivateComponent implements OnInit {
   constructor(private activateService: ActivateService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
-    this.route.queryParams.pipe(flatMap(params => this.activateService.get(params.key))).subscribe(
+    this.route.queryParams.pipe(mergeMap(params => this.activateService.get(params.key))).subscribe(
       () => (this.success = true),
       () => (this.error = true)
     );

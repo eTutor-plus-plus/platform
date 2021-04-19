@@ -14,7 +14,7 @@ import { LoginService } from 'app/core/login/login.service';
 @Component({
   selector: 'jhi-home',
   templateUrl: './home.component.html',
-  styleUrls: ['home.scss'],
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly OVERVIEW_ROUTE = '/overview';

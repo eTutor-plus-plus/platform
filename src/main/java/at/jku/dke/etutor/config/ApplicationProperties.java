@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Properties specific to Etutor Plus Plus.
  * <p>
  * Properties are configured in the {@code application.yml} file.
- * See {@link io.github.jhipster.config.JHipsterProperties} for a good example.
+ * See {@link tech.jhipster.config.JHipsterProperties} for a good example.
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
 public class ApplicationProperties {
@@ -26,6 +26,7 @@ public class ApplicationProperties {
      * Configuration class for the fuseki connection.
      */
     public static class Fuseki {
+
         private String baseUrl = "http://localhost:3030/etutorpp-database";
 
         /**
