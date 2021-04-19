@@ -3,6 +3,7 @@ import { OverviewComponent } from './overview.component';
 import { UserRouteAccessService } from '../core/auth/user-route-access-service';
 import { Authority } from '../shared/constants/authority.constants';
 import { CourseTaskOverviewComponent } from './student-overview/course-task-overview/course-task-overview.component';
+import { StudentSelfEvaluationComponent } from './student-overview/student-self-evaluation/student-self-evaluation.component';
 
 /**
  * Overview related routes.
@@ -51,5 +52,13 @@ export const overviewRoute: Routes = [
       authorities: [Authority.STUDENT],
     },
     component: CourseTaskOverviewComponent,
+  },
+  {
+    path: 'student/self-assessment',
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.STUDENT],
+    },
+    component: StudentSelfEvaluationComponent,
   },
 ];

@@ -4,16 +4,15 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.UserService;
+import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -78,5 +77,21 @@ public class StudentResource {
         Collection<CourseInstanceProgressOverviewDTO> items = studentService.getProgressOverview(matriculationNumber, uuid);
 
         return ResponseEntity.ok(items);
+    }
+
+    /**
+     * {@code POST /api/student/courses/:uuid/self-evaluation}
+     *
+     * @param uuid                the uuid of the course
+     * @param selfEvaluationGoals the self evaluation goals from the request body
+     * @return empty {@link ResponseEntity}
+     */
+    @PostMapping("courses/{uuid}/self-evaluation")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> postSelfEvaluation(@PathVariable(name = "uuid") String uuid, @RequestBody ArrayList<StudentSelfEvaluationLearningGoalDTO> selfEvaluationGoals) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        studentService.saveSelfEvaluation(uuid, matriculationNumber, selfEvaluationGoals);
+
+        return ResponseEntity.noContent().build();
     }
 }

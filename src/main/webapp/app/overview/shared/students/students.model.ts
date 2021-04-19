@@ -51,6 +51,11 @@ export interface ICourseInstanceInformationDTO {
    * The year.
    */
   year: number;
+  /**
+   * Indicates whether the student has already
+   * completed the initial self assessment or not.
+   */
+  initialSelfAssessmentCompleted: boolean;
 }
 
 /**

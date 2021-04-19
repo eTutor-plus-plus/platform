@@ -4,9 +4,13 @@ import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
+import liquibase.integration.spring.SpringLiquibase;
+import liquibase.pro.packaged.E;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 public class DomainUserDetailsServiceIT {
     private static final String USER_ONE_LOGIN = "test-user-one";
@@ -38,6 +43,15 @@ public class DomainUserDetailsServiceIT {
 
     @Autowired
     private UserDetailsService domainUserDetailsService;
+
+    @Autowired
+    private SpringLiquibase springLiquibase;
+
+    @BeforeAll
+    public void initBeforeAll() throws Exception {
+        springLiquibase.setDropFirst(true);
+        springLiquibase.afterPropertiesSet();
+    }
 
     @BeforeEach
     public void init() {

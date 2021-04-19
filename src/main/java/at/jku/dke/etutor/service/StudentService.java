@@ -5,6 +5,7 @@ import at.jku.dke.etutor.helper.CSVHelper;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
@@ -40,7 +41,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT DISTINCT (STR(?term) AS ?termId) ?courseName ?instructor (STR(?instance) AS ?instanceId) ?year
+        SELECT DISTINCT (STR(?term) AS ?termId) ?courseName ?instructor (STR(?instance) AS ?instanceId) ?year (COALESCE(?completed, false) AS ?testCompleted)
         WHERE {
           ?instance etutor:hasStudent ?student.
           ?instance etutor:hasTerm ?term.
@@ -48,6 +49,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?instance etutor:hasInstanceYear ?year.
           ?course rdfs:label ?courseName.
           ?course etutor:hasCourseCreator ?instructor.
+          OPTIONAL {
+            GRAPH ?instance {
+              ?student etutor:isInitialTestCompleted ?completed.
+            }
+          }
         }
         ORDER BY(?courseName)
         """;
@@ -78,6 +84,27 @@ public class StudentService extends AbstractSPARQLEndpointService {
             etutor:fromCourseInstance ?instance;
           	etutor:fromExerciseSheet ?exerciseSheet
           ]
+        }
+        """;
+
+    private static final String QRY_UPDATE_SELF_EVALUATION_STATUS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          GRAPH ?instance {
+            ?student etutor:isInitialTestCompleted ?completed.
+          }
+        } INSERT {
+          GRAPH ?instance {
+            ?student etutor:isInitialTestCompleted true.
+          }
+        }
+        WHERE {
+          GRAPH ?instance {
+            OPTIONAL {
+              ?student etutor:isInitialTestCompleted ?completed.
+            }
+          }
         }
         """;
 
@@ -151,8 +178,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     String instructor = solution.getLiteral("?instructor").getString();
                     String instanceId = solution.getLiteral("?instanceId").getString();
                     int year = solution.getLiteral("?year").getInt();
+                    boolean testCompleted = solution.getLiteral("?testCompleted").getBoolean();
 
-                    retList.add(new CourseInstanceInformationDTO(courseName, termId, instructor, instanceId, year));
+                    retList.add(new CourseInstanceInformationDTO(courseName, termId, instructor, instanceId, year, testCompleted));
                 }
                 return retList;
             }
@@ -255,6 +283,41 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         try (RDFConnection connection = getConnection()) {
             connection.load(model);
+        }
+    }
+
+    /**
+     * Saves a self evaluation.
+     *
+     * @param courseInstanceUUID      the course instance uuid, must not be null
+     * @param matriculationNumber     the student's matriculation number, must not be null
+     * @param evaluationLearningGoals the evaluation learning goal DTOs, must not be null
+     */
+    public void saveSelfEvaluation(String courseInstanceUUID, String matriculationNumber, List<StudentSelfEvaluationLearningGoalDTO> evaluationLearningGoals) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(evaluationLearningGoals);
+
+        String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String studentUri = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        Model model = ModelFactory.createDefaultModel();
+        Resource studentResource = model.createResource(studentUri);
+
+        for (var goal : evaluationLearningGoals) {
+            if (goal.isCompleted()) {
+                model.add(model.createResource(goal.getId()), ETutorVocabulary.isCompletedFrom, studentResource);
+            }
+        }
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_UPDATE_SELF_EVALUATION_STATUS);
+        qry.setIri("?instance", courseInstanceUri);
+        qry.setIri("?student", studentUri);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.load(courseInstanceUri.replace("#", "%23"), model);
+
+            connection.update(qry.asUpdate());
         }
     }
 }

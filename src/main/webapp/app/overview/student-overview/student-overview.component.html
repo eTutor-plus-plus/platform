@@ -7,7 +7,7 @@
                 <th jhiTranslate="overview.student.designation">Designation</th>
                 <th jhiTranslate="overview.student.term">Term</th>
                 <th jhiTranslate="overview.student.year">Year</th>
-                <th jhiTranslate="overview.student.instructor">Intructor</th>
+                <th jhiTranslate="overview.student.instructor">Instructor</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -19,7 +19,13 @@
                 <td>{{course.instructor}}</td>
                 <td class="text-right">
                     <div class="btn-group">
+                        <button type="button" class="btn btn-light btn-sm" [disabled]="course.initialSelfAssessmentCompleted"
+                            (click)="navigateToCourseSelfAssessment(course)">
+                            <fa-icon icon="check-square"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="overview.student.showSelfAssessment">Show self assessment</span>
+                        </button>
                         <button type="button" class="btn btn-info btn-sm"
+                                [disabled]="!course.initialSelfAssessmentCompleted"
                                 (click)="navigateToCourseAssignments(course)">
                             <fa-icon icon="tasks"></fa-icon>
                             <span class="d-none d-md-inline" jhiTranslate="overview.student.showAssignments">Show assignments</span>

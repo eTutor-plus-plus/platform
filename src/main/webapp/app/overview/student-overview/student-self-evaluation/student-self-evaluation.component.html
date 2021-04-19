@@ -1,0 +1,33 @@
+<form [formGroup]="studentSelfEvaluationForm" (ngSubmit)="submitChanges()">
+    <h4>{{'overview.student.selfEvaluation.header' | translate:{course: courseInstanceInfo.courseName} }}</h4>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <div class="card m-3">
+        <h5 class="card-header" jhiTranslate="overview.student.selfEvaluation.cardHeader">Learning goals</h5>
+        <div class="list-group list-group-flush" *ngFor="let controlFormGroup of formArrayControlsAsFormGroup; let i = index">
+            <div class="list-group-item" [formGroup]="controlFormGroup">
+                <h6 class="card-title">{{'overview.student.selfEvaluation.cardTitle' | translate:{goal: controlFormGroup.get('text')!.value} }}</h6>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" [value]="true" formControlName="completed">
+                    <label class="form-check-label" jhiTranslate="overview.student.selfEvaluation.yes">
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="radio" [value]="false" formControlName="completed">
+                    <label class="form-check-label" jhiTranslate="overview.student.selfEvaluation.no">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <button class="btn btn-primary mr-2" [disabled]="isSaving" type="submit">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+                <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="overview.student.selfEvaluation.save">Save</span>
+            </button>
+            <button class="btn btn-secondary" [disabled]="isSaving" type="button" (click)="navigateBack()" jhiTranslate="overview.student.selfEvaluation.cancel">Cancel</button>
+        </div>
+    </div>
+</form>

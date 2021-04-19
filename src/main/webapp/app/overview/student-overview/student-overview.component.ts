@@ -4,6 +4,7 @@ import { ICourseInstanceInformationDTO } from '../shared/students/students.model
 import { Term } from '../course-management/course-mangement.model';
 import { Router } from '@angular/router';
 
+// noinspection JSIgnoredPromiseFromCall
 /**
  * Component for displaying a student's overview page.
  */
@@ -46,5 +47,14 @@ export class StudentOverviewComponent implements OnInit {
    */
   public navigateToCourseAssignments(course: ICourseInstanceInformationDTO): void {
     this.router.navigate(['/overview/student/exercises'], { state: { instance: course } });
+  }
+
+  /**
+   * Navigates to the course's self assessment page.
+   *
+   * @param course the corresponding course model
+   */
+  public navigateToCourseSelfAssessment(course: ICourseInstanceInformationDTO): void {
+    this.router.navigate(['/overview/student/self-assessment'], { state: { instance: course } });
   }
 }
