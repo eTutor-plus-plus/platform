@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LearningGoalIT" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="etutor-plus-plus" />
+    <useClassPathOnly />
+    <extension name="coverage" sample_coverage="false" />
+    <option name="PACKAGE_NAME" value="at.jku.dke.etutor.web.rest" />
+    <option name="MAIN_CLASS_NAME" value="at.jku.dke.etutor.web.rest.LearningGoalIT" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="PARAMETERS" value="" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
