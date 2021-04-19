@@ -17,6 +17,12 @@
         <input id="learningGoalLastChangeDate" disabled type="text" class="form-control"
                value="{{learningGoalTreeviewItem?.changeDate | date:'dd.MM.yyyy HH:mm'}}"/>
     </div>
+    <div class="form-check">
+        <label class="form-check-label" for="needVerification">
+            <input class="form-check-input" type="checkbox" name="needVerification" id="needVerification" [checked]="learningGoalTreeviewItem?.needVerification" disabled>
+            <span jhiTranslate="learningGoalManagement.entity.needVerification">Additional goal achievement verification</span>
+        </label>
+    </div>
     <div class="row">
         <div class="col-md-5">
             <h5 jhiTranslate="learningGoalManagement.assignedTasks">Assigned tasks</h5>

@@ -54,6 +54,11 @@ etutor:hasRootGoal
     rdfs:domain etutor:Goal ;
     rdfs:range  etutor:Goal .
 
+etutor:needsVerificationBeforeCompletion
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:Goal ;
+    rdfs:range  xsd:boolean .
+
 ## Courses
 # Classes
 etutor:Course

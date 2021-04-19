@@ -284,30 +284,36 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
             String description = ObjectUtils.firstNonNull(learningGoalDTO.getDescription(), "");
 
-            String updateQry = String.format("""
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                    PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
 
-                    DELETE {
-                      ?subject etutor:hasChangeDate ?changeDate.
-                      ?subject etutor:hasDescription ?description.
-                      ?subject etutor:isPrivate ?private
-                    }
-                    INSERT {
-                      ?subject etutor:hasChangeDate "%s"^^xsd:dateTime.
-                      ?subject etutor:hasDescription "%s".
-                      ?subject etutor:isPrivate %b
-                    }
-                    WHERE {
-                      ?subject etutor:hasChangeDate ?changeDate.
-                      ?subject etutor:hasDescription ?description.
-                      ?subject etutor:isPrivate ?private.
-                      FILTER(?subject = <%s> )
-                    }
-                    """, nowStr, description, learningGoalDTO.isPrivateGoal(),
-                learningGoalDTO.getId());
+                DELETE {
+                  ?subject etutor:hasChangeDate ?changeDate.
+                  ?subject etutor:hasDescription ?description.
+                  ?subject etutor:isPrivate ?private.
+                  ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
+                }
+                INSERT {
+                  ?subject etutor:hasChangeDate ?newChangeDate.
+                  ?subject etutor:hasDescription ?newDescription.
+                  ?subject etutor:isPrivate ?newPrivate.
+                  ?subject etutor:needsVerificationBeforeCompletion ?newNeedsVerification.
+                }
+                WHERE {
+                  ?subject etutor:hasChangeDate ?changeDate.
+                  ?subject etutor:hasDescription ?description.
+                  ?subject etutor:isPrivate ?private.
+                  ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
+                }
+                """);
+            updateQry.setIri("?subject", learningGoalDTO.getId());
+            updateQry.setLiteral("?newChangeDate", nowStr, XSDDatatype.XSDdateTime);
+            updateQry.setLiteral("?newDescription", description);
+            updateQry.setLiteral("?newPrivate", learningGoalDTO.isPrivateGoal());
+            updateQry.setLiteral("?newNeedsVerification", learningGoalDTO.isNeedVerification());
 
-            conn.update(updateQry);
+            conn.update(updateQry.asUpdate());
 
             if (learningGoalDTO.isPrivateGoal()) {
                 // Update 'privateGoal' of all sub goals
@@ -1118,6 +1124,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         newGoal.addProperty(RDFS.label, newLearningGoalDTO.getName().trim());
         newGoal.addProperty(ETutorVocabulary.hasChangeDate, creationTimeStr, XSDDatatype.XSDdateTime);
         newGoal.addProperty(ETutorVocabulary.hasOwner, owner);
+        newGoal.addProperty(ETutorVocabulary.needsVerificationBeforeCompletion, String.valueOf(newLearningGoalDTO.isNeedVerification()), XSDDatatype.XSDboolean);
 
         String privateStr = superGoalPrivate ? String.valueOf(true)
             : String.valueOf(newLearningGoalDTO.isPrivateGoal());

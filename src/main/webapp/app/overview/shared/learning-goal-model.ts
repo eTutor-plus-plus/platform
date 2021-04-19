@@ -16,6 +16,11 @@ export interface INewLearningGoalModel {
    * Whether the learning goal is private or not.
    */
   privateGoal: boolean;
+  /**
+   * Indicates whether the learning goal needs additional verification
+   * (only used when the goal is a super goal, i.e. the goal contains sub goals).
+   */
+  needVerification: boolean;
 }
 
 /**
@@ -100,6 +105,7 @@ export function convertLearningGoal(inputModel: ILearningGoalModel): LearningGoa
     value: inputModel.id,
     children: [],
     rootId,
+    needVerification: inputModel.needVerification,
   };
 
   for (const goal of inputModel.subGoals) {

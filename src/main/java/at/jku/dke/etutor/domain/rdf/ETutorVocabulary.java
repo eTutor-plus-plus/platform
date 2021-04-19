@@ -31,6 +31,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SUB_GOAL = "hasSubGoal";
     private static final String PROP_HAS_REFERENCE_CNT = "hasReferenceCnt";
     private static final String PROP_HAS_ROOT_GOAL = "hasRootGoal";
+    private static final String PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION = "needsVerificationBeforeCompletion";
 
     private static final String PROP_HAS_COURSE_DESCRIPTION = "hasCourseDescription";
     private static final String PROP_HAS_COURSE_LINK = "hasCourseLink";
@@ -123,6 +124,10 @@ public final class ETutorVocabulary {
      * The hasRootGoal property.
      */
     public static final Property hasRootGoal = m.createProperty(URI + PROP_HAS_ROOT_GOAL);
+    /**
+     * The needsVerificationBeforeCompletion property.
+     */
+    public static final Property needsVerificationBeforeCompletion = m.createProperty(URI + PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION);
     /**
      * The hasCourseDescription property.
      */

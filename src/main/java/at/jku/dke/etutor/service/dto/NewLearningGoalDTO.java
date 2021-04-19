@@ -15,6 +15,7 @@ public class NewLearningGoalDTO {
     private String name;
     private String description;
     private boolean privateGoal;
+    private boolean needVerification;
 
     /**
      * Returns the name of the new learning goal.
@@ -81,5 +82,18 @@ public class NewLearningGoalDTO {
      */
     public void setPrivateGoal(boolean privateGoal) {
         this.privateGoal = privateGoal;
+    }
+
+    /**
+     * Returns whether extra verification is needed or not.
+     *
+     * @return {@code true} if extra verification is needed, otherwise {@code false}
+     */
+    public boolean isNeedVerification() {
+        return needVerification;
+    }
+
+    public void setNeedVerification(boolean needVerification) {
+        this.needVerification = needVerification;
     }
 }

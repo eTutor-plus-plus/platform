@@ -9,7 +9,8 @@
       "description": "Description:",
       "lastChangeDate": "Last change date:",
       "selectedGoal": "Selected learning goal",
-      "privateGoal": "Private learning goal"
+      "privateGoal": "Private learning goal",
+      "needVerification": "Additional goal achievement verification"
     },
     "newLearningGoalHeader": "Create new learning goal",
     "updateLearningGoalHeader": "Update learning goal",

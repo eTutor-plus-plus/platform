@@ -38,6 +38,12 @@ export interface LearningGoalTreeItem extends TreeItem {
   changeDate: Date;
 
   /**
+   * Indicates whether the learning goal needs additional verification
+   * (only used when the goal is a super goal, i.e. the goal contains sub goals).
+   */
+  needVerification: boolean;
+
+  /**
    * The id of the root node.
    */
   rootId?: string;
@@ -53,6 +59,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
+  private _needVerification: boolean;
   private readonly _currentUser: string;
   private readonly _parent?: LearningGoalTreeviewItem;
   private readonly _rootId?: string;
@@ -75,6 +82,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
     this._currentUser = currentUser;
     this._parent = parent;
     this._rootId = item.rootId;
+    this._needVerification = item.needVerification;
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
@@ -195,6 +203,13 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   }
 
   /**
+   * Returns whether additional verification is needed for this learning goal or not no.
+   */
+  public get needVerification(): boolean {
+    return this._needVerification;
+  }
+
+  /**
    * Converts this object into the corresponding {@link ILearningGoalModel} representation.
    *
    * @returns the {@link ILearningGoalModel} representation of this object
@@ -209,6 +224,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
       lastModifiedDate: this.changeDate,
       id: this.value,
       subGoals: [],
+      needVerification: this.needVerification,
     };
 
     if (!isNil(this.childItems)) {
@@ -237,6 +253,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
       disabled: this.disabled,
       checked: this.checked,
       collapsed: this.collapsed,
+      needVerification: this.needVerification,
     };
 
     if (!isNil(this.childItems)) {
@@ -302,6 +319,7 @@ export class FilterLearningGoalTreeviewItem extends LearningGoalTreeviewItem {
         disabled: item.disabled,
         checked: item.checked,
         collapsed: item.collapsed,
+        needVerification: item.needVerification,
       },
       item.currentUser,
       item.parent

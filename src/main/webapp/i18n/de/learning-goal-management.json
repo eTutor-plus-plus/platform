@@ -9,7 +9,8 @@
       "description": "Beschreibung:",
       "lastChangeDate": "Letztes Änderungsdatum:",
       "selectedGoal": "Ausgewähltes Lernziel",
-      "privateGoal": "Privates Lernziel"
+      "privateGoal": "Privates Lernziel",
+      "needVerification": "Zusätzliche Verifizierung der Zielerreichung"
     },
     "newLearningGoalHeader": "Neues Lernziel erstellen",
     "updateLearningGoalHeader": "Lernziel bearbeiten",

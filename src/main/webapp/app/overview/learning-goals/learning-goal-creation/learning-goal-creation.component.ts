@@ -32,6 +32,7 @@ export class LearningGoalCreationComponent implements OnInit {
     learningGoalName: ['', [Validators.required]],
     learningGoalDescription: [''],
     privateGoal: [false],
+    needVerification: [false],
   });
 
   /**
@@ -55,6 +56,7 @@ export class LearningGoalCreationComponent implements OnInit {
       learningGoalName: '',
       learningGoalDescription: '',
       privateGoal: false,
+      needVerification: false,
     });
   }
 
@@ -67,6 +69,7 @@ export class LearningGoalCreationComponent implements OnInit {
         name: this.learningGoalForm.get(['learningGoalName'])!.value,
         description: this.learningGoalForm.get(['learningGoalDescription'])!.value,
         privateGoal: this.learningGoalForm.get(['privateGoal'])!.value,
+        needVerification: this.learningGoalForm.get(['needVerification'])!.value,
       };
 
       this.learningGoalsService.postNewLearningGoal(newGoal).subscribe(() => {
@@ -79,6 +82,7 @@ export class LearningGoalCreationComponent implements OnInit {
       goal.name = this.learningGoalForm.get(['learningGoalName'])!.value;
       goal.description = this.learningGoalForm.get(['learningGoalDescription'])!.value;
       goal.privateGoal = this.learningGoalForm.get(['privateGoal'])!.value;
+      goal.needVerification = this.learningGoalForm.get(['needVerification'])!.value;
 
       this.learningGoalsService.updateLearningGoal(goal).subscribe(() => {
         this.learningGoal = undefined;
@@ -90,6 +94,7 @@ export class LearningGoalCreationComponent implements OnInit {
         name: this.learningGoalForm.get(['learningGoalName'])!.value,
         description: this.learningGoalForm.get(['learningGoalDescription'])!.value,
         privateGoal: this.learningGoalForm.get(['privateGoal'])!.value,
+        needVerification: this.learningGoalForm.get(['needVerification'])!.value,
       };
 
       this.learningGoalsService.createSubGoal(newGoal, this.parentGoal!, this.loggedInUser).subscribe(() => {
@@ -134,6 +139,7 @@ export class LearningGoalCreationComponent implements OnInit {
         learningGoalName: value.name,
         learningGoalDescription: value.description,
         privateGoal: value.privateGoal,
+        needVerification: value.needVerification,
       });
     }
   }
@@ -187,6 +193,7 @@ export class LearningGoalCreationComponent implements OnInit {
       learningGoalName: '',
       learningGoalDescription: '',
       privateGoal: false,
+      needVerification: false,
     });
   }
 }

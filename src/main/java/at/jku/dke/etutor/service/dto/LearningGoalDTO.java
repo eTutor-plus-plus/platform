@@ -46,6 +46,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
         setName(newLearningGoalDTO.getName());
         setDescription(newLearningGoalDTO.getDescription());
         setPrivateGoal(newLearningGoalDTO.isPrivateGoal());
+        setNeedVerification(newLearningGoalDTO.isNeedVerification());
 
         this.owner = owner;
         this.lastModifiedDate = lastModifiedDate;
@@ -76,6 +77,11 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
         Statement referenceCntStatement = rdfResource.getProperty(ETutorVocabulary.hasReferenceCnt);
         if (referenceCntStatement != null) {
             setReferencedFromCount(referenceCntStatement.getInt());
+        }
+
+        Statement verificationStmt = rdfResource.getProperty(ETutorVocabulary.needsVerificationBeforeCompletion);
+        if (verificationStmt != null) {
+            setNeedVerification(verificationStmt.getBoolean());
         }
 
         StmtIterator subGoalIterator = rdfResource.listProperties(ETutorVocabulary.hasSubGoal);
