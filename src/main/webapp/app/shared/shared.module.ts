@@ -38,7 +38,7 @@ import { ItemCountComponent } from './pagination/item-count.component';
     SharedLibsModule,
     FindLanguageFromKeyPipe,
     TranslateRolePipe,
-TranslateDirective,
+    TranslateDirective,
     AlertComponent,
     AlertErrorComponent,
     HasAnyAuthorityDirective,
