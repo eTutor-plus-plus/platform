@@ -13,6 +13,8 @@
     "indicator": {
       "diskSpace": "Festplattenspeicher",
       "mail": "Email",
+      "livenessState": "Liveness state",
+      "readinessState": "Readiness state",
       "ping": "Application",
       "db": "Datenbank"
     },
