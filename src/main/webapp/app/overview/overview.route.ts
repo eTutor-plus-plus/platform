@@ -4,6 +4,7 @@ import { CourseTaskOverviewComponent } from './student-overview/course-task-over
 import { StudentSelfEvaluationComponent } from './student-overview/student-self-evaluation/student-self-evaluation.component';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { Authority } from 'app/config/authority.constants';
+import { StudentExerciseSheetTasksComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-tasks.component';
 
 /**
  * Overview related routes.
@@ -52,6 +53,12 @@ export const overviewRoute: Routes = [
       authorities: [Authority.STUDENT],
     },
     component: CourseTaskOverviewComponent,
+    children: [
+      {
+        path: ':exerciseSheetUUID/tasks',
+        component: StudentExerciseSheetTasksComponent,
+      },
+    ],
   },
   {
     path: 'student/self-assessment',

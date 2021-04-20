@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ICourseInstanceInformationDTO, ICourseInstanceProgressOverviewDTO } from '../../shared/students/students.model';
 import { TaskDifficulty } from '../../tasks/task.model';
 
+// noinspection JSIgnoredPromiseFromCall
 /**
  * Component for displaying the student's task of a given course instance.
  */
