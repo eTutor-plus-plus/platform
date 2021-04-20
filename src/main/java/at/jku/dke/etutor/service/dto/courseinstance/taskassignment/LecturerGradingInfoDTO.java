@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service.dto.courseinstance.taskassignment;
  * @author fne
  */
 public class LecturerGradingInfoDTO {
+
     private String taskURL;
     private String taskTitle;
     private boolean completed;

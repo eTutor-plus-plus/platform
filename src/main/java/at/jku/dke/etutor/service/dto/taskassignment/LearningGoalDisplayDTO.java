@@ -1,7 +1,7 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * DTO class which contains the learning goal's id and name.
@@ -9,8 +9,10 @@ import java.util.Objects;
  * @author fne
  */
 public class LearningGoalDisplayDTO {
+
     @NotEmpty
     private String id;
+
     private String name;
 
     /**

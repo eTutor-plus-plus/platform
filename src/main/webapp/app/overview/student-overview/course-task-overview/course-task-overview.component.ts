@@ -27,7 +27,7 @@ export class CourseTaskOverviewComponent implements OnInit {
   constructor(private studentService: StudentService, private router: Router, private location: Location) {
     const nav = this.router.getCurrentNavigation();
 
-    if (nav && nav.extras.state) {
+    if (nav?.extras.state) {
       this.instance = nav.extras.state.instance;
     } else {
       this.router.navigate(['/']);
@@ -39,7 +39,9 @@ export class CourseTaskOverviewComponent implements OnInit {
    */
   public ngOnInit(): void {
     if (this.instance) {
-      this.studentService.getStudentCourseInstanceProgressOverview(this.instance.instanceId).subscribe(value => (this.items = value));
+      this.studentService.getStudentCourseInstanceProgressOverview(this.instance.instanceId).subscribe(value => {
+        this.items = value;
+      });
     }
   }
 

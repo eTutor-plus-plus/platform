@@ -3,16 +3,15 @@ package at.jku.dke.etutor.service.dto;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.validation.CourseTypeConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.net.URL;
+import java.net.URLEncoder;
+import javax.validation.constraints.NotBlank;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDFS;
-
-import javax.validation.constraints.NotBlank;
-import java.net.URL;
-import java.net.URLEncoder;
 
 /**
  * DTO class which represents a course.
@@ -25,19 +24,21 @@ public class CourseDTO implements Comparable<CourseDTO> {
 
     @NotBlank
     private String name;
+
     private String description;
     private URL link;
+
     @NotBlank
     @CourseTypeConstraint
     private String courseType;
+
     private String creator;
     private int instanceCount;
 
     /**
      * Empty constructor; needed for serialization.
      */
-    public CourseDTO() {
-    }
+    public CourseDTO() {}
 
     /**
      * Constructor.
@@ -46,7 +47,6 @@ public class CourseDTO implements Comparable<CourseDTO> {
      */
     public CourseDTO(Resource resource) {
         this();
-
         setId(resource.getURI());
         setName(resource.getProperty(RDFS.label).getString());
         setDescription(resource.getProperty(ETutorVocabulary.hasCourseDescription).getString());

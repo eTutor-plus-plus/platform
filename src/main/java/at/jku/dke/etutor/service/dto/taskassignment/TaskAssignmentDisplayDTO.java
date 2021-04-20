@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service.dto.taskassignment;
  * @author fne
  */
 public class TaskAssignmentDisplayDTO {
+
     private String header;
     private String id;
 

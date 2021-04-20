@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ICourseModel } from '../course-mangement.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseManagementService } from '../course-management.service';
@@ -13,11 +13,11 @@ import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-it
   templateUrl: './learning-goal-assignment-display.component.html',
   styleUrls: ['./learning-goal-assignment-display.component.scss'],
 })
-export class LearningGoalAssignmentDisplayComponent implements OnInit {
+export class LearningGoalAssignmentDisplayComponent {
+  public goals: LearningGoalTreeviewItem[] = [];
+
   private _selectedCourse?: ICourseModel;
   private loginName = '';
-
-  public goals: LearningGoalTreeviewItem[] = [];
 
   /**
    * Constructor.
@@ -33,11 +33,6 @@ export class LearningGoalAssignmentDisplayComponent implements OnInit {
   ) {
     this.loginName = this.accountService.getLoginName()!;
   }
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Closes the current modal window.

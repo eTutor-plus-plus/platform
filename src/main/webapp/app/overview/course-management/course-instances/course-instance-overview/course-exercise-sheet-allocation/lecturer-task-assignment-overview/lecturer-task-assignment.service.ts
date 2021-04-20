@@ -8,8 +8,10 @@ import {
   IStudentAssignmentOverviewInfo,
 } from './lecturer-task-assignment.model';
 import { Observable } from 'rxjs';
-import { createRequestOption, Pagination } from '../../../../../../shared/util/request-util';
+
 import { SERVER_API_URL } from '../../../../../../app.constants';
+import { Pagination } from 'app/core/request/request.model';
+import { createRequestOption } from 'app/core/request/request-util';
 
 /**
  * Service for lecturer task assignment related operations.

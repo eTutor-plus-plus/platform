@@ -10,6 +10,11 @@ import at.jku.dke.etutor.service.exception.LearningGoalNotExistsException;
 import at.jku.dke.etutor.service.exception.PrivateSuperGoalException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.LearningGoalNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import net.minidev.json.JSONArray;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
@@ -19,12 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
 
 /**
  * REST controller for managing learning goals.
@@ -69,8 +68,8 @@ public class LearningGoalResource {
         try {
             var newGoal = sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, currentLogin);
 
-            return ResponseEntity.created(new URI(String.format("/api/learninggoals/%s/%s", newGoal.getOwner(),
-                newGoal.getNameForRDF())))
+            return ResponseEntity
+                .created(new URI(String.format("/api/learninggoals/%s/%s", newGoal.getOwner(), newGoal.getNameForRDF())))
                 .body(newGoal);
         } catch (LearningGoalAlreadyExistsException ex) {
             throw new at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException();
@@ -112,8 +111,11 @@ public class LearningGoalResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(learninggoal.getOwner(), currentLogin)) {
-            throw new BadRequestAlertException("Only the creator is allowed to edit the learning goal!",
-                "learningGoalManagement", "learningGoalNotOwner");
+            throw new BadRequestAlertException(
+                "Only the creator is allowed to edit the learning goal!",
+                "learningGoalManagement",
+                "learningGoalNotOwner"
+            );
         }
 
         try {
@@ -182,24 +184,28 @@ public class LearningGoalResource {
      *                                                                              already exist
      */
     @PostMapping("/learninggoals/{owner}/{parentGoalName}/subGoal")
-    public ResponseEntity<LearningGoalDTO> createSubGoal(@Valid @RequestBody NewLearningGoalDTO newLearningGoalDTO,
-                                                         @PathVariable("owner") String owner,
-                                                         @PathVariable("parentGoalName") String parentGoalName) throws URISyntaxException {
+    public ResponseEntity<LearningGoalDTO> createSubGoal(
+        @Valid @RequestBody NewLearningGoalDTO newLearningGoalDTO,
+        @PathVariable("owner") String owner,
+        @PathVariable("parentGoalName") String parentGoalName
+    ) throws URISyntaxException {
         log.debug("REST request to create a sub goal: {} for parent: {}", newLearningGoalDTO, parentGoalName);
 
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(owner, currentLogin)) {
-            throw new BadRequestAlertException("Only the creator is allowed to edit the learning goal!",
-                "learningGoalManagement", "learningGoalNotOwner");
+            throw new BadRequestAlertException(
+                "Only the creator is allowed to edit the learning goal!",
+                "learningGoalManagement",
+                "learningGoalNotOwner"
+            );
         }
 
         try {
-            var newSubGoal = sparqlEndpointService.insertSubGoal(newLearningGoalDTO,
-                currentLogin, parentGoalName);
+            var newSubGoal = sparqlEndpointService.insertSubGoal(newLearningGoalDTO, currentLogin, parentGoalName);
 
-            return ResponseEntity.created(new URI(String.format("/api/learninggoals/%s/%s", newSubGoal.getOwner(),
-                newSubGoal.getNameForRDF())))
+            return ResponseEntity
+                .created(new URI(String.format("/api/learninggoals/%s/%s", newSubGoal.getOwner(), newSubGoal.getNameForRDF())))
                 .body(newSubGoal);
         } catch (LearningGoalAlreadyExistsException ex) {
             throw new at.jku.dke.etutor.web.rest.errors.LearningGoalAlreadyExistsException();
@@ -219,8 +225,9 @@ public class LearningGoalResource {
      * @return {@link ResponseEntity} with status {@code 200 (OK)} and the list of visible learning goals in body
      */
     @GetMapping("/learninggoals")
-    public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals(@RequestParam(value = "showOnlyOwnGoals", required = false, defaultValue = "false") boolean showOnlyOwnGoals) {
-
+    public ResponseEntity<Collection<LearningGoalDTO>> getVisibleGoals(
+        @RequestParam(value = "showOnlyOwnGoals", required = false, defaultValue = "false") boolean showOnlyOwnGoals
+    ) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
             var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(currentLogin, showOnlyOwnGoals);

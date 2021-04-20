@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { EtutorPlusPlusSharedModule } from '../../shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 import { OverviewSharedModule } from '../shared/overview-shared.module';
 import { RouterModule } from '@angular/router';
 import { TasksOverviewComponent } from './tasks-overview/tasks-overview.component';
@@ -14,7 +14,7 @@ import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
  */
 @NgModule({
   imports: [
-    EtutorPlusPlusSharedModule,
+    SharedModule,
     OverviewSharedModule,
     RouterModule.forChild(tasksRoutes),
     ConfirmationPopoverModule.forRoot({

@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.service.exception.CourseNotFoundException;
+import java.util.*;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -25,14 +26,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 /**
  * SPARQL endpoint service for managing course instances.
  */
 @Service
 public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
-    private static final String QRY_ASK_COURSE_INSTANCE_EXISTS = """
+
+    private static final String QRY_ASK_COURSE_INSTANCE_EXISTS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -40,7 +41,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         """;
 
-    private static final String QRY_ASK_COURSE_EXISTS = """
+    private static final String QRY_ASK_COURSE_EXISTS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -48,7 +50,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         """;
 
-    private static final String QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE = """
+    private static final String QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE =
+        """
          PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -72,7 +75,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
          }
         """;
 
-    private static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE = """
+    private static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -88,7 +92,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         """;
 
-    private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE = """
+    private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -109,7 +114,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         DROP SILENT GRAPH ?graph
         """;
 
-    private static final String QRY_DELETE_COURSE_INSTANCE = """
+    private static final String QRY_DELETE_COURSE_INSTANCE =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE {
@@ -138,7 +144,6 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      */
     public CourseInstanceSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory, UserService userService) {
         super(rdfConnectionFactory);
-
         this.userService = userService;
     }
 
@@ -170,7 +175,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @param courseInstanceId     the internal id of the course instance
      * @throws CourseInstanceNotFoundException if the course instance cannot be found.
      */
-    public void setStudentsOfCourseInstance(List<String> matriculationNumbers, String courseInstanceId) throws CourseInstanceNotFoundException {
+    public void setStudentsOfCourseInstance(List<String> matriculationNumbers, String courseInstanceId)
+        throws CourseInstanceNotFoundException {
         Objects.requireNonNull(matriculationNumbers);
         Objects.requireNonNull(courseInstanceId);
 
@@ -184,7 +190,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                 throw new CourseInstanceNotFoundException();
             }
 
-            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -193,7 +200,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                   ?student a etutor:Student.
                   ?student rdfs:label ?matriculationNr.
                 } INSERT {
-                """);
+                """
+            );
 
             for (String matriculationNumber : matriculationNumbers) {
                 String studentUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Student#%s", matriculationNumber);
@@ -208,7 +216,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                 updateQry.append(".\n");
             }
 
-            updateQry.append("""
+            updateQry.append(
+                """
                 } WHERE {
                   ?courseInstance a etutor:CourseInstance.
                   OPTIONAL {
@@ -216,7 +225,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
                     ?student rdfs:label ?matriculationNr.
                   }
                 }
-                """);
+                """
+            );
             updateQry.setIri("?courseInstance", courseInstanceId);
             connection.update(updateQry.asUpdate());
         }
@@ -248,8 +258,9 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             Model model = connection.queryConstruct(qry.asQuery());
 
-            SortedSet<CourseInstanceDTO> courseInstances = new TreeSet<>(Comparator.comparing(CourseInstanceDTO::getInstanceName)
-                .thenComparing(CourseInstanceDTO::getId));
+            SortedSet<CourseInstanceDTO> courseInstances = new TreeSet<>(
+                Comparator.comparing(CourseInstanceDTO::getInstanceName).thenComparing(CourseInstanceDTO::getId)
+            );
 
             ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
             Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
@@ -290,9 +301,9 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             ResIterator iterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Student);
             Map<String, StudentInfoDTO> studentCache = getStudentCache(iterator);
-            return StreamEx.of(studentCache.values())
-                .sorted(Comparator.comparing(StudentInfoDTO::getLastName)
-                    .thenComparing(StudentInfoDTO::getFirstName))
+            return StreamEx
+                .of(studentCache.values())
+                .sorted(Comparator.comparing(StudentInfoDTO::getLastName).thenComparing(StudentInfoDTO::getFirstName))
                 .toList();
         }
     }
@@ -335,7 +346,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         Objects.requireNonNull(page);
 
         String courseId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Course#%s", courseName.replace(' ', '_'));
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -352,7 +364,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
             }
             GROUP BY ?instance ?year ?term ?instanceName
             ORDER BY ?year ?term ?instanceName
-            """);
+            """
+        );
 
         if (page.isPaged()) {
             query.append("LIMIT ");
@@ -362,7 +375,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         }
         query.setIri("?course", courseId);
 
-        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             SELECT (COUNT(DISTINCT ?instance) as ?cnt)
@@ -370,7 +384,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
               ?instance a etutor:CourseInstance.
               ?instance etutor:hasCourse ?course.
             }
-            """);
+            """
+        );
         countQry.setIri("?course", courseId);
 
         try (RDFConnection connection = getConnection()) {
@@ -413,11 +428,13 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         String courseInstanceUri = ETutorVocabulary.createCourseInstanceURLString(uuid);
 
-        ParameterizedSparqlString qry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             INSERT DATA {
-            """);
+            """
+        );
 
         for (String exerciseSheetUri : exerciseSheets) {
             qry.appendIri(courseInstanceUri);
@@ -547,11 +564,16 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @return the new course instance resource
      * @throws CourseNotFoundException if the course does not exist
      */
-    private Resource constructNewCourseInstanceFromDTO(NewCourseInstanceDTO newCourseInstanceDTO, Model model, String uuid, RDFConnection connection)
-        throws CourseNotFoundException {
+    private Resource constructNewCourseInstanceFromDTO(
+        NewCourseInstanceDTO newCourseInstanceDTO,
+        Model model,
+        String uuid,
+        RDFConnection connection
+    ) throws CourseNotFoundException {
         Resource resource = ETutorVocabulary.createCourseInstanceOfModel(uuid, model);
 
-        ParameterizedSparqlString courseQuery = new ParameterizedSparqlString("""
+        ParameterizedSparqlString courseQuery = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -560,7 +582,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
               ?course a etutor:Course.
               ?course rdfs:label ?courseName.
             }
-            """);
+            """
+        );
         courseQuery.setIri("?course", newCourseInstanceDTO.getCourseId());
 
         String courseName;
@@ -578,8 +601,15 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         resource.addProperty(ETutorVocabulary.hasCourse, model.createResource(newCourseInstanceDTO.getCourseId()));
         resource.addProperty(ETutorVocabulary.hasInstanceYear, String.valueOf(newCourseInstanceDTO.getYear()), XSDDatatype.XSDint);
         resource.addProperty(ETutorVocabulary.hasTerm, model.createResource(newCourseInstanceDTO.getTermId()));
-        resource.addProperty(RDFS.label, String.format("%s %s %d", courseName, ETutorVocabulary.getTermTextFromUri(newCourseInstanceDTO.getTermId()),
-            newCourseInstanceDTO.getYear()));
+        resource.addProperty(
+            RDFS.label,
+            String.format(
+                "%s %s %d",
+                courseName,
+                ETutorVocabulary.getTermTextFromUri(newCourseInstanceDTO.getTermId()),
+                newCourseInstanceDTO.getYear()
+            )
+        );
         resource.addProperty(RDF.type, ETutorVocabulary.CourseInstance);
 
         if (StringUtils.isNotBlank(newCourseInstanceDTO.getDescription())) {
@@ -597,7 +627,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
      * @param connection       the rdf connection
      */
     private void copyLearningGoalsIntoNamedCourseInstanceGraph(String courseInstanceId, RDFConnection connection) {
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             INSERT {
@@ -610,7 +641,8 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
               ?instance etutor:hasCourse ?course.
               ?course etutor:hasGoal/etutor:hasSubGoal* ?goal.
             }
-            """);
+            """
+        );
         query.setIri("?instance", courseInstanceId);
 
         connection.update(query.asUpdate());

@@ -1,10 +1,9 @@
 package at.jku.dke.etutor.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.codec.Charsets;
-
-import javax.validation.constraints.NotBlank;
 import java.net.URLEncoder;
+import javax.validation.constraints.NotBlank;
+import org.apache.commons.codec.Charsets;
 
 /**
  * A DTO representing a new learning goal.
@@ -13,6 +12,7 @@ public class NewLearningGoalDTO {
 
     @NotBlank
     private String name;
+
     private String description;
     private boolean privateGoal;
     private boolean needVerification;

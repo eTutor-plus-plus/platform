@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CourseModel } from '../course-mangement.model';
 
@@ -9,7 +9,7 @@ import { CourseModel } from '../course-mangement.model';
   selector: 'jhi-view-course',
   templateUrl: './view-course.component.html',
 })
-export class ViewCourseComponent implements OnInit {
+export class ViewCourseComponent {
   public course!: CourseModel;
 
   /**
@@ -18,11 +18,6 @@ export class ViewCourseComponent implements OnInit {
    * @param activeModal the injected active modal service
    */
   constructor(private activeModal: NgbActiveModal) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Closes the current modal window.

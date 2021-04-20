@@ -8,6 +8,12 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import java.io.Serial;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -23,13 +29,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
-import java.io.Serial;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
-
 /**
  * SPARQL endpoint for assignment related operations.
  *
@@ -38,7 +37,8 @@ import java.util.*;
 @Service
 public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL = """
+    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL =
+        """
         PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
         PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
@@ -64,7 +64,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
-    private static final String QRY_DELETE_ASSIGNMENT = """
+    private static final String QRY_DELETE_ASSIGNMENT =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE {
@@ -77,7 +78,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
-    private static final String QRY_ASK_ASSIGNMENT_EXISTS = """
+    private static final String QRY_ASK_ASSIGNMENT_EXISTS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -85,7 +87,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
-    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS = """
+    private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS =
+        """
         PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
         PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
@@ -103,7 +106,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
-    private static final String QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT = """
+    private static final String QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         SELECT (STR(?goal) as ?goalId)
@@ -113,7 +117,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
         """;
 
-    private static final String QRY_SELECT_TASK_HEADERS_IDS_OF_GOAL = """
+    private static final String QRY_SELECT_TASK_HEADERS_IDS_OF_GOAL =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         SELECT DISTINCT ?assignmentHeader (STR(?assignment) as ?id)
@@ -243,14 +248,16 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             ParameterizedSparqlString query = new ParameterizedSparqlString();
-            query.append("""
+            query.append(
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                 DELETE {
                   ?assignment ?predicate ?object
                 } INSERT {
-                """);
+                """
+            );
 
             query.append("?assignment etutor:hasTaskHeader ");
             query.appendLiteral(taskAssignment.getHeader());
@@ -286,12 +293,14 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
             query.append(".\n");
 
-            query.append("""
+            query.append(
+                """
                 } WHERE {
                   ?assignment ?predicate ?object.
                   FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator))
                 }
-                """);
+                """
+            );
 
             query.setIri("?assignment", taskAssignment.getId());
 
@@ -322,26 +331,30 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             ParameterizedSparqlString updateQuery = new ParameterizedSparqlString();
-            updateQuery.append("""
+            updateQuery.append(
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                 DELETE { ?goal etutor:hasTaskAssignment ?assignment }
                 INSERT {
-                """);
+                """
+            );
 
             for (String goalId : goalIds) {
                 updateQuery.appendIri(goalId);
                 updateQuery.append(" etutor:hasTaskAssignment ?assignment.\n");
             }
 
-            updateQuery.append("""
+            updateQuery.append(
+                """
                 }
                 WHERE {
                     OPTIONAL {
                 	    ?goal etutor:hasTaskAssignment ?assignment
                 	}
                 }
-                """);
+                """
+            );
 
             updateQuery.setIri("?assignment", assignment);
             connection.update(updateQuery.asUpdate());
@@ -359,7 +372,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      */
     public List<TaskAssignmentDTO> getTaskAssignments(String headerFilter, String user) throws MalformedURLException, ParseException {
         ParameterizedSparqlString qry = new ParameterizedSparqlString();
-        qry.append("""
+        qry.append(
+            """
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
@@ -369,13 +383,15 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
               ?othergoal rdfs:label ?goalName. }
             WHERE {
                 {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
         }
 
-        qry.append("""
+        qry.append(
+            """
                 ?assignment a etutor:TaskAssignment.
                 ?assignment ?predicate ?object.
                 ?assignment etutor:isPrivateTask false.
@@ -384,13 +400,15 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                   ?othergoal rdfs:label ?goalName.
                 }
               } UNION {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
         }
 
-        qry.append("""
+        qry.append(
+            """
                 ?assignment a etutor:TaskAssignment.
                 ?assignment ?predicate ?object.
                 ?assignment etutor:isPrivateTask true.
@@ -400,7 +418,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 }
               }
             }
-            """);
+            """
+        );
 
         qry.setLiteral("?hasInternalTaskCreator", user);
 
@@ -489,33 +508,38 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         Objects.requireNonNull(user);
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString();
-        qry.append("""
+        qry.append(
+            """
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header ?internalCreator ?privateTask
             WHERE {
                 {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
         }
 
-        qry.append("""
+        qry.append(
+            """
                 ?assignment a etutor:TaskAssignment.
                 ?assignment etutor:hasTaskHeader ?header.
                 ?assignment etutor:hasInternalTaskCreator ?internalCreator.
                 ?assignment etutor:isPrivateTask ?privateTask.
                 FILTER(?privateTask = false)
               } UNION {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
         }
 
-        qry.append("""
+        qry.append(
+            """
                 ?assignment a etutor:TaskAssignment.
                 ?assignment etutor:hasTaskHeader ?header.
                 ?assignment etutor:hasInternalTaskCreator ?internalCreator.
@@ -524,7 +548,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
               }
             }
             ORDER BY (LCASE(?header))
-            """);
+            """
+        );
 
         if (pageable.isPaged()) {
             qry.append("LIMIT ");
@@ -628,7 +653,13 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * @param user                 the creator
      * @return {@link Resource} which represents the new task assignment
      */
-    private Resource constructTaskAssignmentFromDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String uuid, Instant creationDate, Model model, String user) {
+    private Resource constructTaskAssignmentFromDTO(
+        NewTaskAssignmentDTO newTaskAssignmentDTO,
+        String uuid,
+        Instant creationDate,
+        Model model,
+        String user
+    ) {
         Resource resource = ETutorVocabulary.createTaskAssignmentResourceOfModel(uuid, model);
 
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());

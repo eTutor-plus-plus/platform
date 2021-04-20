@@ -5,12 +5,17 @@ import at.jku.dke.etutor.helper.CSVHelper;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -24,11 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 /**
  * Service class for managing students.
  *
@@ -37,7 +37,8 @@ import java.util.Set;
 @Service
 public class StudentService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_STUDENTS_COURSES = """
+    private static final String QRY_STUDENTS_COURSES =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -58,7 +59,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         ORDER BY(?courseName)
         """;
 
-    private static final String QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW = """
+    private static final String QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -74,7 +76,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         ORDER BY (LCASE(?exerciseSheetName))
         """;
 
-    private static final String QRY_ASK_STUDENT_OPENED_EXERCISE_SHEET = """
+    private static final String QRY_ASK_STUDENT_OPENED_EXERCISE_SHEET =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -87,7 +90,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_UPDATE_SELF_EVALUATION_STATUS = """
+    private static final String QRY_UPDATE_SELF_EVALUATION_STATUS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE {
@@ -141,7 +145,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         for (StudentImportDTO student : students) {
             if (!studentRepository.studentExists(student.getMatriculationNumber())) {
-                UserDTO userDTO = new UserDTO();
+                AdminUserDTO userDTO = new AdminUserDTO();
                 userDTO.setFirstName(student.getFirstName());
                 userDTO.setLastName(student.getLastName());
                 userDTO.setEmail(student.getEmail());
@@ -293,7 +297,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param matriculationNumber     the student's matriculation number, must not be null
      * @param evaluationLearningGoals the evaluation learning goal DTOs, must not be null
      */
-    public void saveSelfEvaluation(String courseInstanceUUID, String matriculationNumber, List<StudentSelfEvaluationLearningGoalDTO> evaluationLearningGoals) {
+    public void saveSelfEvaluation(
+        String courseInstanceUUID,
+        String matriculationNumber,
+        List<StudentSelfEvaluationLearningGoalDTO> evaluationLearningGoals
+    ) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(matriculationNumber);
         Objects.requireNonNull(evaluationLearningGoals);

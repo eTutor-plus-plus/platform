@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
  * @author fne
  */
 @Repository
-public interface AdministratorRepository extends JpaRepository<Administrator, Long> {
-}
+public interface AdministratorRepository extends JpaRepository<Administrator, Long> {}

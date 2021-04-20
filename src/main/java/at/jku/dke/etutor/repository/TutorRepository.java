@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
  * @author fne
  */
 @Repository
-public interface TutorRepository extends JpaRepository<Tutor, Long> {
-}
+public interface TutorRepository extends JpaRepository<Tutor, Long> {}

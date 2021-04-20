@@ -2,16 +2,15 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * DTO class for an existing exercise sheet.
@@ -19,6 +18,7 @@ import java.util.List;
  * @author fne
  */
 public class ExerciseSheetDTO extends NewExerciseSheetDTO {
+
     private String id;
     private Instant creationDate;
     private String internalCreator;
@@ -57,12 +57,15 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
      */
     public ExerciseSheetDTO(Resource resource) throws ParseException {
         super();
-
         setName(resource.getProperty(RDFS.label).getString());
         setDifficultyId(resource.getProperty(ETutorVocabulary.hasExerciseSheetDifficulty).getResource().getURI());
         setId(resource.getURI());
         setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalExerciseSheetCreator).getString());
-        setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(resource.getProperty(ETutorVocabulary.hasExerciseSheetCreationTime).getString()).toInstant());
+        setCreationDate(
+            DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
+                .parse(resource.getProperty(ETutorVocabulary.hasExerciseSheetCreationTime).getString())
+                .toInstant()
+        );
         setTaskCount(resource.getProperty(ETutorVocabulary.hasExerciseSheetTaskCount).getInt());
         List<LearningGoalDisplayDTO> goals = new ArrayList<>();
         StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoal);

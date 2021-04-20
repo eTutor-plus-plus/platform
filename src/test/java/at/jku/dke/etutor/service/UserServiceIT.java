@@ -9,18 +9,23 @@ import at.jku.dke.etutor.IntegrationTest;
 import at.jku.dke.etutor.config.Constants;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
-import at.jku.dke.etutor.repository.UserRepository;
+import at.jku.dke.etutor.repository.*;
+import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
-import io.github.jhipster.security.RandomUtil;
+import at.jku.dke.etutor.service.mapper.UserMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -72,9 +77,6 @@ class UserServiceIT {
     private UserService userService;
 
     @Autowired
-    private AuditingHandler auditingHandler;
-
-    @Autowired
     private SpringLiquibase springLiquibase;
 
     @MockBean
@@ -101,7 +103,6 @@ class UserServiceIT {
         user.setLangKey(DEFAULT_LANGKEY);
 
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(LocalDateTime.now()));
-        auditingHandler.setDateTimeProvider(dateTimeProvider);
     }
 
     @Test
@@ -180,24 +181,6 @@ class UserServiceIT {
 
     @Test
     @Transactional
-    void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
-        Instant now = Instant.now();
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
-        user.setActivated(false);
-        user.setActivationKey(RandomStringUtils.random(20));
-        User dbUser = userRepository.saveAndFlush(user);
-        dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
-        userRepository.saveAndFlush(user);
-        Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
-        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
-        assertThat(users).isNotEmpty();
-        userService.removeNotActivatedUsers();
-        users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
-        assertThat(users).isEmpty();
-    }
-
-    @Test
-    @Transactional
     void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
@@ -216,7 +199,7 @@ class UserServiceIT {
     @Test
     @Transactional
     void assertThatRoleEntitiesAreAdded() {
-        UserDTO userDTO = new UserMapper().userToUserDTO(user);
+        AdminUserDTO userDTO = new UserMapper().userToAdminUserDTO(user);
         userDTO.setAuthorities(
             Set.of(
                 new String[] {
@@ -239,7 +222,7 @@ class UserServiceIT {
     @Test
     @Transactional
     void assertThatRoleEntitiesAreChanged() {
-        UserDTO userDTO = new UserMapper().userToUserDTO(user);
+        AdminUserDTO userDTO = new UserMapper().userToAdminUserDTO(user);
         userDTO.setAuthorities(Set.of(new String[] { AuthoritiesConstants.ADMIN, AuthoritiesConstants.INSTRUCTOR }));
         long id = userService.createUser(userDTO).getId();
 

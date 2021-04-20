@@ -2,39 +2,57 @@
 <jhi-alert-error></jhi-alert-error>
 
 <button type="button" class="btn btn-primary float-right" (click)="createNewExerciseSheet()">
-    <fa-icon icon="plus"></fa-icon>
-    <span class="d-none d-md-inline" jhiTranslate="exerciseSheets.createText">Create new exercise sheet</span>
+  <fa-icon icon="plus"></fa-icon>
+  <span class="d-none d-md-inline" jhiTranslate="exerciseSheets.createText">Create new exercise sheet</span>
 </button>
 <h2 jhiTranslate="exerciseSheets.header">Exercise sheet management</h2>
 <div class="row">
-    <div class="col-12  d-flex">
-        <div class="ml-auto search-box">
-            <input placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}" style="max-width: 200px;"
-                   type="text" class="form-control"
-                   [(ngModel)]="filterString" (keyup)="performFiltering()">
-        </div>
+  <div class="col-12 d-flex">
+    <div class="ml-auto search-box">
+      <input
+        placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}"
+        style="max-width: 200px"
+        type="text"
+        class="form-control"
+        [(ngModel)]="filterString"
+        (keyup)="performFiltering()"
+      />
     </div>
+  </div>
 </div>
-<ul [hidden]="!entries.length" class="list-group" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
-    <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
-        <a>{{entry.name}}</a>
-        <span class="float-right">
-            <span style="margin-right: 20px;">
-                {{'exerciseSheets.referencedFrom' | translate: {count: entry.individualAssignmentCnt} }}
-            </span>
-            <a ngbTooltip="{{'exerciseSheets.tooltip.editExerciseSheet' | translate: {name: entry.name} }}"
-               (click)="editExerciseSheet(entry)" style="margin-right: 10px;"><fa-icon icon="pencil-alt"></fa-icon></a>
-            <a ngbTooltip="{{'exerciseSheets.tooltip.deleteExerciseSheet' | translate:{name: entry.name} }}"
-               mwlConfirmationPopover
-               placement="left"
-               [popoverTitle]="popoverTitle"
-               [popoverMessage]="popoverMessage"
-               [isDisabled]="entry.individualAssignmentCnt > 0"
-               [cancelText]="popoverCancelButtonTxt"
-               [confirmText]="popoverConfirmBtnTxt"
-               (confirm)="deleteExerciseSheet(entry)">
-                <fa-icon icon="trash"></fa-icon>
-            </a>
-        </span>
-    </li>
+<ul
+  [hidden]="!entries.length"
+  class="list-group"
+  infinite-scroll
+  (scrolled)="loadPage(page + 1)"
+  [infiniteScrollDisabled]="!hasNextPage"
+  [infiniteScrollDistance]="0"
+>
+  <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
+    <a>{{ entry.name }}</a>
+    <span class="float-right">
+      <span style="margin-right: 20px">
+        {{ 'exerciseSheets.referencedFrom' | translate: { count: entry.individualAssignmentCnt } }}
+      </span>
+      <a
+        ngbTooltip="{{ 'exerciseSheets.tooltip.editExerciseSheet' | translate: { name: entry.name } }}"
+        (click)="editExerciseSheet(entry)"
+        style="margin-right: 10px"
+        ><fa-icon icon="pencil-alt"></fa-icon
+      ></a>
+      <a
+        ngbTooltip="{{ 'exerciseSheets.tooltip.deleteExerciseSheet' | translate: { name: entry.name } }}"
+        mwlConfirmationPopover
+        placement="left"
+        [popoverTitle]="popoverTitle"
+        [popoverMessage]="popoverMessage"
+        [isDisabled]="entry.individualAssignmentCnt > 0"
+        [cancelText]="popoverCancelButtonTxt"
+        [confirmText]="popoverConfirmBtnTxt"
+        (confirm)="deleteExerciseSheet(entry)"
+      >
+        <fa-icon icon="trash"></fa-icon>
+      </a>
+    </span>
+  </li>
 </ul>

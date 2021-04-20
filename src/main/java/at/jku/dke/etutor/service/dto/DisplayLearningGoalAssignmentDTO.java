@@ -1,10 +1,9 @@
 package at.jku.dke.etutor.service.dto;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import java.text.ParseException;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-
-import java.text.ParseException;
 
 /**
  * DTO class for a displayable learning goal assignment.
@@ -32,7 +31,6 @@ public class DisplayLearningGoalAssignmentDTO extends LearningGoalDTO {
      */
     public DisplayLearningGoalAssignmentDTO(Resource resource) throws ParseException {
         super(resource);
-
         Statement rootIdStatement = resource.getProperty(ETutorVocabulary.hasRootGoal);
         if (rootIdStatement != null) {
             setRootId(rootIdStatement.getResource().getURI());

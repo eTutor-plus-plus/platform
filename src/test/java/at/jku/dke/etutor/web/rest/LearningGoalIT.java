@@ -1,5 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
@@ -8,6 +12,10 @@ import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +26,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Integration tests for the {@link LearningGoalResource} REST controller.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
+@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -69,9 +68,12 @@ public class LearningGoalIT {
         newLearningGoalDTO.setName("Testziel");
         newLearningGoalDTO.setPrivateGoal(true);
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO))
+            )
             .andExpect(status().isCreated());
 
         RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Testziel>", rdfConnectionFactory);
@@ -89,9 +91,12 @@ public class LearningGoalIT {
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO))
+            )
             .andExpect(status().isBadRequest());
 
         assertThat(RDFTestUtil.getGoalCount(rdfConnectionFactory)).isEqualTo(1);
@@ -109,9 +114,12 @@ public class LearningGoalIT {
         subGoal.setName("Subgoal");
         subGoal.setPrivateGoal(true);
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals/admin/Testziel/subGoal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(subGoal)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals/admin/Testziel/subGoal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(subGoal))
+            )
             .andExpect(status().isCreated());
 
         RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Subgoal>", rdfConnectionFactory);
@@ -128,9 +136,12 @@ public class LearningGoalIT {
         NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
         subGoal.setName("Subgoal1");
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals/admin1/Testziel/subGoal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(subGoal)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals/admin1/Testziel/subGoal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(subGoal))
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -145,9 +156,12 @@ public class LearningGoalIT {
         NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
         subGoal.setName("Subgoal12");
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals/admin/Testziel123/subGoal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(subGoal)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals/admin/Testziel123/subGoal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(subGoal))
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -162,9 +176,12 @@ public class LearningGoalIT {
         NewLearningGoalDTO subGoal = new NewLearningGoalDTO();
         subGoal.setName("Subgoal");
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals/admin/Testziel123/subGoal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(subGoal)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals/admin/Testziel123/subGoal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(subGoal))
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -175,14 +192,17 @@ public class LearningGoalIT {
      */
     @Test
     @Order(7)
-    @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin1")
+    @WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin1")
     public void testCreateGoalWithOtherUser() throws Exception {
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");
 
-        restLearningGoalMockMvc.perform(post("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO)))
+        restLearningGoalMockMvc
+            .perform(
+                post("/api/learninggoals")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newLearningGoalDTO))
+            )
             .andExpect(status().isCreated());
 
         RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/admin1/Goal#Testziel>", rdfConnectionFactory);
@@ -195,10 +215,9 @@ public class LearningGoalIT {
      */
     @Test
     @Order(8)
-    @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin1")
+    @WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin1")
     public void testGetVisibleGoals() throws Exception {
-        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals"))
-            .andReturn();
+        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals")).andReturn();
 
         String jsonData = mvcResult.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -218,10 +237,9 @@ public class LearningGoalIT {
      */
     @Test
     @Order(9)
-    @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin1")
+    @WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin1")
     public void testUpdateLearningGoalSuccess() throws Exception {
-        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals"))
-            .andReturn();
+        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals")).andReturn();
 
         String jsonData = mvcResult.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -233,14 +251,12 @@ public class LearningGoalIT {
         goal.setDescription("NewDescription");
         goal.setPrivateGoal(true);
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(goal)))
+        restLearningGoalMockMvc
+            .perform(put("/api/learninggoals").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(goal)))
             .andExpect(status().isNoContent())
             .andReturn();
 
-        mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals"))
-            .andReturn();
+        mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals")).andReturn();
 
         jsonData = mvcResult.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -267,9 +283,8 @@ public class LearningGoalIT {
         goal.setName("Testname");
         goal.setOwner("admin");
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(goal)))
+        restLearningGoalMockMvc
+            .perform(put("/api/learninggoals").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(goal)))
             .andExpect(status().isBadRequest());
     }
 
@@ -283,8 +298,7 @@ public class LearningGoalIT {
     @Test
     @Order(11)
     public void testUpdateLearningGoalWithPrivateSuperGoal() throws Exception {
-        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals"))
-            .andReturn();
+        var mvcResult = restLearningGoalMockMvc.perform(get("/api/learninggoals")).andReturn();
 
         String jsonData = mvcResult.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -293,9 +307,8 @@ public class LearningGoalIT {
         var goal = goals.first().getSubGoals().first();
         goal.setPrivateGoal(false);
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(goal)))
+        restLearningGoalMockMvc
+            .perform(put("/api/learninggoals").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(goal)))
             .andExpect(status().isBadRequest());
     }
 
@@ -306,14 +319,13 @@ public class LearningGoalIT {
      */
     @Test
     @Order(12)
-    @WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin1")
+    @WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin1")
     public void testUpdateLearningGoalWithOtherUser() throws Exception {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", false);
         var goal = goals.first();
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(goal)))
+        restLearningGoalMockMvc
+            .perform(put("/api/learninggoals").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(goal)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("learningGoalNotOwner"));
     }
@@ -346,13 +358,16 @@ public class LearningGoalIT {
             ids.add(sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner).getId());
         }
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(ids)))
+        restLearningGoalMockMvc
+            .perform(
+                put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(ids))
+            )
             .andExpect(status().isNoContent());
 
-        var result = restLearningGoalMockMvc.perform(get("/api/learninggoals/{owner}/{goalName}/dependencies",
-            owner, mainGoalName))
+        var result = restLearningGoalMockMvc
+            .perform(get("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -373,13 +388,16 @@ public class LearningGoalIT {
         String owner = "admin";
         String mainGoalName = "Testziel123";
 
-        restLearningGoalMockMvc.perform(put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(new ArrayList<String>())))
+        restLearningGoalMockMvc
+            .perform(
+                put("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(new ArrayList<String>()))
+            )
             .andExpect(status().isNoContent());
 
-        var result = restLearningGoalMockMvc.perform(get("/api/learninggoals/{owner}/{goalName}/dependencies",
-            owner, mainGoalName))
+        var result = restLearningGoalMockMvc
+            .perform(get("/api/learninggoals/{owner}/{goalName}/dependencies", owner, mainGoalName))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -411,15 +429,14 @@ public class LearningGoalIT {
 
         var subGoal = sparqlEndpointService.insertSubGoal(newLearningGoalDTO, "admin", firstGoal.getName());
 
-        restLearningGoalMockMvc.perform(delete("/api/learninggoals/{name}", firstGoal.getName()))
+        restLearningGoalMockMvc
+            .perform(delete("/api/learninggoals/{name}", firstGoal.getName()))
             .andExpect(status().isNoContent())
             .andReturn();
 
         var visibleGoals = sparqlEndpointService.getVisibleLearningGoalsForUser("admin", true);
         List<String> ids = StreamEx.of(visibleGoals).map(LearningGoalDTO::getId).toList();
-        assertThat(ids)
-            .doesNotContain(firstGoal.getId(), subGoal.getId())
-            .contains(secondGoal.getId());
+        assertThat(ids).doesNotContain(firstGoal.getId(), subGoal.getId()).contains(secondGoal.getId());
     }
 
     /**
@@ -430,7 +447,8 @@ public class LearningGoalIT {
     @Test
     @Order(16)
     public void testDeleteNonexistentLearningGoal() throws Exception {
-        restLearningGoalMockMvc.perform(delete("/api/learninggoals/{name}", "Testgoal 1 1"))
+        restLearningGoalMockMvc
+            .perform(delete("/api/learninggoals/{name}", "Testgoal 1 1"))
             .andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.learningGoalNotFound"))

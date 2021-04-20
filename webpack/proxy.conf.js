@@ -16,6 +16,7 @@ function setupProxy() {
       target: `http${tls ? 's' : ''}://localhost:8080`,
       secure: false,
       changeOrigin: tls,
+      open: false,
     },
   ];
   return conf;

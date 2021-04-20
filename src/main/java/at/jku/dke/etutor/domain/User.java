@@ -6,17 +6,17 @@ import java.io.Serializable;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.*;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Locale;
-import java.util.Set;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.BatchSize;
 
 /**
  * Represents an application user.

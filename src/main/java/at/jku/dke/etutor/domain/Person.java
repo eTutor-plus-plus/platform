@@ -1,8 +1,8 @@
 package at.jku.dke.etutor.domain;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.*;
 
 /**
  * The base entity class for Roles.

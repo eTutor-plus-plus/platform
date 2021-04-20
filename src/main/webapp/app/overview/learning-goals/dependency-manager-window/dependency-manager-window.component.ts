@@ -13,12 +13,12 @@ import { AccountService } from '../../../core/auth/account.service';
   styleUrls: ['./dependency-manager-window.component.scss'],
 })
 export class DependencyManagerWindowComponent implements OnInit {
-  private _goalItem?: LearningGoalTreeviewItem;
-  private _loginName = '';
-
   public selectedGoals: string[] = [];
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public isSaving = false;
+
+  private _goalItem?: LearningGoalTreeviewItem;
+  private _loginName = '';
 
   /**
    * Constructor.

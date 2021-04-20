@@ -1,61 +1,65 @@
 <form name="updateForm" role="form" (ngSubmit)="save()" [formGroup]="updateForm">
-    <div class="modal-header">
-        <h4 class="modal-title" jhiTranslate="courseManagement.form.header">Create / edit a course</h4>
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="courseManagement.form.header">Create / edit a course</h4>
 
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <jhi-alert-error></jhi-alert-error>
+    <div class="form-group">
+      <label class="form-control-label" for="name" jhiTranslate="courseManagement.form.name">Name:</label>
+      <input [readOnly]="isEditMode" type="text" class="form-control" name="name" id="name" formControlName="name" #name />
+
+      <div *ngIf="updateForm.get('name')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('name')?.errors?.required"
+          jhiTranslate="courseManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
     </div>
-
-    <div class="modal-body">
-        <jhi-alert-error></jhi-alert-error>
-        <div class="form-group">
-            <label class="form-control-label" for="name" jhiTranslate="courseManagement.form.name">Name:</label>
-            <input [readOnly]="isEditMode" type="text" class="form-control" name="name" id="name" formControlName="name" #name>
-
-            <div *ngIf="updateForm.get('name')!.invalid">
-                <small class="form-text text-danger"
-                       *ngIf="updateForm.get('name')?.errors?.required" jhiTranslate="courseManagement.error.required">
-                    This field is required!
-                </small>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-control-label" for="description" jhiTranslate="courseManagement.form.description">Beschreibung:</label>
-            <quill-editor [placeholder]="''" id="description" #description formControlName="description">
-            </quill-editor>
-        </div>
-        <div class="form-group">
-            <label class="form-control-label" for="type" jhiTranslate="courseManagement.form.type">Type:</label>
-            <select class="form-control" name="type" id="type" #type>
-                <option value="" disabled>{{'courseManagement.form.typePlaceholder' | translate}}</option>
-                <option *ngFor="let courseType of courseTypes" [value]="courseType">{{courseType}}</option>
-            </select>
-
-            <div *ngIf="updateForm.get('type')!.invalid">
-                <small class="form-text text-danger"
-                       *ngIf="updateForm.get('type')?.errors?.required" jhiTranslate="courseManagement.error.required">
-                    This field is required!
-                </small>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-control-label" for="link" jhiTranslate="courseManagement.form.url">Link:</label>
-            <input type="url" class="form-control" name="link" id="link" #link formControlName="link">
-
-            <div *ngIf="updateForm.get('link')!.invalid">
-                <small class="form-text text-danger"
-                       *ngIf="updateForm.get('link')?.errors?.pattern" jhiTranslate="courseManagement.error.url">
-                    This optional field has to conform the URL standard.
-                </small>
-            </div>
-        </div>
+    <div class="form-group">
+      <label class="form-control-label" for="description" jhiTranslate="courseManagement.form.description">Beschreibung:</label>
+      <quill-editor [placeholder]="''" id="description" #description formControlName="description"> </quill-editor>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="close()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
-        </button>
+    <div class="form-group">
+      <label class="form-control-label" for="type" jhiTranslate="courseManagement.form.type">Type:</label>
+      <select class="form-control" name="type" id="type" #type>
+        <option value="" disabled>{{ 'courseManagement.form.typePlaceholder' | translate }}</option>
+        <option *ngFor="let courseType of courseTypes" [value]="courseType">{{ courseType }}</option>
+      </select>
 
-        <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
-            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
-        </button>
+      <div *ngIf="updateForm.get('type')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('type')?.errors?.required"
+          jhiTranslate="courseManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
     </div>
+    <div class="form-group">
+      <label class="form-control-label" for="link" jhiTranslate="courseManagement.form.url">Link:</label>
+      <input type="url" class="form-control" name="link" id="link" #link formControlName="link" />
+
+      <div *ngIf="updateForm.get('link')!.invalid">
+        <small class="form-text text-danger" *ngIf="updateForm.get('link')?.errors?.pattern" jhiTranslate="courseManagement.error.url">
+          This optional field has to conform the URL standard.
+        </small>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
+    </button>
+
+    <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
+      <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+    </button>
+  </div>
 </form>

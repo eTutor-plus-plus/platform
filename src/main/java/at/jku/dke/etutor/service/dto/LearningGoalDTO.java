@@ -1,16 +1,15 @@
 package at.jku.dke.etutor.service.dto;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * DTO class for a learning goal which extends the new learning goal dto.
@@ -71,8 +70,7 @@ public class LearningGoalDTO extends NewLearningGoalDTO implements Comparable<Le
 
         this.owner = rdfResource.getProperty(ETutorVocabulary.hasOwner).getString();
         String lastModifiedDateStr = rdfResource.getProperty(ETutorVocabulary.hasChangeDate).getString();
-        this.lastModifiedDate = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
-            .parse(lastModifiedDateStr).toInstant();
+        this.lastModifiedDate = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(lastModifiedDateStr).toInstant();
 
         Statement referenceCntStatement = rdfResource.getProperty(ETutorVocabulary.hasReferenceCnt);
         if (referenceCntStatement != null) {

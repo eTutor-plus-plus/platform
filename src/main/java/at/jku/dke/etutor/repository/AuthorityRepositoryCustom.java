@@ -9,7 +9,6 @@ import java.util.List;
  * @author fne
  */
 public interface AuthorityRepositoryCustom {
-
     /**
      * Returns the authorities (without the user one)
      * for the client to display.

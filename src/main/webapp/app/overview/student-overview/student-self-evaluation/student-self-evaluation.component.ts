@@ -17,9 +17,6 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
   templateUrl: './student-self-evaluation.component.html',
 })
 export class StudentSelfEvaluationComponent implements OnInit {
-  private readonly _instance?: ICourseInstanceInformationDTO;
-  private _login: string;
-
   public goals: IStudentSelfEvaluationLearningGoal[] = [];
 
   public studentSelfEvaluationForm = this.fb.group({
@@ -27,6 +24,9 @@ export class StudentSelfEvaluationComponent implements OnInit {
   });
 
   public isSaving = false;
+
+  private readonly _instance?: ICourseInstanceInformationDTO;
+  private _login: string;
 
   /**
    * Constructor.
@@ -48,7 +48,7 @@ export class StudentSelfEvaluationComponent implements OnInit {
   ) {
     this._login = this.accountService.getLoginName()!;
     const nav = this.router.getCurrentNavigation();
-    if (nav && nav.extras.state) {
+    if (nav?.extras.state) {
       this._instance = nav.extras.state.instance;
     } else {
       this.router.navigate(['/']);
@@ -159,10 +159,8 @@ export class StudentSelfEvaluationComponent implements OnInit {
       completed: false,
     });
 
-    if (goal.childItems) {
-      for (const child of goal.childItems) {
-        this.getLearningGoalsRecursive(child);
-      }
+    for (const child of goal.childItems) {
+      this.getLearningGoalsRecursive(child);
     }
   }
 }

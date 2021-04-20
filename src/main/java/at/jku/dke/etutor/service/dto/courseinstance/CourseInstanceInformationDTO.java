@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service.dto.courseinstance;
  * @author fne
  */
 public class CourseInstanceInformationDTO {
+
     private String courseName;
     private String termId;
     private String instructor;
@@ -30,7 +31,14 @@ public class CourseInstanceInformationDTO {
      * @param year                           the year
      * @param initialSelfAssessmentCompleted indicates whether the initial self assessment test has already been completed ot not
      */
-    public CourseInstanceInformationDTO(String courseName, String termId, String instructor, String instanceId, int year, boolean initialSelfAssessmentCompleted) {
+    public CourseInstanceInformationDTO(
+        String courseName,
+        String termId,
+        String instructor,
+        String instanceId,
+        int year,
+        boolean initialSelfAssessmentCompleted
+    ) {
         this.courseName = courseName;
         this.termId = termId;
         this.instructor = instructor;

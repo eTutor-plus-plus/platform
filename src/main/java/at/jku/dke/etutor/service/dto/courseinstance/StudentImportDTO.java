@@ -4,6 +4,7 @@ package at.jku.dke.etutor.service.dto.courseinstance;
  * DTO class which used in the student CSV import tool.
  */
 public class StudentImportDTO extends StudentInfoDTO {
+
     private String email;
 
     /**

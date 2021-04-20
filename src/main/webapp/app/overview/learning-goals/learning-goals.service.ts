@@ -29,7 +29,7 @@ export class LearningGoalsService {
    * @returns an observable which contains the list of {@link LearningGoalTreeviewItem}.
    */
   public getAllVisibleLearningGoalsAsTreeViewItems(userLogin: string, onlyShowOwnGoals = false): Observable<LearningGoalTreeviewItem[]> {
-    const url = `${SERVER_API_URL}api/learninggoals?showOnlyOwnGoals=${onlyShowOwnGoals ? 'true' : false}`;
+    const url = `${SERVER_API_URL}api/learninggoals?showOnlyOwnGoals=${onlyShowOwnGoals ? 'true' : 'false'}`;
 
     return this.http.get<ILearningGoalModel[]>(url).pipe(
       map(list => {
@@ -60,7 +60,7 @@ export class LearningGoalsService {
    * @param goal the goal which should be updated
    * @returns an observable which contains an empty response object
    */
-  public updateLearningGoal(goal: ILearningGoalModel): Observable<Object> {
+  public updateLearningGoal(goal: ILearningGoalModel): Observable<any> {
     return this.http.put(SERVER_API_URL + 'api/learninggoals', goal);
   }
 

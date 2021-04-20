@@ -1,48 +1,73 @@
 <jhi-alert-error></jhi-alert-error>
 
 <button type="button" class="btn btn-primary float-right" (click)="createNewTask()">
-    <fa-icon icon="plus"></fa-icon>
-    <span jhiTranslate="taskManagement.createText">Create new task</span>
+  <fa-icon icon="plus"></fa-icon>
+  <span jhiTranslate="taskManagement.createText">Create new task</span>
 </button>
 <h2 jhiTranslate="taskManagement.title">Courses</h2>
 <div class="row">
-    <div class="col-12  d-flex">
-        <div class="ml-auto search-box">
-            <input *ngIf="!singleEntryDisplay" placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}" style="max-width: 200px;"
-                   type="text" class="form-control"
-                   [(ngModel)]="filterString" (keyup)="performFiltering()">
+  <div class="col-12 d-flex">
+    <div class="ml-auto search-box">
+      <input
+        *ngIf="!singleEntryDisplay"
+        placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}"
+        style="max-width: 200px"
+        type="text"
+        class="form-control"
+        [(ngModel)]="filterString"
+        (keyup)="performFiltering()"
+      />
 
-            <button *ngIf="singleEntryDisplay" type="button" (click)="reset()" class="btn btn-secondary">Reset</button>
-        </div>
+      <button *ngIf="singleEntryDisplay" type="button" (click)="reset()" class="btn btn-secondary">Reset</button>
     </div>
+  </div>
 </div>
-<ul [hidden]="!entries.length" class="list-group mt-20" infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="!hasNextPage" [infiniteScrollDistance]="0">
-    <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
-        <a ngbTooltip="{{'taskManagement.tooltip.viewTask' | translate:{ taskHeader: entry.header } }}" (click)="displayTask(entry)"
-           [ngClass]="{'privateTask': entry.privateTask}">{{entry.header}}</a>
+<ul
+  [hidden]="!entries.length"
+  class="list-group mt-20"
+  infinite-scroll
+  (scrolled)="loadPage(page + 1)"
+  [infiniteScrollDisabled]="!hasNextPage"
+  [infiniteScrollDistance]="0"
+>
+  <li *ngFor="let entry of entries; index as idx; trackBy: trackId" class="list-group-item">
+    <a
+      ngbTooltip="{{ 'taskManagement.tooltip.viewTask' | translate: { taskHeader: entry.header } }}"
+      (click)="displayTask(entry)"
+      [ngClass]="{ privateTask: entry.privateTask }"
+      >{{ entry.header }}</a
+    >
 
-        <span *ngIf="isCurrentUserAllowedToEdit(entry)" class="float-right">
-            <a ngbTooltip="{{'taskManagement.tooltip.editLearningGoalAssignments' | translate:{ taskHeader: entry.header } }}"
-               (click)="editLearningGoalAssignments(entry)" style="margin-right: 10px;">
-                <fa-icon icon="pen-fancy"></fa-icon>
-            </a>
-            <a ngbTooltip="{{'taskManagement.tooltip.editTask' | translate:{ taskHeader: entry.header } }}" (click)="editTask(entry)"
-               style="margin-right: 10px;">
-                <fa-icon icon="edit"></fa-icon>
-            </a>
-            <a ngbTooltip="{{'taskManagement.tooltip.deleteTask' | translate:{ taskHeader: entry.header } }}"
-               mwlConfirmationPopover
-               placement="left"
-               [popoverTitle]="popoverTitle"
-               [popoverMessage]="popoverMessage"
-               [cancelText]="popoverCancelButtonTxt"
-               [confirmText]="popoverConfirmBtnTxt"
-               (confirm)="deleteAssignment(entry)">
-                <fa-icon icon="trash"></fa-icon>
-            </a>
-        </span>
-    </li>
+    <span *ngIf="isCurrentUserAllowedToEdit(entry)" class="float-right">
+      <a
+        ngbTooltip="{{ 'taskManagement.tooltip.editLearningGoalAssignments' | translate: { taskHeader: entry.header } }}"
+        (click)="editLearningGoalAssignments(entry)"
+        style="margin-right: 10px"
+      >
+        <fa-icon icon="pen-fancy"></fa-icon>
+      </a>
+      <a
+        ngbTooltip="{{ 'taskManagement.tooltip.editTask' | translate: { taskHeader: entry.header } }}"
+        (click)="editTask(entry)"
+        style="margin-right: 10px"
+      >
+        <fa-icon icon="edit"></fa-icon>
+      </a>
+      <a
+        ngbTooltip="{{ 'taskManagement.tooltip.deleteTask' | translate: { taskHeader: entry.header } }}"
+        mwlConfirmationPopover
+        placement="left"
+        [popoverTitle]="popoverTitle"
+        [popoverMessage]="popoverMessage"
+        [cancelText]="popoverCancelButtonTxt"
+        [confirmText]="popoverConfirmBtnTxt"
+        (confirm)="deleteAssignment(entry)"
+      >
+        <fa-icon icon="trash"></fa-icon>
+      </a>
+    </span>
+  </li>
 </ul>
 <span class="mt-20" [hidden]="entries.length > 0">
-    {{ 'taskManagement.noItems' | translate }}
+  {{ 'taskManagement.noItems' | translate }}
 </span>

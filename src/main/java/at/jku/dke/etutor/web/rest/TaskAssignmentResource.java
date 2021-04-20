@@ -10,6 +10,12 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
+import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -19,13 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Optional;
-import java.util.SortedSet;
 
 /**
  * REST controller for managing task assignments
@@ -71,7 +70,10 @@ public class TaskAssignmentResource {
      */
     @GetMapping("tasks/assignments/{owner}/goal/{goalName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<SortedSet<TaskAssignmentDTO>> getTaskAssignmentsOfGoal(@PathVariable String owner, @PathVariable String goalName) {
+    public ResponseEntity<SortedSet<TaskAssignmentDTO>> getTaskAssignmentsOfGoal(
+        @PathVariable String owner,
+        @PathVariable String goalName
+    ) {
         try {
             SortedSet<TaskAssignmentDTO> assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(goalName, owner);
 
@@ -106,8 +108,7 @@ public class TaskAssignmentResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
-            throw new BadRequestAlertException("Only the creator of the task is allowed to edit it!",
-                "taskManagement", "taskNotOwner");
+            throw new BadRequestAlertException("Only the creator of the task is allowed to edit it!", "taskManagement", "taskNotOwner");
         }
 
         try {
@@ -145,7 +146,9 @@ public class TaskAssignmentResource {
      */
     @GetMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<TaskAssignmentDTO>> getTaskAssignments(@RequestParam(required = false, defaultValue = "") String taskHeader) {
+    public ResponseEntity<List<TaskAssignmentDTO>> getTaskAssignments(
+        @RequestParam(required = false, defaultValue = "") String taskHeader
+    ) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         try {
@@ -166,7 +169,10 @@ public class TaskAssignmentResource {
      */
     @GetMapping("tasks/display")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<TaskDisplayDTO>> getAllTaskDisplayList(@RequestParam(required = false, defaultValue = "") String taskHeader, Pageable pageable) {
+    public ResponseEntity<List<TaskDisplayDTO>> getAllTaskDisplayList(
+        @RequestParam(required = false, defaultValue = "") String taskHeader,
+        Pageable pageable
+    ) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable, currentLogin);
@@ -214,8 +220,10 @@ public class TaskAssignmentResource {
      */
     @GetMapping("tasks/of/{goalOwner}/{goalName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<TaskAssignmentDisplayDTO>> getTasksOfLearningGoal(@PathVariable String goalOwner,
-                                                                                 @PathVariable String goalName) {
+    public ResponseEntity<List<TaskAssignmentDisplayDTO>> getTasksOfLearningGoal(
+        @PathVariable String goalOwner,
+        @PathVariable String goalName
+    ) {
         List<TaskAssignmentDisplayDTO> taskHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(goalName, goalOwner);
         return ResponseEntity.ok(taskHeaders);
     }

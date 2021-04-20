@@ -1,16 +1,15 @@
 package at.jku.dke.etutor.domain;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for the {@link User} entity.
@@ -135,10 +134,10 @@ public class UserTest {
     @Test
     public void testUserActivatedSetAndGet() {
         user.setActivated(true);
-        assertThat(user.getActivated()).isTrue();
+        assertThat(user.isActivated()).isTrue();
 
         user.setActivated(false);
-        assertThat(user.getActivated()).isFalse();
+        assertThat(user.isActivated()).isFalse();
     }
 
     /**
@@ -262,9 +261,7 @@ public class UserTest {
      */
     @Test
     public void testUserAddPersonException() {
-        assertThatThrownBy(() -> user.addPerson(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("person");
+        assertThatThrownBy(() -> user.addPerson(null)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("person");
     }
 
     /**
@@ -285,9 +282,7 @@ public class UserTest {
      */
     @Test
     public void testUserRemovePersonException() {
-        assertThatThrownBy(() -> user.removePerson(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("person");
+        assertThatThrownBy(() -> user.removePerson(null)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("person");
     }
 
     /**

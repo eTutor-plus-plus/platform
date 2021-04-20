@@ -29,8 +29,7 @@ public class FusekiRDFConnectionFactory implements RDFConnectionFactory {
      */
     @Override
     public RDFConnection getRDFConnection() {
-        return RDFConnectionFuseki.create()
-            .destination(applicationProperties.getFuseki().getBaseUrl()).build();
+        return RDFConnectionFuseki.create().destination(applicationProperties.getFuseki().getBaseUrl()).build();
     }
 
     /**

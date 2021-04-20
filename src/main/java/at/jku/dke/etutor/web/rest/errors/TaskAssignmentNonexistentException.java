@@ -8,6 +8,7 @@ import java.io.Serial;
  * @author fne
  */
 public class TaskAssignmentNonexistentException extends BadRequestAlertException {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

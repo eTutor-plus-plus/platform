@@ -7,14 +7,19 @@ import javax.validation.constraints.NotBlank;
  * View model for storing the grading info.
  */
 public class GradingInfoVM {
+
     @NotBlank
     private String courseInstanceUUID;
+
     @NotBlank
     private String exerciseSheetUUID;
+
     @NotBlank
     private String matriculationNo;
+
     @Min(1)
     private int orderNo;
+
     private boolean goalCompleted;
 
     /**

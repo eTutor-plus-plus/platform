@@ -9,5 +9,6 @@ import javax.persistence.*;
  */
 @Entity
 public class Administrator extends Person {
+
     private static final long serialVersionUID = 1L;
 }

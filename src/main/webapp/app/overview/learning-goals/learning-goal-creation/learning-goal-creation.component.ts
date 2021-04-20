@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LearningGoalsService } from '../learning-goals.service';
 import { ILearningGoalModel, INewLearningGoalModel } from '../../shared/learning-goal-model';
@@ -12,10 +12,7 @@ import { isNil } from 'lodash';
   templateUrl: './learning-goal-creation.component.html',
   styleUrls: ['./learning-goal-creation.component.scss'],
 })
-export class LearningGoalCreationComponent implements OnInit {
-  private _learningGoal?: ILearningGoalModel;
-  private _parentGoal?: string;
-
+export class LearningGoalCreationComponent {
   @Output()
   public learningGoalCreated = new EventEmitter<void>();
 
@@ -35,6 +32,9 @@ export class LearningGoalCreationComponent implements OnInit {
     needVerification: [false],
   });
 
+  private _learningGoal?: ILearningGoalModel;
+  private _parentGoal?: string;
+
   /**
    * Constructor.
    *
@@ -42,11 +42,6 @@ export class LearningGoalCreationComponent implements OnInit {
    * @param learningGoalsService the injected learning goals service
    */
   constructor(private fb: FormBuilder, private learningGoalsService: LearningGoalsService) {}
-
-  /**
-   * Implements the on init method. See {@link OnInit}
-   */
-  public ngOnInit(): void {}
 
   /**
    * Resets the form.

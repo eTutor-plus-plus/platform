@@ -1,12 +1,15 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
@@ -15,6 +18,12 @@ import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
+import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
+import java.net.URL;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +34,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.net.URL;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
 /**
  * Integration tests for the {@link TaskAssignmentResource} REST controller.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
+@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -99,9 +97,12 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Easy.getURI());
         newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(firstGoal.getId(), firstGoal.getName()));
 
-        var result = restTaskAssignmentMockMvc.perform(post("/api/tasks/assignments")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newTaskAssignmentDTO)))
+        var result = restTaskAssignmentMockMvc
+            .perform(
+                post("/api/tasks/assignments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newTaskAssignmentDTO))
+            )
             .andExpect(status().isOk())
             .andReturn();
 
@@ -126,13 +127,18 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
 
-        var result = restTaskAssignmentMockMvc.perform(get(String.format("/api/tasks/assignments/%s/goal/%s", firstGoal.getOwner(), firstGoal.getName())))
+        var result = restTaskAssignmentMockMvc
+            .perform(get(String.format("/api/tasks/assignments/%s/goal/%s", firstGoal.getOwner(), firstGoal.getName())))
             .andExpect(status().isOk())
             .andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        SortedSet<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDTO.class, SortedSet.class);
+        SortedSet<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            TaskAssignmentDTO.class,
+            SortedSet.class
+        );
 
         assertThat(assignments).isNotEmpty();
     }
@@ -149,13 +155,18 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var secondGoal = goals.last();
 
-        var result = restTaskAssignmentMockMvc.perform(get(String.format("/api/tasks/assignments/%s/goal/%s", secondGoal.getOwner(), secondGoal.getName())))
+        var result = restTaskAssignmentMockMvc
+            .perform(get(String.format("/api/tasks/assignments/%s/goal/%s", secondGoal.getOwner(), secondGoal.getName())))
             .andExpect(status().isOk())
             .andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        SortedSet<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDTO.class, SortedSet.class);
+        SortedSet<TaskAssignmentDTO> assignments = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            TaskAssignmentDTO.class,
+            SortedSet.class
+        );
 
         assertThat(assignments).isEmpty();
     }
@@ -176,8 +187,7 @@ public class TaskAssignmentResourceIT {
 
         String id = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
 
-        restTaskAssignmentMockMvc.perform(delete(String.format("/api/tasks/assignments/%s", id)))
-            .andExpect(status().isNoContent());
+        restTaskAssignmentMockMvc.perform(delete(String.format("/api/tasks/assignments/%s", id))).andExpect(status().isNoContent());
 
         assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(firstGoal.getName(), firstGoal.getOwner());
         assertThat(assignments).isEmpty();
@@ -205,9 +215,12 @@ public class TaskAssignmentResourceIT {
         taskAssignmentDTO.setOrganisationUnit("DKE");
         taskAssignmentDTO.setInternalCreator("admin");
 
-        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(taskAssignmentDTO)))
+        restTaskAssignmentMockMvc
+            .perform(
+                put("/api/tasks/assignments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(taskAssignmentDTO))
+            )
             .andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.taskAssignmentNotFound"))
@@ -239,15 +252,14 @@ public class TaskAssignmentResourceIT {
         assignment.setTaskDifficultyId(ETutorVocabulary.VeryHard.getURI());
         assignment.setOrganisationUnit("JKU SE");
 
-        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(assignment)))
+        restTaskAssignmentMockMvc
+            .perform(
+                put("/api/tasks/assignments").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(assignment))
+            )
             .andExpect(status().isNoContent());
 
         var assignmentsFromDB = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
-        assertThat(assignmentsFromDB)
-            .isNotEmpty()
-            .hasSize(1);
+        assertThat(assignmentsFromDB).isNotEmpty().hasSize(1);
 
         var assignmentFromDB = assignmentsFromDB.first();
         assertThat(assignmentFromDB).isEqualToIgnoringGivenFields(assignment, "creationDate");
@@ -264,9 +276,12 @@ public class TaskAssignmentResourceIT {
         List<String> ids = new ArrayList<>();
         String assignmentId = "12i345-789";
 
-        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(ids)))
+        restTaskAssignmentMockMvc
+            .perform(
+                put("/api/tasks/assignments/{assignmentId}", assignmentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(ids))
+            )
             .andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.taskAssignmentNotFound"))
@@ -284,7 +299,10 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
-        List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        List<LearningGoalDisplayDTO> displayGoals = StreamEx
+            .of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .toList();
 
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         var assignment = assignments.first();
@@ -293,9 +311,12 @@ public class TaskAssignmentResourceIT {
 
         List<String> displayGoalsToSerialize = StreamEx.of(displayGoals).map(LearningGoalDisplayDTO::getId).toList();
 
-        restTaskAssignmentMockMvc.perform(put("/api/tasks/assignments/{assignmentId}", assignmentId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(displayGoalsToSerialize)))
+        restTaskAssignmentMockMvc
+            .perform(
+                put("/api/tasks/assignments/{assignmentId}", assignmentId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(displayGoalsToSerialize))
+            )
             .andExpect(status().isNoContent());
 
         assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
@@ -312,7 +333,8 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(9)
     public void testGetAssignmentsWithQueryParameter() throws Exception {
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments?taskHeader=test123"))
+        var result = restTaskAssignmentMockMvc
+            .perform(get("/api/tasks/assignments?taskHeader=test123"))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -331,9 +353,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(10)
     public void testGetAssignmentsWithoutQueryParameter() throws Exception {
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments"))
-            .andExpect(status().isOk())
-            .andReturn();
+        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments")).andExpect(status().isOk()).andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -356,7 +376,8 @@ public class TaskAssignmentResourceIT {
         int page = 0;
         int size = 5;
 
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/display?page={page}&size={size}", page, size))
+        var result = restTaskAssignmentMockMvc
+            .perform(get("/api/tasks/display?page={page}&size={size}", page, size))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -366,9 +387,11 @@ public class TaskAssignmentResourceIT {
         assertThat(displayList).hasSize(5);
 
         page++;
-        result = restTaskAssignmentMockMvc.perform(get("/api/tasks/display?page={page}&size={size}", page, size))
-            .andExpect(status().isOk())
-            .andReturn();
+        result =
+            restTaskAssignmentMockMvc
+                .perform(get("/api/tasks/display?page={page}&size={size}", page, size))
+                .andExpect(status().isOk())
+                .andReturn();
         jsonData = result.getResponse().getContentAsString();
         displayList = TestUtil.convertCollectionFromJSONString(jsonData, TaskDisplayDTO.class, List.class);
         assertThat(result.getResponse().getHeader("X-Has-Next-Page")).isEqualTo("false");
@@ -386,14 +409,18 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var testGoal1 = goals.first();
 
-        List<LearningGoalDisplayDTO> displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        List<LearningGoalDisplayDTO> displayGoals = StreamEx
+            .of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .toList();
 
         var assignments = assignmentSPARQLEndpointService.getTaskAssignmentsOfGoal(testGoal1.getName(), testGoal1.getOwner());
         var assignment = assignments.first();
 
         String assignmentId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
 
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/{assignmentId}", assignmentId))
+        var result = restTaskAssignmentMockMvc
+            .perform(get("/api/tasks/assignments/{assignmentId}", assignmentId))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -411,8 +438,7 @@ public class TaskAssignmentResourceIT {
     @Test
     @Order(13)
     public void testGetTaskAssignmentByInternalIdEmpty() throws Exception {
-        restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/5"))
-            .andExpect(status().isNotFound());
+        restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/5")).andExpect(status().isNotFound());
     }
 
     /**
@@ -434,7 +460,8 @@ public class TaskAssignmentResourceIT {
 
         assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
 
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/assignments/{id}/learninggoals", id))
+        var result = restTaskAssignmentMockMvc
+            .perform(get("/api/tasks/assignments/{id}/learninggoals", id))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -455,16 +482,23 @@ public class TaskAssignmentResourceIT {
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
         var firstGoal = goals.first();
 
-        var result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), firstGoal.getName()))
+        var result = restTaskAssignmentMockMvc
+            .perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), firstGoal.getName()))
             .andExpect(status().isOk())
             .andReturn();
         String jsonData = result.getResponse().getContentAsString();
-        List<TaskAssignmentDisplayDTO> list = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDisplayDTO.class, List.class);
+        List<TaskAssignmentDisplayDTO> list = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            TaskAssignmentDisplayDTO.class,
+            List.class
+        );
         assertThat(list).hasSize(2);
 
-        result = restTaskAssignmentMockMvc.perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), "Test"))
-            .andExpect(status().isOk())
-            .andReturn();
+        result =
+            restTaskAssignmentMockMvc
+                .perform(get("/api/tasks/of/{owner}/{name}", firstGoal.getOwner(), "Test"))
+                .andExpect(status().isOk())
+                .andReturn();
         jsonData = result.getResponse().getContentAsString();
         list = TestUtil.convertCollectionFromJSONString(jsonData, TaskAssignmentDisplayDTO.class, List.class);
         assertThat(list).isEmpty();

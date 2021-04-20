@@ -1,10 +1,9 @@
 package at.jku.dke.etutor.service.dto.validation;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import one.util.streamex.StreamEx;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import one.util.streamex.StreamEx;
 
 /**
  * Class which is used to validate difficulty ranking ids.

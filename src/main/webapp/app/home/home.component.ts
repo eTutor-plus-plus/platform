@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } fr
 import { Subscription } from 'rxjs';
 
 import { AccountService } from 'app/core/auth/account.service';
-import { Account } from 'app/core/user/account.model';
+import { Account } from 'app/core/auth/account.model';
 import { FormBuilder, Validators } from '@angular/forms';
-import { LOGIN_PATTERN } from 'app/shared/constants/user.constants';
 import { Router } from '@angular/router';
-import { LoginService } from 'app/core/login/login.service';
+import { LoginService } from 'app/login/login.service';
+import { LOGIN_PATTERN } from 'app/shared/constants/user.constants';
 
 /**
  * Component which represents the home / login page.
@@ -17,8 +17,6 @@ import { LoginService } from 'app/core/login/login.service';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
-  private readonly OVERVIEW_ROUTE = '/overview';
-
   @ViewChild('username', { static: false })
   public username?: ElementRef;
 
@@ -32,6 +30,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public account: Account | null = null;
   public authSubscription?: Subscription;
+
+  private readonly OVERVIEW_ROUTE = '/overview';
 
   constructor(
     private accountService: AccountService,

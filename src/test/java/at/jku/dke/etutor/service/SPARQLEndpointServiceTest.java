@@ -1,23 +1,22 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the {@code SPARQLEndpointService} class.
@@ -231,8 +230,8 @@ public class SPARQLEndpointServiceTest {
      * @throws PrivateSuperGoalException          must not happen
      */
     @Test
-    public void testUpdateLearningGoal() throws LearningGoalAlreadyExistsException,
-        LearningGoalNotExistsException, InternalModelException, PrivateSuperGoalException {
+    public void testUpdateLearningGoal()
+        throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException, InternalModelException, PrivateSuperGoalException {
         String owner = "admin";
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");
@@ -291,8 +290,8 @@ public class SPARQLEndpointServiceTest {
      * @throws InternalModelException             must not happen
      */
     @Test
-    public void testUpdateLearningGoalWithSubGoal() throws LearningGoalAlreadyExistsException,
-        LearningGoalNotExistsException, PrivateSuperGoalException, InternalModelException {
+    public void testUpdateLearningGoalWithSubGoal()
+        throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException, PrivateSuperGoalException, InternalModelException {
         String owner = "admin";
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");
@@ -329,8 +328,7 @@ public class SPARQLEndpointServiceTest {
      * @throws LearningGoalNotExistsException     must not happen
      */
     @Test
-    public void testUpdatePrivateLearningGoalWithPublicSubGoal() throws LearningGoalAlreadyExistsException,
-        LearningGoalNotExistsException {
+    public void testUpdatePrivateLearningGoalWithPublicSubGoal() throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException {
         String owner = "admin";
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();
         newLearningGoalDTO.setName("Testziel");
@@ -347,9 +345,7 @@ public class SPARQLEndpointServiceTest {
         var insertedSubGoal = sparqlEndpointService.insertSubGoal(subGoal, owner, newLearningGoalDTO.getName());
         insertedSubGoal.setPrivateGoal(false);
 
-
-        assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal))
-            .isInstanceOf(PrivateSuperGoalException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.updateLearningGoal(insertedSubGoal)).isInstanceOf(PrivateSuperGoalException.class);
     }
 
     /**
@@ -367,7 +363,6 @@ public class SPARQLEndpointServiceTest {
         newLearningGoalDTO.setName("Testziel");
         newLearningGoalDTO.setDescription(null);
         newLearningGoalDTO.setPrivateGoal(false);
-
 
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, newOwner);
         sparqlEndpointService.insertNewLearningGoal(newLearningGoalDTO, owner);
@@ -431,14 +426,12 @@ public class SPARQLEndpointServiceTest {
         assertThat(dependencyNames).isEmpty();
     }
 
-
     /**
      * Tests the remove learning goal and sub goals method with null values.
      */
     @Test
     public void testRemoveLearningGoalAndSubGoalsNullValues() {
-        assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals(null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals(null, null)).isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> sparqlEndpointService.removeLearningGoalAndSubGoals("admin", null))
             .isInstanceOf(NullPointerException.class);
     }
@@ -513,12 +506,10 @@ public class SPARQLEndpointServiceTest {
      */
     @Test
     public void testInsertNewCourseNull() {
-        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(null, null)).isInstanceOf(NullPointerException.class);
 
         var courseDTO = new CourseDTO();
-        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(courseDTO, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.insertNewCourse(courseDTO, null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -572,8 +563,7 @@ public class SPARQLEndpointServiceTest {
 
         var courseFromService = sparqlEndpointService.insertNewCourse(course, user);
 
-        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("testid", "test"))
-            .isInstanceOf(CourseNotFoundException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("testid", "test")).isInstanceOf(CourseNotFoundException.class);
 
         assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(courseFromService.getNameForRDF(), "test"))
             .isInstanceOf(CourseNotFoundException.class);
@@ -586,11 +576,9 @@ public class SPARQLEndpointServiceTest {
      */
     @Test
     public void testDeleteCourseNullValues() {
-        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse(null, null)).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("test", null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.deleteCourse("test", null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -598,8 +586,7 @@ public class SPARQLEndpointServiceTest {
      */
     @Test
     public void testUpdateCourseNullValue() {
-        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -612,8 +599,7 @@ public class SPARQLEndpointServiceTest {
         course.setCourseType("LVA");
         course.setId("https://www.test.at");
 
-        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(course))
-            .isInstanceOf(CourseNotFoundException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.updateCourse(course)).isInstanceOf(CourseNotFoundException.class);
     }
 
     /**
@@ -650,8 +636,7 @@ public class SPARQLEndpointServiceTest {
      */
     @Test
     public void testGetCourseNullValue() {
-        assertThatThrownBy(() -> sparqlEndpointService.getCourse(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.getCourse(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -685,6 +670,7 @@ public class SPARQLEndpointServiceTest {
         assertThat(course.getCourseType()).isEqualTo(courseFromService.getCourseType());
         assertThat(course.getId()).isEqualTo(courseFromService.getId());
     }
+
     //endregion
 
     //region Learning goal assignment
@@ -698,9 +684,8 @@ public class SPARQLEndpointServiceTest {
      * @throws CourseNotFoundException                      must not be thrown
      */
     @Test
-    public void testAddGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException,
-        LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException {
-
+    public void testAddGoalAssignment()
+        throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException {
         String owner = "admin";
         CourseDTO course = new CourseDTO();
         course.setName("TestCourse");
@@ -733,9 +718,8 @@ public class SPARQLEndpointServiceTest {
      * @throws LearningGoalAssignmentAlreadyExistsException must not be thrown
      */
     @Test
-    public void testAddGoalAssignmentWithAnAlreadyExistentAssignment() throws LearningGoalAlreadyExistsException,
-        CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException {
-
+    public void testAddGoalAssignmentWithAnAlreadyExistentAssignment()
+        throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException {
         String owner = "admin";
         CourseDTO course = new CourseDTO();
         course.setName("TestCourse");
@@ -792,9 +776,8 @@ public class SPARQLEndpointServiceTest {
      * @throws LearningGoalAssignmentNonExistentException   must not be thrown
      */
     @Test
-    public void testRemoveGoalAssignment() throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException,
-        LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException, LearningGoalAssignmentNonExistentException {
-
+    public void testRemoveGoalAssignment()
+        throws LearningGoalAlreadyExistsException, CourseAlreadyExistsException, LearningGoalAssignmentAlreadyExistsException, CourseNotFoundException, InternalModelException, LearningGoalAssignmentNonExistentException {
         String owner = "admin";
         CourseDTO course = new CourseDTO();
         course.setName("TestCourse");
@@ -830,8 +813,7 @@ public class SPARQLEndpointServiceTest {
     public void testSetGoalAssignmentException() {
         LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignmentDTO = new LearningGoalUpdateAssignmentDTO();
 
-        assertThatThrownBy(() -> sparqlEndpointService.setGoalAssignment(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> sparqlEndpointService.setGoalAssignment(null)).isInstanceOf(NullPointerException.class);
 
         assertThatThrownBy(() -> sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignmentDTO))
             .isInstanceOf(NullPointerException.class);
@@ -865,9 +847,7 @@ public class SPARQLEndpointServiceTest {
         sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignmentDTO);
 
         var assignedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
-        assertThat(assignedGoals)
-            .isNotEmpty()
-            .hasSize(1);
+        assertThat(assignedGoals).isNotEmpty().hasSize(1);
 
         var assignedGoal = assignedGoals.first();
         assertThat(assignedGoal.getId()).isEqualTo(goal.getId());

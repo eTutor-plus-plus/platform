@@ -1,12 +1,10 @@
 package at.jku.dke.etutor.web.rest;
 
 import static at.jku.dke.etutor.web.rest.AccountResourceIT.TEST_USER_LOGIN;
-import static at.jku.dke.etutor.web.rest.AccountResourceIT.TEST_USER_LOGIN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import at.jku.dke.etutor.IntegrationTest;
@@ -19,13 +17,16 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
-import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -549,6 +550,7 @@ class AccountResourceIT {
             .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email-and-login").orElse(null);
+        assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email-and-login@example.com");
     }
 
@@ -788,7 +790,7 @@ class AccountResourceIT {
     @Transactional
     @WithMockUser("save-account-different-user")
     public void testSaveAccountWithDifferentUser() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        AdminUserDTO userDTO = new AdminUserDTO();
         userDTO.setFirstName("Firstname");
         userDTO.setLastName("Lastname");
         userDTO.setLogin("k11123340");

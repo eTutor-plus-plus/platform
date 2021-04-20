@@ -1,17 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITaskDisplayModel } from '../task.model';
-import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { TasksService } from '../tasks.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskUpdateComponent } from './task-update/task-update.component';
-import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
 import { TaskAssignmentUpdateComponent } from './task-assignment-update/task-assignment-update.component';
 import { TaskDisplayComponent } from './task-display/task-display.component';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AccountService } from '../../../core/auth/account.service';
+import { AccountService } from 'app/core/auth/account.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { EventManager } from 'app/core/util/event-manager.service';
+import { ITEMS_PER_SLICE } from 'app/config/pagination.constants';
 
 /**
  * Component which provides an overview of the tasks.
@@ -23,11 +23,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   providers: [TranslatePipe],
 })
 export class TasksOverviewComponent implements OnInit, OnDestroy {
-  private itemsPerPage: number;
-  private subscription?: Subscription;
-  private routingSubscription?: Subscription;
-  private userLogin = '';
-
   public singleEntryDisplay = false;
 
   public hasNextPage = false;
@@ -39,6 +34,11 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   public popoverMessage = 'taskManagement.popover.message';
   public popoverCancelButtonTxt = 'taskManagement.popover.cancelBtn';
   public popoverConfirmBtnTxt = 'taskManagement.popover.confirmBtn';
+
+  private itemsPerPage: number;
+  private subscription?: Subscription;
+  private routingSubscription?: Subscription;
+  private userLogin = '';
 
   /**
    * Constructor.
@@ -54,7 +54,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   constructor(
     private tasksService: TasksService,
     private modalService: NgbModal,
-    private eventManager: JhiEventManager,
+    private eventManager: EventManager,
     private translatePipe: TranslatePipe,
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,

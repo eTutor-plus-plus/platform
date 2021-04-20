@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
  * @author fne
  */
 @Repository
-public interface StudentRepository extends JpaRepository<Student, Long>, StudentRepositoryCustom {
-}
+public interface StudentRepository extends JpaRepository<Student, Long>, StudentRepositoryCustom {}

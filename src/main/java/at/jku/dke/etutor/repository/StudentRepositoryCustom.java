@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.repository;
 
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
-
 import java.util.List;
 import java.util.Map;
 

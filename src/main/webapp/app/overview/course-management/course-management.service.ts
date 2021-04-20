@@ -8,13 +8,14 @@ import {
   ILearningGoalUpdateAssignment,
   INewCourseInstanceDTO,
 } from './course-mangement.model';
-import { SERVER_API_URL } from '../../app.constants';
+import { SERVER_API_URL } from 'app/app.constants';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
 import { convertLearningGoal, IDisplayLearningGoalAssignmentModel } from '../shared/learning-goal-model';
 import { map } from 'rxjs/operators';
-import { createRequestOption, Pagination } from '../../shared/util/request-util';
 import { IStudentInfoDTO } from '../shared/students/students.model';
 import { IExerciseSheetDisplayDTO } from '../exercise-sheets/exercise-sheets.model';
+import { Pagination } from 'app/core/request/request.model';
+import { createRequestOption } from 'app/core/request/request-util';
 
 /**
  * Service which manages the courses.

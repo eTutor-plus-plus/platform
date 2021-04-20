@@ -1,5 +1,8 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -8,6 +11,9 @@ import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import liquibase.integration.spring.SpringLiquibase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,13 +25,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Integration tests for {@link StudentService}.
@@ -81,8 +80,12 @@ public class StudentServiceIT {
     @Test
     @Transactional
     public void testImportStudentsFromFile() throws Exception {
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
 
         var importedStudents = studentService.importStudentsFromFile(file);
 
@@ -102,14 +105,16 @@ public class StudentServiceIT {
     @Test
     @Transactional
     public void testImportStudentsFromFileInvalidFileTypeAndNull() throws Exception {
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "application/text",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "application/text",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
 
-        assertThatThrownBy(() -> studentService.importStudentsFromFile(file))
-            .isInstanceOf(StudentCSVImportException.class);
+        assertThatThrownBy(() -> studentService.importStudentsFromFile(file)).isInstanceOf(StudentCSVImportException.class);
 
-        assertThatThrownBy(() -> studentService.importStudentsFromFile(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.importStudentsFromFile(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -121,11 +126,14 @@ public class StudentServiceIT {
     @Test
     @Transactional
     public void testImportStudentsFromFileWithInvalidColumns() throws Exception {
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "application/text",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students_missing_email.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "application/text",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students_missing_email.csv"))
+        );
 
-        assertThatThrownBy(() -> studentService.importStudentsFromFile(file))
-            .isInstanceOf(StudentCSVImportException.class);
+        assertThatThrownBy(() -> studentService.importStudentsFromFile(file)).isInstanceOf(StudentCSVImportException.class);
     }
 
     /**
@@ -139,8 +147,12 @@ public class StudentServiceIT {
         rdfConnectionFactory.clearDataset();
         sparqlEndpointService.insertScheme();
 
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
 
         var importedStudents = studentService.importStudentsFromFile(file);
 
@@ -185,8 +197,7 @@ public class StudentServiceIT {
      */
     @Test
     public void testGetCoursesFromStudentNull() {
-        assertThatThrownBy(() -> studentService.getCoursesFromStudent(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.getCoursesFromStudent(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -198,8 +209,12 @@ public class StudentServiceIT {
     public void testGetProgressOverview() throws Exception {
         rdfConnectionFactory.clearDataset();
         sparqlEndpointService.insertScheme();
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
 
         var importedStudents = studentService.importStudentsFromFile(file);
 
@@ -210,7 +225,6 @@ public class StudentServiceIT {
         newCourseDTO.setCourseType("LVA");
 
         newCourseDTO = sparqlEndpointService.insertNewCourse(newCourseDTO, "admin");
-
 
         NewCourseInstanceDTO firstInstance = new NewCourseInstanceDTO();
         firstInstance.setYear(2021);
@@ -237,7 +251,10 @@ public class StudentServiceIT {
 
         String courseInstanceUUID = firstInstanceId.substring(firstInstanceId.lastIndexOf('#') + 1);
 
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUUID, Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            courseInstanceUUID,
+            Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId())
+        );
 
         var items = studentService.getProgressOverview(mNr, courseInstanceUUID);
 
@@ -250,11 +267,9 @@ public class StudentServiceIT {
      */
     @Test
     public void testGetProgressOverviewNull() {
-        assertThatThrownBy(() -> studentService.getProgressOverview(null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.getProgressOverview(null, null)).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> studentService.getProgressOverview("k11804012", null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.getProgressOverview("k11804012", null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -275,12 +290,9 @@ public class StudentServiceIT {
      */
     @Test
     public void testOpenExerciseSheetForStudentNullValues() {
-        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", "test", null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent(null, null, null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", null, null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent("test", "test", null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -291,8 +303,12 @@ public class StudentServiceIT {
     @Test
     @Transactional
     public void testOpenExerciseSheetForStudent() throws Exception {
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
 
         var importedStudents = studentService.importStudentsFromFile(file);
 
@@ -303,7 +319,6 @@ public class StudentServiceIT {
         newCourseDTO.setCourseType("LVA");
 
         newCourseDTO = sparqlEndpointService.insertNewCourse(newCourseDTO, "admin");
-
 
         NewCourseInstanceDTO firstInstance = new NewCourseInstanceDTO();
         firstInstance.setYear(2021);
@@ -323,7 +338,10 @@ public class StudentServiceIT {
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
 
         String courseInstanceUUID = firstInstanceId.substring(firstInstanceId.lastIndexOf('#') + 1);
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUUID, Collections.singletonList(exerciseSheetDTO.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            courseInstanceUUID,
+            Collections.singletonList(exerciseSheetDTO.getId())
+        );
 
         studentService.openExerciseSheetForStudent(mNr, courseInstanceUUID, exerciseSheetUUID);
 

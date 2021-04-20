@@ -6,6 +6,9 @@ import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -25,10 +28,6 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
-
 /**
  * Service endpoint for managing exercise sheets.
  *
@@ -37,7 +36,8 @@ import java.util.*;
 @Service
 public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_CONSTRUCT_EXERCISE_BY_ID = """
+    private static final String QRY_CONSTRUCT_EXERCISE_BY_ID =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -55,7 +55,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         }
         """;
 
-    private static final String DELETE_EXERCISE_BY_ID = """
+    private static final String DELETE_EXERCISE_BY_ID =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE { ?exerciseSheet ?predicate ?object }
@@ -107,7 +108,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
     public void updateExerciseSheet(ExerciseSheetDTO exerciseSheetDTO) {
         Objects.requireNonNull(exerciseSheetDTO);
 
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -121,7 +123,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 ?exerciseSheet rdfs:label ?newLbl.
                 ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
                 ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
-            """);
+            """
+        );
 
         for (LearningGoalDisplayDTO learningGoalDisplayDTO : exerciseSheetDTO.getLearningGoals()) {
             query.append("?exerciseSheet etutor:containsLearningGoal ");
@@ -129,7 +132,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             query.append(".\n");
         }
 
-        query.append("""
+        query.append(
+            """
             }
             WHERE {
               ?exerciseSheet a etutor:ExerciseSheet.
@@ -140,7 +144,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 ?exerciseSheet etutor:containsLearningGoal ?goal.
               }
             }
-            """);
+            """
+        );
 
         query.setIri("?exerciseSheet", exerciseSheetDTO.getId());
         query.setLiteral("?newLbl", exerciseSheetDTO.getName().trim());
@@ -187,20 +192,23 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         Objects.requireNonNull(nameQry);
         Objects.requireNonNull(page);
 
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
             SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
             WHERE {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(nameQry)) {
             query.append(String.format("?exerciseSheet text:query (rdfs:label \"*%s*\").%n", nameQry));
         }
 
-        query.append("""
+        query.append(
+            """
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?name.
               OPTIONAL {
@@ -209,7 +217,8 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             }
             GROUP BY ?exerciseSheet ?name
             ORDER BY (LCASE(?name))
-            """);
+            """
+        );
 
         if (page.isPaged()) {
             query.append("LIMIT ");
@@ -249,29 +258,34 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         Objects.requireNonNull(nameQry);
         Objects.requireNonNull(page);
 
-        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString(
+            """
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
             SELECT (COUNT(DISTINCT ?exerciseSheet) as ?cnt)
             WHERE {
-            """);
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            """
+        );
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX text:   <http://jena.apache.org/text#>
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
             SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
             WHERE {
-            """);
+            """
+        );
 
         if (StringUtils.isNotBlank(nameQry)) {
             query.append(String.format("?exerciseSheet text:query (rdfs:label \"*%s*\").%n", nameQry));
             countQry.append(String.format("?exerciseSheet text:query (rdfs:label \"*%s*\").%n", nameQry));
         }
 
-        query.append("""
+        query.append(
+            """
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?name.
               OPTIONAL {
@@ -280,13 +294,16 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             }
             GROUP BY ?exerciseSheet ?name
             ORDER BY (LCASE(?name))
-            """);
+            """
+        );
 
-        countQry.append("""
+        countQry.append(
+            """
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet rdfs:label ?name.
             }
-            """);
+            """
+        );
 
         if (page.isPaged()) {
             query.append("LIMIT ");
@@ -349,7 +366,13 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
      * @param uuid                the generated uuid
      * @return {@link Resource} which represents the new exercise sheet.
      */
-    private Resource constructResourceFromNewExerciseSheetDTO(NewExerciseSheetDTO newExerciseSheetDTO, String user, Instant time, Model model, String uuid) {
+    private Resource constructResourceFromNewExerciseSheetDTO(
+        NewExerciseSheetDTO newExerciseSheetDTO,
+        String user,
+        Instant time,
+        Model model,
+        String uuid
+    ) {
         Resource resource = ETutorVocabulary.createExerciseSheetOfModel(uuid, model);
 
         resource.addProperty(ETutorVocabulary.hasInternalExerciseSheetCreator, user);
@@ -357,7 +380,11 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         resource.addProperty(RDFS.label, newExerciseSheetDTO.getName().trim());
         resource.addProperty(ETutorVocabulary.hasExerciseSheetDifficulty, model.createResource(newExerciseSheetDTO.getDifficultyId()));
         resource.addProperty(RDF.type, ETutorVocabulary.ExerciseSheet);
-        resource.addProperty(ETutorVocabulary.hasExerciseSheetTaskCount, String.valueOf(newExerciseSheetDTO.getTaskCount()), XSDDatatype.XSDint);
+        resource.addProperty(
+            ETutorVocabulary.hasExerciseSheetTaskCount,
+            String.valueOf(newExerciseSheetDTO.getTaskCount()),
+            XSDDatatype.XSDint
+        );
 
         for (LearningGoalDisplayDTO entry : newExerciseSheetDTO.getLearningGoals()) {
             resource.addProperty(ETutorVocabulary.containsLearningGoal, model.createResource(entry.getId()));

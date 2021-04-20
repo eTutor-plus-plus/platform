@@ -6,6 +6,7 @@ package at.jku.dke.etutor.web.rest.errors;
  * @author fne
  */
 public class LearningGoalAssignmentNonExistentException extends BadRequestAlertException {
+
     private static final long serialVersionUID = 1L;
 
     /**

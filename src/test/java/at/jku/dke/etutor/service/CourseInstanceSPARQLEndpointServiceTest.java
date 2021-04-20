@@ -1,5 +1,8 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -13,6 +16,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
+import java.util.*;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
@@ -27,11 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code CourseInstanceSPARQLEndpointService} class.
@@ -73,7 +72,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         springLiquibase.afterPropertiesSet();
 
         // Create students
-        UserDTO userDTO = new UserDTO();
+        AdminUserDTO userDTO = new AdminUserDTO();
         userDTO.setFirstName("Max");
         userDTO.setLastName("Mustermann");
         userDTO.setLogin("k11805540");
@@ -81,7 +80,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         userDTO.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
         student1 = userService.createUser(userDTO);
 
-        userDTO = new UserDTO();
+        userDTO = new AdminUserDTO();
         userDTO.setFirstName("Lisa");
         userDTO.setLastName("Musterfrau");
         userDTO.setLogin("k11805541");
@@ -140,12 +139,14 @@ public class CourseInstanceSPARQLEndpointServiceTest {
 
         assertThat(uri).isNotBlank();
 
-        ParameterizedSparqlString graphQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString graphQry = new ParameterizedSparqlString(
+            """
             ASK {
                 GRAPH ?graph {
                 }
             }
-            """);
+            """
+        );
         graphQry.setIri("?graph", uri);
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             assertThat(connection.queryAsk(graphQry.asQuery())).isTrue();
@@ -288,12 +289,16 @@ public class CourseInstanceSPARQLEndpointServiceTest {
 
         var secondExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(secondNewExerciseSheet, "admin");
 
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(instanceUUID, Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            instanceUUID,
+            Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId())
+        );
 
         var exerciseSheets = courseInstanceSPARQLEndpointService.getExerciseSheetsOfCourseInstance(instanceUUID);
 
         assertThat(exerciseSheets).hasSize(2);
-        assertThat(StreamEx.of(exerciseSheets).map(ExerciseSheetDisplayDTO::getInternalId).toList()).containsExactlyInAnyOrder(firstExerciseSheet.getId(), secondExerciseSheet.getId());
+        assertThat(StreamEx.of(exerciseSheets).map(ExerciseSheetDisplayDTO::getInternalId).toList())
+            .containsExactlyInAnyOrder(firstExerciseSheet.getId(), secondExerciseSheet.getId());
     }
 
     /**
@@ -320,8 +325,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
      */
     @Test
     public void testRemoveCourseInstanceNullValue() {
-        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.removeCourseInstance(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> courseInstanceSPARQLEndpointService.removeCourseInstance(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**

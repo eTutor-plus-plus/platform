@@ -15,13 +15,13 @@ import { ITaskDisplayModel } from '../../task.model';
   styleUrls: ['./task-assignment-update.component.scss'],
 })
 export class TaskAssignmentUpdateComponent implements OnInit {
-  private loginName = '';
-  private _taskDisplayModel?: ITaskDisplayModel;
-
   public isSaving = false;
 
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedGoals: string[] = [];
+
+  private loginName = '';
+  private _taskDisplayModel?: ITaskDisplayModel;
 
   /**
    * Constructor.

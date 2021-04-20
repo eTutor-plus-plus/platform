@@ -1,59 +1,69 @@
 <div>
-    <div class="modal-header">
-        <h4 class="modal-title" jhiTranslate="lecturerOverview.overviewModalHeader">Lecturer assignment overview</h4>
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="lecturerOverview.overviewModalHeader">Lecturer assignment overview</h4>
 
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <h5 jhiTranslate="lecturerOverview.overviewTableHeader">Students' assignments</h5>
+    <div class="table-responsive" *ngIf="entries">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th jhiTranslate="lecturerOverview.overviewTable.matriculationNumber">Matriculation number</th>
+            <th jhiTranslate="lecturerOverview.overviewTable.submitted">Submitted</th>
+            <th jhiTranslate="lecturerOverview.overviewTable.fullyGraded">Fully graded</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of entries; trackBy: trackIdentity">
+            <td>{{ entry.matriculationNo }}</td>
+            <td [ngSwitch]="entry.submitted">
+              <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+              <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+            </td>
+            <td [ngSwitch]="entry.fullyGraded">
+              <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+              <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+            </td>
+            <td class="text-right">
+              <button
+                [disabled]="!entry.submitted"
+                class="btn-secondary"
+                (click)="grade(entry)"
+                jhiTranslate="lecturerOverview.overviewTable.btnGrade"
+              >
+                Grade
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="modal-body">
-        <h5 jhiTranslate="lecturerOverview.overviewTableHeader">Students' assignments</h5>
-        <div class="table-responsive" *ngIf="entries">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th jhiTranslate="lecturerOverview.overviewTable.matriculationNumber">Matriculation number</th>
-                        <th jhiTranslate="lecturerOverview.overviewTable.submitted">Submitted</th>
-                        <th jhiTranslate="lecturerOverview.overviewTable.fullyGraded">Fully graded</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let entry of entries; trackBy: trackIdentity">
-                        <td>{{entry.matriculationNo}}</td>
-                        <td [ngSwitch]="entry.submitted">
-                            <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
-                            <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
-                        </td>
-                        <td [ngSwitch]="entry.fullyGraded">
-                            <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
-                            <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
-                        </td>
-                        <td class="text-right">
-                            <button [disabled]="!entry.submitted" class="btn-secondary" (click)="grade(entry)"
-                                jhiTranslate="lecturerOverview.overviewTable.btnGrade">
-                                Grade
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div *ngIf="entries">
+      <div class="row justify-content-center">
+        <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+      </div>
 
-        <div *ngIf="entries">
-            <div class="row justify-content-center">
-                <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
-            </div>
-
-            <div class="row justify-content-center">
-                <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [rotate]="true"
-                                [boundaryLinks]="true" (pageChange)="transition()"></ngb-pagination>
-            </div>
-        </div>
+      <div class="row justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [(page)]="page"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="transition()"
+        ></ngb-pagination>
+      </div>
     </div>
+  </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="close()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="lecturerOverview.footerClose">Close</span>
-        </button>
-    </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="lecturerOverview.footerClose">Close</span>
+    </button>
+  </div>
 </div>

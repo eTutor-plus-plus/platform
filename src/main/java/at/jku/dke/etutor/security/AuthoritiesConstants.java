@@ -41,6 +41,5 @@ public final class AuthoritiesConstants {
         };
     }
 
-    private AuthoritiesConstants() {
-    }
+    private AuthoritiesConstants() {}
 }

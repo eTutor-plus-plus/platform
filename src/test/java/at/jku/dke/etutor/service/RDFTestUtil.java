@@ -1,17 +1,18 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdfconnection.RDFConnection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Utility class for testing RDF related controllers.
  */
 public final class RDFTestUtil {
+
     /**
      * Returns the number of goals.
      *
@@ -19,7 +20,8 @@ public final class RDFTestUtil {
      * @return the number of goals
      */
     public static int getGoalCount(RDFConnectionFactory rdfConnectionFactory) {
-        String query = """
+        String query =
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             SELECT (COUNT(DISTINCT ?subject) as ?cnt)
@@ -38,7 +40,8 @@ public final class RDFTestUtil {
      * @return the number of courses
      */
     public static int getCourseCount(RDFConnectionFactory rdfConnectionFactory) {
-        String query = """
+        String query =
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             SELECT (COUNT(DISTINCT ?subject) as ?cnt)
@@ -75,14 +78,17 @@ public final class RDFTestUtil {
      * @param rdfConnectionFactory the rdf connection factory
      */
     public static void checkThatSubjectExists(String subject, RDFConnectionFactory rdfConnectionFactory) {
-        String query = String.format("""
+        String query = String.format(
+            """
             prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             ASK {
               ?subject ?predicate ?object.
               FILTER (?subject = %s)
             }
-            """, subject);
+            """,
+            subject
+        );
 
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             boolean res = connection.queryAsk(query);
@@ -90,6 +96,5 @@ public final class RDFTestUtil {
         }
     }
 
-    private RDFTestUtil() {
-    }
+    private RDFTestUtil() {}
 }

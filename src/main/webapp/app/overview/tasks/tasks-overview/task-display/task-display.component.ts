@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ITaskDisplayModel, ITaskModel, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +10,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   selector: 'jhi-task-display',
   templateUrl: './task-display.component.html',
 })
-export class TaskDisplayComponent implements OnInit {
+export class TaskDisplayComponent {
   private _taskDisplayModel?: ITaskDisplayModel;
   private _taskModel?: ITaskModel;
   private readonly difficulties = TaskDifficulty.Values;
@@ -22,11 +22,6 @@ export class TaskDisplayComponent implements OnInit {
    * @param activeModal the active modal service
    */
   constructor(private tasksService: TasksService, private activeModal: NgbActiveModal) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Returns the task display model.

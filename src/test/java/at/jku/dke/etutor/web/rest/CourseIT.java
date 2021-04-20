@@ -1,5 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
@@ -7,6 +11,9 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.RDFTestUtil;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.*;
+import java.net.URL;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,21 +23,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.net.URL;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Integration tests for the {@link CourseResource} REST controller.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
+@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -66,9 +65,8 @@ public class CourseIT {
         course.setName("Testcourse");
         course.setCourseType("LVA");
 
-        restCourseMockMvc.perform(post("/api/course")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(course)))
+        restCourseMockMvc
+            .perform(post("/api/course").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(course)))
             .andExpect(status().isCreated());
 
         RDFTestUtil.checkThatSubjectExists("<http://www.dke.uni-linz.ac.at/etutorpp/Course#Testcourse>", rdfConnectionFactory);
@@ -86,9 +84,8 @@ public class CourseIT {
         course.setName("Testcourse");
         course.setCourseType("LVA");
 
-        restCourseMockMvc.perform(post("/api/course")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(course)))
+        restCourseMockMvc
+            .perform(post("/api/course").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(course)))
             .andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.courseAlreadyExists"));
@@ -123,8 +120,7 @@ public class CourseIT {
     @Test
     @Order(4)
     public void testGetCourseNotFound() throws Exception {
-        restCourseMockMvc.perform(get("/api/course/Test"))
-            .andExpect(status().isNotFound());
+        restCourseMockMvc.perform(get("/api/course/Test")).andExpect(status().isNotFound());
     }
 
     /**
@@ -154,7 +150,8 @@ public class CourseIT {
     @Test
     @Order(6)
     public void testRemoveNonexistentCourse() throws Exception {
-        restCourseMockMvc.perform(delete("/api/course/Test123"))
+        restCourseMockMvc
+            .perform(delete("/api/course/Test123"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseNotFound"));
     }
@@ -173,8 +170,7 @@ public class CourseIT {
 
         sparqlEndpointService.insertNewCourse(courseDTO, "admin");
 
-        restCourseMockMvc.perform(delete("/api/course/Testcourse1"))
-            .andExpect(status().isNoContent());
+        restCourseMockMvc.perform(delete("/api/course/Testcourse1")).andExpect(status().isNoContent());
     }
 
     /**
@@ -190,9 +186,8 @@ public class CourseIT {
         courseDTO.setName("Testname");
         courseDTO.setCourseType("Modul");
 
-        restCourseMockMvc.perform(put("/api/course")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(courseDTO)))
+        restCourseMockMvc
+            .perform(put("/api/course").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(courseDTO)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseNotFound"));
     }
@@ -210,9 +205,8 @@ public class CourseIT {
         oldCourse.setLink(new URL("http://www.dke.uni-linz.ac.at"));
         oldCourse.setCourseType("Modul");
 
-        restCourseMockMvc.perform(put("/api/course")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(oldCourse)))
+        restCourseMockMvc
+            .perform(put("/api/course").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(oldCourse)))
             .andExpect(status().isNoContent());
 
         CourseDTO newCourse = sparqlEndpointService.getCourse("Testcourse").orElseThrow();
@@ -240,9 +234,10 @@ public class CourseIT {
         assignment.setLearningGoalId(goal.getId());
         assignment.setCourseId(course.getId());
 
-        restCourseMockMvc.perform(post("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(assignment)))
+        restCourseMockMvc
+            .perform(
+                post("/api/course/goal").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(assignment))
+            )
             .andExpect(status().isNoContent());
 
         var associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
@@ -270,9 +265,10 @@ public class CourseIT {
         assignment.setLearningGoalId(goal.getId());
         assignment.setCourseId(course.getId());
 
-        restCourseMockMvc.perform(post("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(assignment)))
+        restCourseMockMvc
+            .perform(
+                post("/api/course/goal").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(assignment))
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -288,8 +284,11 @@ public class CourseIT {
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        SortedSet<DisplayLearningGoalAssignmentDTO> goals = TestUtil.convertCollectionFromJSONString(jsonData,
-            DisplayLearningGoalAssignmentDTO.class, TreeSet.class);
+        SortedSet<DisplayLearningGoalAssignmentDTO> goals = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            DisplayLearningGoalAssignmentDTO.class,
+            TreeSet.class
+        );
 
         assertThat(goals).isNotEmpty();
         assertThat(goals.size()).isEqualTo(1);
@@ -303,8 +302,7 @@ public class CourseIT {
     @Test
     @Order(13)
     public void testGetLearningGoalFromNonExistentCourse() throws Exception {
-        restCourseMockMvc.perform(get("/api/course/Testcourse56789/goals"))
-            .andExpect(status().isBadRequest());
+        restCourseMockMvc.perform(get("/api/course/Testcourse56789/goals")).andExpect(status().isBadRequest());
     }
 
     /**
@@ -319,9 +317,12 @@ public class CourseIT {
         learningGoalAssignmentDTO.setCourseId("http://www.test.at/nonexistent");
         learningGoalAssignmentDTO.setLearningGoalId("http://www.test123.at/nonexistent");
 
-        restCourseMockMvc.perform(delete("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(learningGoalAssignmentDTO)))
+        restCourseMockMvc
+            .perform(
+                delete("/api/course/goal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(learningGoalAssignmentDTO))
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -345,9 +346,12 @@ public class CourseIT {
         learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(goal.getId());
         learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(secondGoal.getId());
 
-        restCourseMockMvc.perform(put("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO)))
+        restCourseMockMvc
+            .perform(
+                put("/api/course/goal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO))
+            )
             .andExpect(status().isNoContent());
 
         var goals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
@@ -356,9 +360,12 @@ public class CourseIT {
         learningGoalUpdateAssignmentDTO.getLearningGoalIds().clear();
         learningGoalUpdateAssignmentDTO.getLearningGoalIds().add(goal.getId());
 
-        restCourseMockMvc.perform(put("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO)))
+        restCourseMockMvc
+            .perform(
+                put("/api/course/goal")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(learningGoalUpdateAssignmentDTO))
+            )
             .andExpect(status().isNoContent());
 
         goals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());
@@ -380,9 +387,10 @@ public class CourseIT {
         assignment.setLearningGoalId(goal.getId());
         assignment.setCourseId(course.getId());
 
-        restCourseMockMvc.perform(delete("/api/course/goal")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(assignment)))
+        restCourseMockMvc
+            .perform(
+                delete("/api/course/goal").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(assignment))
+            )
             .andExpect(status().isNoContent());
 
         var associatedGoals = sparqlEndpointService.getLearningGoalsForCourse(course.getName());

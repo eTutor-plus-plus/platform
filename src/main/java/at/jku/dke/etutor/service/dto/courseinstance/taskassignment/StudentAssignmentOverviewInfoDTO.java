@@ -4,6 +4,7 @@ package at.jku.dke.etutor.service.dto.courseinstance.taskassignment;
  * DTO class which transfers overview information of student assignments
  */
 public class StudentAssignmentOverviewInfoDTO {
+
     private String matriculationNo;
     private boolean submitted;
     private boolean fullyGraded;

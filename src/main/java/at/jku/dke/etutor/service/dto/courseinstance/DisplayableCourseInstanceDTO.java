@@ -7,6 +7,7 @@ package at.jku.dke.etutor.service.dto.courseinstance;
  * @author fne
  */
 public class DisplayableCourseInstanceDTO {
+
     private String id;
     private String name;
     private int studentCount;

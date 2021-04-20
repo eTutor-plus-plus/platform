@@ -5,8 +5,8 @@ import { FormBuilder } from '@angular/forms';
 import { StudentService } from '../../../../shared/students/student-service';
 import { IStudentFullNameInfoDTO } from '../../../../shared/students/students.model';
 import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
-import { JhiEventManager } from 'ng-jhipster';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Component for managing the student assignment.
@@ -17,7 +17,6 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./student-assignment-modal.component.scss'],
 })
 export class StudentAssignmentModalComponent implements OnInit {
-  private _courseInstance?: IDisplayableCourseInstanceDTO;
   public isSaving = false;
   public fileSelected = false;
   public assignmentForm = this.fb.group({
@@ -29,6 +28,8 @@ export class StudentAssignmentModalComponent implements OnInit {
   public fileInputRef!: ElementRef;
 
   public availableStudents: IStudentFullNameInfoDTO[] = [];
+
+  private _courseInstance?: IDisplayableCourseInstanceDTO;
 
   /**
    * Constructor.
@@ -45,7 +46,7 @@ export class StudentAssignmentModalComponent implements OnInit {
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private studentService: StudentService,
-    private eventManager: JhiEventManager,
+    private eventManager: EventManager,
     private spinner: NgxSpinnerService
   ) {}
 

@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service.dto;
  * @author fne
  */
 public class TaskDisplayDTO {
+
     private String taskId;
     private String header;
     private String internalCreator;

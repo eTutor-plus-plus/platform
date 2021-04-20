@@ -285,7 +285,9 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
    * Returns the children as `LearningGoalTreeviewItem[]`.
    */
   public get childItems(): LearningGoalTreeviewItem[] {
-    return super.children as LearningGoalTreeviewItem[];
+    /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+    return (super.children as LearningGoalTreeviewItem[]) ?? [];
+    /* eslint-enable @typescript-eslint/no-unnecessary-condition */
   }
 
   /**

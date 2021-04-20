@@ -5,18 +5,17 @@ import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.web.rest.errors.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.Set;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * REST controller for managing courses.
@@ -61,8 +60,7 @@ public class CourseResource {
         try {
             var newCourse = sparqlEndpointService.insertNewCourse(courseDTO, currentLogin);
 
-            return ResponseEntity.created(new URI(String.format("/api/course/%s", newCourse.getNameForRDF())))
-                .body(newCourse);
+            return ResponseEntity.created(new URI(String.format("/api/course/%s", newCourse.getNameForRDF()))).body(newCourse);
         } catch (at.jku.dke.etutor.service.exception.CourseAlreadyExistsException e) {
             throw new CourseAlreadyExistsException();
         }
@@ -209,7 +207,9 @@ public class CourseResource {
      */
     @PutMapping("/course/goal")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> setLearningGoalsForCourse(@Valid @RequestBody LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignment) {
+    public ResponseEntity<Void> setLearningGoalsForCourse(
+        @Valid @RequestBody LearningGoalUpdateAssignmentDTO learningGoalUpdateAssignment
+    ) {
         sparqlEndpointService.setGoalAssignment(learningGoalUpdateAssignment);
         return ResponseEntity.noContent().build();
     }

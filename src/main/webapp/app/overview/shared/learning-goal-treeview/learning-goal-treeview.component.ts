@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, Input, TemplateRef } from '@angular/core';
 import { FilterLearningGoalTreeviewItem, LearningGoalTreeviewItem } from '../learning-goal-treeview-item.model';
 import { isNil, includes } from 'lodash';
 import { TreeviewConfig, TreeviewI18n, TreeviewItemTemplateContext } from 'ngx-treeview';
@@ -13,10 +13,7 @@ import { DefaultTreeviewI18n } from './default-treeview-i18n';
   styleUrls: ['./learning-goal-treeview.component.scss'],
   providers: [{ provide: TreeviewI18n, useClass: DefaultTreeviewI18n }],
 })
-export class LearningGoalTreeviewComponent implements OnInit {
-  private _allItems: LearningGoalTreeviewItem[] = [];
-  private _filteredItems: LearningGoalTreeviewItem[] = [];
-
+export class LearningGoalTreeviewComponent {
   public filterText = '';
 
   @Input()
@@ -28,15 +25,8 @@ export class LearningGoalTreeviewComponent implements OnInit {
     hasCollapseExpand: true,
   });
 
-  /**
-   * Constructor.
-   */
-  constructor() {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
+  private _allItems: LearningGoalTreeviewItem[] = [];
+  private _filteredItems: LearningGoalTreeviewItem[] = [];
 
   /**
    * Event handler for the filter text change event.

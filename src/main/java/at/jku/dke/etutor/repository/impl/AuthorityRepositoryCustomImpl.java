@@ -2,11 +2,10 @@ package at.jku.dke.etutor.repository.impl;
 
 import at.jku.dke.etutor.repository.AuthorityRepositoryCustom;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.List;
 
 /**
  * Implementation of the custom authority repository.

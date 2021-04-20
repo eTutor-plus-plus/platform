@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { LecturerTaskAssignmentService } from '../lecturer-task-assignment.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IGradingInfoVM, ILecturerGradingInfo, ILecturerStudentTaskAssignmentInfoModel } from '../lecturer-task-assignment.model';
@@ -10,13 +10,13 @@ import { IGradingInfoVM, ILecturerGradingInfo, ILecturerStudentTaskAssignmentInf
   selector: 'jhi-lecturer-grade-assignment',
   templateUrl: './lecturer-grade-assignment.component.html',
 })
-export class LecturerGradeAssignmentComponent implements OnInit {
-  private _lecturerStudentInfoModel?: ILecturerStudentTaskAssignmentInfoModel;
-
+export class LecturerGradeAssignmentComponent {
   public availableGradingInfos: ILecturerGradingInfo[] = [];
   public selectedGradingInfo?: ILecturerGradingInfo;
   public currentIndex = 0;
   public isSaving = false;
+
+  private _lecturerStudentInfoModel?: ILecturerStudentTaskAssignmentInfoModel;
 
   /**
    * Constructor.
@@ -25,11 +25,6 @@ export class LecturerGradeAssignmentComponent implements OnInit {
    * @param activeModal the injected active modal service
    */
   constructor(private lecturerTaskService: LecturerTaskAssignmentService, private activeModal: NgbActiveModal) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Sets the lecturer student info model.

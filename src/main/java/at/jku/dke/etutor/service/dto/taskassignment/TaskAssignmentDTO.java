@@ -1,20 +1,19 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.RDFS;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.RDFS;
 
 /**
  * Class for a task assignment.
@@ -25,8 +24,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
 
     @NotEmpty
     private String id;
+
     @NotNull
     private Instant creationDate;
+
     @NotEmpty
     private String internalCreator;
 
@@ -47,7 +48,6 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
      */
     public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator) {
         super();
-
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
         setHeader(newTaskAssignmentDTO.getHeader());
@@ -72,7 +72,6 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
      */
     public TaskAssignmentDTO(Resource resource) throws MalformedURLException, ParseException {
         this();
-
         setId(resource.getURI());
         List<LearningGoalDisplayDTO> learningGoalIds = new ArrayList<>();
 

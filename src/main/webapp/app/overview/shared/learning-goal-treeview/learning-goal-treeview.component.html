@@ -1,7 +1,12 @@
 <div class="row row-filter">
-    <div class="col-12">
-        <input class="form-control" type="text" placeholder="{{'treeview.filterPlaceholder' | translate }}" [(ngModel)]="filterText"
-               (ngModelChange)="onFilterTextChange($event)" />
-    </div>
+  <div class="col-12">
+    <input
+      class="form-control"
+      type="text"
+      placeholder="{{ 'treeview.filterPlaceholder' | translate }}"
+      [(ngModel)]="filterText"
+      (ngModelChange)="onFilterTextChange($event)"
+    />
+  </div>
 </div>
 <ngx-treeview [items]="filteredItems" [itemTemplate]="itemTemplate" [config]="config"></ngx-treeview>

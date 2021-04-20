@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 import { Router } from '@angular/router';
 import { ITaskAssignmentDisplay } from '../../tasks/task.model';
@@ -11,7 +11,7 @@ import { ITaskAssignmentDisplay } from '../../tasks/task.model';
   templateUrl: './learning-goal-display.component.html',
   styleUrls: ['./learning-goal-display.component.scss'],
 })
-export class LearningGoalDisplayComponent implements OnInit {
+export class LearningGoalDisplayComponent {
   @Input()
   public learningGoalTreeviewItem?: LearningGoalTreeviewItem;
   @Input()
@@ -25,11 +25,6 @@ export class LearningGoalDisplayComponent implements OnInit {
    * @param router the injected routing service
    */
   constructor(private router: Router) {}
-
-  /**
-   * Implements the on init method. See {@link OnInit}
-   */
-  public ngOnInit(): void {}
 
   /**
    * Navigates to the assignment overview.

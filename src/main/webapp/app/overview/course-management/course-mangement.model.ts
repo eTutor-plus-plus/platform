@@ -117,9 +117,7 @@ export class Term {
   /**
    * Overrides the to string method.
    */
-  public toString = (): string => {
-    return this.text;
-  };
+  public toString = (): string => this.text;
 }
 
 /**

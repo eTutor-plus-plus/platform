@@ -2,6 +2,9 @@ package at.jku.dke.etutor.service.dto;
 
 import at.jku.dke.etutor.config.Constants;
 import at.jku.dke.etutor.domain.User;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * A DTO representing a user, with only the public attributes.

@@ -1,7 +1,7 @@
 package at.jku.dke.etutor.web.rest.vm;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 
 /**
  * View model for setting the students of a
@@ -10,8 +10,10 @@ import java.util.List;
  * @author fne
  */
 public class CourseInstanceStudentsVM {
+
     @NotBlank
     private String courseInstanceId;
+
     private List<String> matriculationNumbers;
 
     /**

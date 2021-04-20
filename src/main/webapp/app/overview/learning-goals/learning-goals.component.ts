@@ -4,13 +4,13 @@ import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.
 import { TreeviewComponent } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
-import { AccountService } from '../../core/auth/account.service';
+import { AccountService } from 'app/core/auth/account.service';
 import { TasksService } from '../tasks/tasks.service';
 import { ITaskAssignmentDisplay } from '../tasks/task.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
 import { combineLatest } from 'rxjs';
-import { JhiAlertService } from 'ng-jhipster';
+import { AlertService } from 'app/core/util/alert.service';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -51,7 +51,7 @@ export class LearningGoalsComponent implements OnInit {
     private accountService: AccountService,
     private tasksService: TasksService,
     private modalService: NgbModal,
-    private alertService: JhiAlertService
+    private alertService: AlertService
   ) {}
 
   /**
@@ -137,7 +137,12 @@ export class LearningGoalsComponent implements OnInit {
       await this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).toPromise();
       await this.loadLearningGoalsAsync();
       this.alertService.addAlert(
-        { type: 'success', msg: 'learningGoalManagement.learningGoalRemovedMsg', params: { name: goalItem.text }, timeout: 5000 },
+        {
+          type: 'success',
+          translationKey: 'learningGoalManagement.learningGoalRemovedMsg',
+          translationParams: { name: goalItem.text },
+          timeout: 5000,
+        },
         []
       );
     })();
@@ -148,9 +153,8 @@ export class LearningGoalsComponent implements OnInit {
    *
    * @param goalItem the goal item to check
    */
-  public canGoalBeRemoved = (goalItem: LearningGoalTreeviewItem): boolean => {
-    return goalItem.isUserAllowedToModify() && this.getReferenceCntRecursive(goalItem) === 0;
-  };
+  public canGoalBeRemoved = (goalItem: LearningGoalTreeviewItem): boolean =>
+    goalItem.isUserAllowedToModify() && this.getReferenceCntRecursive(goalItem) === 0;
 
   /**
    * Event handler which handles the dependency manager window request for a goal.
@@ -187,11 +191,10 @@ export class LearningGoalsComponent implements OnInit {
    */
   private getReferenceCntRecursive(goalItem: LearningGoalTreeviewItem): number {
     let count = goalItem.referencedFromCnt;
-    if (goalItem.childItems !== undefined) {
-      for (const child of goalItem.childItems) {
-        count += this.getReferenceCntRecursive(child);
-      }
+    for (const child of goalItem.childItems) {
+      count += this.getReferenceCntRecursive(child);
     }
+
     return count;
   }
 }

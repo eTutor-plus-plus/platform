@@ -1,5 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -15,6 +19,10 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import liquibase.integration.spring.SpringLiquibase;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,22 +35,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 /**
  * Test class for the student resource endpoint.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN, AuthoritiesConstants.STUDENT}, username = "admin")
+@WithMockUser(
+    authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN, AuthoritiesConstants.STUDENT },
+    username = "admin"
+)
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -85,8 +87,12 @@ public class StudentResourceIT {
 
         sparqlEndpointService.insertScheme();
 
-        MultipartFile file = new MockMultipartFile("file.csv", "file.csv", "text/csv",
-            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("/at/jku/dke/etutor/service/test_students.csv")));
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("/at/jku/dke/etutor/service/test_students.csv"))
+        );
 
         var importedStudents = studentService.importStudentsFromFile(file);
 
@@ -97,7 +103,6 @@ public class StudentResourceIT {
         newCourseDTO.setCourseType("LVA");
 
         newCourseDTO = sparqlEndpointService.insertNewCourse(newCourseDTO, "admin");
-
 
         NewCourseInstanceDTO firstInstance = new NewCourseInstanceDTO();
         firstInstance.setYear(2021);
@@ -124,7 +129,10 @@ public class StudentResourceIT {
 
         courseInstanceUUID = firstInstanceId.substring(firstInstanceId.lastIndexOf('#') + 1);
 
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUUID, Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            courseInstanceUUID,
+            Arrays.asList(firstExerciseSheet.getId(), secondExerciseSheet.getId())
+        );
     }
 
     /**
@@ -134,9 +142,7 @@ public class StudentResourceIT {
      */
     @Test
     public void testGetStudents() throws Exception {
-        var result = restMockMvc.perform(get("/api/student"))
-            .andExpect(status().isOk())
-            .andReturn();
+        var result = restMockMvc.perform(get("/api/student")).andExpect(status().isOk()).andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
@@ -151,15 +157,17 @@ public class StudentResourceIT {
      * @throws Exception must not be thrown
      */
     @Test
-    @WithMockUser(value = "k11804012", authorities = {AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT})
+    @WithMockUser(value = "k11804012", authorities = { AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT })
     public void testGetStudentsCourses() throws Exception {
-        var result = restMockMvc.perform(get("/api/student/courses"))
-            .andExpect(status().isOk())
-            .andReturn();
+        var result = restMockMvc.perform(get("/api/student/courses")).andExpect(status().isOk()).andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        List<CourseInstanceInformationDTO> courseInfos = TestUtil.convertCollectionFromJSONString(jsonData, CourseInstanceInformationDTO.class, List.class);
+        List<CourseInstanceInformationDTO> courseInfos = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            CourseInstanceInformationDTO.class,
+            List.class
+        );
         assertThat(courseInfos).hasSize(1);
     }
 
@@ -169,15 +177,20 @@ public class StudentResourceIT {
      * @throws Exception must not be thrown
      */
     @Test
-    @WithMockUser(value = "k11804012", authorities = {AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT})
+    @WithMockUser(value = "k11804012", authorities = { AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT })
     public void testGetProgressInformation() throws Exception {
-        var result = restMockMvc.perform(get("/api/student/courses/{uuid}/progress", courseInstanceUUID))
+        var result = restMockMvc
+            .perform(get("/api/student/courses/{uuid}/progress", courseInstanceUUID))
             .andExpect(status().isOk())
             .andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         @SuppressWarnings("unchecked")
-        List<CourseInstanceProgressOverviewDTO> entries = TestUtil.convertCollectionFromJSONString(jsonData, CourseInstanceProgressOverviewDTO.class, List.class);
+        List<CourseInstanceProgressOverviewDTO> entries = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            CourseInstanceProgressOverviewDTO.class,
+            List.class
+        );
         assertThat(entries).hasSize(2);
     }
 }

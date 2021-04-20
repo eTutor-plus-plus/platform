@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service;
  * @author fne
  */
 public class InternalModelException extends Exception {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -20,8 +21,7 @@ public class InternalModelException extends Exception {
     /**
      * Constructor.
      */
-    public InternalModelException() {
-    }
+    public InternalModelException() {}
 
     /**
      * Constructor.

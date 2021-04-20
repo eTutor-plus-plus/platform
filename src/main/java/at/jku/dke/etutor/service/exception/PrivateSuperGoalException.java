@@ -7,5 +7,6 @@ package at.jku.dke.etutor.service.exception;
  * @author fne
  */
 public class PrivateSuperGoalException extends Exception {
+
     private static final long serialVersionUID = 1L;
 }

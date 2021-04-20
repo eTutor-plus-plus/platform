@@ -4,6 +4,7 @@ package at.jku.dke.etutor.service.dto;
  * DTO class for transferring student self evaluations.
  */
 public class StudentSelfEvaluationLearningGoalDTO {
+
     private String id;
     private String text;
     private boolean completed;

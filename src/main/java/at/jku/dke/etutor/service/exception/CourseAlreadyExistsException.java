@@ -6,5 +6,6 @@ package at.jku.dke.etutor.service.exception;
  * @author fne
  */
 public class CourseAlreadyExistsException extends Exception {
+
     private static final long serialVersionUID = 1L;
 }

@@ -7,6 +7,7 @@ package at.jku.dke.etutor.service.dto.courseinstance;
  * @author fne
  */
 public class StudentInfoDTO {
+
     private String firstName;
     private String lastName;
     private String matriculationNumber;

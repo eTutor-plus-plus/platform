@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel } from './task.model';
 import { Observable } from 'rxjs';
-import { createRequestOption } from '../../shared/util/request-util';
+import { createRequestOption } from 'app/core/request/request-util';
 
-type TaskDisplayResponseType = HttpResponse<ITaskDisplayModel>;
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
 type StringArrayResponseType = HttpResponse<string[]>;

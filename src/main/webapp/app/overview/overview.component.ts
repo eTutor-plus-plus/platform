@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AccountService } from '../core/auth/account.service';
-import { Authority } from '../shared/constants/authority.constants';
+import { Authority } from 'app/config/authority.constants';
 
 /**
  * Component which displays the overview page for authenticated users.
@@ -10,18 +10,13 @@ import { Authority } from '../shared/constants/authority.constants';
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.scss'],
 })
-export class OverviewComponent implements OnInit {
+export class OverviewComponent {
   /**
    * Constructor.
    *
    * @param account the injected account service
    */
   constructor(private account: AccountService) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Returns whether the currently logged-in user is

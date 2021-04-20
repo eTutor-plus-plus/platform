@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.errors.EmailAlreadyUsedException;
 import at.jku.dke.etutor.web.rest.errors.InvalidPasswordException;
+import at.jku.dke.etutor.web.rest.errors.LoginAlreadyUsedException;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
 import java.util.*;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 /**

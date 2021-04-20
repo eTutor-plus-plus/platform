@@ -7,7 +7,13 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.UserDTO;
-import io.github.jhipster.security.RandomUtil;
+import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.exception.EmailAlreadyUsedException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
+import one.util.streamex.StreamEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -206,7 +212,7 @@ public class UserService {
      * @param user    the user entity
      * @param userDTO the corresponding user dto
      */
-    private void saveUserRoles(User user, UserDTO userDTO) {
+    private void saveUserRoles(User user, AdminUserDTO userDTO) {
         if (user == null) {
             throw new IllegalArgumentException("The parameter 'user' must not be null!");
         }

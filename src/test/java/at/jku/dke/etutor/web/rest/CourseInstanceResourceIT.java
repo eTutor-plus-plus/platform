@@ -1,5 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -14,6 +18,11 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
+import java.time.Year;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -27,28 +36,19 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Year;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Test class for the course instance resource endpoint.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
+@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CourseInstanceResourceIT {
+
     private static final String OWNER = "admin";
 
     @Autowired
@@ -87,7 +87,7 @@ public class CourseInstanceResourceIT {
         rdfConnectionFactory.clearDataset();
 
         // Create students
-        UserDTO userDTO = new UserDTO();
+        AdminUserDTO userDTO = new AdminUserDTO();
         userDTO.setFirstName("Max");
         userDTO.setLastName("Mustermann");
         userDTO.setLogin("k11805540");
@@ -95,7 +95,7 @@ public class CourseInstanceResourceIT {
         userDTO.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
         student1 = userService.createUser(userDTO);
 
-        userDTO = new UserDTO();
+        userDTO = new AdminUserDTO();
         userDTO.setFirstName("Lisa");
         userDTO.setLastName("Musterfrau");
         userDTO.setLogin("k11805541");
@@ -138,9 +138,12 @@ public class CourseInstanceResourceIT {
         newCourseInstanceDTO.setYear(Year.now().getValue());
         newCourseInstanceDTO.setDescription("Testdescription");
 
-        var result = restCourseInstanceMockMvc.perform(post("/api/course-instance")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newCourseInstanceDTO)))
+        var result = restCourseInstanceMockMvc
+            .perform(
+                post("/api/course-instance")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newCourseInstanceDTO))
+            )
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -148,9 +151,7 @@ public class CourseInstanceResourceIT {
         assertThat(newId).isNotBlank();
         String location = result.getResponse().getHeader("Location");
 
-        result = restCourseInstanceMockMvc.perform(get(location))
-            .andExpect(status().isOk())
-            .andReturn();
+        result = restCourseInstanceMockMvc.perform(get(location)).andExpect(status().isOk()).andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
         CourseInstanceDTO courseInstanceDTO = TestUtil.convertFromJSONString(jsonData, CourseInstanceDTO.class);
@@ -159,12 +160,14 @@ public class CourseInstanceResourceIT {
         assertThat(courseInstanceDTO.getTermId()).isEqualTo(newCourseInstanceDTO.getTermId());
         assertThat(courseInstanceDTO.getStudents()).isEmpty();
 
-        ParameterizedSparqlString graphQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString graphQry = new ParameterizedSparqlString(
+            """
             ASK {
                 GRAPH ?graph {
                 }
             }
-            """);
+            """
+        );
         graphQry.setIri("?graph", newId.substring(1, newId.length() - 1));
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             assertThat(connection.queryAsk(graphQry.asQuery())).isTrue();
@@ -184,9 +187,12 @@ public class CourseInstanceResourceIT {
         newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
         newCourseInstanceDTO.setYear(Year.now().getValue());
 
-        restCourseInstanceMockMvc.perform(post("/api/course-instance")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(newCourseInstanceDTO)))
+        restCourseInstanceMockMvc
+            .perform(
+                post("/api/course-instance")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(newCourseInstanceDTO))
+            )
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseNotFound"))
             .andExpect(jsonPath("$.title").value("The course does not exist!"));
@@ -200,7 +206,8 @@ public class CourseInstanceResourceIT {
     @Test
     @Order(3)
     public void testGetInstancesOfCourse() throws Exception {
-        var result = restCourseInstanceMockMvc.perform(get("/api/course-instance/instances/of/{name}", course.getName()))
+        var result = restCourseInstanceMockMvc
+            .perform(get("/api/course-instance/instances/of/{name}", course.getName()))
             .andExpect(status().isOk())
             .andReturn();
         String jsonData = result.getResponse().getContentAsString();
@@ -218,7 +225,8 @@ public class CourseInstanceResourceIT {
     @Order(4)
     @SuppressWarnings("unchecked")
     public void testSetStudentsOfCourseInstance() throws Exception {
-        var result = restCourseInstanceMockMvc.perform(get("/api/course-instance/instances/of/{name}", course.getName()))
+        var result = restCourseInstanceMockMvc
+            .perform(get("/api/course-instance/instances/of/{name}", course.getName()))
             .andExpect(status().isOk())
             .andReturn();
         String jsonData = result.getResponse().getContentAsString();
@@ -230,14 +238,19 @@ public class CourseInstanceResourceIT {
         courseInstanceStudentsVM.setCourseInstanceId(instance.getId());
         courseInstanceStudentsVM.setMatriculationNumbers(students);
 
-        restCourseInstanceMockMvc.perform(put("/api/course-instance/students")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(courseInstanceStudentsVM)))
+        restCourseInstanceMockMvc
+            .perform(
+                put("/api/course-instance/students")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(courseInstanceStudentsVM))
+            )
             .andExpect(status().isNoContent());
 
-        result = restCourseInstanceMockMvc.perform(get("/api/course-instance/instances/of/{name}", course.getName()))
-            .andExpect(status().isOk())
-            .andReturn();
+        result =
+            restCourseInstanceMockMvc
+                .perform(get("/api/course-instance/instances/of/{name}", course.getName()))
+                .andExpect(status().isOk())
+                .andReturn();
         jsonData = result.getResponse().getContentAsString();
         instances = TestUtil.convertCollectionFromJSONString(jsonData, CourseInstanceDTO.class, List.class);
         instance = instances.get(0);
@@ -260,9 +273,12 @@ public class CourseInstanceResourceIT {
         courseInstanceStudentsVM.setCourseInstanceId("http://www.test.at");
         courseInstanceStudentsVM.setMatriculationNumbers(students);
 
-        restCourseInstanceMockMvc.perform(put("/api/course-instance/students")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(courseInstanceStudentsVM)))
+        restCourseInstanceMockMvc
+            .perform(
+                put("/api/course-instance/students")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(courseInstanceStudentsVM))
+            )
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseInstanceNotFound"))
             .andExpect(jsonPath("$.title").value("The course instance can not be found!"));
@@ -276,7 +292,8 @@ public class CourseInstanceResourceIT {
     @Test
     @Order(6)
     public void testGetInstancesOfInvalidCourse() throws Exception {
-        restCourseInstanceMockMvc.perform(get("/api/course-instance/instances/of/Test"))
+        restCourseInstanceMockMvc
+            .perform(get("/api/course-instance/instances/of/Test"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errorKey").value("courseNotFound"))
             .andExpect(jsonPath("$.title").value("The course does not exist!"));
@@ -298,8 +315,7 @@ public class CourseInstanceResourceIT {
         String uri = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
         String uuid = uri.substring(uri.lastIndexOf('#') + 1);
 
-        restCourseInstanceMockMvc.perform(delete("/api/course-instance/{uuid}", uuid))
-            .andExpect(status().isNoContent());
+        restCourseInstanceMockMvc.perform(delete("/api/course-instance/{uuid}", uuid)).andExpect(status().isNoContent());
 
         var optional = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
 
@@ -314,7 +330,8 @@ public class CourseInstanceResourceIT {
     @Test
     @Order(8)
     public void testRemoveNonexistentCourseInstance() throws Exception {
-        restCourseInstanceMockMvc.perform(delete("/api/course-instance/123"))
+        restCourseInstanceMockMvc
+            .perform(delete("/api/course-instance/123"))
             .andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.courseInstanceNotFound"))

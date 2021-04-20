@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { IExerciseSheetDisplayDTO, IExerciseSheetDTO, INewExerciseSheetDTO } from './exercise-sheets.model';
 import { Observable } from 'rxjs';
-import { createRequestOption, Pagination } from '../../shared/util/request-util';
+import { Pagination } from 'app/core/request/request.model';
+import { createRequestOption } from 'app/core/request/request-util';
 
 type ExerciseSheetResult = HttpResponse<IExerciseSheetDTO>;
 type ExerciseSheetDisplayArrayResult = HttpResponse<IExerciseSheetDisplayDTO[]>;

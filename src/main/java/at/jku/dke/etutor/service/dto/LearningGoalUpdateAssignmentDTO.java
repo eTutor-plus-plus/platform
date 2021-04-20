@@ -1,9 +1,9 @@
 package at.jku.dke.etutor.service.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * Dto class for the setting of learning goal assignments.
@@ -12,6 +12,7 @@ public class LearningGoalUpdateAssignmentDTO {
 
     @NotBlank
     private String courseId;
+
     @NotEmpty
     private List<String> learningGoalIds = new ArrayList<>();
 

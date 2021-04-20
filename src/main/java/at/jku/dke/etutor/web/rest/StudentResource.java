@@ -8,13 +8,12 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing students.
@@ -88,7 +87,10 @@ public class StudentResource {
      */
     @PostMapping("courses/{uuid}/self-evaluation")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> postSelfEvaluation(@PathVariable(name = "uuid") String uuid, @RequestBody ArrayList<StudentSelfEvaluationLearningGoalDTO> selfEvaluationGoals) {
+    public ResponseEntity<Void> postSelfEvaluation(
+        @PathVariable(name = "uuid") String uuid,
+        @RequestBody ArrayList<StudentSelfEvaluationLearningGoalDTO> selfEvaluationGoals
+    ) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
         studentService.saveSelfEvaluation(uuid, matriculationNumber, selfEvaluationGoals);
 

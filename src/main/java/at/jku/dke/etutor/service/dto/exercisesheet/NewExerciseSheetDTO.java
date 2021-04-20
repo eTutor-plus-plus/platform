@@ -3,12 +3,11 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * DTO class for a new exercise sheet.
@@ -16,13 +15,17 @@ import java.util.List;
  * @author fne
  */
 public class NewExerciseSheetDTO {
+
     @NotBlank
     private String name;
+
     @NotBlank
     @DifficultyRankingConstraint
     private String difficultyId;
+
     @NotNull
     private List<LearningGoalDisplayDTO> learningGoals = new ArrayList<>();
+
     @Min(1)
     private int taskCount;
 

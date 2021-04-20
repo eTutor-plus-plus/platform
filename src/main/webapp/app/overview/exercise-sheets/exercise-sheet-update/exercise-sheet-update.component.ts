@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
-import { JhiEventManager } from 'ng-jhipster';
 import { IExerciseSheetDTO, INewExerciseSheetDTO } from '../exercise-sheets.model';
-import { CustomValidators } from '../../../shared/validators/custom-validators';
+import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { TaskDifficulty } from '../../tasks/task.model';
 import { ExerciseSheetsService } from '../exercise-sheets.service';
 import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 import { LearningGoalsService } from '../../learning-goals/learning-goals.service';
 import { ILearningGoalDisplayModel } from '../../shared/learning-goal-model';
-import { AccountService } from '../../../core/auth/account.service';
+import { AccountService } from 'app/core/auth/account.service';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Modal component which is used for creating / editing an exercise sheet.
@@ -20,10 +20,6 @@ import { AccountService } from '../../../core/auth/account.service';
   styleUrls: ['./exercise-sheet-update.component.scss'],
 })
 export class ExerciseSheetUpdateComponent implements OnInit {
-  private _exerciseSheet?: IExerciseSheetDTO;
-  private _selectedGoals: ILearningGoalDisplayModel[] = [];
-  private _loginName: string;
-
   public isSaving = false;
   public isNew = true;
   public readonly difficulties = TaskDifficulty.Values;
@@ -36,6 +32,10 @@ export class ExerciseSheetUpdateComponent implements OnInit {
     difficulty: [this.difficulties[0], [Validators.required]],
     taskCount: [1, [Validators.required, Validators.min(1)]],
   });
+
+  private _exerciseSheet?: IExerciseSheetDTO;
+  private _selectedGoals: ILearningGoalDisplayModel[] = [];
+  private _loginName: string;
 
   /**
    * Constructor.
@@ -50,7 +50,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
   constructor(
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private eventManager: JhiEventManager,
+    private eventManager: EventManager,
     private exerciseSheetService: ExerciseSheetsService,
     private learningGoalsService: LearningGoalsService,
     private accountService: AccountService

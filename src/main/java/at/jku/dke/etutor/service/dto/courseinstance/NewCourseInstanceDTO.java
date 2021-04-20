@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.service.dto.courseinstance;
 
 import at.jku.dke.etutor.service.dto.validation.TermConstraint;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
@@ -11,12 +10,16 @@ import javax.validation.constraints.NotBlank;
  * @author fne
  */
 public class NewCourseInstanceDTO {
+
     @NotBlank
     private String courseId;
+
     @Min(2021)
     private int year;
+
     @TermConstraint
     private String termId;
+
     private String description;
 
     /**

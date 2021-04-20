@@ -28,7 +28,9 @@ export class StudentOverviewComponent implements OnInit {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
-    this.studentService.getCourseInstancesOfLoggedInStudent().subscribe(values => (this.courses = values));
+    this.studentService.getCourseInstancesOfLoggedInStudent().subscribe(values => {
+      this.courses = values;
+    });
   }
 
   /**

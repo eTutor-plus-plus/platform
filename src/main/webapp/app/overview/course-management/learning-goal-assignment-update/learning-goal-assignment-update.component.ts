@@ -16,13 +16,6 @@ import { cloneDeep } from 'lodash';
   styleUrls: ['./learning-goal-assignment-update.component.scss'],
 })
 export class LearningGoalAssignmentUpdateComponent implements OnInit {
-  private _selectedCourse?: ICourseModel;
-  private loginName = '';
-  private initialLoadingDone = false;
-
-  private extractedLearningGoals: LearningGoalTreeviewItem[] = [];
-  private allAvailableLearningGoals: LearningGoalTreeviewItem[] = [];
-
   public isSaving = false;
 
   public availableLearningGoals: LearningGoalTreeviewItem[] = [];
@@ -30,6 +23,13 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
 
   public selectedAvailableGoal?: LearningGoalTreeviewItem;
   public selectedSelectedGoal?: LearningGoalTreeviewItem;
+
+  private _selectedCourse?: ICourseModel;
+  private loginName = '';
+  private initialLoadingDone = false;
+
+  private extractedLearningGoals: LearningGoalTreeviewItem[] = [];
+  private allAvailableLearningGoals: LearningGoalTreeviewItem[] = [];
 
   /**
    * Constructor.
@@ -73,7 +73,7 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
   public save(): void {
     this.isSaving = true;
 
-    const ids = this.selectedLearningGoals.map<string>(x => x.value);
+    const ids = this.selectedLearningGoals.map(x => x.value as string);
 
     const assignment: ILearningGoalUpdateAssignment = {
       courseId: this.selectedCourse.id!,
@@ -108,33 +108,6 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    */
   public get selectedCourse(): ICourseModel {
     return this._selectedCourse!;
-  }
-
-  /**
-   * Asynchronously loads the assignment from the current course.
-   */
-  private async loadAssignmentsFromCourseAsync(): Promise<any> {
-    const goalsFromService = await this.courseManagementService
-      .getLearningGoalsFromCourse(this._selectedCourse!, this.loginName)
-      .toPromise();
-    while (!this.initialLoadingDone) {
-      await this.delay(10);
-    }
-
-    this.selectedLearningGoals = goalsFromService;
-
-    for (const goal of goalsFromService) {
-      this.removeGoalFromAvailable(goal, true);
-    }
-  }
-
-  /**
-   * Performs an awaitable delay.
-   *
-   * @param ms the amount in milliseconds
-   */
-  private delay(ms: number): Promise<any> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -240,9 +213,7 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    *
    * @param item the current item
    */
-  public isSelectedContextMenuAllowed = (item: LearningGoalTreeviewItem): boolean => {
-    return this.isRootItemIn(item, this.selectedLearningGoals);
-  };
+  public isSelectedContextMenuAllowed = (item: LearningGoalTreeviewItem): boolean => this.isRootItemIn(item, this.selectedLearningGoals);
 
   /**
    * Handles a simple left click on the available goals tree view.
@@ -293,10 +264,8 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
     if (idx > -1) {
       this.selectedLearningGoals.splice(idx, 1);
     } else {
-      if (item.childItems) {
-        for (const child of item.childItems) {
-          this.removeSubTreesOfSelectedItem(child);
-        }
+      for (const child of item.childItems) {
+        this.removeSubTreesOfSelectedItem(child);
       }
     }
   }
@@ -314,7 +283,8 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
 
     let start = this.allAvailableLearningGoals.find(x => x.value === parent.value);
 
-    if (!start) {
+    if (start === undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       start = this.allAvailableLearningGoals.find(x => x.value === parent.rootId)!;
     }
 
@@ -337,12 +307,10 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
       return item;
     }
 
-    if (item.childItems) {
-      for (const child of item.childItems) {
-        const ret = this.getOriginalAvailableItemRecursive(child, itemToSearch);
-        if (ret) {
-          return ret;
-        }
+    for (const child of item.childItems) {
+      const ret = this.getOriginalAvailableItemRecursive(child, itemToSearch);
+      if (ret) {
+        return ret;
       }
     }
     return undefined;
@@ -378,5 +346,32 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
         this.extractedLearningGoals.push(item);
       }
     }
+  }
+
+  /**
+   * Asynchronously loads the assignment from the current course.
+   */
+  private async loadAssignmentsFromCourseAsync(): Promise<any> {
+    const goalsFromService = await this.courseManagementService
+      .getLearningGoalsFromCourse(this._selectedCourse!, this.loginName)
+      .toPromise();
+    while (!this.initialLoadingDone) {
+      await this.delay(10);
+    }
+
+    this.selectedLearningGoals = goalsFromService;
+
+    for (const goal of goalsFromService) {
+      this.removeGoalFromAvailable(goal, true);
+    }
+  }
+
+  /**
+   * Performs an awaitable delay.
+   *
+   * @param ms the amount in milliseconds
+   */
+  private delay(ms: number): Promise<any> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

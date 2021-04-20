@@ -9,6 +9,7 @@ public class LearningGoalAssignmentDTO {
 
     @NotBlank
     private String courseId;
+
     @NotBlank
     private String learningGoalId;
 

@@ -10,6 +10,7 @@ import java.util.List;
  * @author fne
  */
 public class CourseInstanceDTO {
+
     private int year;
     private String termId;
     private String description;
@@ -36,8 +37,15 @@ public class CourseInstanceDTO {
      * @param courseName   the name of the underlying course
      * @param instanceName the instance name
      */
-    public CourseInstanceDTO(int year, String termId, String description, String id, List<StudentInfoDTO> students, String courseName,
-                             String instanceName) {
+    public CourseInstanceDTO(
+        int year,
+        String termId,
+        String description,
+        String id,
+        List<StudentInfoDTO> students,
+        String courseName,
+        String instanceName
+    ) {
         this.year = year;
         this.termId = termId;
         this.description = description;

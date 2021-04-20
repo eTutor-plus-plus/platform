@@ -6,6 +6,7 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
  * @author fne
  */
 public class ExerciseSheetDisplayDTO {
+
     private String internalId;
     private String name;
     private int individualAssignmentCnt;

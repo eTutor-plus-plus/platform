@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
 import { ExerciseSheetUpdateComponent } from '../exercise-sheet-update/exercise-sheet-update.component';
 import { Subscription } from 'rxjs';
 import { ExerciseSheetsService } from '../exercise-sheets.service';
 import { IExerciseSheetDisplayDTO } from '../exercise-sheets.model';
-import { ITEMS_PER_SLICE } from '../../../shared/constants/pagination.constants';
 import { HttpHeaders } from '@angular/common/http';
-import { Pagination } from '../../../shared/util/request-util';
 import { TranslatePipe } from '@ngx-translate/core';
+import { EventManager } from 'app/core/util/event-manager.service';
+import { ITEMS_PER_SLICE } from 'app/config/pagination.constants';
+import { Pagination } from 'app/core/request/request.model';
 
 /**
  * Component for displaying the exercise sheets.
@@ -20,9 +20,6 @@ import { TranslatePipe } from '@ngx-translate/core';
   providers: [TranslatePipe],
 })
 export class ExerciseSheetsOverviewComponent implements OnInit {
-  private exerciseSubscription?: Subscription;
-  private readonly itemsPerPage: number;
-
   public hasNextPage = false;
   public page = 0;
   public entries: IExerciseSheetDisplayDTO[] = [];
@@ -32,6 +29,9 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
   public popoverMessage = 'exerciseSheets.popover.message';
   public popoverCancelButtonTxt = 'exerciseSheets.popover.cancelBtn';
   public popoverConfirmBtnTxt = 'exerciseSheets.popover.confirmBtn';
+
+  private exerciseSubscription?: Subscription;
+  private readonly itemsPerPage: number;
 
   /**
    * Constructor.
@@ -43,7 +43,7 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
    */
   constructor(
     private modalService: NgbModal,
-    private eventManager: JhiEventManager,
+    private eventManager: EventManager,
     private exerciseSheetsService: ExerciseSheetsService,
     private translationPipe: TranslatePipe
   ) {

@@ -1,95 +1,133 @@
 <ng-template #availableLearningGoalsTemplate let-item="item" let-onCollapseExpand="onCollapseExpand">
-    <div class="form-inline row-item">
-        <i *ngIf="item.children" class="mr-1" (click)="onCollapseExpand()" aria-hidden="true" [ngSwitch]="item.collapsed">
-            <svg *ngSwitchCase="true" width="0.8rem" height="0.8rem" viewBox="0 0 16 16" class="bi bi-caret-right-fill"
-                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-            </svg>
-            <svg *ngSwitchCase="false" width="0.8rem" height="0.8rem" viewBox="0 0 16 16" class="bi bi-caret-down-fill"
-                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-            </svg>
-        </i>
-        <label (click)="handleAvailableGoalsClicked($event, item)" [contextMenu]="availableLearningGoalsCtxMenu" [contextMenuSubject]="item" class="bi form-check-label" [ngClass]="{'private': item.markedAsPrivate, 'selected': item.value === selectedAvailableGoal?.value}">{{item.text}}</label>
-    </div>
+  <div class="form-inline row-item">
+    <i *ngIf="item.children" class="mr-1" (click)="onCollapseExpand()" aria-hidden="true" [ngSwitch]="item.collapsed">
+      <svg
+        *ngSwitchCase="true"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-right-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+      </svg>
+      <svg
+        *ngSwitchCase="false"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-down-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+      </svg>
+    </i>
+    <label
+      (click)="handleAvailableGoalsClicked($event, item)"
+      [contextMenu]="availableLearningGoalsCtxMenu"
+      [contextMenuSubject]="item"
+      class="bi form-check-label"
+      [ngClass]="{ private: item.markedAsPrivate, selected: item.value === selectedAvailableGoal?.value }"
+      >{{ item.text }}</label
+    >
+  </div>
 </ng-template>
 <ng-template #selectedLearningGoalsTemplate let-item="item" let-onCollapseExpand="onCollapseExpand">
-    <div class="form-inline row-item">
-        <i *ngIf="item.children" class="mr-1" (click)="onCollapseExpand()" aria-hidden="true" [ngSwitch]="item.collapsed">
-            <svg *ngSwitchCase="true" width="0.8rem" height="0.8rem" viewBox="0 0 16 16" class="bi bi-caret-right-fill"
-                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-            </svg>
-            <svg *ngSwitchCase="false" width="0.8rem" height="0.8rem" viewBox="0 0 16 16" class="bi bi-caret-down-fill"
-                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-            </svg>
-        </i>
-        <label (click)="handleSelectedGoalsClicked($event, item)" [contextMenu]="selectedLearningGoalsCtxMenu" [contextMenuSubject]="item" class="bi form-check-label" [ngClass]="{'private': item.markedAsPrivate, 'selected': item.value === selectedSelectedGoal?.value}">{{item.text}}</label>
-    </div>
+  <div class="form-inline row-item">
+    <i *ngIf="item.children" class="mr-1" (click)="onCollapseExpand()" aria-hidden="true" [ngSwitch]="item.collapsed">
+      <svg
+        *ngSwitchCase="true"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-right-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+      </svg>
+      <svg
+        *ngSwitchCase="false"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-down-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+      </svg>
+    </i>
+    <label
+      (click)="handleSelectedGoalsClicked($event, item)"
+      [contextMenu]="selectedLearningGoalsCtxMenu"
+      [contextMenuSubject]="item"
+      class="bi form-check-label"
+      [ngClass]="{ private: item.markedAsPrivate, selected: item.value === selectedSelectedGoal?.value }"
+      >{{ item.text }}</label
+    >
+  </div>
 </ng-template>
 
 <context-menu #availableLearningGoalsCtxMenu>
-    <ng-template contextMenuItem (execute)="onSelectLearningGoal($event.item)">
-        <span jhiTranslate="courseManagement.goalAssignment.selectGoal">Select learning goal</span>
-    </ng-template>
+  <ng-template contextMenuItem (execute)="onSelectLearningGoal($event.item)">
+    <span jhiTranslate="courseManagement.goalAssignment.selectGoal">Select learning goal</span>
+  </ng-template>
 </context-menu>
 <context-menu #selectedLearningGoalsCtxMenu>
-    <ng-template contextMenuItem [enabled]="isSelectedContextMenuAllowed" (execute)="onDeselectLearningGoal($event.item)">
-        <span jhiTranslate="courseManagement.goalAssignment.deselectGoal">Deselect learning goal</span>
-    </ng-template>
+  <ng-template contextMenuItem [enabled]="isSelectedContextMenuAllowed" (execute)="onDeselectLearningGoal($event.item)">
+    <span jhiTranslate="courseManagement.goalAssignment.deselectGoal">Deselect learning goal</span>
+  </ng-template>
 </context-menu>
 
 <div>
-    <div class="modal-header">
-        <h4 class="modal-title" jhiTranslate="courseManagement.goalAssignment.modalHeader">Learning goal assignment</h4>
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="courseManagement.goalAssignment.modalHeader">Learning goal assignment</h4>
 
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
-    </div>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
 
-    <div class="modal-body">
-        <jhi-alert></jhi-alert>
-        <div class="row">
-            <div class="col-md-5">
-                <h3 jhiTranslate="courseManagement.goalAssignment.availableGoals">Available learning goals</h3>
-                <jhi-learning-goal-treeview [items]="availableLearningGoals" [itemTemplate]="availableLearningGoalsTemplate">
-                </jhi-learning-goal-treeview>
-            </div>
-            <div class="col-md-2 vertical-center">
-                <div class="btn-group-vertical align-middle">
-                    <button type="button" [disabled]="!selectedSelectedGoal" (click)="onDeselectedLearningGoal()" class="btn btn-done">
-                        <fa-icon icon="angle-left"></fa-icon>
-                    </button>
-                    <button type="button" [disabled]="!selectedAvailableGoal" (click)="onSelectedLearningGoal()" class="btn btn-done">
-                        <fa-icon icon="angle-right"></fa-icon>
-                    </button>
-                    <button type="button" [disabled]="selectedLearningGoals.length === 0" (click)="onDeselectAllLearningGoals()" class="btn btn-done">
-                        <fa-icon icon="angle-double-left"></fa-icon>
-                    </button>
-                    <button type="button" [disabled]="availableLearningGoals.length === 0" (click)="onSelectAllLearningGoals()" class="btn btn-done">
-                        <fa-icon icon="angle-double-right"></fa-icon>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <h3 jhiTranslate="courseManagement.goalAssignment.selectedGoals">Selected learning goals</h3>
-                <jhi-learning-goal-treeview [items]="selectedLearningGoals" [itemTemplate]="selectedLearningGoalsTemplate">
-                </jhi-learning-goal-treeview>
-            </div>
+  <div class="modal-body">
+    <jhi-alert></jhi-alert>
+    <div class="row">
+      <div class="col-md-5">
+        <h3 jhiTranslate="courseManagement.goalAssignment.availableGoals">Available learning goals</h3>
+        <jhi-learning-goal-treeview [items]="availableLearningGoals" [itemTemplate]="availableLearningGoalsTemplate">
+        </jhi-learning-goal-treeview>
+      </div>
+      <div class="col-md-2 vertical-center">
+        <div class="btn-group-vertical align-middle">
+          <button type="button" [disabled]="!selectedSelectedGoal" (click)="onDeselectedLearningGoal()" class="btn btn-done">
+            <fa-icon icon="angle-left"></fa-icon>
+          </button>
+          <button type="button" [disabled]="!selectedAvailableGoal" (click)="onSelectedLearningGoal()" class="btn btn-done">
+            <fa-icon icon="angle-right"></fa-icon>
+          </button>
+          <button type="button" [disabled]="selectedLearningGoals.length === 0" (click)="onDeselectAllLearningGoals()" class="btn btn-done">
+            <fa-icon icon="angle-double-left"></fa-icon>
+          </button>
+          <button type="button" [disabled]="availableLearningGoals.length === 0" (click)="onSelectAllLearningGoals()" class="btn btn-done">
+            <fa-icon icon="angle-double-right"></fa-icon>
+          </button>
         </div>
+      </div>
+      <div class="col-md-5">
+        <h3 jhiTranslate="courseManagement.goalAssignment.selectedGoals">Selected learning goals</h3>
+        <jhi-learning-goal-treeview [items]="selectedLearningGoals" [itemTemplate]="selectedLearningGoalsTemplate">
+        </jhi-learning-goal-treeview>
+      </div>
     </div>
+  </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="close()">
-            <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
-        </button>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
+    </button>
 
-        <button type="button" [disabled]="isSaving" class="btn btn-primary" (click)="save()">
-            <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
-        </button>
-    </div>
+    <button type="button" [disabled]="isSaving" class="btn btn-primary" (click)="save()">
+      <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+    </button>
+  </div>
 </div>

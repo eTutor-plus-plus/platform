@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
 import { FormBuilder } from '@angular/forms';
 import { IExerciseSheetDisplayDTO } from '../../../../exercise-sheets/exercise-sheets.model';
 import { ExerciseSheetsService } from '../../../../exercise-sheets/exercise-sheets.service';
 import { CourseManagementService } from '../../../course-management.service';
-import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../../shared/constants/pagination.constants';
 import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
+import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 
 /**
  * Modal window for displaying exercise sheet assignments.
@@ -17,10 +17,7 @@ import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignm
   templateUrl: './course-exercise-sheet-allocation.component.html',
   styleUrls: ['./course-exercise-sheet-allocation.component.scss'],
 })
-export class CourseExerciseSheetAllocationComponent implements OnInit {
-  private _courseInstance?: IDisplayableCourseInstanceDTO;
-  private _selectedSheetIdsToSave: string[] = [];
-
+export class CourseExerciseSheetAllocationComponent {
   public readonly allocationGroup = this.fb.group({});
   public isSaving = false;
 
@@ -29,6 +26,9 @@ export class CourseExerciseSheetAllocationComponent implements OnInit {
   public totalItems = 0;
   public exerciseSheets: IExerciseSheetDisplayDTO[] = [];
   public selectedSheetsId: string[] = [];
+
+  private _courseInstance?: IDisplayableCourseInstanceDTO;
+  private _selectedSheetIdsToSave: string[] = [];
 
   /**
    * Constructor.
@@ -48,11 +48,6 @@ export class CourseExerciseSheetAllocationComponent implements OnInit {
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Sets the course instance.

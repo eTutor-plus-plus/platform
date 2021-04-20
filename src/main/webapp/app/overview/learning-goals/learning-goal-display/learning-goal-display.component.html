@@ -1,45 +1,53 @@
 <h3 jhiTranslate="learningGoalManagement.entity.selectedGoal">Selected learning goal</h3>
-<form role="form" style="max-width: 500px;">
-    <div class="form-group">
-        <label for="learningGoalName" jhiTranslate="learningGoalManagement.entity.name">Name:</label>
-        <input id="learningGoalName" class="form-control" disabled type="text"
-               value="{{learningGoalTreeviewItem?.text}}"/>
+<form role="form" style="max-width: 500px">
+  <div class="form-group">
+    <label for="learningGoalName" jhiTranslate="learningGoalManagement.entity.name">Name:</label>
+    <input id="learningGoalName" class="form-control" disabled type="text" value="{{ learningGoalTreeviewItem?.text }}" />
+  </div>
+  <div class="form-group">
+    <label for="learningGoalDescription" jhiTranslate="learningGoalManagement.entity.description">Description:</label>
+    <div id="learningGoalDescription" [innerHTML]="learningGoalTreeviewItem?.description"></div>
+  </div>
+  <div class="form-group">
+    <label for="learningGoalLastChangeDate" jhiTranslate="learningGoalManagement.entity.lastChangeDate">Last change date:</label>
+    <input
+      id="learningGoalLastChangeDate"
+      disabled
+      type="text"
+      class="form-control"
+      value="{{ learningGoalTreeviewItem?.changeDate | date: 'dd.MM.yyyy HH:mm' }}"
+    />
+  </div>
+  <div class="form-check">
+    <label class="form-check-label" for="needVerification">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        name="needVerification"
+        id="needVerification"
+        [checked]="learningGoalTreeviewItem?.needVerification"
+        disabled
+      />
+      <span jhiTranslate="learningGoalManagement.entity.needVerification">Additional goal achievement verification</span>
+    </label>
+  </div>
+  <br />
+  <div class="row">
+    <div class="col-md-5">
+      <h5 jhiTranslate="learningGoalManagement.assignedTasks">Assigned tasks</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let assignment of assignments">
+          <span class="taskAssignmentName" (click)="navigateToAssignment(assignment)">{{ assignment.header }}</span>
+        </li>
+      </ul>
     </div>
-    <div class="form-group">
-        <label for="learningGoalDescription"
-               jhiTranslate="learningGoalManagement.entity.description">Description:</label>
-        <div id="learningGoalDescription" [innerHTML]="learningGoalTreeviewItem?.description">
-        </div>
+    <div class="col-md-5">
+      <h5 jhiTranslate="learningGoalManagement.dependencies">Dependencies</h5>
+      <ul class="list-group">
+        <li class="list-group-item" *ngFor="let dependency of dependencies">
+          <span>{{ dependency }}</span>
+        </li>
+      </ul>
     </div>
-    <div class="form-group">
-        <label for="learningGoalLastChangeDate" jhiTranslate="learningGoalManagement.entity.lastChangeDate">Last change
-            date:</label>
-        <input id="learningGoalLastChangeDate" disabled type="text" class="form-control"
-               value="{{learningGoalTreeviewItem?.changeDate | date:'dd.MM.yyyy HH:mm'}}"/>
-    </div>
-    <div class="form-check">
-        <label class="form-check-label" for="needVerification">
-            <input class="form-check-input" type="checkbox" name="needVerification" id="needVerification" [checked]="learningGoalTreeviewItem?.needVerification" disabled>
-            <span jhiTranslate="learningGoalManagement.entity.needVerification">Additional goal achievement verification</span>
-        </label>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-md-5">
-            <h5 jhiTranslate="learningGoalManagement.assignedTasks">Assigned tasks</h5>
-            <ul class="list-group">
-                <li class="list-group-item" *ngFor="let assignment of assignments">
-                    <span class="taskAssignmentName" (click)="navigateToAssignment(assignment)">{{assignment.header}}</span>
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-5">
-            <h5 jhiTranslate="learningGoalManagement.dependencies">Dependencies</h5>
-            <ul class="list-group">
-                <li class="list-group-item" *ngFor="let dependency of dependencies">
-                    <span>{{dependency}}</span>
-                </li>
-            </ul>
-        </div>
-    </div>
+  </div>
 </form>

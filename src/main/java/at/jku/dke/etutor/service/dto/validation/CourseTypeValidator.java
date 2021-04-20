@@ -1,9 +1,8 @@
 package at.jku.dke.etutor.service.dto.validation;
 
-import one.util.streamex.StreamEx;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import one.util.streamex.StreamEx;
 
 /**
  * Class which is used to validate a course type.
@@ -12,7 +11,7 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class CourseTypeValidator implements ConstraintValidator<CourseTypeConstraint, String> {
 
-    private static final String[] AVAILABLE_COURSE_TYPES = {"LVA", "Klasse", "Modul", "Fach"};
+    private static final String[] AVAILABLE_COURSE_TYPES = { "LVA", "Klasse", "Modul", "Fach" };
 
     /**
      * Implements the validation logic.
@@ -27,8 +26,7 @@ public class CourseTypeValidator implements ConstraintValidator<CourseTypeConstr
      */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null)
-            return false;
+        if (value == null) return false;
         return StreamEx.of(AVAILABLE_COURSE_TYPES).has(value);
     }
 }

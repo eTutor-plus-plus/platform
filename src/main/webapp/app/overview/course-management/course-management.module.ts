@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { EtutorPlusPlusSharedModule } from '../../shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 import { RouterModule } from '@angular/router';
 import { courseManagementRoutes } from './course-management.route';
 import { CourseManagementComponent } from './course-management.component';
@@ -23,7 +23,7 @@ import { LecturerGradeAssignmentComponent } from './course-instances/course-inst
  */
 @NgModule({
   imports: [
-    EtutorPlusPlusSharedModule,
+    SharedModule,
     OverviewSharedModule,
     RouterModule.forChild(courseManagementRoutes),
     ConfirmationPopoverModule.forRoot({

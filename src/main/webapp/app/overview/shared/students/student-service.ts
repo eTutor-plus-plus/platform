@@ -30,14 +30,12 @@ export class StudentService {
   public getAvailableStudents(): Observable<IStudentFullNameInfoDTO[]> {
     return this.http.get<IStudentInfoDTO[]>(`${SERVER_API_URL}api/student`).pipe(
       map(students =>
-        students.map(x => {
-          return {
-            matriculationNumber: x.matriculationNumber,
-            firstName: x.firstName,
-            lastName: x.lastName,
-            fullName: x.firstName + ' ' + x.lastName,
-          };
-        })
+        students.map(x => ({
+          matriculationNumber: x.matriculationNumber,
+          firstName: x.firstName,
+          lastName: x.lastName,
+          fullName: x.firstName + ' ' + x.lastName,
+        }))
       )
     );
   }

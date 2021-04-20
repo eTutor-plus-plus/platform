@@ -1,5 +1,8 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -7,15 +10,17 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import java.util.Collections;
+import java.util.Set;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
@@ -31,14 +36,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Collections;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@link LecturerSPARQLEndpointService} class.
@@ -75,7 +73,7 @@ public class LecturerSPARQLEndpointServiceTest {
         springLiquibase.setDropFirst(true);
         springLiquibase.afterPropertiesSet();
 
-        UserDTO userDTO = new UserDTO();
+        AdminUserDTO userDTO = new AdminUserDTO();
         userDTO.setFirstName("Max");
         userDTO.setLastName("Mustermann");
         userDTO.setLogin("k11805541");
@@ -95,9 +93,14 @@ public class LecturerSPARQLEndpointServiceTest {
         RDFConnectionFactory rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         lecturerSPARQLEndpointService = new LecturerSPARQLEndpointService(rdfConnectionFactory);
         SPARQLEndpointService sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
-        CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(rdfConnectionFactory, userService);
+        CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(
+            rdfConnectionFactory,
+            userService
+        );
         AssignmentSPARQLEndpointService assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
-        ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(rdfConnectionFactory);
+        ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(
+            rdfConnectionFactory
+        );
 
         sparqlEndpointService.insertScheme();
 
@@ -132,7 +135,9 @@ public class LecturerSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalIds(StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList());
+        newTaskAssignmentDTO.setLearningGoalIds(
+            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+        );
 
         TaskAssignmentDTO taskAssignmentDTO = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
@@ -140,7 +145,9 @@ public class LecturerSPARQLEndpointServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Test exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList());
+        newExerciseSheetDTO.setLearningGoals(
+            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+        );
         newExerciseSheetDTO.setTaskCount(1);
 
         exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -148,11 +155,14 @@ public class LecturerSPARQLEndpointServiceTest {
         // Setup students & course instance exercise sheet assignment
         courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(student.getLogin()), courseInstanceUrl);
 
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1),
-            Collections.singletonList(exerciseSheetDTO.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1),
+            Collections.singletonList(exerciseSheetDTO.getId())
+        );
 
         // Setup demo assignment
-        ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString("""
+        ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             INSERT DATA {
@@ -168,7 +178,8 @@ public class LecturerSPARQLEndpointServiceTest {
               	]
               ]
             }
-            """);
+            """
+        );
 
         demoAssignmentUpdate.setIri("?student", ETutorVocabulary.getStudentURLFromMatriculationNumber(student.getLogin()));
         demoAssignmentUpdate.setIri("?sheet", exerciseSheetDTO.getId());
@@ -200,11 +211,9 @@ public class LecturerSPARQLEndpointServiceTest {
      */
     @Test
     public void testGetGradingInfoNullValues() {
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo(null, null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo(null, null, null)).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo("test", null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo("test", null, null)).isInstanceOf(NullPointerException.class);
 
         assertThatThrownBy(() -> lecturerSPARQLEndpointService.getGradingInfo("test", "test", null))
             .isInstanceOf(NullPointerException.class);
@@ -233,8 +242,7 @@ public class LecturerSPARQLEndpointServiceTest {
         Pageable pageable = PageRequest.of(0, 5);
         String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
-        var page = lecturerSPARQLEndpointService.getPagedLecturerOverview(
-            courseInstanceUUID, exerciseSheetUUID, pageable);
+        var page = lecturerSPARQLEndpointService.getPagedLecturerOverview(courseInstanceUUID, exerciseSheetUUID, pageable);
         assertThat(page.getTotalElements()).isEqualTo(1);
         assertThat(page.getContent()).hasSize(1);
         var overviewInfo = page.getContent().get(0);

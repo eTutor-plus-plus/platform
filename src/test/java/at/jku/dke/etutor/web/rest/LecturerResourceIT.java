@@ -1,5 +1,10 @@
 package at.jku.dke.etutor.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -7,9 +12,9 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.*;
+import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
-import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
@@ -19,6 +24,9 @@ import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -33,22 +41,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 /**
  * Test class for the lecturer resource endpoint.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
+@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -100,7 +99,7 @@ public class LecturerResourceIT {
         springLiquibase.setDropFirst(true);
         springLiquibase.afterPropertiesSet();
 
-        UserDTO userDTO = new UserDTO();
+        AdminUserDTO userDTO = new AdminUserDTO();
         userDTO.setFirstName("Max");
         userDTO.setLastName("Mustermann");
         userDTO.setLogin("k11805540");
@@ -141,7 +140,9 @@ public class LecturerResourceIT {
         newTaskAssignmentDTO.setHeader("Testassignment");
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
-        newTaskAssignmentDTO.setLearningGoalIds(StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList());
+        newTaskAssignmentDTO.setLearningGoalIds(
+            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+        );
 
         TaskAssignmentDTO taskAssignmentDTO = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
@@ -149,7 +150,9 @@ public class LecturerResourceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new NewExerciseSheetDTO();
         newExerciseSheetDTO.setName("Test exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList());
+        newExerciseSheetDTO.setLearningGoals(
+            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+        );
         newExerciseSheetDTO.setTaskCount(1);
 
         exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -157,11 +160,14 @@ public class LecturerResourceIT {
         // Setup students & course instance exercise sheet assignment
         courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(student.getLogin()), courseInstanceUrl);
 
-        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1),
-            Collections.singletonList(exerciseSheetDTO.getId()));
+        courseInstanceSPARQLEndpointService.addExerciseSheetCourseInstanceAssignments(
+            courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1),
+            Collections.singletonList(exerciseSheetDTO.getId())
+        );
 
         // Setup demo assignment
-        ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString("""
+        ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             INSERT DATA {
@@ -177,7 +183,8 @@ public class LecturerResourceIT {
               	]
               ]
             }
-            """);
+            """
+        );
 
         demoAssignmentUpdate.setIri("?student", ETutorVocabulary.getStudentURLFromMatriculationNumber(student.getLogin()));
         demoAssignmentUpdate.setIri("?sheet", exerciseSheetDTO.getId());
@@ -200,14 +207,17 @@ public class LecturerResourceIT {
         String courseInstanceUUID = courseInstanceUrl.substring(courseInstanceUrl.lastIndexOf('#') + 1);
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
 
-        var result = restLecturerMockMvc.perform(get("/api/lecturer/overview/{courseInstanceUUID}/{exerciseSheetUUID}",
-            courseInstanceUUID, exerciseSheetUUID))
+        var result = restLecturerMockMvc
+            .perform(get("/api/lecturer/overview/{courseInstanceUUID}/{exerciseSheetUUID}", courseInstanceUUID, exerciseSheetUUID))
             .andExpect(status().isOk())
             .andReturn();
 
         String jsonData = result.getResponse().getContentAsString();
-        List<StudentAssignmentOverviewInfoDTO> data = TestUtil.convertCollectionFromJSONString(jsonData,
-            StudentAssignmentOverviewInfoDTO.class, List.class);
+        List<StudentAssignmentOverviewInfoDTO> data = TestUtil.convertCollectionFromJSONString(
+            jsonData,
+            StudentAssignmentOverviewInfoDTO.class,
+            List.class
+        );
         assertThat(data).hasSize(1);
     }
 
@@ -223,8 +233,15 @@ public class LecturerResourceIT {
         String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
         String matriculationNumber = student.getLogin();
 
-        var result = restLecturerMockMvc.perform(get("/api/lecturer/grading/{courseInstanceUUID}/{exerciseSheetUUID}/{matriculationNo}",
-            courseInstanceUUID, exerciseSheetUUID, matriculationNumber))
+        var result = restLecturerMockMvc
+            .perform(
+                get(
+                    "/api/lecturer/grading/{courseInstanceUUID}/{exerciseSheetUUID}/{matriculationNo}",
+                    courseInstanceUUID,
+                    exerciseSheetUUID,
+                    matriculationNumber
+                )
+            )
             .andExpect(status().isOk())
             .andReturn();
 
@@ -252,9 +269,12 @@ public class LecturerResourceIT {
         gradingInfoVM.setGoalCompleted(true);
         gradingInfoVM.setOrderNo(1);
 
-        restLecturerMockMvc.perform(put("/api/lecturer/grading")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(gradingInfoVM)))
+        restLecturerMockMvc
+            .perform(
+                put("/api/lecturer/grading")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(gradingInfoVM))
+            )
             .andExpect(status().isNoContent());
 
         var gradingInfoList = lecturerSPARQLEndpointService.getGradingInfo(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);

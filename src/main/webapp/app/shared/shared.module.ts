@@ -18,7 +18,7 @@ import { ItemCountComponent } from './pagination/item-count.component';
 
 @NgModule({
   imports: [
-    EtutorPlusPlusSharedLibsModule,
+    SharedLibsModule,
     QuillModule.forRoot({
       modules: {
         toolbar: [
@@ -33,7 +33,24 @@ import { ItemCountComponent } from './pagination/item-count.component';
     TreeviewModule.forRoot(),
     ContextMenuModule,
   ],
-  declarations: [FindLanguageFromKeyPipe, TranslateRolePipe, AlertComponent, AlertErrorComponent, HasAnyAuthorityDirective],
+  declarations: [
+    FindLanguageFromKeyPipe,
+    TranslateRolePipe,
+    AlertComponent,
+    AlertErrorComponent,
+    HasAnyAuthorityDirective,
+    FindLanguageFromKeyPipe,
+    TranslateDirective,
+    AlertComponent,
+    AlertErrorComponent,
+    HasAnyAuthorityDirective,
+    DurationPipe,
+    FormatMediumDatetimePipe,
+    FormatMediumDatePipe,
+    SortByDirective,
+    SortDirective,
+    ItemCountComponent,
+  ],
   exports: [
     SharedLibsModule,
     FindLanguageFromKeyPipe,

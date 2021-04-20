@@ -1,11 +1,10 @@
 package at.jku.dke.etutor.domain.rdf;
 
+import java.util.Objects;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-
-import java.util.Objects;
 
 /**
  * RDF vocabulary class.
@@ -357,7 +356,6 @@ public final class ETutorVocabulary {
      * The very hard difficulty instance.
      */
     public static final Resource VeryHard = m.createProperty(DIFFICULTY_URI + INSTANCE_VERY_HARD);
-
 
     private static final String TERM_WINTER_URI = TERM_URI + INSTANCE_WINTER;
     private static final String TERM_SUMMER_URI = TERM_URI + INSTANCE_SUMMER;

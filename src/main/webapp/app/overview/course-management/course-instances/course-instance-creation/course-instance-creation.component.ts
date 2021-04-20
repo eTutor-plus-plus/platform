@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CourseManagementService } from '../../course-management.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -13,9 +13,7 @@ import { getYear } from 'date-fns';
   templateUrl: './course-instance-creation.component.html',
   styleUrls: ['./course-instance-creation.component.scss'],
 })
-export class CourseInstanceCreationComponent implements OnInit {
-  private _course?: ICourseModel;
-
+export class CourseInstanceCreationComponent {
   public isSaving = false;
   public readonly terms = Term.Values;
   public readonly currentYear = getYear(new Date());
@@ -26,6 +24,8 @@ export class CourseInstanceCreationComponent implements OnInit {
     description: [''],
   });
 
+  private _course?: ICourseModel;
+
   /**
    * Constructor.
    *
@@ -34,11 +34,6 @@ export class CourseInstanceCreationComponent implements OnInit {
    * @param fb the injected form builder
    */
   constructor(private courseService: CourseManagementService, private activeModal: NgbActiveModal, private fb: FormBuilder) {}
-
-  /**
-   * Implements the init method. See {@code OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Saves the course instance.

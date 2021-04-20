@@ -156,9 +156,7 @@ export class TaskDifficulty {
   /**
    * Overrides the toString method.
    */
-  public toString = (): string => {
-    return this.text;
-  };
+  public toString = (): string => this.text;
 }
 
 /**

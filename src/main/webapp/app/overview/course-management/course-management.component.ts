@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AccountService } from '../../core/auth/account.service';
+import { AccountService } from 'app/core/auth/account.service';
 import { CourseModel } from './course-mangement.model';
 import { CourseManagementService } from './course-management.service';
-import { JhiEventManager } from 'ng-jhipster';
 import { Subscription } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,6 +12,7 @@ import { LearningGoalAssignmentUpdateComponent } from './learning-goal-assignmen
 import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignment-display/learning-goal-assignment-display.component';
 import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Component which is used to display the course management
@@ -25,9 +25,6 @@ import { ActivatedRoute, Router } from '@angular/router';
   providers: [TranslatePipe],
 })
 export class CourseManagementComponent implements OnInit, OnDestroy {
-  private username!: string;
-  private subscription?: Subscription;
-
   public popoverTitle = 'courseManagement.popover.title';
   public popoverMessage = 'courseManagement.popover.message';
   public popoverCancelBtnText = 'courseManagement.popover.cancelBtn';
@@ -43,6 +40,9 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
 
   public filterString = '';
 
+  private username!: string;
+  private subscription?: Subscription;
+
   /**
    * Constructor.
    *
@@ -57,7 +57,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private courseService: CourseManagementService,
-    private eventManager: JhiEventManager,
+    private eventManager: EventManager,
     private translatePipe: TranslatePipe,
     private modalService: NgbModal,
     private router: Router,
@@ -192,14 +192,6 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Loads the courses asynchronously from the service.
-   */
-  private async loadCourses(): Promise<any> {
-    this.courses = await this.courseService.getAllCourses().toPromise();
-    this.performFiltering();
-  }
-
-  /**
    * Performs the filtering operation.
    */
   public performFiltering(): void {
@@ -211,6 +203,14 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    */
   public onCourseTypeSelectedChanged(): void {
     this.filter();
+  }
+
+  /**
+   * Loads the courses asynchronously from the service.
+   */
+  private async loadCourses(): Promise<any> {
+    this.courses = await this.courseService.getAllCourses().toPromise();
+    this.performFiltering();
   }
 
   /**

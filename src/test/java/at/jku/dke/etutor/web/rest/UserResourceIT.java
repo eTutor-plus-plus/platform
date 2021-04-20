@@ -1,12 +1,13 @@
 package at.jku.dke.etutor.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import at.jku.dke.etutor.EtutorPlusPlusApp;
+import at.jku.dke.etutor.IntegrationTest;
+import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.Authority;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 import javax.persistence.EntityManager;
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,6 +113,16 @@ class UserResourceIT {
     public void initBeforeAllTests() throws Exception {
         springLiquibase.setDropFirst(true);
         springLiquibase.afterPropertiesSet();
+    }
+
+    /**
+     * Setups the database with one user.
+     */
+    public static User initTestUser(UserRepository userRepository, EntityManager em) {
+        User user = createEntity(em);
+        user.setLogin(DEFAULT_LOGIN);
+        user.setEmail(DEFAULT_EMAIL);
+        return user;
     }
 
     @BeforeEach
@@ -467,7 +479,6 @@ class UserResourceIT {
         restUserMockMvc
             .perform(get("/api/users/authorities").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").value(hasItems(AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)));
     }
@@ -480,7 +491,7 @@ class UserResourceIT {
     @Test
     @Transactional
     void testStandardPasswordLogin() throws Exception {
-        UserDTO newUser = userMapper.userToUserDTO(user);
+        AdminUserDTO newUser = userMapper.userToAdminUserDTO(user);
         newUser.getAuthorities().add(AuthoritiesConstants.ADMIN);
 
         //Create new user
@@ -512,7 +523,7 @@ class UserResourceIT {
     @Test
     @Transactional
     void testCreateUserWithIncorrectLoginPattern() throws Exception {
-        UserDTO newUser = userMapper.userToUserDTO(user);
+        AdminUserDTO newUser = userMapper.userToAdminUserDTO(user);
         newUser.getAuthorities().add(AuthoritiesConstants.ADMIN);
         newUser.setLogin("testlogin");
 
@@ -553,7 +564,7 @@ class UserResourceIT {
     @Transactional
     void testUpdateUserWithoutRole() throws Exception {
         User dbUser = userRepository.saveAndFlush(user);
-        UserDTO updatedUser = userMapper.userToUserDTO(dbUser);
+        AdminUserDTO updatedUser = userMapper.userToAdminUserDTO(dbUser);
         updatedUser.setAuthorities(null);
 
         restUserMockMvc

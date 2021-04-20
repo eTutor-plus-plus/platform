@@ -1,39 +1,27 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import at.jku.dke.etutor.EtutorPlusPlusApp;
+import at.jku.dke.etutor.IntegrationTest;
 import at.jku.dke.etutor.config.Constants;
+import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
 import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URI;
-import java.net.URL;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.Charset;
-import java.util.Properties;
 import java.util.Properties;
 import java.util.regex.Matcher;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.regex.Pattern;
 import javax.mail.Multipart;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeMultipart;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +35,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Integration tests for {@link MailService}.
@@ -82,7 +71,7 @@ class MailServiceIT {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
         mailService = new MailService(jHipsterProperties, javaMailSender, messageSource, templateEngine);
     }

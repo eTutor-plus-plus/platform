@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { OverviewComponent } from './overview.component';
-import { UserRouteAccessService } from '../core/auth/user-route-access-service';
-import { Authority } from '../shared/constants/authority.constants';
 import { CourseTaskOverviewComponent } from './student-overview/course-task-overview/course-task-overview.component';
 import { StudentSelfEvaluationComponent } from './student-overview/student-self-evaluation/student-self-evaluation.component';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Authority } from 'app/config/authority.constants';
 
 /**
  * Overview related routes.

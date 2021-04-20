@@ -4,6 +4,9 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -14,10 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 /**
  * Service endpoint for managing lecturer related data.
  *
@@ -26,7 +25,8 @@ import java.util.Objects;
 @Service
 public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_SELECT_LECTURER_OVERVIEW = """
+    private static final String QRY_SELECT_LECTURER_OVERVIEW =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         SELECT ?student ?submitted ?fullyGraded
@@ -60,7 +60,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         ORDER BY (?student)
         """;
 
-    private static final String QRY_COUNT_LECTURER_OVERVIEW = """
+    private static final String QRY_COUNT_LECTURER_OVERVIEW =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         SELECT (COUNT(*) as ?cnt)
@@ -74,7 +75,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
         """;
 
-    private static final String QRY_GRADING_OVERVIEW = """
+    private static final String QRY_GRADING_OVERVIEW =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         SELECT ?task ?taskTitle ?completed ?graded ?orderNo
@@ -94,7 +96,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         ORDER BY (?orderNo)
         """;
 
-    private static final String QRY_UPDATE_GRADE = """
+    private static final String QRY_UPDATE_GRADE =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE {
@@ -115,7 +118,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
         """;
 
-    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_COMPLETED = """
+    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_COMPLETED =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -144,7 +148,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
           }
         }
         """;
-    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED = """
+    private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -187,7 +192,11 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
      * @param page               the paging information
      * @return page of the lecturer overview
      */
-    public Page<StudentAssignmentOverviewInfoDTO> getPagedLecturerOverview(String courseInstanceUUID, String exerciseSheetUUID, Pageable page) {
+    public Page<StudentAssignmentOverviewInfoDTO> getPagedLecturerOverview(
+        String courseInstanceUUID,
+        String exerciseSheetUUID,
+        Pageable page
+    ) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(page);
@@ -290,7 +299,13 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
      * @param orderNo            the order number
      * @param goalCompleted      indicates whether the goal has been completed or not
      */
-    public void updateGradeForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo, boolean goalCompleted) {
+    public void updateGradeForAssignment(
+        String courseInstanceUUID,
+        String exerciseSheetUUID,
+        String matriculationNo,
+        int orderNo,
+        boolean goalCompleted
+    ) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);

@@ -2,11 +2,10 @@ package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.validation.constraints.NotBlank;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Class for a new task assignment.
@@ -16,16 +15,22 @@ import java.util.List;
 public class NewTaskAssignmentDTO {
 
     private List<LearningGoalDisplayDTO> learningGoalIds = new ArrayList<>();
+
     @NotBlank
     private String creator;
+
     @NotBlank
     private String header;
+
     private String processingTime;
+
     @NotBlank
     @DifficultyRankingConstraint
     private String taskDifficultyId;
+
     @NotBlank
     private String organisationUnit;
+
     private URL url;
     private String instruction;
     private boolean privateTask;

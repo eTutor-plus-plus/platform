@@ -1,13 +1,12 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.jena.rdfconnection.RDFConnection;
-
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.jena.rdfconnection.RDFConnection;
 
 /**
  * Abstract base class of all SPARQL endpoint services.

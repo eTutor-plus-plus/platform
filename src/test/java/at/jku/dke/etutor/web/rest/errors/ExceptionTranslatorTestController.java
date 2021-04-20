@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest.errors;
 
+import at.jku.dke.etutor.service.UsernameAlreadyUsedException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.springframework.dao.ConcurrencyFailureException;

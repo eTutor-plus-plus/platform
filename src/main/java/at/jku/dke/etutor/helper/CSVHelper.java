@@ -2,12 +2,6 @@ package at.jku.dke.etutor.helper;
 
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Helper class for handling CSV files.
@@ -30,9 +29,7 @@ public class CSVHelper {
     public static final String COL_LAST_NAME = "NACHNAME";
     public static final String COL_EMAIL = "EMAIL";
 
-    public static final String[] COLUMN_NAMES = new String[]{
-        COL_MATRICULATION_NUMBER, COL_FIRST_NAME, COL_LAST_NAME, COL_EMAIL
-    };
+    public static final String[] COLUMN_NAMES = new String[] { COL_MATRICULATION_NUMBER, COL_FIRST_NAME, COL_LAST_NAME, COL_EMAIL };
 
     /**
      * Checks whether the given multipart file has the correct
@@ -55,9 +52,19 @@ public class CSVHelper {
      * @throws StudentCSVImportException if an import error occurs
      */
     public static List<StudentImportDTO> getStudentsFromCSVFile(MultipartFile file) throws StudentCSVImportException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), "Cp1252"));
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withDelimiter(';')
-                 .withNullString("").withAllowDuplicateHeaderNames(false).withTrim(true).withFirstRecordAsHeader().withSkipHeaderRecord(true))) {
+        try (
+            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), "Cp1252"));
+            CSVParser csvParser = new CSVParser(
+                reader,
+                CSVFormat.DEFAULT
+                    .withDelimiter(';')
+                    .withNullString("")
+                    .withAllowDuplicateHeaderNames(false)
+                    .withTrim(true)
+                    .withFirstRecordAsHeader()
+                    .withSkipHeaderRecord(true)
+            )
+        ) {
             List<String> csvColumnHeaders = csvParser.getHeaderNames();
 
             if (!CollectionUtils.subtract(Arrays.asList(COLUMN_NAMES), csvColumnHeaders).isEmpty()) {

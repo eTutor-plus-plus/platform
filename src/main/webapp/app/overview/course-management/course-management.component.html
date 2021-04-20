@@ -1,74 +1,101 @@
 <jhi-alert-error></jhi-alert-error>
 <button type="button" class="btn btn-primary float-right" (click)="createNewCourse()">
-    <fa-icon icon="plus"></fa-icon>
-    <span jhiTranslate="courseManagement.createText">Create new course</span>
+  <fa-icon icon="plus"></fa-icon>
+  <span jhiTranslate="courseManagement.createText">Create new course</span>
 </button>
 <h2 jhiTranslate="courseManagement.title">Courses</h2>
 <div class="row">
-    <div class="col-12  d-flex">
-        <div class="ml-auto search-box">
-            <input placeholder="{{ 'courseManagement.searchPlaceholder' | translate }}" style="max-width: 200px;"
-                   type="text" class="form-control"
-                   [(ngModel)]="filterString" (keyup)="performFiltering()">
-        </div>
+  <div class="col-12 d-flex">
+    <div class="ml-auto search-box">
+      <input
+        placeholder="{{ 'courseManagement.searchPlaceholder' | translate }}"
+        style="max-width: 200px"
+        type="text"
+        class="form-control"
+        [(ngModel)]="filterString"
+        (keyup)="performFiltering()"
+      />
     </div>
+  </div>
 </div>
 <div class="row">
-    <div class="col-12  d-flex">
-        <div class="ml-auto search-box">
-            <ng-select
-                [items]="courseTypes"
-                [multiple]="true"
-                [closeOnSelect]="false"
-                [(ngModel)]="selectedCourseTypes"
-                (change)="onCourseTypeSelectedChanged()">
-                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
-                    <input id="item-{{index}}" type="checkbox" [(ngModel)]="item$.selected"/> {{item}}
-                </ng-template>
-            </ng-select>
-        </div>
+  <div class="col-12 d-flex">
+    <div class="ml-auto search-box">
+      <ng-select
+        [items]="courseTypes"
+        [multiple]="true"
+        [closeOnSelect]="false"
+        [(ngModel)]="selectedCourseTypes"
+        (change)="onCourseTypeSelectedChanged()"
+      >
+        <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+          <input id="item-{{ index }}" type="checkbox" [(ngModel)]="item$.selected" /> {{ item }}
+        </ng-template>
+      </ng-select>
     </div>
+  </div>
 </div>
 <ul class="list-group">
-    <li *ngFor="let course of filteredCourses; index as idx; trackBy: trackIdentity" class="list-group-item">
-        <span class="align-middle">
-            <a ngbTooltip="{{'courseManagement.tooltip.viewCourse' | translate : {courseName: course.name} }}"
-               (click)="viewCourse(course)">{{course.name}}</a>
-        </span>
+  <li *ngFor="let course of filteredCourses; index as idx; trackBy: trackIdentity" class="list-group-item">
+    <span class="align-middle">
+      <a ngbTooltip="{{ 'courseManagement.tooltip.viewCourse' | translate: { courseName: course.name } }}" (click)="viewCourse(course)">{{
+        course.name
+      }}</a>
+    </span>
 
-        <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
-            <span style="margin-right: 10px;">
-                {{'courseManagement.instanceCount' | translate: {count: course.instanceCount} }}
-            </span>
+    <span class="float-right" [hidden]="!isUserAllowedToEdit(course.creator!)">
+      <span style="margin-right: 10px">
+        {{ 'courseManagement.instanceCount' | translate: { count: course.instanceCount } }}
+      </span>
 
-            <span style="margin-right: 20px;">
-                <button type="button" class="btn btn-secondary" (click)="createInstance(course)"
-                        jhiTranslate="courseManagement.createInstance">Create instance</button>
-                <button type="button" class="btn btn-primary" (click)="viewInstances(course)" [disabled]="course.instanceCount === 0"
-                        jhiTranslate="courseManagement.showInstances">Show instances</button>
-            </span>
+      <span style="margin-right: 20px">
+        <button type="button" class="btn btn-secondary" (click)="createInstance(course)" jhiTranslate="courseManagement.createInstance">
+          Create instance
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="viewInstances(course)"
+          [disabled]="course.instanceCount === 0"
+          jhiTranslate="courseManagement.showInstances"
+        >
+          Show instances
+        </button>
+      </span>
 
-            <a ngbTooltip="{{'courseManagement.tooltip.viewGoalAssignment' | translate : {courseName: course.name} }}"
-               (click)="viewGoalAssignments(course)">
-                <fa-icon icon="bullseye"></fa-icon>
-            </a>
-            <a ngbTooltip="{{'courseManagement.tooltip.editGoalAssignment' | translate : {courseName: course.name} }}"
-               style="margin-left: 10px;" (click)="editGoalAssignments(course)"><fa-icon
-                icon="pencil-alt"></fa-icon></a>
-            <a ngbTooltip="{{'courseManagement.tooltip.editCourse' | translate : {courseName: course.name} }}"
-               style="margin-left: 10px;" (click)="editCourse(course)"><fa-icon icon="edit"></fa-icon></a>
-            <a asdf ngbTooltip="{{'courseManagement.tooltip.deleteCourse' | translate : {courseName: course.name} }}"
-               style="margin-left: 10px;"
-               mwlConfirmationPopover
-               [popoverTitle]="popoverTitle"
-               [popoverMessage]="popoverMessage"
-               placement="left"
-               [isDisabled]="course.instanceCount > 0"
-               (confirm)="deleteCourse(course)"
-               [cancelText]="popoverCancelBtnText"
-               [confirmText]="popoverConfirmBtnText">
-                <fa-icon icon="trash"></fa-icon>
-            </a>
-        </span>
-    </li>
+      <a
+        ngbTooltip="{{ 'courseManagement.tooltip.viewGoalAssignment' | translate: { courseName: course.name } }}"
+        (click)="viewGoalAssignments(course)"
+      >
+        <fa-icon icon="bullseye"></fa-icon>
+      </a>
+      <a
+        ngbTooltip="{{ 'courseManagement.tooltip.editGoalAssignment' | translate: { courseName: course.name } }}"
+        style="margin-left: 10px"
+        (click)="editGoalAssignments(course)"
+        ><fa-icon icon="pencil-alt"></fa-icon
+      ></a>
+      <a
+        ngbTooltip="{{ 'courseManagement.tooltip.editCourse' | translate: { courseName: course.name } }}"
+        style="margin-left: 10px"
+        (click)="editCourse(course)"
+        ><fa-icon icon="edit"></fa-icon
+      ></a>
+      <a
+        asdf
+        ngbTooltip="{{ 'courseManagement.tooltip.deleteCourse' | translate: { courseName: course.name } }}"
+        style="margin-left: 10px"
+        mwlConfirmationPopover
+        [popoverTitle]="popoverTitle"
+        [popoverMessage]="popoverMessage"
+        placement="left"
+        [isDisabled]="course.instanceCount > 0"
+        (confirm)="deleteCourse(course)"
+        [cancelText]="popoverCancelBtnText"
+        [confirmText]="popoverConfirmBtnText"
+      >
+        <fa-icon icon="trash"></fa-icon>
+      </a>
+    </span>
+  </li>
 </ul>

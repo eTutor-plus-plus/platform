@@ -1,14 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CourseManagementService } from '../../course-management.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { IDisplayableCourseInstanceDTO, Term } from '../../course-mangement.model';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentAssignmentModalComponent } from './student-assignment-modal/student-assignment-modal.component';
-import { JhiAlertService, JhiEventManager } from 'ng-jhipster';
 import { CourseExerciseSheetAllocationComponent } from './course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import { AlertService } from 'app/core/util/alert.service';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Component for displaying instances from a course.
@@ -20,10 +21,6 @@ import { TranslatePipe } from '@ngx-translate/core';
   providers: [TranslatePipe],
 })
 export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
-  private _courseName?: string;
-  private routingSubscription?: Subscription;
-  private studentAssignmentChangedSubscription?: Subscription;
-
   public page = 1;
   public readonly itemsPerPage: number;
   public totalItems = 0;
@@ -33,6 +30,10 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
   public deletePopoverMessage = 'courseManagement.instances.overview.deletePopover.message';
   public deletePopoverCancelBtnText = 'courseManagement.instances.overview.deletePopover.cancelBtn';
   public deletePopoverConfirmBtnText = 'courseManagement.instances.overview.deletePopover.confirmBtn';
+
+  private _courseName?: string;
+  private routingSubscription?: Subscription;
+  private studentAssignmentChangedSubscription?: Subscription;
 
   /**
    * Constructor.
@@ -50,8 +51,8 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private modalService: NgbModal,
-    private eventManager: JhiEventManager,
-    private alertService: JhiAlertService,
+    private eventManager: EventManager,
+    private alertService: AlertService,
     private translatePipe: TranslatePipe
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
@@ -67,9 +68,9 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
     this.deletePopoverConfirmBtnText = this.translatePipe.transform(this.deletePopoverConfirmBtnText);
 
     this.routingSubscription = this.activatedRoute.paramMap.subscribe(paramMap => (this.courseName = paramMap.get('courseName')!));
-    this.studentAssignmentChangedSubscription = this.eventManager.subscribe('course-instance-stud-assignment-changed', () =>
-      this.loadPageAsync()
-    );
+    this.studentAssignmentChangedSubscription = this.eventManager.subscribe('course-instance-stud-assignment-changed', () => {
+      this.loadPageAsync();
+    });
   }
 
   /**
@@ -172,7 +173,12 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
 
       await this.loadPageAsync();
       this.alertService.addAlert(
-        { type: 'success', msg: 'courseManagement.instances.overview.courseInstanceRemoved', params: { name: item.name }, timeout: 5000 },
+        {
+          type: 'success',
+          translationKey: 'courseManagement.instances.overview.courseInstanceRemoved',
+          translationParams: { name: item.name },
+          timeout: 5000,
+        },
         []
       );
     })();

@@ -4,7 +4,15 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
-import org.apache.commons.codec.Charsets;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -21,14 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
-
 /**
  * Service class for SPARQL related operations.
  *
@@ -40,7 +40,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     private static final String SCHEME_PATH = "/rdf/scheme.ttl";
 
     //region Queries
-    private static final String QRY_GOAL_COUNT = """
+    private static final String QRY_GOAL_COUNT =
+        """
         SELECT (COUNT(DISTINCT ?subject) as ?count)
         WHERE {
         	?subject ?predicate ?object.
@@ -48,7 +49,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_ID_SUBJECT_COUNT = """
+    private static final String QRY_ID_SUBJECT_COUNT =
+        """
         SELECT (COUNT(DISTINCT ?subject) as ?count)
         WHERE {
         	?subject ?predicate ?object.
@@ -56,14 +58,16 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_ASK_COURSE_EXIST = """
+    private static final String QRY_ASK_COURSE_EXIST =
+        """
         ASK {
         	?subject ?predicate ?object.
           FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s> )
         }
         """;
 
-    private static final String QRY_ASK_COURSE_WITH_OWNER_EXIST = """
+    private static final String QRY_ASK_COURSE_WITH_OWNER_EXIST =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -73,7 +77,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_DELETE_ALL_FROM_SUBJECT = """
+    private static final String QRY_DELETE_ALL_FROM_SUBJECT =
+        """
         DELETE { ?subject ?predicate ?object }
         WHERE {
             ?subject ?predicate ?object.
@@ -81,7 +86,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_GOAL_ASSIGNMENT_EXISTS = """
+    private static final String QRY_GOAL_ASSIGNMENT_EXISTS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         ASK {
@@ -89,7 +95,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    private static final String QRY_GOAL_DEPENDENCIES = """
+    private static final String QRY_GOAL_DEPENDENCIES =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -102,7 +109,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         ORDER BY (LCASE(?otherName))
         """;
 
-    private static final String QRY_GOAL_DEPENDENCIES_TEXT = """
+    private static final String QRY_GOAL_DEPENDENCIES_TEXT =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -115,7 +123,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         ORDER BY (LCASE(?goalName))
         """;
 
-    private static final String DELETE_GOAL_WITH_SUBGOALS = """
+    private static final String DELETE_GOAL_WITH_SUBGOALS =
+        """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         DELETE {
@@ -159,9 +168,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * Inserts the RDF scheme into the configured fuseki instance.
      */
     public void insertScheme() {
-        try (RDFConnection conn = getConnection();
-             InputStream schemeStream = getClass().getResourceAsStream(SCHEME_PATH)) {
-
+        try (RDFConnection conn = getConnection(); InputStream schemeStream = getClass().getResourceAsStream(SCHEME_PATH)) {
             Model model = ModelFactory.createDefaultModel();
             model.read(schemeStream, null, "TTL");
 
@@ -183,7 +190,6 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      */
     public LearningGoalDTO insertNewLearningGoal(NewLearningGoalDTO newLearningGoalDTO, String owner)
         throws LearningGoalAlreadyExistsException {
-
         Instant now = Instant.now();
 
         Model model = ModelFactory.createDefaultModel();
@@ -192,8 +198,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
-            try (QueryExecution qExec = conn.query(String.format(QRY_GOAL_COUNT, owner,
-                newLearningGoalDTO.getNameForRDF()))) {
+            try (QueryExecution qExec = conn.query(String.format(QRY_GOAL_COUNT, owner, newLearningGoalDTO.getNameForRDF()))) {
                 cnt = qExec.execSelect().next().getLiteral("?count").getInt();
             }
 
@@ -218,7 +223,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(owner);
         Objects.requireNonNull(goalName);
 
-        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), StandardCharsets.UTF_8);
         String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(DELETE_GOAL_WITH_SUBGOALS);
@@ -246,13 +251,11 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @throws LearningGoalNotExistsException if the learning goal does not exist
      * @throws PrivateSuperGoalException      if the learning goal should be public and has a private super goal
      */
-    public void updateLearningGoal(LearningGoalDTO learningGoalDTO) throws LearningGoalNotExistsException,
-        PrivateSuperGoalException {
+    public void updateLearningGoal(LearningGoalDTO learningGoalDTO) throws LearningGoalNotExistsException, PrivateSuperGoalException {
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
-            try (QueryExecution qExec = conn.query(String.format(QRY_ID_SUBJECT_COUNT,
-                learningGoalDTO.getId()))) {
+            try (QueryExecution qExec = conn.query(String.format(QRY_ID_SUBJECT_COUNT, learningGoalDTO.getId()))) {
                 cnt = qExec.execSelect().next().getLiteral("?count").getInt();
             }
 
@@ -261,7 +264,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             }
 
             if (!learningGoalDTO.isPrivateGoal()) {
-                ParameterizedSparqlString parameterizedSparqlString = new ParameterizedSparqlString("""
+                ParameterizedSparqlString parameterizedSparqlString = new ParameterizedSparqlString(
+                    """
                     PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                     ASK {
@@ -269,7 +273,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                       ?goal etutor:isPrivate true.
                       FILTER(?subject = ?startSubject)
                     }
-                    """);
+                    """
+                );
                 parameterizedSparqlString.setIri("?startSubject", learningGoalDTO.getId());
 
                 boolean containsPrivateSuperGoal = conn.queryAsk(parameterizedSparqlString.toString());
@@ -284,7 +289,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
             String description = ObjectUtils.firstNonNull(learningGoalDTO.getDescription(), "");
 
-            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
                 PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
 
@@ -306,7 +312,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                   ?subject etutor:isPrivate ?private.
                   ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
                 }
-                """);
+                """
+            );
             updateQry.setIri("?subject", learningGoalDTO.getId());
             updateQry.setLiteral("?newChangeDate", nowStr, XSDDatatype.XSDdateTime);
             updateQry.setLiteral("?newDescription", description);
@@ -317,7 +324,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
             if (learningGoalDTO.isPrivateGoal()) {
                 // Update 'privateGoal' of all sub goals
-                String transitiveUpdateQry = String.format("""
+                String transitiveUpdateQry = String.format(
+                    """
                     PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                     DELETE {
@@ -331,7 +339,9 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                       ?goal etutor:isPrivate ?private.
                       FILTER(?subject = <%s>)
                     }
-                    """, learningGoalDTO.getId());
+                    """,
+                    learningGoalDTO.getId()
+                );
 
                 conn.update(transitiveUpdateQry);
             }
@@ -350,15 +360,13 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      */
     public LearningGoalDTO insertSubGoal(NewLearningGoalDTO newLearningGoalDTO, String owner, String parentGoalName)
         throws LearningGoalAlreadyExistsException, LearningGoalNotExistsException {
-
         Instant now = Instant.now();
         Model model = ModelFactory.createDefaultModel();
 
         try (RDFConnection conn = getConnection()) {
             int cnt;
 
-            try (QueryExecution qExec = conn.query(String.format(QRY_GOAL_COUNT, owner,
-                newLearningGoalDTO.getNameForRDF()))) {
+            try (QueryExecution qExec = conn.query(String.format(QRY_GOAL_COUNT, owner, newLearningGoalDTO.getNameForRDF()))) {
                 cnt = qExec.execSelect().next().getLiteral("?count").getInt();
             }
 
@@ -375,7 +383,6 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             }
 
             Resource newGoal = constructLearningGoalFromDTO(newLearningGoalDTO, owner, model, now, superGoalPrivate);
-
 
             Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
             parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, newGoal);
@@ -398,7 +405,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         String queryStr;
 
         if (showOnlyOwnGoals) {
-            queryStr = """
+            queryStr =
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -439,7 +447,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 }
                 """;
         } else {
-            queryStr = """
+            queryStr =
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -544,14 +553,16 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
         String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
 
-        ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             DELETE {
               ?goal etutor:dependsOn ?otherGoal
             }
             INSERT {
-            """);
+            """
+        );
 
         for (String goalId : goalIds) {
             updateQry.append("?goal etutor:dependsOn ");
@@ -559,7 +570,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             updateQry.append(".\n");
         }
 
-        updateQry.append("""
+        updateQry.append(
+            """
             }
             WHERE {
               ?goal a etutor:Goal
@@ -567,7 +579,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 ?goal etutor:dependsOn ?otherGoal
               }
             }
-            """);
+            """
+        );
 
         updateQry.setIri("?goal", goalUri);
 
@@ -635,6 +648,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             throw queryParseException;
         }
     }
+
     //endregion
 
     //region Courses
@@ -687,7 +701,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 throw new CourseNotFoundException();
             }
 
-            ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                 DELETE {
@@ -706,7 +721,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                     ?subject etutor:hasCourseType ?type.
                     FILTER(?subject = ?courseUri)
                 }
-                """);
+                """
+            );
 
             updateQry.setIri("?courseUri", courseDTO.getId());
 
@@ -736,7 +752,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     public Optional<CourseDTO> getCourse(String name) {
         Objects.requireNonNull(name);
 
-        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        ParameterizedSparqlString query = new ParameterizedSparqlString(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             CONSTRUCT { ?course ?predicate ?object.
@@ -755,11 +772,11 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 GROUP BY ?course
               }
             }
-            """);
+            """
+        );
         query.setIri("?courseUri", ETutorVocabulary.createCourseURL(name));
 
         try (RDFConnection conn = getConnection()) {
-
             Model model = conn.queryConstruct(query.asQuery());
             ResIterator iterator = null;
 
@@ -816,7 +833,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @return a sorted set of all available courses
      */
     public SortedSet<CourseDTO> getAllCourses() {
-        String query = """
+        String query =
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             CONSTRUCT { ?course ?predicate ?object.
@@ -859,6 +877,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             }
         }
     }
+
     //endregion
 
     //region Learning Goal Assignment
@@ -871,12 +890,14 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @throws CourseNotFoundException if the course does not exist
      * @throws InternalModelException  if an internal model exception occurs
      */
-    public SortedSet<DisplayLearningGoalAssignmentDTO> getLearningGoalsForCourse(String course) throws CourseNotFoundException, InternalModelException {
+    public SortedSet<DisplayLearningGoalAssignmentDTO> getLearningGoalsForCourse(String course)
+        throws CourseNotFoundException, InternalModelException {
         Objects.requireNonNull(course);
 
         String qry = String.format(QRY_ASK_COURSE_EXIST, course);
 
-        ParameterizedSparqlString constructQry = new ParameterizedSparqlString("""
+        ParameterizedSparqlString constructQry = new ParameterizedSparqlString(
+            """
               PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
@@ -922,7 +943,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                   GROUP BY ?s
                 }
               }
-            """);
+            """
+        );
 
         constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
 
@@ -994,7 +1016,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @param learningGoalAssignmentDTO the learning goal assignment to remove
      * @throws LearningGoalAssignmentNonExistentException if the learning goal does not exist
      */
-    public void removeGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO) throws LearningGoalAssignmentNonExistentException {
+    public void removeGoalAssignment(LearningGoalAssignmentDTO learningGoalAssignmentDTO)
+        throws LearningGoalAssignmentNonExistentException {
         Objects.requireNonNull(learningGoalAssignmentDTO);
         Objects.requireNonNull(learningGoalAssignmentDTO.getCourseId());
         Objects.requireNonNull(learningGoalAssignmentDTO.getLearningGoalId());
@@ -1010,14 +1033,17 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 throw new LearningGoalAssignmentNonExistentException();
             }
 
-            qry = new ParameterizedSparqlString("""
+            qry =
+                new ParameterizedSparqlString(
+                    """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                 DELETE { ?course etutor:hasGoal ?goal }
                 WHERE {
                     ?course etutor:hasGoal ?goal
                 }
-                """);
+                """
+                );
             qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
             qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
 
@@ -1036,18 +1062,21 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(learningGoalUpdateAssignment.getLearningGoalIds());
 
         StringBuilder builder = new StringBuilder();
-        builder.append("""
+        builder.append(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             DELETE { ?subject etutor:hasGoal ?goal }
             INSERT {
-            """);
+            """
+        );
 
         for (String goal : learningGoalUpdateAssignment.getLearningGoalIds()) {
             builder.append(String.format("?subject etutor:hasGoal <%s> .%n", goal));
         }
 
-        builder.append("""
+        builder.append(
+            """
             }
             WHERE {
               ?subject a etutor:Course.
@@ -1056,7 +1085,8 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
               }
               FILTER(?subject = ?course)
             }
-            """);
+            """
+        );
 
         ParameterizedSparqlString updateQry = new ParameterizedSparqlString(builder.toString());
         updateQry.setIri("?course", learningGoalUpdateAssignment.getCourseId());
@@ -1065,6 +1095,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             conn.update(updateQry.asUpdate());
         }
     }
+
     //endregion
 
     //region Private Methods
@@ -1079,14 +1110,18 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @return {@code null} if the goal has not been found, otherwise the corresponding {@code boolean} value
      */
     private Boolean isLearningGoalPrivate(RDFConnection conn, String owner, String learningGoalName) {
-        String query = String.format("""
+        String query = String.format(
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             SELECT  ?privateGoal
             WHERE {
               <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> etutor:isPrivate ?privateGoal
             }
-            """, owner, learningGoalName);
+            """,
+            owner,
+            learningGoalName
+        );
         try (QueryExecution exec = conn.query(query)) {
             ResultSet set = exec.execSelect();
 
@@ -1108,8 +1143,13 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @param superGoalPrivate   {code true} if the super goal is already private, otherwise {@code false}
      * @return {@link Resource} which represents the new learning goal
      */
-    private Resource constructLearningGoalFromDTO(NewLearningGoalDTO newLearningGoalDTO, String owner, Model model,
-                                                  Instant creationTime, boolean superGoalPrivate) {
+    private Resource constructLearningGoalFromDTO(
+        NewLearningGoalDTO newLearningGoalDTO,
+        String owner,
+        Model model,
+        Instant creationTime,
+        boolean superGoalPrivate
+    ) {
         String newResourceName = newLearningGoalDTO.getNameForRDF();
 
         Resource newGoal = ETutorVocabulary.createUserGoalResourceOfModel(owner, newResourceName, model);
@@ -1124,10 +1164,13 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         newGoal.addProperty(RDFS.label, newLearningGoalDTO.getName().trim());
         newGoal.addProperty(ETutorVocabulary.hasChangeDate, creationTimeStr, XSDDatatype.XSDdateTime);
         newGoal.addProperty(ETutorVocabulary.hasOwner, owner);
-        newGoal.addProperty(ETutorVocabulary.needsVerificationBeforeCompletion, String.valueOf(newLearningGoalDTO.isNeedVerification()), XSDDatatype.XSDboolean);
+        newGoal.addProperty(
+            ETutorVocabulary.needsVerificationBeforeCompletion,
+            String.valueOf(newLearningGoalDTO.isNeedVerification()),
+            XSDDatatype.XSDboolean
+        );
 
-        String privateStr = superGoalPrivate ? String.valueOf(true)
-            : String.valueOf(newLearningGoalDTO.isPrivateGoal());
+        String privateStr = superGoalPrivate ? String.valueOf(true) : String.valueOf(newLearningGoalDTO.isPrivateGoal());
 
         newGoal.addProperty(ETutorVocabulary.isPrivate, privateStr, XSDDatatype.XSDboolean);
         newGoal.addProperty(RDF.type, ETutorVocabulary.Goal);

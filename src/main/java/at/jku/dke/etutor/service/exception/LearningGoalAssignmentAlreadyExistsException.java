@@ -6,5 +6,6 @@ package at.jku.dke.etutor.service.exception;
  * @author fne
  */
 public class LearningGoalAssignmentAlreadyExistsException extends Exception {
+
     private static final long serialVersionUID = 1L;
 }

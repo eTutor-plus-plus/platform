@@ -10,7 +10,12 @@ import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.CourseNotFoundException;
 import at.jku.dke.etutor.web.rest.errors.StudentCSVImportException;
 import at.jku.dke.etutor.web.rest.vm.CourseInstanceStudentsVM;
-import io.github.jhipster.web.util.PaginationUtil;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
 import net.minidev.json.JSONArray;
 import one.util.streamex.StreamEx;
 import org.springframework.data.domain.Page;
@@ -22,13 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import tech.jhipster.web.util.PaginationUtil;
 
 /**
  * REST controller for managing course instances.
@@ -141,8 +140,14 @@ public class CourseInstanceResource {
      */
     @GetMapping("overview-instances/of/{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<DisplayableCourseInstanceDTO>> getPagedCourseInstanceOverview(@PathVariable(name = "name") String name, Pageable page) {
-        Page<DisplayableCourseInstanceDTO> overviewPage = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(name, page);
+    public ResponseEntity<List<DisplayableCourseInstanceDTO>> getPagedCourseInstanceOverview(
+        @PathVariable(name = "name") String name,
+        Pageable page
+    ) {
+        Page<DisplayableCourseInstanceDTO> overviewPage = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesOfCourse(
+            name,
+            page
+        );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), overviewPage);
         return new ResponseEntity<>(overviewPage.getContent(), headers, HttpStatus.OK);
     }
@@ -162,9 +167,9 @@ public class CourseInstanceResource {
             List<StudentImportDTO> students = studentService.importStudentsFromFile(file);
             String courseInstanceURI = ETutorVocabulary.createCourseInstanceURLString(uuid);
             courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(
-                StreamEx.of(students)
-                    .map(StudentInfoDTO::getMatriculationNumber)
-                    .toList(), courseInstanceURI);
+                StreamEx.of(students).map(StudentInfoDTO::getMatriculationNumber).toList(),
+                courseInstanceURI
+            );
 
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.StudentCSVImportException studentCSVImportException) {

@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CourseManagementService } from '../course-management.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CourseModel } from '../course-mangement.model';
-import { JhiEventManager } from 'ng-jhipster';
-import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants';
+import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Component which is used to create / update a course.
@@ -13,10 +13,7 @@ import { URL_OR_EMPTY_PATTERN } from '../../../shared/constants/input.constants'
   selector: 'jhi-update-course',
   templateUrl: './update-course.component.html',
 })
-export class UpdateCourseComponent implements OnInit {
-  private _course?: CourseModel;
-  private _courseTypes: string[] = [];
-
+export class UpdateCourseComponent {
   public updateForm = this.fb.group({
     name: ['', [Validators.required]],
     description: [''],
@@ -25,6 +22,9 @@ export class UpdateCourseComponent implements OnInit {
   });
 
   public isSaving = false;
+
+  private _course?: CourseModel;
+  private _courseTypes: string[] = [];
 
   /**
    * Constructor.
@@ -38,48 +38,14 @@ export class UpdateCourseComponent implements OnInit {
     private courseService: CourseManagementService,
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private eventManager: JhiEventManager
+    private eventManager: EventManager
   ) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Saves the form.
    */
   public save(): void {
     this.saveAsync();
-  }
-
-  /**
-   * Saves the form asynchronously.
-   */
-  private async saveAsync(): Promise<any> {
-    const courseToSave: CourseModel = {
-      name: this.updateForm.get(['name'])!.value,
-      description: this.updateForm.get(['description'])!.value,
-      courseType: this.updateForm.get(['type'])!.value,
-      instanceCount: 0,
-    };
-
-    if (this.updateForm.get(['link'])!.value) {
-      courseToSave.link = new URL(this.updateForm.get(['link'])!.value);
-    }
-
-    if (this.course) {
-      // Create new course
-      courseToSave.creator = this.course.creator;
-      courseToSave.id = this.course.id;
-
-      await this.courseService.putCourse(courseToSave).toPromise();
-    } else {
-      // Update existing course
-      await this.courseService.postCourse(courseToSave).toPromise();
-    }
-    this.eventManager.broadcast('courseChanged');
-    this.close();
   }
 
   /**
@@ -127,7 +93,7 @@ export class UpdateCourseComponent implements OnInit {
    */
   @Input()
   public set courseTypes(value: string[]) {
-    if (value && value.length > 0) {
+    if (value.length > 0) {
       this.updateForm.patchValue({
         type: value[0],
       });
@@ -148,5 +114,34 @@ export class UpdateCourseComponent implements OnInit {
    */
   public get isEditMode(): boolean {
     return this.course !== undefined;
+  }
+
+  /**
+   * Saves the form asynchronously.
+   */
+  private async saveAsync(): Promise<any> {
+    const courseToSave: CourseModel = {
+      name: this.updateForm.get(['name'])!.value,
+      description: this.updateForm.get(['description'])!.value,
+      courseType: this.updateForm.get(['type'])!.value,
+      instanceCount: 0,
+    };
+
+    if (this.updateForm.get(['link'])!.value) {
+      courseToSave.link = new URL(this.updateForm.get(['link'])!.value);
+    }
+
+    if (this.course) {
+      // Create new course
+      courseToSave.creator = this.course.creator;
+      courseToSave.id = this.course.id;
+
+      await this.courseService.putCourse(courseToSave).toPromise();
+    } else {
+      // Update existing course
+      await this.courseService.postCourse(courseToSave).toPromise();
+    }
+    this.eventManager.broadcast('courseChanged');
+    this.close();
   }
 }

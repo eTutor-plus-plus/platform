@@ -1,5 +1,7 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
@@ -9,6 +11,8 @@ import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
+import java.text.ParseException;
+import java.util.Optional;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -18,12 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-
-import java.text.ParseException;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code ExerciseSheetSPARQLEndpointService} class.
@@ -120,8 +118,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @Test
     public void testGetExerciseSheetNull() {
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.getExerciseSheetById(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.getExerciseSheetById(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -129,8 +126,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @Test
     public void testUpdateExerciseSheetException() {
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.updateExerciseSheet(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.updateExerciseSheet(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -167,8 +163,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @Test
     public void testDeleteExerciseSheetNull() {
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -190,7 +185,8 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         String id = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
         exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(id);
 
-        final String askQry = """
+        final String askQry =
+            """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             ASK {

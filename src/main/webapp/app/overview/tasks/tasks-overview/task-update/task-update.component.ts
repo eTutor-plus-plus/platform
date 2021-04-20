@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskDifficulty } from '../../task.model';
-import { URL_OR_EMPTY_PATTERN } from '../../../../shared/constants/input.constants';
-import { CustomValidators } from '../../../../shared/validators/custom-validators';
-import { JhiEventManager } from 'ng-jhipster';
+import { CustomValidators } from 'app/shared/validators/custom-validators';
+import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
+import { EventManager } from 'app/core/util/event-manager.service';
 
 /**
  * Component for creating / updating tasks.
@@ -14,9 +14,7 @@ import { JhiEventManager } from 'ng-jhipster';
   selector: 'jhi-task-update',
   templateUrl: './task-update.component.html',
 })
-export class TaskUpdateComponent implements OnInit {
-  private _taskModel?: ITaskModel;
-
+export class TaskUpdateComponent {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
 
@@ -31,6 +29,8 @@ export class TaskUpdateComponent implements OnInit {
     instruction: [''],
   });
 
+  private _taskModel?: ITaskModel;
+
   /**
    * Constructor.
    *
@@ -43,13 +43,8 @@ export class TaskUpdateComponent implements OnInit {
     private fb: FormBuilder,
     private activeModal: NgbActiveModal,
     private tasksService: TasksService,
-    private eventManager: JhiEventManager
+    private eventManager: EventManager
   ) {}
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Saves the task.
@@ -74,12 +69,12 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     const instructionStr: string = this.updateForm.get('instruction')!.value;
-    if (instructionStr && instructionStr.trim()) {
+    if (instructionStr.trim()) {
       newTask.instruction = instructionStr.trim();
     }
 
     const processingTime: string = this.updateForm.get('processingTime')!.value;
-    if (processingTime && processingTime.trim()) {
+    if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
     }
 

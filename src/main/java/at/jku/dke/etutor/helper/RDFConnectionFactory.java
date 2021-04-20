@@ -8,7 +8,6 @@ import org.apache.jena.rdfconnection.RDFConnection;
  * @author fne
  */
 public interface RDFConnectionFactory {
-
     /**
      * Returns the newly created rdf connection.
      *

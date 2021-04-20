@@ -182,9 +182,7 @@
         <a class="nav-link dropdown-toggle" *ngSwitchCase="true" ngbDropdownToggle href="javascript:void(0);" id="account-menu">
           <span *ngIf="!getImageUrl()">
             <fa-icon icon="user"></fa-icon>
-            <span jhiTranslate="global.menu.account.main">
-              Account
-            </span>
+            <span jhiTranslate="global.menu.account.main"> Account </span>
           </span>
           <span *ngIf="getImageUrl()">
             <img [src]="getImageUrl()" class="profile-image rounded-circle" alt="Avatar" />

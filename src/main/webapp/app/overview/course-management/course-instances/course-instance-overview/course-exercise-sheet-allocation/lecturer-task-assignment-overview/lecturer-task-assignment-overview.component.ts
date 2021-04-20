@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ILecturerTaskAssignmentInfoModel, IStudentAssignmentOverviewInfo } from './lecturer-task-assignment.model';
 import { LecturerTaskAssignmentService } from './lecturer-task-assignment.service';
-import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../../../../../shared/constants/pagination.constants';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LecturerGradeAssignmentComponent } from './lecturer-grade-assignment/lecturer-grade-assignment.component';
+import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 
 /**
  * Modal window component for displaying the completed student assignments.
@@ -12,13 +12,13 @@ import { LecturerGradeAssignmentComponent } from './lecturer-grade-assignment/le
   selector: 'jhi-lecturer-task-assignment-overview',
   templateUrl: './lecturer-task-assignment-overview.component.html',
 })
-export class LecturerTaskAssignmentOverviewComponent implements OnInit {
-  private _assignedSheetInfo?: ILecturerTaskAssignmentInfoModel;
-
+export class LecturerTaskAssignmentOverviewComponent {
   public page = 1;
   public itemsPerPage: number;
   public totalItems = 0;
   public entries: IStudentAssignmentOverviewInfo[] = [];
+
+  private _assignedSheetInfo?: ILecturerTaskAssignmentInfoModel;
 
   /**
    * Constructor.
@@ -34,11 +34,6 @@ export class LecturerTaskAssignmentOverviewComponent implements OnInit {
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {}
 
   /**
    * Sets the assigned sheet info.

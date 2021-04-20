@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.service;
 
+import static org.assertj.core.api.Assertions.*;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
@@ -13,6 +14,10 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -23,13 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for the {@code AssignmentSPARQLEndpointService} class.
@@ -153,8 +151,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testRemoveTaskAssignmentWithNullValue() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.removeTaskAssignment(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.removeTaskAssignment(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -192,8 +189,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testUpdateTaskAssignmentWithNullValue() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.updateTaskAssignment(null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.updateTaskAssignment(null)).isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -263,8 +259,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testSetAssignmentWithNullValues() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment(null, null))
-            .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment(null, null)).isInstanceOf(NullPointerException.class);
 
         assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("testid", null))
             .isInstanceOf(NullPointerException.class);
@@ -305,7 +300,8 @@ public class AssignmentSPARQLEndpointServiceTest {
         assignmentSPARQLEndpointService.setTaskAssignment(taskId, testGoalIds);
 
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
-            String cntQuery = """
+            String cntQuery =
+                """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
                 SELECT (COUNT(?goal) as ?cnt)
@@ -441,10 +437,12 @@ public class AssignmentSPARQLEndpointServiceTest {
         List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
         var firstGoal = goals.first();
 
-
         assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
 
-        List<TaskAssignmentDisplayDTO> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(firstGoal.getName(), firstGoal.getOwner());
+        List<TaskAssignmentDisplayDTO> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(
+            firstGoal.getName(),
+            firstGoal.getOwner()
+        );
         assertThat(assignmentHeaders).hasSize(1);
         TaskAssignmentDisplayDTO assignmentHeader = assignmentHeaders.get(0);
         assertThat(assignmentHeader.getHeader()).isEqualTo(task.getHeader());

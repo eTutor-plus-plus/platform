@@ -9,6 +9,7 @@ import java.io.Serial;
  * @author fne
  */
 public class StudentCSVImportException extends Exception {
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

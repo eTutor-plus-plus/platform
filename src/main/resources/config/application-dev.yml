@@ -23,8 +23,6 @@ logging:
 spring:
   main:
     banner-mode: 'off'
-  profiles:
-    active: dev
   devtools:
     restart:
       enabled: true
