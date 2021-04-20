@@ -1,1 +1,35 @@
-<p>student-exercise-sheet-tasks works!</p>
+<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<br />
+<br />
+<h4>Aufgaben des Übungszettels '{{ exerciseSheetName }}'</h4>
+
+<div class="table-responsive" *ngIf="entries">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Aufgabennummer</th>
+        <th>Name</th>
+        <th>Beurteilt</th>
+        <th>Lernziel erreicht</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let entry of entries">
+        <td>{{ entry.orderNo }}</td>
+        <td>{{ entry.taskHeader }}</td>
+        <td [ngSwitch]="entry.graded">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td [ngSwitch]="entry.goalCompleted">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td>
+          <!-- TODO: Implement controls //-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

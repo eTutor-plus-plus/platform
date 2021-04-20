@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -95,5 +96,29 @@ public class StudentResource {
         studentService.saveSelfEvaluation(uuid, matriculationNumber, selfEvaluationGoals);
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/list} : Retrieves the exercise
+     * sheet tasks of an assignment.
+     *
+     * @param courseInstanceUUID the course instance uuid from the request path
+     * @param exerciseSheetUUID  the exercise sheet uuid from the request path
+     * @return the {@link ResponseEntity} containing the task list entries
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/list")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Collection<StudentTaskListInfoDTO>> getStudentTaskList(
+        @PathVariable String courseInstanceUUID,
+        @PathVariable String exerciseSheetUUID
+    ) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Collection<StudentTaskListInfoDTO> list = studentService.getStudentTaskList(
+            courseInstanceUUID,
+            exerciseSheetUUID,
+            matriculationNumber
+        );
+        return ResponseEntity.ok(list);
     }
 }

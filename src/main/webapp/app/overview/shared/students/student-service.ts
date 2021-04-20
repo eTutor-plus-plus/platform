@@ -1,12 +1,13 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SERVER_API_URL } from '../../../app.constants';
+import { SERVER_API_URL } from 'app/app.constants';
 import {
   ICourseInstanceInformationDTO,
   ICourseInstanceProgressOverviewDTO,
   IStudentFullNameInfoDTO,
   IStudentInfoDTO,
+  IStudentTaskListInfoDTO,
 } from './students.model';
 import { map } from 'rxjs/operators';
 
@@ -56,5 +57,20 @@ export class StudentService {
   public getStudentCourseInstanceProgressOverview(courseInstanceId: string): Observable<ICourseInstanceProgressOverviewDTO[]> {
     const uuid = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
     return this.http.get<ICourseInstanceProgressOverviewDTO[]>(`${SERVER_API_URL}api/student/courses/${uuid}/progress`);
+  }
+
+  /**
+   * Returns the exercise sheet tasks.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   */
+  public getExerciseSheetTasks(courseInstanceId: string, exerciseSheetUUID: string): Observable<HttpResponse<IStudentTaskListInfoDTO[]>> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<IStudentTaskListInfoDTO[]>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/list`,
+      { observe: 'response' }
+    );
   }
 }
