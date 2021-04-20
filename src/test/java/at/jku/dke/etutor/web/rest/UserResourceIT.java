@@ -28,9 +28,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,8 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class UserResourceIT {
 
     private static final String DEFAULT_LOGIN = "k1234467";
@@ -111,8 +116,8 @@ class UserResourceIT {
      */
     @BeforeAll
     public void initBeforeAllTests() throws Exception {
-        springLiquibase.setDropFirst(true);
-        springLiquibase.afterPropertiesSet();
+        //springLiquibase.setDropFirst(true);
+        //springLiquibase.afterPropertiesSet();
     }
 
     /**
@@ -477,7 +482,7 @@ class UserResourceIT {
     @Transactional
     public void getAllAuthorities() throws Exception {
         restUserMockMvc
-            .perform(get("/api/users/authorities").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/authorities").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").value(hasItems(AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)));
@@ -532,8 +537,7 @@ class UserResourceIT {
             .andExpect(status().isBadRequest())
             .andExpect(header().string("Content-Type", is(MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
             .andExpect(jsonPath("$.status", is(400)))
-            .andExpect(jsonPath("$.entityName", is("validation")))
-            .andExpect(jsonPath("$.errorKey", is("loginPatternFailed")));
+            .andExpect(jsonPath("$.message", is("error.validation")));
     }
 
     /**
