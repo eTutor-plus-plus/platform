@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LANGUAGES } from 'app/config/language.constants';
 import { User } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
+import { LOGIN_PATTERN } from 'app/shared/constants/user.constants';
 
 @Component({
   selector: 'jhi-user-mgmt-update',
@@ -18,21 +19,13 @@ export class UserManagementUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    login: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(1),
-        Validators.maxLength(50),
-        Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
-      ],
-    ],
+    login: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50), Validators.pattern(LOGIN_PATTERN)]],
     firstName: ['', [Validators.maxLength(50)]],
     lastName: ['', [Validators.maxLength(50)]],
     email: ['', [Validators.minLength(5), Validators.maxLength(254), Validators.email]],
     activated: [],
-    langKey: [],
-    authorities: [],
+    langKey: ['', [Validators.required]],
+    authorities: ['', [Validators.required]],
   });
 
   constructor(private userService: UserManagementService, private route: ActivatedRoute, private fb: FormBuilder) {}
