@@ -6,3 +6,4 @@ package-lock.json
 .mvn
 gradle
 .gradle
+/**/*.java
