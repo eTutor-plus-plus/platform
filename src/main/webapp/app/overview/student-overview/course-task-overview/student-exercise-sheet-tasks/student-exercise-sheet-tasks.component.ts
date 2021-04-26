@@ -20,7 +20,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   public entries: IStudentTaskListInfoDTO[] = [];
   public exerciseSheetName = '';
 
-  private _instance?: ICourseInstanceInformationDTO;
+  private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
   private _exerciseSheetUUID = '';
 
@@ -77,6 +77,16 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    */
   public navigateBack(): void {
     this.location.back();
+  }
+
+  /**
+   * Opens the given task entry.
+   *
+   * @param taskEntry the task entry to open
+   */
+  public openTask(taskEntry: IStudentTaskListInfoDTO): void {
+    const taskUUID = taskEntry.taskId.substr(taskEntry.taskId.lastIndexOf('#') + 1);
+    this.router.navigate(['task', taskUUID], { relativeTo: this.activatedRoute, state: this._instance });
   }
 
   /**

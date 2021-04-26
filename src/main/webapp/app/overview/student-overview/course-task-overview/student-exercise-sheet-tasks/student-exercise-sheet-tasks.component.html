@@ -1,16 +1,16 @@
 <button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
 <br />
 <br />
-<h4>Aufgaben des Übungszettels '{{ exerciseSheetName }}'</h4>
+<h4>{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
 
 <div class="table-responsive" *ngIf="entries">
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>Aufgabennummer</th>
-        <th>Name</th>
-        <th>Beurteilt</th>
-        <th>Lernziel erreicht</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.taskNo">Task number</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.name">Name</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.assessed">Assessed</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoalReached">Learning goal reached</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -26,8 +26,17 @@
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
         </td>
-        <td>
-          <!-- TODO: Implement controls //-->
+        <td class="text-right">
+          <div class="btn-group">
+            <button
+              [disabled]="entry.graded"
+              class="btn btn-info"
+              (click)="openTask(entry)"
+              jhiTranslate="overview.student.exerciseSheetTaskOverview.openTask"
+            >
+              Open
+            </button>
+          </div>
         </td>
       </tr>
     </tbody>

@@ -21,6 +21,25 @@
         "yes": "Ja",
         "save": "Speichern",
         "cancel": "Abbrechen"
+      },
+      "exerciseSheetTaskOverview": {
+        "openTask": "Öffnen",
+        "header": "Aufgaben des Übungszettels '{{name}}'",
+        "fields": {
+          "taskNo": "Aufgabennummer",
+          "name": "Name",
+          "assessed": "Beurteilt",
+          "learningGoalReached": "Lernziel erreicht"
+        }
+      },
+      "tasks": {
+        "headerText": "Aufgabe '{{name}}' bearbeiten",
+        "header": "Überschrift",
+        "link": "Link",
+        "instructions": "Aufgabenstellung",
+        "difficulty": "Schwierigkeit",
+        "processingTime": "Geschätzte Bearbeitungszeit",
+        "creator": "Ersteller"
       }
     }
   }

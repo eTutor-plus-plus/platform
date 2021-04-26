@@ -21,6 +21,25 @@
         "yes": "Yes",
         "save": "Save",
         "cancel": "Cancel"
+      },
+      "exerciseSheetTaskOverview": {
+        "openTask": "Open",
+        "header": "Tasks of the exercise sheet '{{name}}'",
+        "fields": {
+          "taskNo": "Task number",
+          "name": "Name",
+          "assessed": "Assessed",
+          "learningGoalReached": "Learning goal reached"
+        }
+      },
+      "tasks": {
+        "headerText": "Aufgabe '{{name}}' bearbeiten",
+        "header": "Header",
+        "link": "Link",
+        "instructions": "Instructions",
+        "difficulty": "Difficulty",
+        "processingTime": "Estimated processing time",
+        "creator": "Creator"
       }
     }
   }

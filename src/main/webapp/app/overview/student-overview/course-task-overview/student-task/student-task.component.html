@@ -1,1 +1,38 @@
-<p>student-task works!</p>
+<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<br />
+<br />
+
+<h4>{{ 'overview.student.tasks.headerText' | translate: { name: taskModel.header } }}</h4>
+
+<dl class="row-md task-details">
+  <dt><span jhiTranslate="overview.student.tasks.header">Header</span></dt>
+  <dt></dt>
+  <dd>{{ taskModel.header }}</dd>
+
+  <div *ngIf="taskModel.url">
+    <dt><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
+    <dd>{{ taskModel.url.toString() }}</dd>
+  </div>
+
+  <div *ngIf="taskModel.instruction">
+    <dt><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
+    <dd><span [innerHTML]="taskModel.instruction"></span></dd>
+  </div>
+
+  <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
+  <dd>
+    <span>{{ getDifficultyI18nString(taskModel.taskDifficultyId) | translate }}</span>
+  </dd>
+
+  <div *ngIf="taskModel.processingTime">
+    <dt><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
+    <dd>
+      <span>{{ taskModel.processingTime }}</span>
+    </dd>
+  </div>
+
+  <dt><span jhiTranslate="overview.student.tasks.creator">Creator</span></dt>
+  <dd>
+    <span>{{ taskModel.creator }}</span>
+  </dd>
+</dl>
