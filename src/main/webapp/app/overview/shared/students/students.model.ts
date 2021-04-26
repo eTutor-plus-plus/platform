@@ -105,4 +105,8 @@ export interface IStudentTaskListInfoDTO {
    * The task's header.
    */
   taskHeader: string;
+  /**
+   * Indicates whether the task has already been submitted or not.
+   */
+  submitted: boolean;
 }

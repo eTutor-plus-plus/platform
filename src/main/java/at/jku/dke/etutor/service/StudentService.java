@@ -127,6 +127,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
               ?individualTask etutor:hasOrderNo ?orderNo;
                               etutor:refersToTask ?task;
                               etutor:isGraded ?graded;
+                              etutor:isSubmitted ?submitted;
                               etutor:isLearningGoalCompleted ?goalCompleted.
               ?task etutor:hasTaskHeader ?taskHeader.
             }
@@ -417,8 +418,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     boolean graded = solution.getLiteral("?graded").getBoolean();
                     boolean goalCompleted = solution.getLiteral("?goalCompleted").getBoolean();
                     String taskHeader = solution.getLiteral("?taskHeader").getString();
+                    boolean submitted = solution.getLiteral("?submitted").getBoolean();
 
-                    list.add(new StudentTaskListInfoDTO(orderNo, taskId, graded, goalCompleted, taskHeader));
+                    list.add(new StudentTaskListInfoDTO(orderNo, taskId, graded, goalCompleted, taskHeader, submitted));
                 }
             }
         }

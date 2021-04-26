@@ -29,7 +29,8 @@
           "taskNo": "Task number",
           "name": "Name",
           "assessed": "Assessed",
-          "learningGoalReached": "Learning goal reached"
+          "learningGoalReached": "Learning goal reached",
+          "submitted": "Submitted"
         }
       },
       "tasks": {

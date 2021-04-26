@@ -29,7 +29,8 @@
           "taskNo": "Aufgabennummer",
           "name": "Name",
           "assessed": "Beurteilt",
-          "learningGoalReached": "Lernziel erreicht"
+          "learningGoalReached": "Lernziel erreicht",
+          "submitted": "Eingereicht"
         }
       },
       "tasks": {

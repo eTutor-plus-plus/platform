@@ -11,6 +11,7 @@
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.name">Name</th>
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.assessed">Assessed</th>
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoalReached">Learning goal reached</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.submitted">Submitted</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -23,6 +24,10 @@
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
         </td>
         <td [ngSwitch]="entry.goalCompleted">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td [ngSwitch]="entry.submitted">
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
         </td>
