@@ -60,7 +60,7 @@ export const overviewRoute: Routes = [
         component: StudentExerciseSheetTasksComponent,
         children: [
           {
-            path: 'task/:taskUUID',
+            path: 'task/:taskUUID/taskNo/:taskNo',
             component: StudentTaskComponent,
           },
         ],

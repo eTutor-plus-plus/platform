@@ -150,6 +150,18 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+    private static final String QRY_ASK_TASK_ALREADY_SUBMITTED = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+          	                    etutor:fromCourseInstance ?courseInstance;
+                                etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:isSubmitted true.
+        }
+        """;
+
     private final UserService userService;
     private final StudentRepository studentRepository;
 
@@ -433,11 +445,40 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_SUBMIT_TASK_ASSIGNMENT);
         qry.setIri("?student", studentUrl);
-        qry.setIri("?sheet", exerciseSheetUUID);
+        qry.setIri("?sheet", sheetId);
         qry.setIri("?courseInstance", courseInstanceId);
 
         try (RDFConnection connection = getConnection()) {
             connection.update(qry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns whether a task has already been submitted or not.
+     *
+     * @param courseInstanceUUID the course instance uuid
+     * @param exerciseSheetUUID  the exercise sheet uuid
+     * @param matriculationNo    the matriculation number
+     * @param orderNo            the order number
+     * @return {@code true} if the task has already been submitted, otherwise {@code false}
+     */
+    public boolean isTaskSubmitted(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+        assert orderNo > 0;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_TASK_ALREADY_SUBMITTED);
+        qry.setIri("?student", studentUrl);
+        qry.setIri("?sheet", sheetId);
+        qry.setIri("?courseInstance", courseInstanceId);
+
+        try (RDFConnection connection = getConnection()) {
+            return connection.queryAsk(qry.asQuery());
         }
     }
 }

@@ -129,7 +129,7 @@ public class StudentResource {
      *
      * @param courseInstanceUUID the course instance uuid from the request path
      * @param exerciseSheetUUID  the exercise sheet uuid from the request path
-     * @param taskNo             task no from the request pat
+     * @param taskNo             task no from the request path
      * @return empty {@link ResponseEntity}
      */
     @PostMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/submit")
@@ -139,5 +139,23 @@ public class StudentResource {
 
         studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, taskNo);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo/submitted} : Returns
+     * whether the given task has already been submitted, or not.
+     *
+     * @param courseInstanceUUID the course instance uuid from the request path
+     * @param exerciseSheetUUID  the exercise sheet uuid from the request path
+     * @param taskNo             the task no from the request path
+     * @return the {@link ResponseEntity} containing the result
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/submitted")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Boolean> isTaskSubmitted(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        boolean value = studentService.isTaskSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, taskNo);
+        return ResponseEntity.ok(value);
     }
 }

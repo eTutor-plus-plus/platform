@@ -73,4 +73,35 @@ export class StudentService {
       { observe: 'response' }
     );
   }
+
+  /**
+   * Marks the given task as submitted.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   * @param taskNo the task number
+   */
+  public markTaskAsSubmitted(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.post(
+      `${SERVER_API_URL}/api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submit`,
+      null
+    );
+  }
+
+  /**
+   * Returns whether the task is submitted or not.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   * @param taskNo the task number
+   */
+  public isTaskSubmitted(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<boolean> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<boolean>(
+      `${SERVER_API_URL}/api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submitted`
+    );
+  }
 }

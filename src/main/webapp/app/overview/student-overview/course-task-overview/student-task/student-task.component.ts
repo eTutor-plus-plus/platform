@@ -5,6 +5,7 @@ import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/stud
 import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskDifficulty } from 'app/overview/tasks/task.model';
+import { StudentService } from 'app/overview/shared/students/student-service';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -16,10 +17,14 @@ import { ITaskModel, TaskDifficulty } from 'app/overview/tasks/task.model';
   styleUrls: ['./student-task.component.scss'],
 })
 export class StudentTaskComponent implements OnInit, OnDestroy {
+  public isSaving = false;
+  public isSubmitted = true;
+
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
   private _exerciseSheetUUID = '';
   private _taskUUID = '';
+  private _taskNo = 0;
   private _taskModel?: ITaskModel;
 
   /**
@@ -29,12 +34,14 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * @param location the injected location service
    * @param activatedRoute the injected activated route
    * @param taskService the injected task service
+   * @param studentService the injected student service
    */
   constructor(
     private router: Router,
     private location: Location,
     private activatedRoute: ActivatedRoute,
-    private taskService: TasksService
+    private taskService: TasksService,
+    private studentService: StudentService
   ) {
     const nav = this.router.getCurrentNavigation();
 
@@ -52,10 +59,17 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     this._paramMapSubscription = this.activatedRoute.paramMap.subscribe(paramMap => {
       this._exerciseSheetUUID = paramMap.get('exerciseSheetUUID')!;
       this._taskUUID = paramMap.get('taskUUID')!;
+      this._taskNo = Number(paramMap.get('taskNo')!);
 
       (async () => {
         const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
         this._taskModel = result.body!;
+      })();
+
+      (async () => {
+        this.isSubmitted = await this.studentService
+          .isTaskSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+          .toPromise();
       })();
     });
   }
@@ -88,5 +102,12 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    */
   public getDifficultyI18nString(url: string): string {
     return TaskDifficulty.fromString(url)!.text;
+  }
+
+  /**
+   * Asynchronously marks the task as submitted.
+   */
+  public async markTaskAsSubmittedAsync(): Promise<void> {
+    await this.studentService.markTaskAsSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo).toPromise();
   }
 }
