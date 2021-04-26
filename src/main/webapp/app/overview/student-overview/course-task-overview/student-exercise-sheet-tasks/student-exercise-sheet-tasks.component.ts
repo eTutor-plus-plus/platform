@@ -86,7 +86,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    */
   public openTask(taskEntry: IStudentTaskListInfoDTO): void {
     const taskUUID = taskEntry.taskId.substr(taskEntry.taskId.lastIndexOf('#') + 1);
-    this.router.navigate(['task', taskUUID], { relativeTo: this.activatedRoute, state: this._instance });
+    this.router.navigate(['task', taskUUID, 'taskNo', taskEntry.orderNo], { relativeTo: this.activatedRoute, state: this._instance });
   }
 
   /**
