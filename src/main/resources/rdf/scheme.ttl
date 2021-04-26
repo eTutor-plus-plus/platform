@@ -178,6 +178,11 @@ etutor:isGraded
     rdfs:domain etutor:IndividualTask ;
     rdfs:range  xsd:boolean .
 
+etutor:isSubmitted
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:boolean .
+
 etutor:refersToTask
     rdf:type    rdf:Property ;
     rdfs:domain etutor:IndividualTask ;

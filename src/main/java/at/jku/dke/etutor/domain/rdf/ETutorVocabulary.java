@@ -1,10 +1,11 @@
 package at.jku.dke.etutor.domain.rdf;
 
-import java.util.Objects;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+
+import java.util.Objects;
 
 /**
  * RDF vocabulary class.
@@ -51,6 +52,7 @@ public final class ETutorVocabulary {
     private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
     private static final String PROP_HAS_INDIVIDUAL_TASK = "hasIndividualTask";
     private static final String PROP_IS_GRADED = "isGraded";
+    private static final String PROP_IS_SUBMITTED = "isSubmitted";
     private static final String PROP_REFERS_TO_TASK = "refersToTask";
     private static final String PROP_HAS_ORDER_NO = "hasOrderNo";
     private static final String PROP_IS_LEARNING_GOAL_COMPLETED = "isLearningGoalCompleted";
@@ -279,6 +281,10 @@ public final class ETutorVocabulary {
      */
     public static final Property isGraded = m.createProperty(URI + PROP_IS_GRADED);
     /**
+     * The isSubmitted property.
+     */
+    public static final Property isSubmitted = m.createProperty(URI + PROP_IS_SUBMITTED);
+    /**
      * The refersToTask property.
      */
     public static final Property refersToTask = m.createProperty(URI + PROP_REFERS_TO_TASK);
@@ -377,7 +383,7 @@ public final class ETutorVocabulary {
      * @param model     the base model of the resource
      * @return the individual goal resource
      */
-    public static final Resource createUserGoalResourceOfModel(String userLogin, String goalName, Model model) {
+    public static Resource createUserGoalResourceOfModel(String userLogin, String goalName, Model model) {
         return model.createResource(URI + userLogin + "/" + CLASS_GOAL + "#" + goalName);
     }
 
@@ -388,7 +394,7 @@ public final class ETutorVocabulary {
      * @param model      the base model of the resource
      * @return the individual course resource
      */
-    public static final Resource createCourseResourceOfModel(String courseName, Model model) {
+    public static Resource createCourseResourceOfModel(String courseName, Model model) {
         return model.createResource(createCourseURL(courseName));
     }
 
@@ -398,7 +404,7 @@ public final class ETutorVocabulary {
      * @param courseName the course's name
      * @return the course url
      */
-    public static final String createCourseURL(String courseName) {
+    public static String createCourseURL(String courseName) {
         return URI + CLASS_COURSE + "#" + courseName;
     }
 
@@ -409,7 +415,7 @@ public final class ETutorVocabulary {
      * @param model the base model
      * @return the individual task assignment resource
      */
-    public static final Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
+    public static Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
         return model.createResource(URI + CLASS_TASK_ASSIGNMENT + "#" + uuid);
     }
 
@@ -420,7 +426,7 @@ public final class ETutorVocabulary {
      * @param model the base model
      * @return the individual exercise sheet resource
      */
-    public static final Resource createExerciseSheetOfModel(String uuid, Model model) {
+    public static Resource createExerciseSheetOfModel(String uuid, Model model) {
         return model.createResource(createExerciseSheetURLString(uuid));
     }
 
@@ -430,7 +436,7 @@ public final class ETutorVocabulary {
      * @param uuid the uuid
      * @return the internal url of an individual exercise sheet
      */
-    public static final String createExerciseSheetURLString(String uuid) {
+    public static String createExerciseSheetURLString(String uuid) {
         return URI + CLASS_EXERCISE_SHEET + "#" + uuid;
     }
 
@@ -440,7 +446,7 @@ public final class ETutorVocabulary {
      * @param uuid the uuid
      * @return the internal url of a course instance
      */
-    public static final String createCourseInstanceURLString(String uuid) {
+    public static String createCourseInstanceURLString(String uuid) {
         return URI + CLASS_COURSE_INSTANCE + "#" + uuid;
     }
 
@@ -451,7 +457,7 @@ public final class ETutorVocabulary {
      * @param model the base model
      * @return the individual course instance
      */
-    public static final Resource createCourseInstanceOfModel(String uuid, Model model) {
+    public static Resource createCourseInstanceOfModel(String uuid, Model model) {
         return model.createResource(createCourseInstanceURLString(uuid));
     }
 
@@ -462,7 +468,7 @@ public final class ETutorVocabulary {
      * @param termUri the term uri, must not be null
      * @return string representation, or {@code null}
      */
-    public static final String getTermTextFromUri(String termUri) {
+    public static String getTermTextFromUri(String termUri) {
         Objects.requireNonNull(termUri);
 
         return switch (termUri) {
@@ -478,7 +484,7 @@ public final class ETutorVocabulary {
      * @param matriculationNumber the student's matriculation number
      * @return student url based on the given matriculation number
      */
-    public static final String getStudentURLFromMatriculationNumber(String matriculationNumber) {
+    public static String getStudentURLFromMatriculationNumber(String matriculationNumber) {
         return URI + CLASS_STUDENT + "#" + matriculationNumber;
     }
 

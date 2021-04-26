@@ -9,12 +9,13 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * REST controller for managing students.
@@ -120,5 +121,23 @@ public class StudentResource {
             matriculationNumber
         );
         return ResponseEntity.ok(list);
+    }
+
+    /**
+     * {@code POST /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo/submit} : Submits
+     * a task.
+     *
+     * @param courseInstanceUUID the course instance uuid from the request path
+     * @param exerciseSheetUUID  the exercise sheet uuid from the request path
+     * @param taskNo             task no from the request pat
+     * @return empty {@link ResponseEntity}
+     */
+    @PostMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/submit")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> submitTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, taskNo);
+        return ResponseEntity.noContent().build();
     }
 }

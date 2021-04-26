@@ -12,10 +12,6 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -28,6 +24,11 @@ import org.apache.jena.vocabulary.RDF;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Service class for managing students.
@@ -114,20 +115,38 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_SELECT_STUDENT_TASK_LIST =
         """
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?orderNo (STR(?task) AS ?taskId) ?graded ?goalCompleted ?taskHeader
+            WHERE {
+              ?courseInstance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?courseInstance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:refersToTask ?task;
+                              etutor:isGraded ?graded;
+                              etutor:isLearningGoalCompleted ?goalCompleted.
+              ?task etutor:hasTaskHeader ?taskHeader.
+            }
+            """;
+
+    private static final String QRY_SUBMIT_TASK_ASSIGNMENT = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?orderNo (STR(?task) AS ?taskId) ?graded ?goalCompleted ?taskHeader
+        DELETE {
+          ?individualTask etutor:isSubmitted ?submitted.
+        } INSERT {
+          ?individualTask etutor:isSubmitted true.
+        }
         WHERE {
-          ?courseInstance a etutor:CourseInstance.
           ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                etutor:fromCourseInstance ?courseInstance;
+          	                    etutor:fromCourseInstance ?courseInstance;
                                 etutor:hasIndividualTask ?individualTask.
           ?individualTask etutor:hasOrderNo ?orderNo;
-                          etutor:refersToTask ?task;
-                          etutor:isGraded ?graded;
-                          etutor:isLearningGoalCompleted ?goalCompleted.
-          ?task etutor:hasTaskHeader ?taskHeader.
+                          etutor:isSubmitted ?submitted.
         }
         """;
 
@@ -392,5 +411,33 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
         return list;
+    }
+
+    /**
+     * Marks a task assignment as submitted.
+     *
+     * @param courseInstanceUUID the course instance uuid
+     * @param exerciseSheetUUID  the exercise sheet uuid
+     * @param matriculationNo    the matriculation number
+     * @param orderNo            the order no
+     */
+    public void markTaskAssignmentAsSubmitted(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+        assert orderNo > 0;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_SUBMIT_TASK_ASSIGNMENT);
+        qry.setIri("?student", studentUrl);
+        qry.setIri("?sheet", exerciseSheetUUID);
+        qry.setIri("?courseInstance", courseInstanceId);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(qry.asUpdate());
+        }
     }
 }
