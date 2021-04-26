@@ -54,18 +54,22 @@ export const overviewRoute: Routes = [
       authorities: [Authority.STUDENT],
     },
     component: CourseTaskOverviewComponent,
-    children: [
-      {
-        path: ':exerciseSheetUUID/tasks',
-        component: StudentExerciseSheetTasksComponent,
-        children: [
-          {
-            path: 'task/:taskUUID/taskNo/:taskNo',
-            component: StudentTaskComponent,
-          },
-        ],
-      },
-    ],
+  },
+  {
+    path: 'student/exercises/:exerciseSheetUUID/tasks',
+    component: StudentExerciseSheetTasksComponent,
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.STUDENT],
+    },
+  },
+  {
+    path: 'student/exercises/:exerciseSheetUUID/tasks/task/:taskUUID/taskNo/:taskNo',
+    component: StudentTaskComponent,
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.STUDENT],
+    },
   },
   {
     path: 'student/self-assessment',

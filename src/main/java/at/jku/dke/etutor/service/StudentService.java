@@ -117,7 +117,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT ?orderNo (STR(?task) AS ?taskId) ?graded ?goalCompleted ?taskHeader
+            SELECT ?orderNo (STR(?task) AS ?taskId) ?graded ?goalCompleted ?taskHeader ?submitted
             WHERE {
               ?courseInstance a etutor:CourseInstance.
               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.

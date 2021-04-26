@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { StudentService } from '../../shared/students/student-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ICourseInstanceInformationDTO, ICourseInstanceProgressOverviewDTO } from '../../shared/students/students.model';
 import { TaskDifficulty } from '../../tasks/task.model';
 
@@ -24,8 +24,14 @@ export class CourseTaskOverviewComponent implements OnInit {
    * @param studentService the injected student service
    * @param router the injected router
    * @param location the injected location service
+   * @param activatedRoute the injected activated route
    */
-  constructor(private studentService: StudentService, private router: Router, private location: Location) {
+  constructor(
+    private studentService: StudentService,
+    private router: Router,
+    private location: Location,
+    private activatedRoute: ActivatedRoute
+  ) {
     const nav = this.router.getCurrentNavigation();
 
     if (nav?.extras.state) {
@@ -70,5 +76,15 @@ export class CourseTaskOverviewComponent implements OnInit {
    */
   public navigateBack(): void {
     this.location.back();
+  }
+
+  /**
+   * Navigates to the tasks of the given exercise sheet.
+   *
+   * @param item the progress info
+   */
+  public navigateToTasks(item: ICourseInstanceProgressOverviewDTO): void {
+    const exerciseSheetUUID = item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1);
+    this.router.navigate([exerciseSheetUUID, 'tasks'], { relativeTo: this.activatedRoute, state: { instance: this.instance } });
   }
 }

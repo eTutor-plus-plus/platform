@@ -11,6 +11,7 @@
         <th>Name</th>
         <th jhiTranslate="overview.student.difficulty">Difficulty</th>
         <th jhiTranslate="overview.student.completed">Completed</th>
+        <th>&nbsp;</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +21,9 @@
         <td [ngSwitch]="item.completed">
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-info" (click)="navigateToTasks(item)">Aufgaben anzeigen</button>
         </td>
       </tr>
     </tbody>
