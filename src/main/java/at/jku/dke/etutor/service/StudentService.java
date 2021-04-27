@@ -207,6 +207,41 @@ public class StudentService extends AbstractSPARQLEndpointService {
         GROUP BY ?taskCount
         """;
 
+    private static final String QRY_SELECT_MAX_ORDER_NO = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT (COALESCE(MAX(?orderNo), 0) AS ?maxOrderNo)
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance;
+                                etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+    private static final String QRY_INSERT_NEW_INDIVIDUAL_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+          ?individualAssignment etutor:hasIndividualTask [
+            a etutor:IndividualTask;
+            etutor:hasOrderNo ?newOrderNo;
+            etutor:isSubmitted false;
+            etutor:isLearningGoalCompleted false;
+            etutor:isGraded false;
+            etutor:refersToTask ?newTask
+          ].
+        }
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance;
+        }
+        """;
+
     private final Logger log = LoggerFactory.getLogger(StudentService.class);
 
     private final UserService userService;
@@ -565,8 +600,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         alreadyAssignedTaskQuery.setLiteral("?student", studentUrl);
 
 
-        try(RDFConnection connection = getConnection()) {
-            try(QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
                 ResultSet set = execution.execSelect();
                 if (!set.hasNext()) {
                     log.warn("Task assignment on an exercise sheet which does not exist!");
@@ -578,11 +613,47 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
 
                 if (taskCount == assignedCount) {
-                    throw  new AllTasksAlreadyAssignedException();
+                    throw new AllTasksAlreadyAssignedException();
                 }
 
                 //TODO: Assign tasks based on the individual learning curve.
             }
         }
+    }
+
+    /**
+     * Inserts the newly assigned task.
+     *
+     * @param courseInstanceUrl  the course instance url
+     * @param exerciseSheetUrl   the exercise sheet url
+     * @param studentUrl         the student's url
+     * @param newTaskResourceUrl the task url
+     * @param connection         the RDF connection to the fuseki server, will not be closed
+     */
+    private void insertNewAssignedTask(String courseInstanceUrl, String exerciseSheetUrl, String studentUrl, String newTaskResourceUrl, RDFConnection connection) {
+        ParameterizedSparqlString latestOrderNoQry = new ParameterizedSparqlString(QRY_SELECT_MAX_ORDER_NO);
+        latestOrderNoQry.setIri("?courseInstance", courseInstanceUrl);
+        latestOrderNoQry.setIri("?student", studentUrl);
+        latestOrderNoQry.setIri("?sheet", exerciseSheetUrl);
+
+        int orderNo;
+
+        try (QueryExecution queryExecution = connection.query(latestOrderNoQry.asQuery())) {
+            ResultSet set = queryExecution.execSelect();
+            //noinspection ResultOfMethodCallIgnored
+            set.hasNext();
+
+            QuerySolution solution = set.nextSolution();
+            orderNo = solution.getLiteral("?maxOrderNo").getInt() + 1;
+        }
+
+        ParameterizedSparqlString individualAssignmentInsertQry = new ParameterizedSparqlString();
+        individualAssignmentInsertQry.setIri("?courseInstance", courseInstanceUrl);
+        individualAssignmentInsertQry.setIri("?student", studentUrl);
+        individualAssignmentInsertQry.setIri("?sheet", exerciseSheetUrl);
+        individualAssignmentInsertQry.setIri("?newTask", newTaskResourceUrl);
+        individualAssignmentInsertQry.setLiteral("?newOrderNo", orderNo);
+
+        connection.update(individualAssignmentInsertQry.asUpdate());
     }
 }
