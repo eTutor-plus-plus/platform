@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -19,6 +20,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -187,6 +190,24 @@ public class StudentService extends AbstractSPARQLEndpointService {
                           etutor:hasOrderNo ?orderNo.
         }
         """;
+
+    private static final String QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT ?taskCount (COUNT(?orderNo) as ?assignedCount)
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance;
+                                etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+          ?sheet etutor:hasExerciseSheetTaskCount ?taskCount.
+        }
+        GROUP BY ?taskCount
+        """;
+
+    private final Logger log = LoggerFactory.getLogger(StudentService.class);
 
     private final UserService userService;
     private final StudentRepository studentRepository;
@@ -363,7 +384,12 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
 
-        // TODO: Implement task assignment according to the individual learning curve
+        try {
+            assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+        } catch (AllTasksAlreadyAssignedException ex) {
+            //Ignore, must not happen -> warn
+            log.warn("When creating a new individual assignment of an exercise sheet, no tasks can be individually assigned!", ex);
+        }
 
         try (RDFConnection connection = getConnection()) {
             connection.load(model);
@@ -512,6 +538,51 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         try (RDFConnection connection = getConnection()) {
             return connection.queryAsk(qry.asQuery());
+        }
+    }
+
+    /**
+     * Assigns the next available task according to the student's current learning curve.
+     *
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     * @param matriculationNumber the student's matriculation number
+     * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
+     *                                          i.e. exercise sheet task count = assigned task count
+     */
+    private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) throws AllTasksAlreadyAssignedException {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNumber);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString alreadyAssignedTaskQuery = new ParameterizedSparqlString(QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT);
+        alreadyAssignedTaskQuery.setLiteral("?courseInstance", courseInstanceId);
+        alreadyAssignedTaskQuery.setLiteral("?sheet", sheetId);
+        alreadyAssignedTaskQuery.setLiteral("?student", studentUrl);
+
+
+        try(RDFConnection connection = getConnection()) {
+            try(QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
+                ResultSet set = execution.execSelect();
+                if (!set.hasNext()) {
+                    log.warn("Task assignment on an exercise sheet which does not exist!");
+                    throw new IllegalStateException("No exercise sheet assigned!");
+                }
+                QuerySolution querySolution = set.nextSolution();
+
+                int taskCount = querySolution.getLiteral("?taskCount").getInt();
+                int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
+
+                if (taskCount == assignedCount) {
+                    throw  new AllTasksAlreadyAssignedException();
+                }
+
+                //TODO: Assign tasks based on the individual learning curve.
+            }
         }
     }
 }
