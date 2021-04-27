@@ -1,38 +1,50 @@
-<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<button type="button" class="btn btn-secondary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
 <br />
 <br />
+<jhi-alert></jhi-alert>
+<jhi-alert-error></jhi-alert-error>
 
 <h4>{{ 'overview.student.tasks.headerText' | translate: { name: taskModel.header } }}</h4>
 <div class="row">
-  <dl class="row-md task-details">
-    <dt><span jhiTranslate="overview.student.tasks.header">Header</span></dt>
-    <dd>{{ taskModel.header }}</dd>
+  <div class="col-8">
+    <dl class="row-md task-details">
+      <dt><span jhiTranslate="overview.student.tasks.header">Header</span></dt>
+      <dd>{{ taskModel.header }}</dd>
 
-    <div *ngIf="taskModel.url">
-      <dt><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
-      <dd>{{ taskModel.url.toString() }}</dd>
-    </div>
+      <div *ngIf="taskModel.url">
+        <dt><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
+        <dd>{{ taskModel.url.toString() }}</dd>
+      </div>
 
-    <div *ngIf="taskModel.instruction">
-      <dt><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
-      <dd><span [innerHTML]="taskModel.instruction"></span></dd>
-    </div>
+      <div *ngIf="taskModel.instruction">
+        <dt><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
+        <dd><span [innerHTML]="taskModel.instruction"></span></dd>
+      </div>
 
-    <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
-    <dd>
-      <span>{{ getDifficultyI18nString(taskModel.taskDifficultyId) | translate }}</span>
-    </dd>
-
-    <div *ngIf="taskModel.processingTime">
-      <dt><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
+      <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
-        <span>{{ taskModel.processingTime }}</span>
+        <span>{{ getDifficultyI18nString(taskModel.taskDifficultyId) | translate }}</span>
       </dd>
-    </div>
 
-    <dt><span jhiTranslate="overview.student.tasks.creator">Creator</span></dt>
-    <dd>
-      <span>{{ taskModel.creator }}</span>
-    </dd>
-  </dl>
+      <div *ngIf="taskModel.processingTime">
+        <dt><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
+        <dd>
+          <span>{{ taskModel.processingTime }}</span>
+        </dd>
+      </div>
+
+      <dt><span jhiTranslate="overview.student.tasks.creator">Creator</span></dt>
+      <dd>
+        <span>{{ taskModel.creator }}</span>
+      </dd>
+    </dl>
+
+    <button type="button" class="btn btn-primary" [disabled]="isSubmitted || isSaving" (click)="markTaskAsSubmittedAsync()">
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+        >Submit</span
+      >
+      <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
+    </button>
+  </div>
 </div>

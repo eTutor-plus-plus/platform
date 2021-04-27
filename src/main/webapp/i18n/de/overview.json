@@ -40,7 +40,9 @@
         "instructions": "Aufgabenstellung",
         "difficulty": "Schwierigkeit",
         "processingTime": "Geschätzte Bearbeitungszeit",
-        "creator": "Ersteller"
+        "creator": "Ersteller",
+        "submit": "Einreichen",
+        "submitted": "Eingereicht"
       }
     }
   }

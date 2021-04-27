@@ -108,6 +108,14 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * Asynchronously marks the task as submitted.
    */
   public async markTaskAsSubmittedAsync(): Promise<void> {
-    await this.studentService.markTaskAsSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo).toPromise();
+    this.isSaving = true;
+    try {
+      await this.studentService.markTaskAsSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo).toPromise();
+    } catch (e) {
+      this.isSaving = false;
+      throw e;
+    }
+    this.isSubmitted = true;
+    this.isSaving = false;
   }
 }

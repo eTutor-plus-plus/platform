@@ -40,7 +40,9 @@
         "instructions": "Instructions",
         "difficulty": "Difficulty",
         "processingTime": "Estimated processing time",
-        "creator": "Creator"
+        "creator": "Creator",
+        "submit": "Submit",
+        "submitted": "Submitted"
       }
     }
   }

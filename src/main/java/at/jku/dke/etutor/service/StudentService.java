@@ -159,7 +159,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?individualAssignment etutor:fromExerciseSheet ?sheet;
           	                    etutor:fromCourseInstance ?courseInstance;
                                 etutor:hasIndividualTask ?individualTask.
-          ?individualTask etutor:isSubmitted true.
+          ?individualTask etutor:isSubmitted true;
+                          etutor:hasOrderNo ?orderNo.
         }
         """;
 
@@ -449,6 +450,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUrl);
         qry.setIri("?sheet", sheetId);
         qry.setIri("?courseInstance", courseInstanceId);
+        qry.setLiteral("?orderNo", orderNo);
 
         try (RDFConnection connection = getConnection()) {
             connection.update(qry.asUpdate());
@@ -478,6 +480,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUrl);
         qry.setIri("?sheet", sheetId);
         qry.setIri("?courseInstance", courseInstanceId);
+        qry.setLiteral("?orderNo", orderNo);
 
         try (RDFConnection connection = getConnection()) {
             return connection.queryAsk(qry.asQuery());
