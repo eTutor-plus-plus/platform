@@ -8,6 +8,8 @@ public class StudentAssignmentOverviewInfoDTO {
     private String matriculationNo;
     private boolean submitted;
     private boolean fullyGraded;
+    private int expectedTaskCount;
+    private int currentTaskCount;
 
     /**
      * Constructor.
@@ -19,14 +21,18 @@ public class StudentAssignmentOverviewInfoDTO {
     /**
      * Constructor.
      *
-     * @param matriculationNo the matriculation number
-     * @param submitted       indicates whether the assignment has already been submitted or not
-     * @param fullyGraded     indicates whether the assignment has already been fully graded or not
+     * @param matriculationNo   the matriculation number
+     * @param submitted         indicates whether the assignment has already been submitted or not
+     * @param fullyGraded       indicates whether the assignment has already been fully graded or not
+     * @param expectedTaskCount the expected task count
+     * @param currentTaskCount  the currently submitted task count
      */
-    public StudentAssignmentOverviewInfoDTO(String matriculationNo, boolean submitted, boolean fullyGraded) {
+    public StudentAssignmentOverviewInfoDTO(String matriculationNo, boolean submitted, boolean fullyGraded, int expectedTaskCount, int currentTaskCount) {
         this.matriculationNo = matriculationNo;
         this.submitted = submitted;
         this.fullyGraded = fullyGraded;
+        this.expectedTaskCount = expectedTaskCount;
+        this.currentTaskCount = currentTaskCount;
     }
 
     /**
@@ -81,5 +87,41 @@ public class StudentAssignmentOverviewInfoDTO {
      */
     public void setFullyGraded(boolean fullyGraded) {
         this.fullyGraded = fullyGraded;
+    }
+
+    /**
+     * Returns the expected task count.
+     *
+     * @return the expected task count
+     */
+    public int getExpectedTaskCount() {
+        return expectedTaskCount;
+    }
+
+    /**
+     * Sets the expected task count.
+     *
+     * @param expectedTaskCount the expected task count to set
+     */
+    public void setExpectedTaskCount(int expectedTaskCount) {
+        this.expectedTaskCount = expectedTaskCount;
+    }
+
+    /**
+     * Returns the currently submitted task count.
+     *
+     * @return the currently submitted task count
+     */
+    public int getCurrentTaskCount() {
+        return currentTaskCount;
+    }
+
+    /**
+     * Sets the currently submitted task count
+     *
+     * @param currentTaskCount the task count to set
+     */
+    public void setCurrentTaskCount(int currentTaskCount) {
+        this.currentTaskCount = currentTaskCount;
     }
 }

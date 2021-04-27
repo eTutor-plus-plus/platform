@@ -248,7 +248,7 @@ public class LecturerSPARQLEndpointServiceTest {
         var overviewInfo = page.getContent().get(0);
         assertThat(overviewInfo.getMatriculationNo()).isEqualTo(student.getLogin());
         assertThat(overviewInfo.isFullyGraded()).isFalse();
-        assertThat(overviewInfo.isSubmitted()).isTrue();
+        assertThat(overviewInfo.isSubmitted()).isFalse();
     }
 
     /**

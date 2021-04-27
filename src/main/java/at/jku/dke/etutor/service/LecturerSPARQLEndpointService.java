@@ -4,18 +4,20 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Service endpoint for managing lecturer related data.
@@ -25,155 +27,180 @@ import org.springframework.stereotype.Service;
 @Service
 public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
-    private static final String QRY_SELECT_LECTURER_OVERVIEW =
-        """
+    private static final String QRY_SELECT_LECTURER_OVERVIEW = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?student ?submitted ?fullyGraded
+        SELECT ?student ?submitted ?fullyGraded ?expectedTaskCount ?actualCount ?submissionCount
         WHERE {
           {
             ?student etutor:hasIndividualTaskAssignment [
               etutor:fromExerciseSheet ?sheet;
               etutor:fromCourseInstance ?courseInstance;
-              etutor:isAssignmentSubmitted ?submitted;
             ].
+            ?sheet etutor:hasExerciseSheetTaskCount ?expectedTaskCount.
             OPTIONAL {
               {
                 SELECT (COUNT(*) AS ?cnt) ?student
                 WHERE {
                   ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
                   ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                        etutor:fromCourseInstance ?courseInstance;
-                                        etutor:isAssignmentSubmitted ?submitted.
+                                        etutor:fromCourseInstance ?courseInstance.
                   FILTER(NOT EXISTS{
                       ?individualAssignment etutor:hasIndividualTask [
                         etutor:isGraded false
                       ]
-                  })
+                    })
+                }
+                GROUP BY ?student
+              }
+            }
+        	{
+               OPTIONAL {
+                SELECT ?student (COUNT(?individualTask) AS ?actualCount)
+                WHERE {
+                  ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                  ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                        etutor:fromCourseInstance ?courseInstance;
+                                        etutor:hasIndividualTask ?individualTask.
                 }
                 GROUP BY ?student
               }
             }
             BIND(bound(?cnt) AS ?fullyGraded)
           }
+          {
+            OPTIONAL {
+              SELECT ?student (COUNT(?submitted) AS ?submissionCount)
+              WHERE {
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                      etutor:fromCourseInstance ?courseInstance;
+                                      etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:isSubmitted ?submitted.
+                FILTER(?submitted = true)
+              }
+              GROUP BY ?student
+            }
+          }
+          BIND(BOUND(?actualCount) && BOUND(?submissionCount) && ?expectedTaskCount = ?actualCount && ?actualCount = ?submissionCount as ?submitted).
         }
         ORDER BY (?student)
         """;
 
     private static final String QRY_COUNT_LECTURER_OVERVIEW =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT (COUNT(*) as ?cnt)
-        WHERE {
-          {
-            ?student etutor:hasIndividualTaskAssignment [
-              etutor:fromExerciseSheet ?sheet;
-              etutor:fromCourseInstance ?courseInstance;
-            ]
-          }
-        }
-        """;
+            SELECT (COUNT(*) as ?cnt)
+            WHERE {
+              {
+                ?student etutor:hasIndividualTaskAssignment [
+                  etutor:fromExerciseSheet ?sheet;
+                  etutor:fromCourseInstance ?courseInstance;
+                ]
+              }
+            }
+            """;
 
     private static final String QRY_GRADING_OVERVIEW =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?task ?taskTitle ?completed ?graded ?orderNo
-        WHERE {
-          ?student etutor:hasIndividualTaskAssignment [
-            etutor:fromExerciseSheet ?sheet;
-            etutor:fromCourseInstance ?courseInstance;
-            etutor:hasIndividualTask [
-              etutor:isGraded ?graded;
-              etutor:refersToTask ?task;
-              etutor:hasOrderNo ?orderNo;
-              etutor:isLearningGoalCompleted ?completed
-            ]
-          ].
-          ?task etutor:hasTaskHeader ?taskTitle.
-        }
-        ORDER BY (?orderNo)
-        """;
+            SELECT ?task ?taskTitle ?completed ?graded ?orderNo
+            WHERE {
+              ?student etutor:hasIndividualTaskAssignment [
+                etutor:fromExerciseSheet ?sheet;
+                etutor:fromCourseInstance ?courseInstance;
+                etutor:hasIndividualTask [
+                  etutor:isGraded ?graded;
+                  etutor:refersToTask ?task;
+                  etutor:hasOrderNo ?orderNo;
+                  etutor:isLearningGoalCompleted ?completed
+                ]
+              ].
+              ?task etutor:hasTaskHeader ?taskTitle.
+            }
+            ORDER BY (?orderNo)
+            """;
 
     private static final String QRY_UPDATE_GRADE =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        DELETE {
-          ?task etutor:isLearningGoalCompleted ?goalComplete.
-          ?task etutor:isGraded ?graded.
-        } INSERT {
-          ?task etutor:isLearningGoalCompleted ?newCompleted.
-          ?task etutor:isGraded true.
-        } WHERE {
-          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-          ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                etutor:fromCourseInstance ?courseInstance.
-          ?individualAssignment etutor:hasIndividualTask ?task.
-          ?task etutor:hasOrderNo ?orderNo ;
-                etutor:isLearningGoalCompleted ?goalComplete ;
-                etutor:isGraded ?graded.
-          FILTER(?orderNo = ?filterOrderNo)
-        }
-        """;
+            DELETE {
+              ?task etutor:isLearningGoalCompleted ?goalComplete.
+              ?task etutor:isGraded ?graded.
+            } INSERT {
+              ?task etutor:isLearningGoalCompleted ?newCompleted.
+              ?task etutor:isGraded true.
+            } WHERE {
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?courseInstance.
+              ?individualAssignment etutor:hasIndividualTask ?task.
+              ?task etutor:hasOrderNo ?orderNo ;
+                    etutor:isLearningGoalCompleted ?goalComplete ;
+                    etutor:isGraded ?graded.
+              FILTER(?orderNo = ?filterOrderNo)
+            }
+            """;
 
     private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_COMPLETED =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-        INSERT {
-          GRAPH ?courseinstance {
-            ?goal etutor:isCompletedFrom ?student.
-            ?subGoal etutor:isCompletedFrom ?student.
-          }
-        }
-        WHERE {
-          ?courseinstance a etutor:CourseInstance.
-          ?courseinstance etutor:hasCourse ?course.
-          ?goal a etutor:Goal.
-          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-          ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                etutor:fromCourseInstance ?courseInstance.
-          ?individualAssignment etutor:hasIndividualTask ?individualTask.
-          ?individualTask etutor:hasOrderNo ?orderNo.
-          ?individualTask etutor:refersToTask ?task.
-          ?goal etutor:hasTaskAssignment ?task.
-          OPTIONAL {
-          	?goal etutor:hasSubGoal+ ?subGoal.
-          }
-          GRAPH ?courseinstance {
-          	?goal a etutor:Goal.
-          }
-        }
-        """;
+            INSERT {
+              GRAPH ?courseinstance {
+                ?goal etutor:isCompletedFrom ?student.
+                ?subGoal etutor:isCompletedFrom ?student.
+              }
+            }
+            WHERE {
+              ?courseinstance a etutor:CourseInstance.
+              ?courseinstance etutor:hasCourse ?course.
+              ?goal a etutor:Goal.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?courseInstance.
+              ?individualAssignment etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+              ?individualTask etutor:refersToTask ?task.
+              ?goal etutor:hasTaskAssignment ?task.
+              OPTIONAL {
+              	?goal etutor:hasSubGoal+ ?subGoal.
+              }
+              GRAPH ?courseinstance {
+              	?goal a etutor:Goal.
+              }
+            }
+            """;
     private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-        DELETE {
-          GRAPH ?courseinstance {
-            ?goal etutor:isCompletedFrom ?student.
-          }
-        }
-        WHERE {
-          ?courseinstance a etutor:CourseInstance.
-          ?courseinstance etutor:hasCourse ?course.
-          ?goal a etutor:Goal.
-          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-          ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                etutor:fromCourseInstance ?courseInstance.
-          ?individualAssignment etutor:hasIndividualTask ?individualTask.
-          ?individualTask etutor:hasOrderNo ?orderNo.
-          ?individualTask etutor:refersToTask ?task.
-          ?goal etutor:hasTaskAssignment ?task.
-          GRAPH ?courseinstance {
-          	?goal a etutor:Goal.
-          }
-        }
-        """;
+            DELETE {
+              GRAPH ?courseinstance {
+                ?goal etutor:isCompletedFrom ?student.
+              }
+            }
+            WHERE {
+              ?courseinstance a etutor:CourseInstance.
+              ?courseinstance etutor:hasCourse ?course.
+              ?goal a etutor:Goal.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?courseInstance.
+              ?individualAssignment etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+              ?individualTask etutor:refersToTask ?task.
+              ?goal etutor:hasTaskAssignment ?task.
+              GRAPH ?courseinstance {
+              	?goal a etutor:Goal.
+              }
+            }
+            """;
 
     /**
      * Constructor.
@@ -233,8 +260,15 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
 
                     boolean submitted = solution.getLiteral("?submitted").getBoolean();
                     boolean fullyGraded = solution.getLiteral("?fullyGraded").getBoolean();
+                    int expectedTaskCount = solution.getLiteral("?expectedTaskCount").getInt();
 
-                    entries.add(new StudentAssignmentOverviewInfoDTO(matriculationNo, submitted, fullyGraded));
+                    Literal submissionTaskCountLiteral = solution.getLiteral("?submissionCount");
+                    int submissionTaskCount = 0;
+                    if (submissionTaskCountLiteral != null) {
+                        submissionTaskCount = submissionTaskCountLiteral.getInt();
+                    }
+
+                    entries.add(new StudentAssignmentOverviewInfoDTO(matriculationNo, submitted, fullyGraded, expectedTaskCount, submissionTaskCount));
                 }
             }
             try (QueryExecution execution = connection.query(countQry.asQuery())) {

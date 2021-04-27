@@ -5,6 +5,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LecturerGradeAssignmentComponent } from './lecturer-grade-assignment/lecturer-grade-assignment.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 
+// noinspection JSIgnoredPromiseFromCall
 /**
  * Modal window component for displaying the completed student assignments.
  */
