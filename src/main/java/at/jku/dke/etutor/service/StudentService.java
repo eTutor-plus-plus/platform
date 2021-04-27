@@ -12,10 +12,8 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -60,22 +58,48 @@ public class StudentService extends AbstractSPARQLEndpointService {
             ORDER BY(?courseName)
             """;
 
-    private static final String QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW =
-        """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    private static final String QRY_SELECT_STUDENT_COURSE_ASSIGNMENT_OVERVIEW = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed
-            WHERE {
-              ?instance a etutor:CourseInstance.
-              ?instance etutor:hasStudent ?student.
-              ?instance etutor:hasExerciseSheet ?exerciseSheet.
-              ?exerciseSheet rdfs:label ?exerciseSheetName.
-              ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-              BIND(false AS ?completed).
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount
+        WHERE {
+          ?instance a etutor:CourseInstance.
+          ?instance etutor:hasStudent ?student.
+          ?instance etutor:hasExerciseSheet ?exerciseSheet.
+          ?exerciseSheet rdfs:label ?exerciseSheetName.
+          ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+          ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
+          {
+            OPTIONAL {
+              SELECT ?exerciseSheet (COUNT(?individualTask) AS ?actualCount)
+              WHERE {
+                  ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                  ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                        etutor:fromCourseInstance ?instance;
+                                        etutor:hasIndividualTask ?individualTask.
+              }
+              GROUP BY ?exerciseSheet
             }
-            ORDER BY (LCASE(?exerciseSheetName))
-            """;
+          }
+          {
+            OPTIONAL {
+              SELECT ?exerciseSheet (COUNT(?submitted) AS ?submissionCount)
+              WHERE {
+                  ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                  ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                        etutor:fromCourseInstance ?instance;
+                                        etutor:hasIndividualTask ?individualTask.
+                  ?individualTask etutor:isSubmitted ?submitted.
+                  FILTER(?submitted = true)
+              }
+              GROUP BY ?exerciseSheet
+            }
+          }
+          BIND(?shouldTaskCount = ?actualCount && ?actualCount = ?submissionCount AS ?completed).
+        }
+        ORDER BY (LCASE(?exerciseSheetName))
+        """;
 
     private static final String QRY_ASK_STUDENT_OPENED_EXERCISE_SHEET =
         """
@@ -263,7 +287,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentURI);
 
         try (RDFConnection connection = getConnection()) {
-            try (QueryExecution execution = connection.query(qry.asQuery())) {
+            try (QueryExecution execution = connection.query(qry.asQuery(Syntax.syntaxARQ))) {
                 ResultSet set = execution.execSelect();
                 List<CourseInstanceProgressOverviewDTO> items = new ArrayList<>();
                 while (set.hasNext()) {
@@ -272,7 +296,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     String sheetId = solution.getLiteral("?exerciseSheetId").getString();
                     String sheetName = solution.getLiteral("?exerciseSheetName").getString();
                     String difficultyUri = solution.getLiteral("?difficultyURI").getString();
-                    boolean completed = solution.getLiteral("?completed").getBoolean();
+                    Literal completedLiteral = solution.getLiteral("?completed");
+                    boolean completed = false;
+                    if (completedLiteral != null) {
+                        completed = completedLiteral.getBoolean();
+                    }
 
                     items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed));
                 }
