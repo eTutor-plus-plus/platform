@@ -1,8 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -11,9 +8,6 @@ import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import liquibase.integration.spring.SpringLiquibase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,6 +19,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Integration tests for {@link StudentService}.
@@ -239,6 +240,7 @@ public class StudentServiceIT {
         firstNewExerciseSheet.setName("TestSheet 1");
         firstNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
         firstNewExerciseSheet.setLearningGoals(new ArrayList<>());
+        firstNewExerciseSheet.setTaskCount(1);
 
         var firstExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(firstNewExerciseSheet, "admin");
 
@@ -246,6 +248,7 @@ public class StudentServiceIT {
         secondNewExerciseSheet.setName("TestSheet 2");
         secondNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
         secondNewExerciseSheet.setLearningGoals(new ArrayList<>());
+        secondNewExerciseSheet.setTaskCount(1);
 
         var secondExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(secondNewExerciseSheet, "admin");
 
@@ -332,6 +335,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO firstNewExerciseSheet = new NewExerciseSheetDTO();
         firstNewExerciseSheet.setName("TestSheet 1");
         firstNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        firstNewExerciseSheet.setTaskCount(1);
         firstNewExerciseSheet.setLearningGoals(new ArrayList<>());
 
         var exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(firstNewExerciseSheet, "admin");

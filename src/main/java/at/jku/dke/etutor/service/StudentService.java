@@ -199,9 +199,12 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?courseInstance a etutor:CourseInstance.
           ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                etutor:fromCourseInstance ?courseInstance;
-                                etutor:hasIndividualTask ?individualTask.
-          ?individualTask etutor:hasOrderNo ?orderNo.
+                                etutor:fromCourseInstance ?courseInstance.
+          OPTIONAL {
+            ?individualAssignment etutor:hasIndividualTask [
+              etutor:hasOrderNo ?orderNo
+            ].
+          }
           ?sheet etutor:hasExerciseSheetTaskCount ?taskCount.
         }
         GROUP BY ?taskCount
@@ -419,15 +422,15 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
 
-        try {
-            assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
-        } catch (AllTasksAlreadyAssignedException ex) {
-            //Ignore, must not happen -> warn
-            log.warn("When creating a new individual assignment of an exercise sheet, no tasks can be individually assigned!", ex);
-        }
-
         try (RDFConnection connection = getConnection()) {
             connection.load(model);
+
+            try {
+                assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, connection);
+            } catch (AllTasksAlreadyAssignedException ex) {
+                //Ignore, must not happen -> warn
+                log.warn("When creating a new individual assignment of an exercise sheet, no tasks can be individually assigned!", ex);
+            }
         }
     }
 
@@ -582,10 +585,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param courseInstanceUUID  the course instance uuid
      * @param exerciseSheetUUID   the exercise sheet uuid
      * @param matriculationNumber the student's matriculation number
+     * @param connection          the RDF connection to the fuseki instance
      * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
      *                                          i.e. exercise sheet task count = assigned task count
      */
-    private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) throws AllTasksAlreadyAssignedException {
+    private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
@@ -595,29 +599,26 @@ public class StudentService extends AbstractSPARQLEndpointService {
         String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
 
         ParameterizedSparqlString alreadyAssignedTaskQuery = new ParameterizedSparqlString(QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT);
-        alreadyAssignedTaskQuery.setLiteral("?courseInstance", courseInstanceId);
-        alreadyAssignedTaskQuery.setLiteral("?sheet", sheetId);
-        alreadyAssignedTaskQuery.setLiteral("?student", studentUrl);
+        alreadyAssignedTaskQuery.setIri("?courseInstance", courseInstanceId);
+        alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
+        alreadyAssignedTaskQuery.setIri("?student", studentUrl);
 
-
-        try (RDFConnection connection = getConnection()) {
-            try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
-                ResultSet set = execution.execSelect();
-                if (!set.hasNext()) {
-                    log.warn("Task assignment on an exercise sheet which does not exist!");
-                    throw new IllegalStateException("No exercise sheet assigned!");
-                }
-                QuerySolution querySolution = set.nextSolution();
-
-                int taskCount = querySolution.getLiteral("?taskCount").getInt();
-                int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
-
-                if (taskCount == assignedCount) {
-                    throw new AllTasksAlreadyAssignedException();
-                }
-
-                //TODO: Assign tasks based on the individual learning curve.
+        try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
+            ResultSet set = execution.execSelect();
+            if (!set.hasNext()) {
+                log.warn("Task assignment on an exercise sheet which does not exist!");
+                throw new IllegalStateException("No exercise sheet assigned!");
             }
+            QuerySolution querySolution = set.nextSolution();
+
+            int taskCount = querySolution.getLiteral("?taskCount").getInt();
+            int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
+
+            if (taskCount == assignedCount) {
+                throw new AllTasksAlreadyAssignedException();
+            }
+
+            //TODO: Assign tasks based on the individual learning curve.
         }
     }
 
