@@ -17,7 +17,7 @@ export class UpdateCourseComponent {
   public updateForm = this.fb.group({
     name: ['', [Validators.required]],
     description: [''],
-    type: [this.courseTypes[0], [Validators.required]],
+    type: [undefined, [Validators.required]],
     link: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
   });
 
