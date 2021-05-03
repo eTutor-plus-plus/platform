@@ -715,9 +715,9 @@
                     <artifactId>liquibase-maven-plugin</artifactId>
                     <version>${liquibase.version}</version>
                     <configuration>
-                        <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>
-                        <outputChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</outputChangeLogFile>
-                        <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+                        <changeLogFile>src/main/resources/config/liquibase/master.xml</changeLogFile>
+                        <outputChangeLogFile>src/main/resources/config/liquibase/master.xml</outputChangeLogFile>
+                        <diffChangeLogFile>src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
                         <driver>org.postgresql.Driver</driver>
                         <url>jdbc:postgresql://localhost:5432/etutorplusplus</url>
                         <defaultSchemaName></defaultSchemaName>
