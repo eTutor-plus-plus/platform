@@ -20,6 +20,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -619,7 +620,29 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
 
             //TODO: Assign tasks based on the individual learning curve.
+
+            //TODO: Retrieves possible candidates
+            String taskToAssign = getNextTaskAssignmentForAllocation(courseInstanceId, sheetId, studentUrl, connection);
+
+            insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
         }
+    }
+
+    /**
+     * Method which is looking for the best fitting assignment for the current exercise sheet
+     * based on the student's current knowledge.
+     *
+     * @param courseInstanceUrl the course instance URL
+     * @param exerciseSheetUrl  the exercise sheet URL
+     * @param studentUrl        the student URL
+     * @param connection        the RDF connection to the fuseki instance
+     * @return resource as string of the the task assignment which should be allocated
+     */
+    private @NotNull String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
+                                                               @NotNull String studentUrl, @NotNull RDFConnection connection) {
+
+
+        return null;
     }
 
     /**
@@ -631,7 +654,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param newTaskResourceUrl the task url
      * @param connection         the RDF connection to the fuseki server, will not be closed
      */
-    private void insertNewAssignedTask(String courseInstanceUrl, String exerciseSheetUrl, String studentUrl, String newTaskResourceUrl, RDFConnection connection) {
+    private void insertNewAssignedTask(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl, @NotNull String studentUrl, @NotNull String newTaskResourceUrl, @NotNull RDFConnection connection) {
         ParameterizedSparqlString latestOrderNoQry = new ParameterizedSparqlString(QRY_SELECT_MAX_ORDER_NO);
         latestOrderNoQry.setIri("?courseInstance", courseInstanceUrl);
         latestOrderNoQry.setIri("?student", studentUrl);
