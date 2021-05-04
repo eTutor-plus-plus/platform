@@ -13,11 +13,9 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
+import one.util.streamex.StreamEx;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
@@ -27,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service class for managing students.
@@ -250,6 +245,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
     private final UserService userService;
     private final StudentRepository studentRepository;
+    private final Random random;
 
     /**
      * Constructor.
@@ -262,6 +258,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
+
+        random = new Random();
     }
 
     /**
@@ -620,11 +618,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
 
             //TODO: Assign tasks based on the individual learning curve.
-
-            //TODO: Retrieves possible candidates
             String taskToAssign = getNextTaskAssignmentForAllocation(courseInstanceId, sheetId, studentUrl, connection);
 
-            insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+            if (taskToAssign != null) {
+                insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+            }
         }
     }
 
@@ -636,13 +634,144 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param exerciseSheetUrl  the exercise sheet URL
      * @param studentUrl        the student URL
      * @param connection        the RDF connection to the fuseki instance
-     * @return resource as string of the the task assignment which should be allocated
+     * @return resource as string of the the task assignment which should be allocated.
      */
-    private @NotNull String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
-                                                               @NotNull String studentUrl, @NotNull RDFConnection connection) {
+    private String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
+                                                      @NotNull String studentUrl, @NotNull RDFConnection connection) {
 
+        List<String> reachedGoals = getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
 
-        return null;
+        ParameterizedSparqlString getPossibleAssignmentsQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?goalOfCourse ?task ?distance
+            WHERE {
+              SELECT ?goalOfCourse ?task (count(?mid) AS ?distance)
+              WHERE {
+                ?courseInstance a etutor:CourseInstance.
+                ?courseInstance etutor:hasCourse ?course.
+                ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
+                ?sheet etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
+
+                ?task a etutor:TaskAssignment.
+                ?goalOfCourse ^etutor:hasSubGoal* ?mid.
+                ?mid (^etutor:hasSubGoal+/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
+
+                FILTER(?goalOfCourse NOT IN (?reachedGoals))
+
+                FILTER (NOT EXISTS {
+                    ?goalOfCourse etutor:dependsOn+ ?dependentGoal.
+                    FILTER(?dependentGoal NOT IN (?reachedGoals))
+                }).
+              }
+              GROUP BY ?goalOfCourse ?task
+            }
+            ORDER BY ?distance
+            """);
+        getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
+        getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
+
+        getPossibleAssignmentsQuery.setValues("?reachedGoals", StreamEx.of(reachedGoals).map(ResourceFactory::createResource).toList());
+        String result;
+        try (QueryExecution execution = connection.query(getPossibleAssignmentsQuery.asQuery())) {
+            ResultSet set = execution.execSelect();
+            int minDistance = Integer.MAX_VALUE;
+            List<String> taskSheets = new ArrayList<>();
+
+            if (set.hasNext()) {
+                do {
+                    QuerySolution solution = set.nextSolution();
+                    int distance = solution.getLiteral("?distance").getInt();
+
+                    if (distance <= minDistance) {
+                        minDistance = distance;
+                        taskSheets.add(solution.getResource("?task").getURI());
+                    }
+                } while (set.hasNext());
+
+                if (taskSheets.size() > 1) {
+                    result = taskSheets.get(random.nextInt(taskSheets.size()));
+                } else { // taskSheets.size() == 1
+                    result = taskSheets.get(0);
+                }
+            } else {
+                ParameterizedSparqlString randomTaskQuery = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                    SELECT ?task
+                    WHERE {
+                      GRAPH ?courseInstance {
+                        ?reachedGoal a etutor:Goal.
+                        ?reachedGoal etutor:isCompletedFrom ?student.
+                      }
+
+                      ?task a etutor:TaskAssignment.
+                      ?reachedGoal etutor:hasTaskAssignment ?task.
+
+                      FILTER(NOT EXISTS {
+                        ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                      	?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                            etutor:fromCourseInstance ?courseInstance;
+                                            etutor:hasIndividualTask ?individualTask.
+                      	?individualTask etutor:refersToTask ?task;
+                      })
+                    }
+                    ORDER BY RAND() LIMIT 1
+                    """);
+                randomTaskQuery.setIri("?courseInstance", courseInstanceUrl);
+                randomTaskQuery.setIri("?student", studentUrl);
+                randomTaskQuery.setIri("?sheet", exerciseSheetUrl);
+
+                try (QueryExecution qExecution = connection.query(randomTaskQuery.asQuery())) {
+                    ResultSet randomTaskResultSet = qExecution.execSelect();
+
+                    if (randomTaskResultSet.hasNext()) {
+                        result = randomTaskResultSet.nextSolution().getResource("?task").getURI();
+                    } else {
+                        result = null;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns the list of reached goals of a student from a specific course instance.
+     *
+     * @param courseInstanceUrl the course instance URL
+     * @param studentUrl        the student URL
+     * @param connection        the RDF connection to the fuseki instance
+     * @return list of reached learning goals
+     */
+    private @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String studentUrl, @NotNull RDFConnection connection) {
+        List<String> reachedGoals = new ArrayList<>();
+
+        ParameterizedSparqlString reachedGoalQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?reachedGoal
+            WHERE {
+              GRAPH ?courseInstance {
+                ?reachedGoal a etutor:Goal.
+                ?reachedGoal etutor:isCompletedFrom ?student.
+              }
+            }
+            """);
+        reachedGoalQuery.setIri("?courseInstance", courseInstanceUrl);
+        reachedGoalQuery.setIri("?student", studentUrl);
+
+        try (QueryExecution execution = connection.query(reachedGoalQuery.asQuery())) {
+            ResultSet set = execution.execSelect();
+
+            while (set.hasNext()) {
+                QuerySolution solution = set.nextSolution();
+                reachedGoals.add(solution.getResource("?reachedGoal").getURI());
+            }
+        }
+
+        return reachedGoals;
     }
 
     /**
@@ -671,7 +800,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             orderNo = solution.getLiteral("?maxOrderNo").getInt() + 1;
         }
 
-        ParameterizedSparqlString individualAssignmentInsertQry = new ParameterizedSparqlString();
+        ParameterizedSparqlString individualAssignmentInsertQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_ASSIGNMENT);
         individualAssignmentInsertQry.setIri("?courseInstance", courseInstanceUrl);
         individualAssignmentInsertQry.setIri("?student", studentUrl);
         individualAssignmentInsertQry.setIri("?sheet", exerciseSheetUrl);
