@@ -104,4 +104,16 @@ export class StudentService {
       `${SERVER_API_URL}/api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submitted`
     );
   }
+
+  /**
+   * Opens the given exercise sheet.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   */
+  public openExerciseSheet(courseInstanceId: string, exerciseSheetUUID: string): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.post(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/open`, null);
+  }
 }

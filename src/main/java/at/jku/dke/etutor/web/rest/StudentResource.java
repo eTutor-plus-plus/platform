@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -121,6 +122,27 @@ public class StudentResource {
             matriculationNumber
         );
         return ResponseEntity.ok(list);
+    }
+
+    /**
+     * {@code POST /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/open} : Opens the
+     * given exercise sheet for the currently logged-in student.
+     *
+     * @param courseInstanceUUID the course instance uuid from the request path
+     * @param exerciseSheetUUID  the exercise sheet uuid from the request path
+     * @return empty {@link ResponseEntity}
+     */
+    @PostMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/open")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> openExerciseSheetForStudent(@PathVariable String courseInstanceUUID,
+                                                            @PathVariable String exerciseSheetUUID) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        try {
+            studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException esaoe) {
+            throw new ExerciseSheetAlreadyOpenedException();
+        }
     }
 
     /**

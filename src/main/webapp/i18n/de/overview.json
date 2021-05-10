@@ -13,6 +13,7 @@
       "back": "Zurück",
       "difficulty": "Schwierigkeit",
       "completed": "Abgeschlossen",
+      "started": "Gestartet",
       "selfEvaluation": {
         "header": "Selbsteinschätzung - Kurs '{{course}}'",
         "cardHeader": "Lernziele",

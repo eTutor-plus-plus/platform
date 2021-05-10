@@ -11,6 +11,7 @@
         <th>Name</th>
         <th jhiTranslate="overview.student.difficulty">Difficulty</th>
         <th jhiTranslate="overview.student.completed">Completed</th>
+        <th jhiTranslate="overview.student.started">Started</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -19,6 +20,10 @@
         <td>{{ item.assignmentHeader }}</td>
         <td>{{ getDifficultyI18nString(item.difficultyURI) | translate }}</td>
         <td [ngSwitch]="item.completed">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td [ngSwitch]="item.opened">
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
         </td>

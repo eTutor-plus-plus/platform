@@ -13,6 +13,7 @@
       "back": "Back",
       "difficulty": "Difficulty",
       "completed": "Completed",
+      "started": "Started",
       "selfEvaluation": {
         "header": "Self estimation of course '{{course}}'",
         "cardHeader": "Learning goals",

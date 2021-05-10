@@ -78,6 +78,10 @@ export interface ICourseInstanceProgressOverviewDTO {
    * The status of the assignment.
    */
   completed: boolean;
+  /**
+   * Indicates whether the exercise sheet has already been opened or not.
+   */
+  opened: boolean;
 }
 
 /**

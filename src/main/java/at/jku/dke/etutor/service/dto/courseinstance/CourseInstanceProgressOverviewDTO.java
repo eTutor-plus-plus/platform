@@ -12,6 +12,7 @@ public class CourseInstanceProgressOverviewDTO {
     private String assignmentHeader;
     private String difficultyURI;
     private boolean completed;
+    private boolean opened;
 
     /**
      * Constructor.
@@ -27,12 +28,14 @@ public class CourseInstanceProgressOverviewDTO {
      * @param assignmentHeader the assignment header
      * @param difficultyURI    the difficulty URI
      * @param completed        the status
+     * @param opened           indicates whether the exercise sheet has already been opened or not
      */
-    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed) {
+    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened) {
         this.exerciseSheetId = exerciseSheetId;
         this.assignmentHeader = assignmentHeader;
         this.difficultyURI = difficultyURI;
         this.completed = completed;
+        this.opened = opened;
     }
 
     /**
@@ -105,5 +108,23 @@ public class CourseInstanceProgressOverviewDTO {
      */
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    /**
+     * Returns whether the exercise sheet has already been opened or not not.
+     *
+     * @return {@code true} if the exercise sheet has already been opened, otherwise {@code false}
+     */
+    public boolean isOpened() {
+        return opened;
+    }
+
+    /**
+     * Sets whether the exercise sheet has already been opened or not.
+     *
+     * @param opened the value to set
+     */
+    public void setOpened(boolean opened) {
+        this.opened = opened;
     }
 }

@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
+import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.*;
@@ -241,6 +242,17 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+    private static final String QRY_ASK_EXERCISE_SHEET_OPENED = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        ASK {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance;
+        }
+        """;
+
     private final Logger log = LoggerFactory.getLogger(StudentService.class);
 
     private final UserService userService;
@@ -344,6 +356,10 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?instance", courseInstanceURI);
         qry.setIri("?student", studentURI);
 
+        ParameterizedSparqlString exerciseSheetOpenedQry = new ParameterizedSparqlString(QRY_ASK_EXERCISE_SHEET_OPENED);
+        exerciseSheetOpenedQry.setIri("?courseInstance", courseInstanceURI);
+        exerciseSheetOpenedQry.setIri("?student", studentURI);
+
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(qry.asQuery(Syntax.syntaxARQ))) {
                 ResultSet set = execution.execSelect();
@@ -359,8 +375,14 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     if (completedLiteral != null) {
                         completed = completedLiteral.getBoolean();
                     }
+                    boolean opened = true;
 
-                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed));
+                    if (!completed) {
+                        exerciseSheetOpenedQry.setIri("?sheet", sheetId);
+                        opened = connection.queryAsk(exerciseSheetOpenedQry.asQuery());
+                    }
+
+                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened));
                 }
                 return items;
             }
@@ -401,8 +423,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param matriculationNumber the student's matriculation number
      * @param courseInstanceUUID  the course instance uuid
      * @param exerciseSheetUUID   the exercise sheet uuid
+     * @throws ExerciseSheetAlreadyOpenedException if the exercise sheet has already been opened
      */
-    public void openExerciseSheetForStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+    public void openExerciseSheetForStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) throws ExerciseSheetAlreadyOpenedException {
         Objects.requireNonNull(matriculationNumber);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
@@ -411,17 +434,27 @@ public class StudentService extends AbstractSPARQLEndpointService {
         String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
 
-        Model model = ModelFactory.createDefaultModel();
-        Resource studentResource = model.createResource(studentURL);
-
-        Resource individualTaskAssignmentResource = model.createResource();
-        individualTaskAssignmentResource.addProperty(RDF.type, ETutorVocabulary.IndividualTaskAssignment);
-        individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromCourseInstance, model.createResource(courseInstanceURL));
-        individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromExerciseSheet, model.createResource(exerciseSheetURL));
-
-        studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
+        ParameterizedSparqlString exerciseSheetOpenedQry = new ParameterizedSparqlString(QRY_ASK_EXERCISE_SHEET_OPENED);
+        exerciseSheetOpenedQry.setIri("?courseInstance", courseInstanceURL);
+        exerciseSheetOpenedQry.setIri("?student", studentURL);
+        exerciseSheetOpenedQry.setIri("?sheet", exerciseSheetURL);
 
         try (RDFConnection connection = getConnection()) {
+            boolean result = connection.queryAsk(exerciseSheetOpenedQry.asQuery());
+
+            if (result) {
+                throw new ExerciseSheetAlreadyOpenedException();
+            }
+
+            Model model = ModelFactory.createDefaultModel();
+            Resource studentResource = model.createResource(studentURL);
+
+            Resource individualTaskAssignmentResource = model.createResource();
+            individualTaskAssignmentResource.addProperty(RDF.type, ETutorVocabulary.IndividualTaskAssignment);
+            individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromCourseInstance, model.createResource(courseInstanceURL));
+            individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromExerciseSheet, model.createResource(exerciseSheetURL));
+
+            studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
             connection.load(model);
 
             try {
@@ -670,10 +703,10 @@ public class StudentService extends AbstractSPARQLEndpointService {
             """);
         getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
-
-        getPossibleAssignmentsQuery.setValues("?reachedGoals", StreamEx.of(reachedGoals).map(ResourceFactory::createResource).toList());
+        String queryString = getPossibleAssignmentsQuery.toString();
+        queryString = queryString.replace("?reachedGoals", StreamEx.of(reachedGoals).map(x -> String.format("<%s>", x)).joining(", "));
         String result;
-        try (QueryExecution execution = connection.query(getPossibleAssignmentsQuery.asQuery())) {
+        try (QueryExecution execution = connection.query(queryString)) {
             ResultSet set = execution.execSelect();
             int minDistance = Integer.MAX_VALUE;
             List<String> taskSheets = new ArrayList<>();

@@ -85,6 +85,25 @@ export class CourseTaskOverviewComponent implements OnInit {
    */
   public navigateToTasks(item: ICourseInstanceProgressOverviewDTO): void {
     const exerciseSheetUUID = item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1);
-    this.router.navigate([exerciseSheetUUID, 'tasks'], { relativeTo: this.activatedRoute, state: { instance: this.instance } });
+
+    if (!item.opened) {
+      this.studentService.openExerciseSheet(this.instance!.instanceId, exerciseSheetUUID).subscribe(() => {
+        this.navigateToTaskOverview(exerciseSheetUUID);
+      });
+    } else {
+      this.navigateToTaskOverview(exerciseSheetUUID);
+    }
+  }
+
+  /**
+   * Navigates to the task overview.
+   *
+   * @param exerciseSheetUUID the exercise sheet uuid
+   */
+  private navigateToTaskOverview(exerciseSheetUUID: string): void {
+    this.router.navigate([exerciseSheetUUID, 'tasks'], {
+      relativeTo: this.activatedRoute,
+      state: { instance: this.instance },
+    });
   }
 }

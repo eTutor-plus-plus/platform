@@ -161,7 +161,8 @@
     "taskAssignmentNotFound": "Die Aufgabenzuordnung existiert nicht!",
     "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!",
     "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!",
-    "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!"
+    "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!",
+    "exerciseSheetAlreadyOpened": "Der Übungszettel wurde bereits geöffnet!"
   },
   "footer": {
     "contact": "Kontakt",
