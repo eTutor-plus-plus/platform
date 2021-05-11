@@ -739,11 +739,12 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 throw new AllTasksAlreadyAssignedException();
             }
 
-            //TODO: Assign tasks based on the individual learning curve.
             String taskToAssign = getNextTaskAssignmentForAllocation(courseInstanceId, sheetId, studentUrl, connection);
 
             if (taskToAssign != null) {
                 insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+            } else {
+                // TODO: Throw exception
             }
         }
     }
