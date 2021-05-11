@@ -62,7 +62,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount
         WHERE {
           ?instance a etutor:CourseInstance.
           ?instance etutor:hasStudent ?student.
@@ -97,6 +97,20 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
           }
           BIND(?shouldTaskCount = ?actualCount && ?actualCount = ?submissionCount AS ?completed).
+          {
+            OPTIONAL {
+              SELECT ?exerciseSheet (COUNT(?graded) AS ?gradedCount)
+              WHERE {
+                  ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                  ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                        etutor:fromCourseInstance ?instance;
+                                        etutor:hasIndividualTask ?individualTask.
+                  ?individualTask etutor:isGraded ?graded.
+                  FILTER(?graded = true)
+              }
+              GROUP BY ?exerciseSheet
+            }
+          }
         }
         ORDER BY (LCASE(?exerciseSheetName))
         """;
@@ -382,7 +396,25 @@ public class StudentService extends AbstractSPARQLEndpointService {
                         opened = connection.queryAsk(exerciseSheetOpenedQry.asQuery());
                     }
 
-                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened));
+                    int actualCount = 0;
+                    int submissionCount = 0;
+                    int gradedCount = 0;
+
+                    Literal actualCountLiteral = solution.getLiteral("?actualCount");
+                    Literal submissionCountLiteral = solution.getLiteral("?submissionCount");
+                    Literal gradedCountLiteral = solution.getLiteral("?gradedCount");
+
+                    if (actualCountLiteral != null) {
+                        actualCount = actualCountLiteral.getInt();
+                    }
+                    if (submissionCountLiteral != null) {
+                        submissionCount = submissionCountLiteral.getInt();
+                    }
+                    if (gradedCountLiteral != null) {
+                        gradedCount = gradedCountLiteral.getInt();
+                    }
+
+                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened, actualCount, submissionCount, gradedCount));
                 }
                 return items;
             }

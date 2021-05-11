@@ -116,4 +116,30 @@ export class StudentService {
 
     return this.http.post(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/open`, null);
   }
+
+  /**
+   * Returns whether a new task can be assigned or not
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   */
+  public canAssignNextTask(courseInstanceId: string, exerciseSheetUUID: string): Observable<boolean> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<boolean>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/can-assign-new-task`
+    );
+  }
+
+  /**
+   * Assigns a new task.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet uuid
+   */
+  public assignNewTask(courseInstanceId: string, exerciseSheetUUID: string): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.post(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/assign-new-task`, null);
+  }
 }

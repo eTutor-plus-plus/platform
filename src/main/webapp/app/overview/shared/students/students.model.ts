@@ -82,6 +82,18 @@ export interface ICourseInstanceProgressOverviewDTO {
    * Indicates whether the exercise sheet has already been opened or not.
    */
   opened: boolean;
+  /**
+   * The actual task count.
+   */
+  actualCount: number;
+  /**
+   * The submitted task count.
+   */
+  submissionCount: number;
+  /**
+   * The graded task count.
+   */
+  gradedCount: number;
 }
 
 /**

@@ -13,6 +13,9 @@ public class CourseInstanceProgressOverviewDTO {
     private String difficultyURI;
     private boolean completed;
     private boolean opened;
+    private int actualCount;
+    private int submissionCount;
+    private int gradedCount;
 
     /**
      * Constructor.
@@ -29,13 +32,19 @@ public class CourseInstanceProgressOverviewDTO {
      * @param difficultyURI    the difficulty URI
      * @param completed        the status
      * @param opened           indicates whether the exercise sheet has already been opened or not
+     * @param actualCount      the number of actual tasks
+     * @param submissionCount  the number of submitted tasks
+     * @param gradedCount      the number of graded tasks
      */
-    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened) {
+    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened, int actualCount, int submissionCount, int gradedCount) {
         this.exerciseSheetId = exerciseSheetId;
         this.assignmentHeader = assignmentHeader;
         this.difficultyURI = difficultyURI;
         this.completed = completed;
         this.opened = opened;
+        this.actualCount = actualCount;
+        this.submissionCount = submissionCount;
+        this.gradedCount = gradedCount;
     }
 
     /**
@@ -126,5 +135,59 @@ public class CourseInstanceProgressOverviewDTO {
      */
     public void setOpened(boolean opened) {
         this.opened = opened;
+    }
+
+    /**
+     * Returns the actual task count.
+     *
+     * @return the actual task count
+     */
+    public int getActualCount() {
+        return actualCount;
+    }
+
+    /**
+     * Sets the actual task count.
+     *
+     * @param actualCount the actual task count to set
+     */
+    public void setActualCount(int actualCount) {
+        this.actualCount = actualCount;
+    }
+
+    /**
+     * Returns the submitted task count.
+     *
+     * @return the submitted task count
+     */
+    public int getSubmissionCount() {
+        return submissionCount;
+    }
+
+    /**
+     * Sets the submitted task count.
+     *
+     * @param submissionCount the submitted task count to set
+     */
+    public void setSubmissionCount(int submissionCount) {
+        this.submissionCount = submissionCount;
+    }
+
+    /**
+     * Returns the graded task count.
+     *
+     * @return the graded task count
+     */
+    public int getGradedCount() {
+        return gradedCount;
+    }
+
+    /**
+     * Sets the graded task count
+     *
+     * @param gradedCount the graded task count to set
+     */
+    public void setGradedCount(int gradedCount) {
+        this.gradedCount = gradedCount;
     }
 }

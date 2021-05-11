@@ -91,7 +91,18 @@ export class CourseTaskOverviewComponent implements OnInit {
         this.navigateToTaskOverview(exerciseSheetUUID);
       });
     } else {
-      this.navigateToTaskOverview(exerciseSheetUUID);
+      if (item.submissionCount === item.gradedCount && item.submissionCount > 0) {
+        (async () => {
+          const result = await this.studentService.canAssignNextTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+
+          if (result) {
+            await this.studentService.assignNewTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+          }
+          this.navigateToTaskOverview(exerciseSheetUUID);
+        })();
+      } else {
+        this.navigateToTaskOverview(exerciseSheetUUID);
+      }
     }
   }
 
