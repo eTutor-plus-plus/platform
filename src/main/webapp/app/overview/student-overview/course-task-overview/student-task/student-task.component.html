@@ -11,27 +11,21 @@
       <dt><span jhiTranslate="overview.student.tasks.header">Header</span></dt>
       <dd>{{ taskModel?.header }}</dd>
 
-      <div *ngIf="taskModel?.url">
-        <dt><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
-        <dd>{{ taskModel?.url?.toString() }}</dd>
-      </div>
+      <dt *ngIf="taskModel?.url"><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
+      <dd *ngIf="taskModel?.url">{{ taskModel?.url?.toString() }}</dd>
 
-      <div *ngIf="taskModel?.instruction">
-        <dt><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
-        <dd><span [innerHTML]="taskModel?.instruction"></span></dd>
-      </div>
+      <dt *ngIf="taskModel?.instruction"><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
+      <dd *ngIf="taskModel?.instruction"><span [innerHTML]="taskModel?.instruction"></span></dd>
 
       <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
         <span>{{ getDifficultyI18nString(taskModel?.taskDifficultyId) | translate }}</span>
       </dd>
 
-      <div *ngIf="taskModel?.processingTime">
-        <dt><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
-        <dd>
-          <span>{{ taskModel?.processingTime }}</span>
-        </dd>
-      </div>
+      <dt *ngIf="taskModel?.processingTime"><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
+      <dd *ngIf="taskModel?.processingTime">
+        <span>{{ taskModel?.processingTime }}</span>
+      </dd>
 
       <dt><span jhiTranslate="overview.student.tasks.creator">Creator</span></dt>
       <dd>
