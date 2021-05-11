@@ -612,6 +612,62 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
+     * Assigns a new task.
+     *
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     * @param matriculationNumber the student's matriculation number
+     * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
+     *                                          i.e. exercise sheet task count = assigned task count
+     */
+    public void assignNextTaskForStudent(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) throws AllTasksAlreadyAssignedException {
+        try (RDFConnection connection = getConnection()) {
+            assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, connection);
+        }
+    }
+
+    /**
+     * Returns whether a new task can be assigned or not.
+     *
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     * @param matriculationNumber the matriculation number
+     * @return {@code true} if a new task can be assigned, otherwise {@code false}
+     */
+    public boolean canAssignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNumber);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString alreadyAssignedTaskQuery = new ParameterizedSparqlString(QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT);
+        alreadyAssignedTaskQuery.setIri("?courseInstance", courseInstanceId);
+        alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
+        alreadyAssignedTaskQuery.setIri("?student", studentUrl);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
+                ResultSet set = execution.execSelect();
+                if (!set.hasNext()) {
+                    return false;
+                }
+                QuerySolution querySolution = set.nextSolution();
+
+                int taskCount = querySolution.getLiteral("?taskCount").getInt();
+                int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
+
+                if (taskCount == assignedCount) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
      * Assigns the next available task according to the student's current learning curve.
      *
      * @param courseInstanceUUID  the course instance uuid
@@ -621,7 +677,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
      *                                          i.e. exercise sheet task count = assigned task count
      */
-    private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException {
+    private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String
+        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
@@ -669,7 +726,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param connection        the RDF connection to the fuseki instance
      * @return resource as string of the the task assignment which should be allocated.
      */
-    private String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
+    private String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String
+        exerciseSheetUrl,
                                                       @NotNull String studentUrl, @NotNull RDFConnection connection) {
 
         List<String> reachedGoals = getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
@@ -789,7 +847,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param connection        the RDF connection to the fuseki instance
      * @return list of reached learning goals
      */
-    private @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String studentUrl, @NotNull RDFConnection connection) {
+    private @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String
+                                                                                courseInstanceUrl, @NotNull String studentUrl, @NotNull RDFConnection connection) {
         List<String> reachedGoals = new ArrayList<>();
 
         ParameterizedSparqlString reachedGoalQuery = new ParameterizedSparqlString("""
@@ -827,7 +886,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param newTaskResourceUrl the task url
      * @param connection         the RDF connection to the fuseki server, will not be closed
      */
-    private void insertNewAssignedTask(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl, @NotNull String studentUrl, @NotNull String newTaskResourceUrl, @NotNull RDFConnection connection) {
+    private void insertNewAssignedTask(@NotNull String courseInstanceUrl, @NotNull String
+        exerciseSheetUrl, @NotNull String studentUrl, @NotNull String newTaskResourceUrl, @NotNull RDFConnection
+                                           connection) {
         ParameterizedSparqlString latestOrderNoQry = new ParameterizedSparqlString(QRY_SELECT_MAX_ORDER_NO);
         latestOrderNoQry.setIri("?courseInstance", courseInstanceUrl);
         latestOrderNoQry.setIri("?student", studentUrl);

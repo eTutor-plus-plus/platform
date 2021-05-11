@@ -162,7 +162,8 @@
     "taskNotOwner": "Nur der Ersteller der Aufgabe darf diese editieren!",
     "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!",
     "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!",
-    "exerciseSheetAlreadyOpened": "Der Übungszettel wurde bereits geöffnet!"
+    "exerciseSheetAlreadyOpened": "Der Übungszettel wurde bereits geöffnet!",
+    "allTasksAssigned": "Es wurden bereits alle Aufgaben zugeteilt!"
   },
   "footer": {
     "contact": "Kontakt",

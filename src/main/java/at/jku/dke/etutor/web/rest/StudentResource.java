@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -179,5 +180,43 @@ public class StudentResource {
 
         boolean value = studentService.isTaskSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, taskNo);
         return ResponseEntity.ok(value);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/can-assign-new-task} : Returns
+     * whether a new task can be assigned or not.
+     *
+     * @param courseInstanceUUID the course instance uuid from the request path
+     * @param exerciseSheetUUID  the exercise sheet uuid from the request path
+     * @return the {@link ResponseEntity} containing the result
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/can-assign-new-task")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Boolean> canAssignNextTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        boolean value = studentService.canAssignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+        return ResponseEntity.ok(value);
+    }
+
+    /**
+     * {@code POST /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/assign-new-task} : Assigns a new
+     * task.
+     *
+     * @param courseInstanceUUID the course instance uuid
+     * @param exerciseSheetUUID  the exercise sheet uuid
+     * @return empty {@link ResponseEntity}
+     */
+    @PostMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/assign-new-task")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> assignNewTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        try {
+            studentService.assignNextTaskForStudent(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException ataae) {
+            throw new AllTasksAlreadyAssignedException();
+        }
     }
 }
