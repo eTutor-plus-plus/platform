@@ -700,6 +700,13 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     ?goalOfCourse etutor:dependsOn+ ?dependentGoal.
                     FILTER(?dependentGoal NOT IN (?reachedGoals))
                 }).
+                FILTER (NOT EXISTS {
+                    ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                    ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                          etutor:fromCourseInstance ?courseInstance;
+                                          etutor:hasIndividualTask ?individualTask.
+                    ?individualTask etutor:refersToTask ?task.
+                }).
               }
               GROUP BY ?goalOfCourse ?task
             }
@@ -707,6 +714,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             """);
         getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
+        getPossibleAssignmentsQuery.setIri("?student", studentUrl);
         getPossibleAssignmentsQuery.setValues("studentGoals", StreamEx.of(reachedGoals).map(ResourceFactory::createResource).toList());
         String result;
         try (QueryExecution execution = connection.query(getPossibleAssignmentsQuery.asQuery())) {
