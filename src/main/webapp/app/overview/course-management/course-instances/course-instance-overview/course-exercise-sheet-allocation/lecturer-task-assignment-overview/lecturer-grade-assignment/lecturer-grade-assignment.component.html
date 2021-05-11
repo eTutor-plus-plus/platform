@@ -45,7 +45,11 @@
     </div>
 
     <br />
-    <button class="btn btn-primary" (click)="saveCurrentAssessment()" [disabled]="!selectedGradingInfo || isSaving">
+    <button
+      class="btn btn-primary"
+      (click)="saveCurrentAssessment()"
+      [disabled]="!selectedGradingInfo || isSaving || !selectedGradingInfo?.submitted"
+    >
       <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
       <span jhiTranslate="lecturerOverview.gradingWindow.form.saveEvaluation">Save evaluation</span>
     </button>

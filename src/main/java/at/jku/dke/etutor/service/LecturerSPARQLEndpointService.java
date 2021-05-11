@@ -106,7 +106,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT ?task ?taskTitle ?completed ?graded ?orderNo
+            SELECT ?task ?taskTitle ?completed ?graded ?orderNo ?submitted
             WHERE {
               ?student etutor:hasIndividualTaskAssignment [
                 etutor:fromExerciseSheet ?sheet;
@@ -115,7 +115,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                   etutor:isGraded ?graded;
                   etutor:refersToTask ?task;
                   etutor:hasOrderNo ?orderNo;
-                  etutor:isLearningGoalCompleted ?completed
+                  etutor:isLearningGoalCompleted ?completed;
+                  etutor:isSubmitted ?submitted
                 ]
               ].
               ?task etutor:hasTaskHeader ?taskTitle.
@@ -316,8 +317,9 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                     boolean completed = solution.getLiteral("?completed").getBoolean();
                     boolean graded = solution.getLiteral("?graded").getBoolean();
                     int orderNo = solution.getLiteral("?orderNo").getInt();
+                    boolean submitted = solution.getLiteral("?submitted").getBoolean();
 
-                    list.add(new LecturerGradingInfoDTO(taskUrl, taskTitle, completed, graded, orderNo));
+                    list.add(new LecturerGradingInfoDTO(taskUrl, taskTitle, completed, graded, orderNo, submitted));
                 }
             }
             return list;

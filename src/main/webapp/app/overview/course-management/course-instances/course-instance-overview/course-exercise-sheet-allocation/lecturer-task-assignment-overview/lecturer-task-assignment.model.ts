@@ -74,6 +74,10 @@ export interface ILecturerGradingInfo {
    * The internal order number.
    */
   orderNo: number;
+  /**
+   * Indicates whether the assignment has already been submitted.
+   */
+  submitted: boolean;
 }
 
 /**
