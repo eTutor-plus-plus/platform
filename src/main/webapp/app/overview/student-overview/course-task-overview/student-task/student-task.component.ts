@@ -84,8 +84,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   /**
    * Returns the task model.
    */
-  public get taskModel(): ITaskModel {
-    return this._taskModel!;
+  public get taskModel(): ITaskModel | undefined {
+    return this._taskModel;
   }
 
   /**
@@ -100,7 +100,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    *
    * @param url the url
    */
-  public getDifficultyI18nString(url: string): string {
+  public getDifficultyI18nString(url?: string): string {
+    if (!url) {
+      return '';
+    }
     return TaskDifficulty.fromString(url)!.text;
   }
 
