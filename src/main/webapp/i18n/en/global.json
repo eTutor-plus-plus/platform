@@ -162,7 +162,8 @@
     "courseInstanceNotFound": "The course instance can not be found!",
     "studentCSVImportError": "A CSV import error occurred!",
     "exerciseSheetAlreadyOpened": "The exercise sheet has already been opened!",
-    "allTasksAssigned": "All tasks have already been assigned!"
+    "allTasksAssigned": "All tasks have already been assigned!",
+    "noFurtherTasksAvailable": "No further tasks are available for allocation!"
   },
   "footer": {
     "contact": "Contact",

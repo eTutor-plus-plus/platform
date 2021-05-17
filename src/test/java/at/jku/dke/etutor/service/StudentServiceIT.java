@@ -7,6 +7,7 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.CourseDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import liquibase.integration.spring.SpringLiquibase;
 import org.junit.jupiter.api.BeforeAll;
@@ -347,7 +348,8 @@ public class StudentServiceIT {
             Collections.singletonList(exerciseSheetDTO.getId())
         );
 
-        studentService.openExerciseSheetForStudent(mNr, courseInstanceUUID, exerciseSheetUUID);
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent(mNr, courseInstanceUUID, exerciseSheetUUID))
+            .isInstanceOf(NoFurtherTasksAvailableException.class);
 
         assertThat(studentService.hasStudentOpenedTheExerciseSheet(mNr, courseInstanceUUID, exerciseSheetUUID)).isTrue();
     }

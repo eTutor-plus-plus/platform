@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
+import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -143,6 +144,8 @@ public class StudentResource {
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException esaoe) {
             throw new ExerciseSheetAlreadyOpenedException();
+        } catch (at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException nfta) {
+            throw new NoFurtherTasksAvailableException();
         }
     }
 
@@ -217,6 +220,8 @@ public class StudentResource {
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException ataae) {
             throw new AllTasksAlreadyAssignedException();
+        } catch (at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException nfta) {
+            throw new NoFurtherTasksAvailableException();
         }
     }
 }

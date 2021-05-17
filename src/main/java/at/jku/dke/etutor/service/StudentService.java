@@ -13,6 +13,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
+import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -458,8 +459,11 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param courseInstanceUUID  the course instance uuid
      * @param exerciseSheetUUID   the exercise sheet uuid
      * @throws ExerciseSheetAlreadyOpenedException if the exercise sheet has already been opened
+     * @throws NoFurtherTasksAvailableException    if no further tasks are available for assignment
      */
-    public void openExerciseSheetForStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) throws ExerciseSheetAlreadyOpenedException {
+    public void openExerciseSheetForStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID)
+        throws ExerciseSheetAlreadyOpenedException, NoFurtherTasksAvailableException {
+
         Objects.requireNonNull(matriculationNumber);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
@@ -653,8 +657,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param matriculationNumber the student's matriculation number
      * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
      *                                          i.e. exercise sheet task count = assigned task count
+     * @throws NoFurtherTasksAvailableException if no further tasks are available for assignment
      */
-    public void assignNextTaskForStudent(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) throws AllTasksAlreadyAssignedException {
+    public void assignNextTaskForStudent(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNumber) throws AllTasksAlreadyAssignedException, NoFurtherTasksAvailableException {
         try (RDFConnection connection = getConnection()) {
             assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, connection);
         }
@@ -710,9 +715,10 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param connection          the RDF connection to the fuseki instance
      * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
      *                                          i.e. exercise sheet task count = assigned task count
+     * @throws NoFurtherTasksAvailableException if no further tasks are available for assignment
      */
     private void assignNextTask(String courseInstanceUUID, String exerciseSheetUUID, String
-        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException {
+        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException, NoFurtherTasksAvailableException {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
@@ -746,7 +752,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             if (taskToAssign != null) {
                 insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
             } else {
-                // TODO: Throw exception
+                throw new NoFurtherTasksAvailableException();
             }
         }
     }

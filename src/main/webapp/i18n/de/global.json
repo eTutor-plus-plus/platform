@@ -163,7 +163,8 @@
     "courseInstanceNotFound": "Die Kursinstanz konnte nicht gefunden werden!",
     "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!",
     "exerciseSheetAlreadyOpened": "Der Übungszettel wurde bereits geöffnet!",
-    "allTasksAssigned": "Es wurden bereits alle Aufgaben zugeteilt!"
+    "allTasksAssigned": "Es wurden bereits alle Aufgaben zugeteilt!",
+    "noFurtherTasksAvailable": "Es sind keine weiteren Aufgaben zur Zuteilung verfügbar!"
   },
   "footer": {
     "contact": "Kontakt",
