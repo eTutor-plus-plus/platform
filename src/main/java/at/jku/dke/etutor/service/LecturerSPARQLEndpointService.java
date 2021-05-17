@@ -474,12 +474,11 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
 
             SELECT ?parentGoal
             WHERE {
-              VALUES (?completedGoals) {
-                ?valuesForCompletedGoals
-              }
+              ?completedGoal a etutor:Goal.
+              FILTER(?completedGoal IN (?valuesForCompletedGoals)).
               ?parentGoal a etutor:Goal.
               ?parentGoal etutor:needsVerificationBeforeCompletion false.
-              ?parentGoal etutor:hasSubGoal ?completedGoals.
+              ?parentGoal etutor:hasSubGoal ?completedGoal.
 
               FILTER(NOT EXISTS {
             	?parentGoal etutor:hasSubGoal ?subGoal.
@@ -497,14 +496,16 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
             }
             """);
 
-        selectUpdatableGoalsQuery.setValues("valuesForCompletedGoals", StreamEx.of(goals).map(ResourceFactory::createResource).toList());
         selectUpdatableGoalsQuery.setIri("?student", studentURL);
         selectUpdatableGoalsQuery.setIri("?courseinstance", courseInstanceURL);
+
+        String query = selectUpdatableGoalsQuery.toString();
+        query = query.replace("?valuesForCompletedGoals", String.join(", ", goals));
 
         List<String> newGoals = new ArrayList<>();
         Model model = ModelFactory.createDefaultModel();
         Resource studentResource = model.createResource(studentURL);
-        try (QueryExecution execution = connection.query(selectUpdatableGoalsQuery.asQuery())) {
+        try (QueryExecution execution = connection.query(query)) {
             ResultSet set = execution.execSelect();
 
             while (set.hasNext()) {

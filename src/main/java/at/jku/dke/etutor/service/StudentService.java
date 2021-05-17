@@ -777,10 +777,6 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
                 ?sheet etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
 
-                VALUES(?reachedGoals) {
-                    ?studentGoals
-                }
-
                 ?task a etutor:TaskAssignment.
                 ?goalOfCourse ^etutor:hasSubGoal* ?mid.
                 ?mid (^etutor:hasSubGoal+/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
@@ -806,9 +802,10 @@ public class StudentService extends AbstractSPARQLEndpointService {
         getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
         getPossibleAssignmentsQuery.setIri("?student", studentUrl);
-        getPossibleAssignmentsQuery.setValues("studentGoals", StreamEx.of(reachedGoals).map(ResourceFactory::createResource).toList());
+        String query = getPossibleAssignmentsQuery.toString();
+        query = query.replace("?reachedGoals", String.join(", ", reachedGoals));
         String result;
-        try (QueryExecution execution = connection.query(getPossibleAssignmentsQuery.asQuery())) {
+        try (QueryExecution execution = connection.query(query)) {
             ResultSet set = execution.execSelect();
             int minDistance = Integer.MAX_VALUE;
             List<String> taskSheets = new ArrayList<>();
