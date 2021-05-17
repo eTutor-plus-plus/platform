@@ -4,12 +4,14 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import one.util.streamex.StreamEx;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -163,7 +165,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
               ?goal a etutor:Goal.
               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
               ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                    etutor:fromCourseInstance ?courseInstance.
+                                    etutor:fromCourseInstance ?courseinstance.
               ?individualAssignment etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo.
               ?individualTask etutor:refersToTask ?task.
@@ -192,7 +194,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
               ?goal a etutor:Goal.
               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
               ?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                    etutor:fromCourseInstance ?courseInstance.
+                                    etutor:fromCourseInstance ?courseinstance.
               ?individualAssignment etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo.
               ?individualTask etutor:refersToTask ?task.
@@ -369,6 +371,8 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                 updateCompletedGoalQry.setLiteral("?orderNo", orderNo);
 
                 connection.update(updateCompletedGoalQry.asUpdate());
+
+                adjustParentGoals(courseInstanceURL, exerciseSheetURL, studentURL, orderNo, connection);
             } else {
                 ParameterizedSparqlString updatedFailedGoalQry = new ParameterizedSparqlString(QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED);
                 updatedFailedGoalQry.setIri("?courseinstance", courseInstanceURL);
@@ -378,6 +382,142 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
 
                 connection.update(updatedFailedGoalQry.asUpdate());
             }
+        }
+    }
+
+    /**
+     * Adjusts the completion status of parent goals.
+     *
+     * @param courseInstanceURL the course instance URL
+     * @param exerciseSheetURL  the exercise sheet URL
+     * @param studentURL        the student URL
+     * @param orderNo           the order no of the corresponding assigned task
+     * @param connection        the RDF connection to the fuseki server
+     */
+    private void adjustParentGoals(@NotNull String courseInstanceURL, @NotNull String exerciseSheetURL, @NotNull String studentURL,
+                                   int orderNo, @NotNull RDFConnection connection) {
+        ParameterizedSparqlString selectUpdatableGoalsQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?parentGoal
+            WHERE {
+              ?courseinstance a etutor:CourseInstance.
+              ?courseinstance etutor:hasCourse ?course.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?courseinstance.
+              ?individualAssignment etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+              ?individualTask etutor:refersToTask ?task.
+              ?completedGoals etutor:hasTaskAssignment ?task.
+
+              ?parentGoal a etutor:Goal.
+              ?parentGoal etutor:needsVerificationBeforeCompletion false.
+              ?parentGoal etutor:hasSubGoal ?completedGoals.
+
+              FILTER(NOT EXISTS {
+            	?parentGoal etutor:hasSubGoal ?subGoal.
+                FILTER(NOT EXISTS {
+                  GRAPH ?courseinstance {
+                    ?subGoal etutor:isCompletedFrom ?student
+                  }
+                })
+              }).
+              FILTER(NOT EXISTS {
+                GRAPH ?courseinstance {
+                  ?parentGoal etutor:isCompletedFrom ?student
+                }
+              }).
+            }
+            """);
+
+        selectUpdatableGoalsQuery.setIri("?courseinstance", courseInstanceURL);
+        selectUpdatableGoalsQuery.setIri("?student", studentURL);
+        selectUpdatableGoalsQuery.setIri("?sheet", exerciseSheetURL);
+        selectUpdatableGoalsQuery.setLiteral("?orderNo", orderNo);
+
+        Model model = ModelFactory.createDefaultModel();
+        Resource studentResource = model.createResource(studentURL);
+        List<String> goals = new ArrayList<>();
+
+        try (QueryExecution queryExecution = connection.query(selectUpdatableGoalsQuery.asQuery())) {
+            ResultSet set = queryExecution.execSelect();
+
+            while (set.hasNext()) {
+                QuerySolution solution = set.nextSolution();
+                String goal = solution.getResource("?parentGoal").getURI();
+                goals.add(goal);
+                Resource resource = model.createResource(goal);
+                resource.addProperty(ETutorVocabulary.isCompletedFrom, studentResource);
+            }
+        }
+
+        connection.put(courseInstanceURL.replace("#", "%23"), model);
+
+        if (goals.size() > 0) {
+            adjustParentGoalsRecursive(courseInstanceURL, studentURL, goals, connection);
+        }
+    }
+
+    /**
+     * Adjusts the parents goal recursive based on the given list of previously as
+     * successful marked goals.
+     *
+     * @param courseInstanceURL the course instance URL
+     * @param studentURL        the student URL
+     * @param goals             the list of goals
+     * @param connection        the RDF connection to the Fuseki server
+     */
+    private void adjustParentGoalsRecursive(@NotNull String courseInstanceURL, @NotNull String studentURL, @NotNull List<String> goals, @NotNull RDFConnection connection) {
+        ParameterizedSparqlString selectUpdatableGoalsQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?parentGoal
+            WHERE {
+              VALUES (?completedGoals) {
+                ?valuesForCompletedGoals
+              }
+              ?parentGoal a etutor:Goal.
+              ?parentGoal etutor:needsVerificationBeforeCompletion false.
+              ?parentGoal etutor:hasSubGoal ?completedGoals.
+
+              FILTER(NOT EXISTS {
+            	?parentGoal etutor:hasSubGoal ?subGoal.
+                FILTER(NOT EXISTS {
+                  GRAPH ?courseinstance {
+                    ?subGoal etutor:isCompletedFrom ?student
+                  }
+                })
+              }).
+              FILTER(NOT EXISTS {
+                GRAPH ?courseinstance {
+                  ?parentGoal etutor:isCompletedFrom ?student
+                }
+              }).
+            }
+            """);
+
+        selectUpdatableGoalsQuery.setValues("valuesForCompletedGoals", StreamEx.of(goals).map(ResourceFactory::createResource).toList());
+        selectUpdatableGoalsQuery.setIri("?student", studentURL);
+        selectUpdatableGoalsQuery.setIri("?courseinstance", courseInstanceURL);
+
+        List<String> newGoals = new ArrayList<>();
+        Model model = ModelFactory.createDefaultModel();
+        Resource studentResource = model.createResource(studentURL);
+        try (QueryExecution execution = connection.query(selectUpdatableGoalsQuery.asQuery())) {
+            ResultSet set = execution.execSelect();
+
+            while (set.hasNext()) {
+                QuerySolution solution = set.nextSolution();
+                String goal = solution.getResource("?parentGoal").getURI();
+                newGoals.add(goal);
+                Resource resource = model.createResource(goal);
+                resource.addProperty(ETutorVocabulary.isCompletedFrom, studentResource);
+            }
+        }
+
+        if (newGoals.size() > 0) {
+            adjustParentGoalsRecursive(courseInstanceURL, studentURL, newGoals, connection);
         }
     }
 }
