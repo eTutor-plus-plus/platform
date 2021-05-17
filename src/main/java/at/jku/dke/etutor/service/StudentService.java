@@ -14,9 +14,11 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
-import one.util.streamex.StreamEx;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
@@ -770,7 +772,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
             SELECT ?goalOfCourse ?task ?distance
             WHERE {
-              SELECT ?goalOfCourse ?task (count(?mid) AS ?distance)
+              SELECT ?goalOfCourse ?task (COUNT(DISTINCT ?mid) AS ?distance)
               WHERE {
                 ?courseInstance a etutor:CourseInstance.
                 ?courseInstance etutor:hasCourse ?course.
