@@ -15,6 +15,7 @@ import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
+import one.util.streamex.StreamEx;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -811,7 +812,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
         getPossibleAssignmentsQuery.setIri("?student", studentUrl);
         String query = getPossibleAssignmentsQuery.toString();
-        query = query.replace("?reachedGoals", String.join(", ", reachedGoals));
+        query = query.replace("?reachedGoals", StreamEx.of(reachedGoals).map(x -> String.format("<%s>", x)).joining(", "));
         String result;
         try (QueryExecution execution = connection.query(query)) {
             ResultSet set = execution.execSelect();

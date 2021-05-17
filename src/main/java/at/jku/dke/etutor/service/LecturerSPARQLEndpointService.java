@@ -452,7 +452,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
             }
         }
 
-        connection.put(courseInstanceURL.replace("#", "%23"), model);
+        connection.load(courseInstanceURL.replace("#", "%23"), model);
 
         if (goals.size() > 0) {
             adjustParentGoalsRecursive(courseInstanceURL, studentURL, goals, connection);
@@ -500,7 +500,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         selectUpdatableGoalsQuery.setIri("?courseinstance", courseInstanceURL);
 
         String query = selectUpdatableGoalsQuery.toString();
-        query = query.replace("?valuesForCompletedGoals", String.join(", ", goals));
+        query = query.replace("?valuesForCompletedGoals", StreamEx.of(goals).map(x -> String.format("<%s>", x)).joining(", "));
 
         List<String> newGoals = new ArrayList<>();
         Model model = ModelFactory.createDefaultModel();
