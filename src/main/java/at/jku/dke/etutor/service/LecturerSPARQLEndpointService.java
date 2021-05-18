@@ -9,7 +9,10 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
@@ -452,7 +455,9 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
             }
         }
 
-        connection.load(courseInstanceURL.replace("#", "%23"), model);
+        if (!model.isEmpty()) {
+            connection.load(courseInstanceURL.replace("#", "%23"), model);
+        }
 
         if (goals.size() > 0) {
             adjustParentGoalsRecursive(courseInstanceURL, studentURL, goals, connection);
@@ -515,6 +520,10 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                 Resource resource = model.createResource(goal);
                 resource.addProperty(ETutorVocabulary.isCompletedFrom, studentResource);
             }
+        }
+
+        if (!model.isEmpty()) {
+            connection.load(courseInstanceURL.replace("#", "%23"), model);
         }
 
         if (newGoals.size() > 0) {
