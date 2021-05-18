@@ -776,6 +776,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString getPossibleAssignmentsQuery = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
             SELECT ?goalOfCourse ?task ?distance
             WHERE {
@@ -785,12 +786,16 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?courseInstance etutor:hasCourse ?course.
                 ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
                 ?sheet etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
+                ?sheet etutor:hasExerciseSheetDifficulty/rdf:value ?sheetDifficultyValue.
 
                 ?task a etutor:TaskAssignment.
+                ?task etutor:hasTaskDifficulty/rdf:value ?taskDifficultyValue.
+
                 ?goalOfCourse ^etutor:hasSubGoal* ?mid.
                 ?mid (^etutor:hasSubGoal+/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
 
                 FILTER(?goalOfCourse NOT IN (?reachedGoals))
+                FILTER(?taskDifficultyValue <= ?sheetDifficultyValue)
 
                 FILTER (NOT EXISTS {
                     ?goalOfCourse etutor:dependsOn+ ?dependentGoal.
