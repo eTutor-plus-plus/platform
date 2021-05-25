@@ -768,8 +768,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param connection        the RDF connection to the fuseki instance
      * @return resource as string of the the task assignment which should be allocated.
      */
-    private String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String
-        exerciseSheetUrl,
+    private String getNextTaskAssignmentForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
                                                       @NotNull String studentUrl, @NotNull RDFConnection connection) {
 
         List<String> reachedGoals = getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
@@ -798,7 +797,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 FILTER(?taskDifficultyValue <= ?sheetDifficultyValue)
 
                 FILTER (NOT EXISTS {
-                    ?goalOfCourse etutor:dependsOn+ ?dependentGoal.
+                    ?goalOfCourse (^etutor:hasSubGoal/etutor:dependsOn+|etutor:dependsOn+) ?dependentGoal.
                     FILTER(?dependentGoal NOT IN (?reachedGoals))
                 }).
                 FILTER (NOT EXISTS {
@@ -818,7 +817,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         getPossibleAssignmentsQuery.setIri("?student", studentUrl);
         String query = getPossibleAssignmentsQuery.toString();
         query = query.replace("?reachedGoals", StreamEx.of(reachedGoals).map(x -> String.format("<%s>", x)).joining(", "));
-        String result;
+
         try (QueryExecution execution = connection.query(query)) {
             ResultSet set = execution.execSelect();
             int minDistance = Integer.MAX_VALUE;
@@ -836,51 +835,14 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 } while (set.hasNext());
 
                 if (taskSheets.size() > 1) {
-                    result = taskSheets.get(random.nextInt(taskSheets.size()));
+                    return taskSheets.get(random.nextInt(taskSheets.size()));
                 } else { // taskSheets.size() == 1
-                    result = taskSheets.get(0);
+                    return taskSheets.get(0);
                 }
             } else {
-                ParameterizedSparqlString randomTaskQuery = new ParameterizedSparqlString("""
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-
-                    SELECT ?task
-                    WHERE {
-                      GRAPH ?courseInstance {
-                        ?reachedGoal a etutor:Goal.
-                        ?reachedGoal etutor:isCompletedFrom ?student.
-                      }
-
-                      ?task a etutor:TaskAssignment.
-                      ?reachedGoal etutor:hasTaskAssignment ?task.
-
-                      FILTER(NOT EXISTS {
-                        ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                      	?individualAssignment etutor:fromExerciseSheet ?sheet;
-                                            etutor:fromCourseInstance ?courseInstance;
-                                            etutor:hasIndividualTask ?individualTask.
-                      	?individualTask etutor:refersToTask ?task;
-                      })
-                    }
-                    ORDER BY RAND() LIMIT 1
-                    """);
-                randomTaskQuery.setIri("?courseInstance", courseInstanceUrl);
-                randomTaskQuery.setIri("?student", studentUrl);
-                randomTaskQuery.setIri("?sheet", exerciseSheetUrl);
-
-                try (QueryExecution qExecution = connection.query(randomTaskQuery.asQuery())) {
-                    ResultSet randomTaskResultSet = qExecution.execSelect();
-
-                    if (randomTaskResultSet.hasNext()) {
-                        result = randomTaskResultSet.nextSolution().getResource("?task").getURI();
-                    } else {
-                        result = null;
-                    }
-                }
+                return null;
             }
         }
-
-        return result;
     }
 
     /**
