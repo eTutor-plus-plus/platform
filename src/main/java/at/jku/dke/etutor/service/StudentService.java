@@ -791,7 +791,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?task etutor:hasTaskDifficulty/rdf:value ?taskDifficultyValue.
 
                 ?goalOfCourse ^etutor:hasSubGoal* ?mid.
-                ?mid (^etutor:hasSubGoal+/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
+                ?mid ((^etutor:hasSubGoal+|^etutor:dependsOn+)/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
 
                 FILTER(?goalOfCourse NOT IN (?reachedGoals))
                 FILTER(?taskDifficultyValue <= ?sheetDifficultyValue)
@@ -856,8 +856,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param connection        the RDF connection to the fuseki instance
      * @return list of reached learning goals
      */
-    private @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String
-                                                                                courseInstanceUrl, @NotNull String studentUrl, @NotNull RDFConnection connection) {
+    private @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String studentUrl,
+                                                                            @NotNull RDFConnection connection) {
         List<String> reachedGoals = new ArrayList<>();
 
         ParameterizedSparqlString reachedGoalQuery = new ParameterizedSparqlString("""
