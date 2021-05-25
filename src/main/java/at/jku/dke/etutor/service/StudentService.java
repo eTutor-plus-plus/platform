@@ -68,52 +68,77 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount
         WHERE {
-          ?instance a etutor:CourseInstance.
-          ?instance etutor:hasStudent ?student.
-          ?instance etutor:hasExerciseSheet ?exerciseSheet.
-          ?exerciseSheet rdfs:label ?exerciseSheetName.
-          ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-          ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
           {
-            OPTIONAL {
-              SELECT ?exerciseSheet (COUNT(?individualTask) AS ?actualCount)
-              WHERE {
+            ?instance a etutor:CourseInstance.
+            ?instance etutor:hasStudent ?student.
+            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?exerciseSheet rdfs:label ?exerciseSheetName.
+            ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+            ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
+            FILTER(EXISTS{
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+            }).
+            {
+              OPTIONAL {
+                SELECT ?exerciseSheet (COUNT(?individualTask) AS ?actualCount)
+                WHERE {
                   ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
                   ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
                                         etutor:fromCourseInstance ?instance;
                                         etutor:hasIndividualTask ?individualTask.
+                }
+                GROUP BY ?exerciseSheet
               }
-              GROUP BY ?exerciseSheet
             }
-          }
-          {
-            OPTIONAL {
-              SELECT ?exerciseSheet (COUNT(?submitted) AS ?submissionCount)
-              WHERE {
+            {
+              OPTIONAL {
+                SELECT ?exerciseSheet (COUNT(?submitted) AS ?submissionCount)
+                WHERE {
                   ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
                   ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
                                         etutor:fromCourseInstance ?instance;
                                         etutor:hasIndividualTask ?individualTask.
                   ?individualTask etutor:isSubmitted ?submitted.
                   FILTER(?submitted = true)
+                }
+                GROUP BY ?exerciseSheet
               }
-              GROUP BY ?exerciseSheet
             }
-          }
-          BIND(?shouldTaskCount = ?actualCount && ?actualCount = ?submissionCount AS ?completed).
-          {
-            OPTIONAL {
-              SELECT ?exerciseSheet (COUNT(?graded) AS ?gradedCount)
-              WHERE {
+            BIND(?shouldTaskCount = ?actualCount && ?actualCount = ?submissionCount AS ?completed).
+            {
+              OPTIONAL {
+                SELECT ?exerciseSheet (COUNT(?graded) AS ?gradedCount)
+                WHERE {
                   ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
                   ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
                                         etutor:fromCourseInstance ?instance;
                                         etutor:hasIndividualTask ?individualTask.
                   ?individualTask etutor:isGraded ?graded.
                   FILTER(?graded = true)
+                }
+                GROUP BY ?exerciseSheet
               }
-              GROUP BY ?exerciseSheet
             }
+          } UNION {
+            ?instance a etutor:CourseInstance.
+            ?instance etutor:hasStudent ?student.
+            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?exerciseSheet rdfs:label ?exerciseSheetName.
+            ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+            ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
+            FILTER(NOT EXISTS{
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+            }).
+            BIND(false AS ?completed).
+            BIND(0 AS ?actualCount).
+            BIND(0 AS ?submissionCount).
+            BIND(0 AS ?gradedCount).
           }
         }
         ORDER BY (LCASE(?exerciseSheetName))
