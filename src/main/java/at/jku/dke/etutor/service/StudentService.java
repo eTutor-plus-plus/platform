@@ -798,6 +798,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
                 FILTER (NOT EXISTS {
                     ?goalOfCourse (^etutor:hasSubGoal/etutor:dependsOn+|etutor:dependsOn+) ?dependentGoal.
+                    GRAPH ?courseInstance {
+                      ?dependentGoal a etutor:Goal
+                    }
                     FILTER(?dependentGoal NOT IN (?reachedGoals))
                 }).
                 FILTER (NOT EXISTS {
