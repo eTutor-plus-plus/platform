@@ -16,6 +16,7 @@ import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import one.util.streamex.StreamEx;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -517,6 +518,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             individualTaskAssignmentResource.addProperty(RDF.type, ETutorVocabulary.IndividualTaskAssignment);
             individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromCourseInstance, model.createResource(courseInstanceURL));
             individualTaskAssignmentResource.addProperty(ETutorVocabulary.fromExerciseSheet, model.createResource(exerciseSheetURL));
+            individualTaskAssignmentResource.addProperty(ETutorVocabulary.isClosed, "false", XSDDatatype.XSDboolean);
 
             studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
             connection.load(model);
@@ -729,6 +731,47 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }
             }
             return true;
+        }
+    }
+
+    /**
+     * Closes a given exercise sheet from an individual student.
+     *
+     * @param matriculationNumber the student's matriculation number
+     * @param courseInstanceUUID  the course instance UUID
+     * @param exerciseSheetUUID   the exercise sheet UUID
+     */
+    public void closeExerciseSheetFromAnIndividualStudent(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString updateQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualAssignment etutor:isClosed ?closed.
+            } INSERT {
+              ?individualAssignment etutor:isClosed true.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:isClosed ?closed.
+            }
+            """);
+
+        updateQuery.setIri("?instance", courseInstanceId);
+        updateQuery.setIri("?student", studentUrl);
+        updateQuery.setIri("?sheet", sheetId);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(updateQuery.asUpdate());
         }
     }
 

@@ -208,20 +208,22 @@ public class StudentResource {
      *
      * @param courseInstanceUUID the course instance uuid
      * @param exerciseSheetUUID  the exercise sheet uuid
-     * @return empty {@link ResponseEntity}
+     * @return the {@link ResponseEntity} containing {@code true} if a new task could be assigned,
+     * otherwise {@code false} is returned
      */
     @PostMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/assign-new-task")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> assignNewTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+    public ResponseEntity<Boolean> assignNewTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
 
         try {
             studentService.assignNextTaskForStudent(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(true);
         } catch (at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException ataae) {
             throw new AllTasksAlreadyAssignedException();
         } catch (at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException nfta) {
-            throw new NoFurtherTasksAvailableException();
+            studentService.closeExerciseSheetFromAnIndividualStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            return ResponseEntity.ok(false);
         }
     }
 }

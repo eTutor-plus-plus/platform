@@ -51,6 +51,7 @@ public final class ETutorVocabulary {
     private static final String PROP_FROM_COURSE_INSTANCE = "fromCourseInstance";
     private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
     private static final String PROP_HAS_INDIVIDUAL_TASK = "hasIndividualTask";
+    private static final String PROP_IS_CLOSED = "isClosed";
     private static final String PROP_IS_GRADED = "isGraded";
     private static final String PROP_IS_SUBMITTED = "isSubmitted";
     private static final String PROP_REFERS_TO_TASK = "refersToTask";
@@ -276,6 +277,10 @@ public final class ETutorVocabulary {
      * The hasIndividualTask property.
      */
     public static final Property hasIndividualTask = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK);
+    /**
+     * The isClosed property.
+     */
+    public static final Property isClosed = m.createProperty(URI + PROP_IS_CLOSED);
     /**
      * The isGraded property.
      */

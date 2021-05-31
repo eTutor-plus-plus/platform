@@ -96,7 +96,12 @@ export class CourseTaskOverviewComponent implements OnInit {
           const result = await this.studentService.canAssignNextTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
 
           if (result) {
-            await this.studentService.assignNewTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+            const isNewTaskAssigned = await this.studentService.assignNewTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+
+            if (!isNewTaskAssigned) {
+              // eslint-disable-next-line no-console
+              console.log('No new task available');
+            }
           }
           this.navigateToTaskOverview(exerciseSheetUUID);
         })();

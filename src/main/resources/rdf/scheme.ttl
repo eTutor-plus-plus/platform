@@ -173,6 +173,11 @@ etutor:hasIndividualTask
     rdfs:domain etutor:IndividualTaskAssignment ;
     rdfs:range  etutor:IndividualTask .
 
+etutor:isClosed
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskAssignment ;
+    rdfs:range  xsd:boolean .
+
 etutor:isGraded
     rdf:type    rdf:Property ;
     rdfs:domain etutor:IndividualTask ;

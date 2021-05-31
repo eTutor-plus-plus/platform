@@ -137,9 +137,12 @@ export class StudentService {
    * @param courseInstanceId the course instance id
    * @param exerciseSheetUUID the exercise sheet uuid
    */
-  public assignNewTask(courseInstanceId: string, exerciseSheetUUID: string): Observable<any> {
+  public assignNewTask(courseInstanceId: string, exerciseSheetUUID: string): Observable<boolean> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
-    return this.http.post(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/assign-new-task`, null);
+    return this.http.post<boolean>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/assign-new-task`,
+      null
+    );
   }
 }
