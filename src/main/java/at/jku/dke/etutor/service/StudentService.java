@@ -815,8 +815,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?task a etutor:TaskAssignment.
                 ?task etutor:hasTaskDifficulty/rdf:value ?taskDifficultyValue.
 
-                ?goalOfCourse ^etutor:hasSubGoal* ?mid.
-                ?mid ((^etutor:hasSubGoal+|^etutor:dependsOn+)/etutor:hasTaskAssignment|etutor:hasTaskAssignment) ?task.
+                ?goalOfCourse (^etutor:hasSubGoal|^etutor:dependsOn)? ?mid.
+                ?mid (^etutor:hasSubGoal|^etutor:dependsOn)* ?endGoal.
+                ?endGoal etutor:hasTaskAssignment ?task.
 
                 FILTER(?goalOfCourse NOT IN (?reachedGoals))
                 FILTER(?taskDifficultyValue <= ?sheetDifficultyValue)
