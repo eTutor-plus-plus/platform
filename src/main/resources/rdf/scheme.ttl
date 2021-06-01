@@ -173,7 +173,17 @@ etutor:hasIndividualTask
     rdfs:domain etutor:IndividualTaskAssignment ;
     rdfs:range  etutor:IndividualTask .
 
+etutor:isClosed
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskAssignment ;
+    rdfs:range  xsd:boolean .
+
 etutor:isGraded
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:boolean .
+
+etutor:isSubmitted
     rdf:type    rdf:Property ;
     rdfs:domain etutor:IndividualTask ;
     rdfs:range  xsd:boolean .
@@ -260,18 +270,22 @@ etutor:isPrivateTask
 # Instances
 etutor-difficulty:Easy
     a          etutor:DifficultyRanking ;
+    rdf:value  "1"^^xsd:int ;
     rdfs:label "Easy" .
 
 etutor-difficulty:Medium
     a          etutor:DifficultyRanking ;
+    rdf:value  "2"^^xsd:int ;
     rdfs:label "Medium" .
 
 etutor-difficulty:Hard
     a          etutor:DifficultyRanking ;
+    rdf:value  "3"^^xsd:int ;
     rdfs:label "Hard" .
 
 etutor-difficulty:VeryHard
     a          etutor:DifficultyRanking ;
+    rdf:value  "4"^^xsd:int ;
     rdfs:label "VeryHard" .
 
 ## Exercise sheets

@@ -1,0 +1,54 @@
+<button type="button" class="btn btn-secondary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<br />
+<br />
+<jhi-alert></jhi-alert>
+<jhi-alert-error></jhi-alert-error>
+
+<h4>{{ 'overview.student.tasks.headerText' | translate: { name: taskModel?.header } }}</h4>
+
+<p *ngIf="exerciseSheetAlreadyClosed" class="text-red" jhiTranslate="overview.student.exerciseSheetTaskOverview.sheetOfTaskClosedText">
+  This task's exercise sheet has already been closed!
+</p>
+
+<div class="row">
+  <div class="col-8">
+    <dl class="row-md task-details">
+      <dt><span jhiTranslate="overview.student.tasks.header">Header</span></dt>
+      <dd>{{ taskModel?.header }}</dd>
+
+      <dt *ngIf="taskModel?.url"><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
+      <dd *ngIf="taskModel?.url">{{ taskModel?.url?.toString() }}</dd>
+
+      <dt *ngIf="taskModel?.instruction"><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
+      <dd *ngIf="taskModel?.instruction"><span [innerHTML]="taskModel?.instruction"></span></dd>
+
+      <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
+      <dd>
+        <span>{{ getDifficultyI18nString(taskModel?.taskDifficultyId) | translate }}</span>
+      </dd>
+
+      <dt *ngIf="taskModel?.processingTime"><span jhiTranslate="overview.student.tasks.processingTime">Estimated processing time</span></dt>
+      <dd *ngIf="taskModel?.processingTime">
+        <span>{{ taskModel?.processingTime }}</span>
+      </dd>
+
+      <dt><span jhiTranslate="overview.student.tasks.creator">Creator</span></dt>
+      <dd>
+        <span>{{ taskModel?.creator }}</span>
+      </dd>
+    </dl>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+      (click)="markTaskAsSubmittedAsync()"
+    >
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+        >Submit</span
+      >
+      <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
+    </button>
+  </div>
+</div>

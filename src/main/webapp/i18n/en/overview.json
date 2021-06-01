@@ -13,6 +13,7 @@
       "back": "Back",
       "difficulty": "Difficulty",
       "completed": "Completed",
+      "started": "Started",
       "selfEvaluation": {
         "header": "Self estimation of course '{{course}}'",
         "cardHeader": "Learning goals",
@@ -21,6 +22,30 @@
         "yes": "Yes",
         "save": "Save",
         "cancel": "Cancel"
+      },
+      "exerciseSheetTaskOverview": {
+        "openTask": "Open",
+        "header": "Tasks of the exercise sheet '{{name}}'",
+        "sheetClosedText": "This exercise sheet has already been closed!",
+        "sheetOfTaskClosedText": "This task's exercise sheet has already been closed!",
+        "fields": {
+          "taskNo": "Task number",
+          "name": "Name",
+          "assessed": "Assessed",
+          "learningGoalReached": "Learning goal reached",
+          "submitted": "Submitted"
+        }
+      },
+      "tasks": {
+        "headerText": "Aufgabe '{{name}}' bearbeiten",
+        "header": "Header",
+        "link": "Link",
+        "instructions": "Instructions",
+        "difficulty": "Difficulty",
+        "processingTime": "Estimated processing time",
+        "creator": "Creator",
+        "submit": "Submit",
+        "submitted": "Submitted"
       }
     }
   }

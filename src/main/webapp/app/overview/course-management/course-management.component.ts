@@ -14,6 +14,7 @@ import { CourseInstanceCreationComponent } from './course-instances/course-insta
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventManager } from 'app/core/util/event-manager.service';
 
+// noinspection JSIgnoredPromiseFromCall
 /**
  * Component which is used to display the course management
  * overview page.
@@ -178,6 +179,9 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
   public createInstance(course: CourseModel): void {
     const modalRef = this.modalService.open(CourseInstanceCreationComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as CourseInstanceCreationComponent).course = course;
+    modalRef.closed.subscribe(() => {
+      this.loadCourses();
+    });
   }
 
   /**

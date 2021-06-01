@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { StudentService } from '../../shared/students/student-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ICourseInstanceInformationDTO, ICourseInstanceProgressOverviewDTO } from '../../shared/students/students.model';
 import { TaskDifficulty } from '../../tasks/task.model';
 
+// noinspection JSIgnoredPromiseFromCall
 /**
  * Component for displaying the student's task of a given course instance.
  */
@@ -23,8 +24,14 @@ export class CourseTaskOverviewComponent implements OnInit {
    * @param studentService the injected student service
    * @param router the injected router
    * @param location the injected location service
+   * @param activatedRoute the injected activated route
    */
-  constructor(private studentService: StudentService, private router: Router, private location: Location) {
+  constructor(
+    private studentService: StudentService,
+    private router: Router,
+    private location: Location,
+    private activatedRoute: ActivatedRoute
+  ) {
     const nav = this.router.getCurrentNavigation();
 
     if (nav?.extras.state) {
@@ -69,5 +76,51 @@ export class CourseTaskOverviewComponent implements OnInit {
    */
   public navigateBack(): void {
     this.location.back();
+  }
+
+  /**
+   * Navigates to the tasks of the given exercise sheet.
+   *
+   * @param item the progress info
+   */
+  public navigateToTasks(item: ICourseInstanceProgressOverviewDTO): void {
+    const exerciseSheetUUID = item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1);
+
+    if (!item.opened) {
+      this.studentService.openExerciseSheet(this.instance!.instanceId, exerciseSheetUUID).subscribe(() => {
+        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+      });
+    } else {
+      if (item.submissionCount === item.gradedCount && item.submissionCount > 0) {
+        (async () => {
+          const result = await this.studentService.canAssignNextTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+
+          if (result) {
+            const isNewTaskAssigned = await this.studentService.assignNewTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
+
+            if (!isNewTaskAssigned) {
+              item.closed = true;
+            }
+          }
+          this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+        })();
+      } else {
+        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+      }
+    }
+  }
+
+  /**
+   * Navigates to the task overview.
+   *
+   * @param exerciseSheetUUID the exercise sheet uuid
+   * @param sheetAlreadyClosed indicates whether the
+   * exercise sheet has already been closed or not
+   */
+  private navigateToTaskOverview(exerciseSheetUUID: string, sheetAlreadyClosed: boolean): void {
+    this.router.navigate([exerciseSheetUUID, 'tasks'], {
+      relativeTo: this.activatedRoute,
+      state: { instance: this.instance, closed: sheetAlreadyClosed },
+    });
   }
 }

@@ -189,7 +189,6 @@ public class TaskAssignmentResource {
      * @return the {@link TaskAssignmentDTO} containing the given id
      */
     @GetMapping("tasks/assignments/{assignmentId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> getTaskAssignmentById(@PathVariable String assignmentId) {
         Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
 

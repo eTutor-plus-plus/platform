@@ -1,0 +1,53 @@
+<button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
+<br />
+<br />
+<h4>{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
+
+<p *ngIf="exerciseSheetClosed" class="red-text" jhiTranslate="overview.student.exerciseSheetTaskOverview.sheetClosedText">
+  This exercise sheet has already been closed!
+</p>
+
+<div class="table-responsive" *ngIf="entries">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.taskNo">Task number</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.name">Name</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.assessed">Assessed</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoalReached">Learning goal reached</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.submitted">Submitted</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let entry of entries">
+        <td>{{ entry.orderNo }}</td>
+        <td>{{ entry.taskHeader }}</td>
+        <td [ngSwitch]="entry.graded">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td [ngSwitch]="entry.goalCompleted">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td [ngSwitch]="entry.submitted">
+          <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+          <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td class="text-right">
+          <div class="btn-group">
+            <button
+              [disabled]="entry.graded"
+              class="btn btn-info"
+              (click)="openTask(entry)"
+              jhiTranslate="overview.student.exerciseSheetTaskOverview.openTask"
+            >
+              Open
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

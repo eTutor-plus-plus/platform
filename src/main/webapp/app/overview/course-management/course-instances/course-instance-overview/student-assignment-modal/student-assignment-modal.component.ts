@@ -118,7 +118,7 @@ export class StudentAssignmentModalComponent implements OnInit {
     this.isSaving = true;
     this.spinner.show();
 
-    if (this.assignmentForm.get(['csvFile'])!.value !== undefined) {
+    if (this.assignmentForm.get(['csvFile'])!.value !== undefined && this.assignmentForm.get(['csvFile'])!.value !== null) {
       const fileList = this.assignmentForm.get(['csvFile'])!.value as FileList;
       if (fileList.length === 1) {
         const csvFile = fileList.item(0)!;

@@ -71,7 +71,15 @@ export class ExerciseSheetsService {
    * @param exerciseSheetId the exercise sheet's id
    */
   public getExerciseSheetById(exerciseSheetId: string): Observable<ExerciseSheetResult> {
-    const internalId = exerciseSheetId.substring(exerciseSheetId.lastIndexOf('#') + 1);
+    const idxOfHashTag = exerciseSheetId.lastIndexOf('#');
+
+    let internalId;
+    if (idxOfHashTag >= 0) {
+      internalId = exerciseSheetId.substring(idxOfHashTag + 1);
+    } else {
+      internalId = exerciseSheetId;
+    }
+
     return this.http.get<IExerciseSheetDTO>(`/api/exercise-sheet/${internalId}`, { observe: 'response' });
   }
 

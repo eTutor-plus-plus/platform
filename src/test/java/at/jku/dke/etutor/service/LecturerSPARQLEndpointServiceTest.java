@@ -169,12 +169,12 @@ public class LecturerSPARQLEndpointServiceTest {
               ?student etutor:hasIndividualTaskAssignment [
               	etutor:fromExerciseSheet ?sheet ;
                 etutor:fromCourseInstance ?courseInstance;
-                etutor:isAssignmentSubmitted true;
                 etutor:hasIndividualTask [
               		etutor:isGraded false;
                 	etutor:refersToTask ?task;
                     etutor:hasOrderNo 1;
-                    etutor:isLearningGoalCompleted false
+                    etutor:isLearningGoalCompleted false;
+                    etutor:isSubmitted true
               	]
               ]
             }

@@ -39,6 +39,14 @@ export interface IStudentAssignmentOverviewInfo {
    * Indicates whether the assignment is fully graded or not.
    */
   fullyGraded: boolean;
+  /**
+   * The expected task count.
+   */
+  expectedTaskCount: number;
+  /**
+   * The currently submitted tasks' count.
+   */
+  currentTaskCount: number;
 }
 
 /**
@@ -66,6 +74,10 @@ export interface ILecturerGradingInfo {
    * The internal order number.
    */
   orderNo: number;
+  /**
+   * Indicates whether the assignment has already been submitted.
+   */
+  submitted: boolean;
 }
 
 /**

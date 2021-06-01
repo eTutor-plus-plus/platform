@@ -4,7 +4,7 @@
     "overviewTableHeader": "Aufgaben von Studierenden",
     "overviewTable": {
       "matriculationNumber": "Matrikelnummer",
-      "submitted": "Abgegeben",
+      "submitted": "Vollständig abgegeben",
       "fullyGraded": "Vollständig beurteilt",
       "btnGrade": "Beurteilen"
     },

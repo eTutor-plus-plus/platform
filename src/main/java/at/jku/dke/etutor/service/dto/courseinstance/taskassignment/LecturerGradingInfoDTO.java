@@ -12,6 +12,7 @@ public class LecturerGradingInfoDTO {
     private boolean completed;
     private boolean graded;
     private int orderNo;
+    private boolean submitted;
 
     /**
      * Constructor.
@@ -28,13 +29,15 @@ public class LecturerGradingInfoDTO {
      * @param completed indicates whether the task's goals are completed
      * @param graded    indicates whether the task is graded or not
      * @param orderNo   the order number
+     * @param submitted indicates whether the assignment has already been submitted or not
      */
-    public LecturerGradingInfoDTO(String taskURL, String taskTitle, boolean completed, boolean graded, int orderNo) {
+    public LecturerGradingInfoDTO(String taskURL, String taskTitle, boolean completed, boolean graded, int orderNo, boolean submitted) {
         this.taskURL = taskURL;
         this.taskTitle = taskTitle;
         this.completed = completed;
         this.graded = graded;
         this.orderNo = orderNo;
+        this.submitted = submitted;
     }
 
     /**
@@ -125,5 +128,23 @@ public class LecturerGradingInfoDTO {
      */
     public void setOrderNo(int orderNo) {
         this.orderNo = orderNo;
+    }
+
+    /**
+     * Returns whether the assignment is submitted or not
+     *
+     * @return {@code true} if the assignment is submitted, otherwise {@code false}
+     */
+    public boolean isSubmitted() {
+        return submitted;
+    }
+
+    /**
+     * Sets whether the assignment is submitted or not.
+     *
+     * @param submitted the value to set
+     */
+    public void setSubmitted(boolean submitted) {
+        this.submitted = submitted;
     }
 }

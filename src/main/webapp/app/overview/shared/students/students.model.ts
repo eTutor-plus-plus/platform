@@ -78,4 +78,55 @@ export interface ICourseInstanceProgressOverviewDTO {
    * The status of the assignment.
    */
   completed: boolean;
+  /**
+   * Indicates whether the exercise sheet has already been opened or not.
+   */
+  opened: boolean;
+  /**
+   * The actual task count.
+   */
+  actualCount: number;
+  /**
+   * The submitted task count.
+   */
+  submissionCount: number;
+  /**
+   * The graded task count.
+   */
+  gradedCount: number;
+  /**
+   * Indicates whether the exercise sheet has already been closed or not
+   */
+  closed: boolean;
+}
+
+/**
+ * Interface which represents
+ */
+export interface IStudentTaskListInfoDTO {
+  /**
+   * The order number.
+   */
+  orderNo: number;
+  /**
+   * The internal task id.
+   */
+  taskId: string;
+  /**
+   * Indicates whether the task is graded or not.
+   */
+  graded: boolean;
+  /**
+   * Indicates whether the learning goal is reached or not
+   * only used when the task has already been graded.
+   */
+  goalCompleted: boolean;
+  /**
+   * The task's header.
+   */
+  taskHeader: string;
+  /**
+   * Indicates whether the task has already been submitted or not.
+   */
+  submitted: boolean;
 }

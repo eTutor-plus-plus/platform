@@ -30,7 +30,7 @@
             </td>
             <td class="text-right">
               <button
-                [disabled]="!entry.submitted"
+                [disabled]="entry.expectedTaskCount === 0"
                 class="btn-secondary"
                 (click)="grade(entry)"
                 jhiTranslate="lecturerOverview.overviewTable.btnGrade"

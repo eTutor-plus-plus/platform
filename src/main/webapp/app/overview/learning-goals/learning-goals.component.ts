@@ -164,6 +164,9 @@ export class LearningGoalsComponent implements OnInit {
   public onManageDependentGoalsRequested(goalItem: LearningGoalTreeviewItem): void {
     const modalRef = this.modalService.open(DependencyManagerWindowComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as DependencyManagerWindowComponent).currentGoal = goalItem;
+    modalRef.closed.subscribe(() => {
+      this.onSelect(goalItem);
+    });
   }
 
   /**

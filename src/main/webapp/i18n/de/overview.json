@@ -13,6 +13,7 @@
       "back": "Zurück",
       "difficulty": "Schwierigkeit",
       "completed": "Abgeschlossen",
+      "started": "Gestartet",
       "selfEvaluation": {
         "header": "Selbsteinschätzung - Kurs '{{course}}'",
         "cardHeader": "Lernziele",
@@ -21,6 +22,30 @@
         "yes": "Ja",
         "save": "Speichern",
         "cancel": "Abbrechen"
+      },
+      "exerciseSheetTaskOverview": {
+        "openTask": "Öffnen",
+        "header": "Aufgaben des Übungszettels '{{name}}'",
+        "sheetClosedText": "Der Übungszettel wurde bereits geschlossen!",
+        "sheetOfTaskClosedText": "Der Übungszettel dieser Aufgabe wurde bereits geschlossen!",
+        "fields": {
+          "taskNo": "Aufgabennummer",
+          "name": "Name",
+          "assessed": "Beurteilt",
+          "learningGoalReached": "Lernziel erreicht",
+          "submitted": "Eingereicht"
+        }
+      },
+      "tasks": {
+        "headerText": "Aufgabe '{{name}}' bearbeiten",
+        "header": "Überschrift",
+        "link": "Link",
+        "instructions": "Aufgabenstellung",
+        "difficulty": "Schwierigkeit",
+        "processingTime": "Geschätzte Bearbeitungszeit",
+        "creator": "Ersteller",
+        "submit": "Einreichen",
+        "submitted": "Eingereicht"
       }
     }
   }
