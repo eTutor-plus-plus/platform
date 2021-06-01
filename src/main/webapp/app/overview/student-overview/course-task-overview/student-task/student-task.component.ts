@@ -19,6 +19,7 @@ import { StudentService } from 'app/overview/shared/students/student-service';
 export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSaving = false;
   public isSubmitted = true;
+  public exerciseSheetAlreadyClosed = false;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -47,6 +48,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
     if (nav?.extras.state) {
       this._instance = nav.extras.state.instance;
+      this.exerciseSheetAlreadyClosed = nav.extras.state.closed;
     } else {
       this.router.navigate(['/']);
     }

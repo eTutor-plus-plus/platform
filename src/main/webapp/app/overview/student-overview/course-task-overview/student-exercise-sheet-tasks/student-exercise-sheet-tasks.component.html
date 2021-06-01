@@ -3,6 +3,10 @@
 <br />
 <h4>{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
 
+<p *ngIf="exerciseSheetClosed" class="red-text" jhiTranslate="overview.student.exerciseSheetTaskOverview.sheetClosedText">
+  This exercise sheet has already been closed!
+</p>
+
 <div class="table-responsive" *ngIf="entries">
   <table class="table table-striped">
     <thead>

@@ -16,6 +16,7 @@ public class CourseInstanceProgressOverviewDTO {
     private int actualCount;
     private int submissionCount;
     private int gradedCount;
+    private boolean closed;
 
     /**
      * Constructor.
@@ -35,8 +36,10 @@ public class CourseInstanceProgressOverviewDTO {
      * @param actualCount      the number of actual tasks
      * @param submissionCount  the number of submitted tasks
      * @param gradedCount      the number of graded tasks
+     * @param closed           indicates whether the exercise sheet has already been closed
      */
-    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened, int actualCount, int submissionCount, int gradedCount) {
+    public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened,
+                                             int actualCount, int submissionCount, int gradedCount, boolean closed) {
         this.exerciseSheetId = exerciseSheetId;
         this.assignmentHeader = assignmentHeader;
         this.difficultyURI = difficultyURI;
@@ -45,6 +48,7 @@ public class CourseInstanceProgressOverviewDTO {
         this.actualCount = actualCount;
         this.submissionCount = submissionCount;
         this.gradedCount = gradedCount;
+        this.closed = closed;
     }
 
     /**
@@ -189,5 +193,23 @@ public class CourseInstanceProgressOverviewDTO {
      */
     public void setGradedCount(int gradedCount) {
         this.gradedCount = gradedCount;
+    }
+
+    /**
+     * Returns whether the exercise sheet has already been closed or not.
+     *
+     * @return {@code true} if the exercise sheet has already been closed, otherwise {@code false}
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+
+    /**
+     * Sets whether the exercise sheet has already been closed or not.
+     *
+     * @param closed the value to set
+     */
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 }

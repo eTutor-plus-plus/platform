@@ -67,7 +67,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed
         WHERE {
           {
             ?instance a etutor:CourseInstance.
@@ -76,12 +76,12 @@ public class StudentService extends AbstractSPARQLEndpointService {
             ?exerciseSheet rdfs:label ?exerciseSheetName.
             ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
             ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
-            FILTER(EXISTS{
-              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-              ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
-                                    etutor:fromCourseInstance ?instance;
-                                    etutor:hasIndividualTask ?individualTask.
-            }).
+
+            ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+            ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                  etutor:fromCourseInstance ?instance;
+                                  etutor:hasIndividualTask ?individualTask;
+                                  etutor:isClosed ?closed.
             {
               OPTIONAL {
                 SELECT ?exerciseSheet (COUNT(?individualTask) AS ?actualCount)
@@ -140,6 +140,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             BIND(0 AS ?actualCount).
             BIND(0 AS ?submissionCount).
             BIND(0 AS ?gradedCount).
+            BIND(false as ?closed).
           }
         }
         ORDER BY (LCASE(?exerciseSheetName))
@@ -444,7 +445,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                         gradedCount = gradedCountLiteral.getInt();
                     }
 
-                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened, actualCount, submissionCount, gradedCount));
+                    boolean closed = solution.getLiteral("?closed").getBoolean();
+
+                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened, actualCount, submissionCount, gradedCount, closed));
                 }
                 return items;
             }

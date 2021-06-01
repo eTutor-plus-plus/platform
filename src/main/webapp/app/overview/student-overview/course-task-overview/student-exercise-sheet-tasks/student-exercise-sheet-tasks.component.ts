@@ -19,6 +19,7 @@ import { ExerciseSheetsService } from 'app/overview/exercise-sheets/exercise-she
 export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   public entries: IStudentTaskListInfoDTO[] = [];
   public exerciseSheetName = '';
+  public exerciseSheetClosed = false;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -44,6 +45,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
 
     if (nav?.extras.state) {
       this._instance = nav.extras.state.instance;
+      this.exerciseSheetClosed = nav.extras.state.closed;
     } else {
       this.router.navigate(['/']);
     }
@@ -88,7 +90,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
     const taskUUID = taskEntry.taskId.substr(taskEntry.taskId.lastIndexOf('#') + 1);
     this.router.navigate(['task', taskUUID, 'taskNo', taskEntry.orderNo], {
       relativeTo: this.activatedRoute,
-      state: { instance: this._instance },
+      state: { instance: this._instance, closed: this.exerciseSheetClosed },
     });
   }
 

@@ -88,7 +88,7 @@ export class CourseTaskOverviewComponent implements OnInit {
 
     if (!item.opened) {
       this.studentService.openExerciseSheet(this.instance!.instanceId, exerciseSheetUUID).subscribe(() => {
-        this.navigateToTaskOverview(exerciseSheetUUID);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
       });
     } else {
       if (item.submissionCount === item.gradedCount && item.submissionCount > 0) {
@@ -99,14 +99,13 @@ export class CourseTaskOverviewComponent implements OnInit {
             const isNewTaskAssigned = await this.studentService.assignNewTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
 
             if (!isNewTaskAssigned) {
-              // eslint-disable-next-line no-console
-              console.log('No new task available');
+              item.closed = true;
             }
           }
-          this.navigateToTaskOverview(exerciseSheetUUID);
+          this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
         })();
       } else {
-        this.navigateToTaskOverview(exerciseSheetUUID);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
       }
     }
   }
@@ -115,11 +114,13 @@ export class CourseTaskOverviewComponent implements OnInit {
    * Navigates to the task overview.
    *
    * @param exerciseSheetUUID the exercise sheet uuid
+   * @param sheetAlreadyClosed indicates whether the
+   * exercise sheet has already been closed or not
    */
-  private navigateToTaskOverview(exerciseSheetUUID: string): void {
+  private navigateToTaskOverview(exerciseSheetUUID: string, sheetAlreadyClosed: boolean): void {
     this.router.navigate([exerciseSheetUUID, 'tasks'], {
       relativeTo: this.activatedRoute,
-      state: { instance: this.instance },
+      state: { instance: this.instance, closed: sheetAlreadyClosed },
     });
   }
 }

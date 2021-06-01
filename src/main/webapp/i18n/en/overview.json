@@ -26,6 +26,8 @@
       "exerciseSheetTaskOverview": {
         "openTask": "Open",
         "header": "Tasks of the exercise sheet '{{name}}'",
+        "sheetClosedText": "This exercise sheet has already been closed!",
+        "sheetOfTaskClosedText": "This task's exercise sheet has already been closed!",
         "fields": {
           "taskNo": "Task number",
           "name": "Name",

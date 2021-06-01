@@ -94,6 +94,10 @@ export interface ICourseInstanceProgressOverviewDTO {
    * The graded task count.
    */
   gradedCount: number;
+  /**
+   * Indicates whether the exercise sheet has already been closed or not
+   */
+  closed: boolean;
 }
 
 /**
