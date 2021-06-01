@@ -17,6 +17,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_COURSE = "Course";
     private static final String CLASS_TASK_ASSIGNMENT = "TaskAssignment";
     private static final String CLASS_DIFFICULTY_RANKING = "DifficultyRanking";
+    private static final String CLASS_TASK_ASSIGNMENT_TYPE = "TaskAssignmentType";
     private static final String CLASS_EXERCISE_SHEET = "ExerciseSheet";
     private static final String CLASS_COURSE_INSTANCE = "CourseInstance";
     private static final String CLASS_TERM = "Term";
@@ -70,6 +71,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_URL = "hasTaskUrl";
     private static final String PROP_HAS_TASK_INSTRUCTION = "hasTaskInstruction";
     private static final String PROP_IS_PRIVATE_TASK = "isPrivateTask";
+    private static final String PROP_HAS_TASK_ASSIGNMENT_TYPE = "hasTaskAssignmentType";
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
     private static final String PROP_IS_COMPLETED_FROM = "isCompletedFrom";
@@ -79,6 +81,9 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
     private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
     private static final String PROP_HAS_EXERCISE_SHEET_TASK_COUNT = "hasExerciseSheetTaskCount";
+
+    private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
+    private static final String INSTANCE_NO_TYPE = "NoType";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -100,6 +105,10 @@ public final class ETutorVocabulary {
      * The namespace of the terms.
      */
     public static final String TERM_URI = "http://www.dke.uni-linz.ac.at/etutorpp/Term#";
+    /**
+     * The namespace for task assignment types.
+     */
+    public static final String TASK_ASSIGNMENT_TYPE_URI = "http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#";
 
     private static final Model m = ModelFactory.createDefaultModel();
 
@@ -244,6 +253,10 @@ public final class ETutorVocabulary {
      */
     public static final Property isPrivateTask = m.createProperty(URI + PROP_IS_PRIVATE_TASK);
     /**
+     * The hasTaskAssignmentType property
+     */
+    public static final Property hasTaskAssignmentType = m.createProperty(URI + PROP_HAS_TASK_ASSIGNMENT_TYPE);
+    /**
      * The isAssignmentOf property.
      */
     public static final Property isAssignmentOf = m.createProperty(URI + PROP_IS_ASSIGNMENT_OF);
@@ -327,6 +340,10 @@ public final class ETutorVocabulary {
      */
     public static final Resource DifficultyRanking = m.createResource(URI + CLASS_DIFFICULTY_RANKING);
     /**
+     * The task assignment type resource.
+     */
+    public static final Resource TaskAssignmentType = m.createResource(URI + CLASS_TASK_ASSIGNMENT_TYPE);
+    /**
      * The exercise sheet resource.
      */
     public static final Resource ExerciseSheet = m.createResource(URI + CLASS_EXERCISE_SHEET);
@@ -350,6 +367,15 @@ public final class ETutorVocabulary {
      * The individual task resource.
      */
     public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
+
+    /**
+     * The upload task task assignment type instance.
+     */
+    public static final Resource UploadTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_UPLOAD_TASK);
+    /**
+     * The not type task assignment type instance.
+     */
+    public static final Resource NoType = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_NO_TYPE);
 
     /**
      * The easy difficulty instance.
