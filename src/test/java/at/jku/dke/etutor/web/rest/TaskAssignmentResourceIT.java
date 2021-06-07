@@ -95,6 +95,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setHeader("Testheader");
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Easy.getURI());
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
         newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(firstGoal.getId(), firstGoal.getName()));
 
         var result = restTaskAssignmentMockMvc
@@ -214,6 +215,7 @@ public class TaskAssignmentResourceIT {
         taskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
         taskAssignmentDTO.setOrganisationUnit("DKE");
         taskAssignmentDTO.setInternalCreator("admin");
+        taskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
 
         restTaskAssignmentMockMvc
             .perform(
@@ -244,6 +246,7 @@ public class TaskAssignmentResourceIT {
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(testGoal1.getId(), testGoal1.getName()));
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
 
         var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, USERNAME);
 
@@ -251,6 +254,7 @@ public class TaskAssignmentResourceIT {
         assignment.setUrl(new URL("http://www.test.at"));
         assignment.setTaskDifficultyId(ETutorVocabulary.VeryHard.getURI());
         assignment.setOrganisationUnit("JKU SE");
+        assignment.setTaskAssignmentTypeId(ETutorVocabulary.UploadTask.getURI());
 
         restTaskAssignmentMockMvc
             .perform(
