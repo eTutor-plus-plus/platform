@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
  * @author fne
  */
 @Repository
-public interface FileRepository extends JpaRepository<FileEntity, Long> {
+public interface FileRepository extends JpaRepository<FileEntity, Long>, FileRepositoryCustom {
 }
