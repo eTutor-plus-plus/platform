@@ -1,11 +1,13 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
+import at.jku.dke.etutor.service.dto.validation.TaskAssignmentTypeConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.validation.constraints.NotBlank;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
 
 /**
  * Class for a new task assignment.
@@ -34,6 +36,10 @@ public class NewTaskAssignmentDTO {
     private URL url;
     private String instruction;
     private boolean privateTask;
+
+    @NotBlank
+    @TaskAssignmentTypeConstraint
+    private String taskAssignmentTypeId;
 
     /**
      * Returns the associated learning goals.
@@ -222,5 +228,23 @@ public class NewTaskAssignmentDTO {
      */
     public void setPrivateTask(boolean privateTask) {
         this.privateTask = privateTask;
+    }
+
+    /**
+     * Returns the task assignment type id.
+     *
+     * @return the task assignment type id
+     */
+    public String getTaskAssignmentTypeId() {
+        return taskAssignmentTypeId;
+    }
+
+    /**
+     * Sets the task assignment type id.
+     *
+     * @param taskAssignmentTypeId the task assignment type id to seto
+     */
+    public void setTaskAssignmentTypeId(String taskAssignmentTypeId) {
+        this.taskAssignmentTypeId = taskAssignmentTypeId;
     }
 }

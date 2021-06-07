@@ -62,6 +62,10 @@ export interface INewTaskModel {
    * The associated learning goals.
    */
   learningGoalIds: ILearningGoalDisplayModel[];
+  /**
+   * The id of the task's type.
+   **/
+  taskAssignmentTypeId: string;
 }
 
 /**
@@ -91,6 +95,55 @@ export interface ITaskModel extends INewTaskModel {
  */
 export function instanceOfITaskModel(model: INewTaskModel): model is ITaskModel {
   return 'id' in model;
+}
+
+/**
+ * Represents a task assignment type.
+ */
+export class TaskAssignmentType {
+  public static readonly NoType = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NoType',
+    'taskManagement.taskTypes.noType'
+  );
+  public static readonly UploadTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UploadTask',
+    'taskManagement.taskTypes.uploadTask'
+  );
+
+  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask];
+
+  private readonly _value: string;
+  private readonly _text: string;
+
+  /**
+   * Constructor.
+   *
+   * @param value the value
+   * @param text the text
+   */
+  constructor(value: string, text: string) {
+    this._value = value;
+    this._text = text;
+  }
+
+  /**
+   * Returns the value.
+   */
+  public get value(): string {
+    return this._value;
+  }
+
+  /**
+   * Returns the text.
+   */
+  public get text(): string {
+    return this._text;
+  }
+
+  /**
+   * Overridden toString method.
+   */
+  public toString = (): string => this._text;
 }
 
 /**

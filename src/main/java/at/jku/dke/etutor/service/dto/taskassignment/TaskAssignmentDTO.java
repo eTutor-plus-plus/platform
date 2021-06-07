@@ -57,6 +57,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setUrl(newTaskAssignmentDTO.getUrl());
         setInstruction(newTaskAssignmentDTO.getInstruction());
         setPrivateTask(newTaskAssignmentDTO.isPrivateTask());
+        setTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
 
         setId(id);
         setCreationDate(creationDate);
@@ -99,6 +100,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setProcessingTime(processingTimeStatement.getString());
         }
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
+        setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());
         setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalTaskCreator).getString());
 

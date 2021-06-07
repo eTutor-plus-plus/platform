@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ITaskDisplayModel, ITaskModel, TaskDifficulty } from '../../task.model';
+import { ITaskDisplayModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -14,6 +14,7 @@ export class TaskDisplayComponent {
   private _taskDisplayModel?: ITaskDisplayModel;
   private _taskModel?: ITaskModel;
   private readonly difficulties = TaskDifficulty.Values;
+  private readonly taskTypes = TaskAssignmentType.Values;
 
   /**
    * Constructor.
@@ -61,6 +62,15 @@ export class TaskDisplayComponent {
    */
   public getTaskDifficultyForURL(taskDifficultyUrl: string): TaskDifficulty {
     return this.difficulties.find(x => x.value === taskDifficultyUrl)!;
+  }
+
+  /**
+   * Returns the task type object for a given URL.
+   *
+   * @param taskTypeUrl the task type url
+   */
+  public getTaskTypeForURL(taskTypeUrl: string): TaskAssignmentType {
+    return this.taskTypes.find(x => x.value === taskTypeUrl)!;
   }
 
   /**
