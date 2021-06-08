@@ -121,6 +121,8 @@ export class FileUploadComponent {
       this.fileModified.emit([this._originalId, newId]);
     }
 
+    this.fileId = newId;
+
     this.isSaving = false;
   }
 }
