@@ -9,7 +9,10 @@
   />
 
   <ul *ngIf="fileId >= 0">
-    <li class="bold-font">{{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}</li>
+    <li class="bold-font">
+      {{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}
+      <span class="pointer" (click)="removeCurrentFile()"><fa-icon icon="times"></fa-icon></span>
+    </li>
   </ul>
 
   <button class="btn btn-primary" [disabled]="isSaving">Speichern</button>
