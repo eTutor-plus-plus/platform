@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.UploadFileService;
+import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.web.rest.errors.EmptyFileNotAllowedException;
 import at.jku.dke.etutor.web.rest.errors.FileStorageException;
 import at.jku.dke.etutor.web.rest.errors.StudentNotExistsException;
@@ -93,6 +94,18 @@ public class FileResource {
         } catch (at.jku.dke.etutor.service.exception.FileNotExistsException e) {
             throw new StudentNotExistsException();
         }
+    }
+
+    /**
+     * Returns the request file's meta data.
+     *
+     * @param id the file id
+     * @return {@link ResponseEntity} containing the meta data dto
+     */
+    @GetMapping("{id}/metadata")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<FileMetaDataModelDTO> getFileMetaData(@PathVariable long id) {
+        return ResponseEntity.of(uploadFileService.getFileMetaData(id));
     }
 
     /**

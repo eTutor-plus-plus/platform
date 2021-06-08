@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.repository.FileRepository;
+import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Service class for upload file related operations.
@@ -75,5 +77,19 @@ public class UploadFileService {
     @Transactional
     public void removeFile(long fileId) {
         fileRepository.deleteById(fileId);
+    }
+
+    /**
+     * Retrieves the file meta data model.
+     *
+     * @param fileId the file id
+     * @return {@code Optional} containing the {@link FileMetaDataModelDTO}
+     */
+    public Optional<FileMetaDataModelDTO> getFileMetaData(long fileId) {
+        try {
+            return Optional.of(fileRepository.getMetaDataOfFile(fileId));
+        } catch (FileNotExistsException e) {
+            return Optional.empty();
+        }
     }
 }
