@@ -1,8 +1,11 @@
 package at.jku.dke.etutor.domain;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * Entity which represents an uploaded file.
@@ -28,6 +31,9 @@ public class FileEntity implements Serializable {
     @Lob
     @Column(nullable = false)
     private byte[] content;
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime submitTime = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "studentId", referencedColumnName = "id")
@@ -139,5 +145,23 @@ public class FileEntity implements Serializable {
      */
     public void setStudent(Student student) {
         this.student = student;
+    }
+
+    /**
+     * Returns the submit time.
+     *
+     * @return the submit time
+     */
+    public LocalDateTime getSubmitTime() {
+        return submitTime;
+    }
+
+    /**
+     * Sets the submit time.
+     *
+     * @param submitTime the submit time to set
+     */
+    public void setSubmitTime(LocalDateTime submitTime) {
+        this.submitTime = submitTime;
     }
 }
