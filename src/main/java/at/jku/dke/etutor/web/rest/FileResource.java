@@ -42,12 +42,14 @@ public class FileResource {
     /**
      * REST endpoint for uploading files.
      *
-     * @param file the file to upload
+     * @param file     the file to upload
+     * @param fileName the optional file name
      * @return {@link ResponseEntity} containing the file's id
      */
     @PostMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Long> postFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Long> postFile(@RequestParam("file") MultipartFile file,
+                                         @RequestParam(value = "fileName", defaultValue = "", required = false) String fileName) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
 
         if (file.isEmpty()) {
@@ -55,7 +57,7 @@ public class FileResource {
         }
 
         try {
-            long id = uploadFileService.uploadFile(matriculationNumber, file);
+            long id = uploadFileService.uploadFile(matriculationNumber, file, fileName);
 
             return ResponseEntity.ok(id);
         } catch (at.jku.dke.etutor.service.exception.StudentNotExistsException e) {

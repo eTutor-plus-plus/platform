@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
 import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
-import { ITaskModel, TaskDifficulty } from 'app/overview/tasks/task.model';
+import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
 
 // noinspection JSIgnoredPromiseFromCall
@@ -20,6 +20,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSaving = false;
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
+  public isUploadTask = false;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -66,6 +67,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       (async () => {
         const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
         this._taskModel = result.body!;
+
+        this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
       })();
 
       (async () => {

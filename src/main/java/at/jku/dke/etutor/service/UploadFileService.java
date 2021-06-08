@@ -7,6 +7,7 @@ import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,16 +40,22 @@ public class UploadFileService {
      *
      * @param matriculationNumber the matriculation number
      * @param file                the multipart file to update
+     * @param fileName            the optional file name
      * @return the internal file id
      * @throws StudentNotExistsException if the student does not exist
      * @throws IOException               if a file related error occurs
      */
     @Transactional
-    public long uploadFile(String matriculationNumber, MultipartFile file) throws StudentNotExistsException, IOException {
+    public long uploadFile(String matriculationNumber, MultipartFile file, String fileName) throws StudentNotExistsException, IOException {
         Objects.requireNonNull(matriculationNumber);
         Objects.requireNonNull(file);
 
-        String name = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        String fileNameStr = fileName;
+
+        if (ObjectUtils.isEmpty(fileNameStr)) {
+            fileNameStr = file.getOriginalFilename();
+        }
+        String name = StringUtils.cleanPath(Objects.requireNonNull(fileNameStr));
         return fileRepository.uploadFile(matriculationNumber, name, file.getContentType(),
             file.getBytes(), file.getSize());
     }

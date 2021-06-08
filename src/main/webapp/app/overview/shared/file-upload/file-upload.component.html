@@ -3,14 +3,16 @@
     type="file"
     placeholder="Fileupload"
     [writeFile]="true"
-    (change)="fileChanged()"
+    (change)="fileChanged($event)"
     formControlName="fileUpload"
     class="form-control-file"
   />
 
   <ul *ngIf="fileId >= 0">
     <li class="bold-font">
-      {{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}
+      <span class="pointer hover-underline" (click)="downloadCurrentFile()"
+        >{{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}</span
+      >
       <span class="pointer" (click)="removeCurrentFile()"><fa-icon icon="times"></fa-icon></span>
     </li>
   </ul>
