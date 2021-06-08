@@ -82,6 +82,8 @@ public class FileResource {
 
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + entity.getName());
             headers.add(HttpHeaders.CONTENT_TYPE, entity.getContentType());
+            headers.add("X-Filename", entity.getName());
+            headers.add("X-Content-Type", entity.getContentType());
 
             return ResponseEntity.ok()
                 .headers(headers)
