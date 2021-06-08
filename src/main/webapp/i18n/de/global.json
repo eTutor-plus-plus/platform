@@ -164,7 +164,10 @@
     "studentCSVImportError": "Ein CSV-Import-Fehler ist aufgetreten!",
     "exerciseSheetAlreadyOpened": "Der Übungszettel wurde bereits geöffnet!",
     "allTasksAssigned": "Es wurden bereits alle Aufgaben zugeteilt!",
-    "noFurtherTasksAvailable": "Es sind keine weiteren Aufgaben zur Zuteilung verfügbar!"
+    "noFurtherTasksAvailable": "Es sind keine weiteren Aufgaben zur Zuteilung verfügbar!",
+    "emptyFileNotAllowed": "Eine leere Datei ist nicht erlaubt!",
+    "studentNotExists": "Der Student existiert nicht!",
+    "fileStorage": "Ein Problem bei der Dateispeicherung ist aufgetreten!"
   },
   "footer": {
     "contact": "Kontakt",

@@ -4,6 +4,9 @@ import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.UploadFileService;
+import at.jku.dke.etutor.web.rest.errors.EmptyFileNotAllowedException;
+import at.jku.dke.etutor.web.rest.errors.FileStorageException;
+import at.jku.dke.etutor.web.rest.errors.StudentNotExistsException;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -46,16 +49,19 @@ public class FileResource {
     public ResponseEntity<Long> postFile(@RequestParam("file") MultipartFile file) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
 
+        if (file.isEmpty()) {
+            throw new EmptyFileNotAllowedException();
+        }
+
         try {
             long id = uploadFileService.uploadFile(matriculationNumber, file);
 
             return ResponseEntity.ok(id);
         } catch (at.jku.dke.etutor.service.exception.StudentNotExistsException e) {
-            e.printStackTrace();
+            throw new StudentNotExistsException();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileStorageException();
         }
-        return null;
     }
 
     /**
@@ -83,8 +89,7 @@ public class FileResource {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
         } catch (at.jku.dke.etutor.service.exception.FileNotExistsException e) {
-            e.printStackTrace();
-            return null;
+            throw new StudentNotExistsException();
         }
     }
 }
