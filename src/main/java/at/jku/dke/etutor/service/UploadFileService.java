@@ -66,4 +66,14 @@ public class UploadFileService {
             throw new FileNotExistsException();
         }
     }
+
+    /**
+     * Deletes a file from the database.
+     *
+     * @param fileId the internal file id
+     */
+    @Transactional
+    public void removeFile(long fileId) {
+        fileRepository.deleteById(fileId);
+    }
 }

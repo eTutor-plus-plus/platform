@@ -71,7 +71,7 @@ public class FileResource {
      * @return {@link ResponseEntity} containing the file resource
      */
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\"," + "\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Resource> getFile(@PathVariable long id) {
 
         try {
@@ -91,5 +91,18 @@ public class FileResource {
         } catch (at.jku.dke.etutor.service.exception.FileNotExistsException e) {
             throw new StudentNotExistsException();
         }
+    }
+
+    /**
+     * REST endpoint for removing files.
+     *
+     * @param id the internal file id
+     * @return empty {@link ResponseEntity}
+     */
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> deleteFile(@PathVariable long id) {
+        uploadFileService.removeFile(id);
+        return ResponseEntity.noContent().build();
     }
 }
