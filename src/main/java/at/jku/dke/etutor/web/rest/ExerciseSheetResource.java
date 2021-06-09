@@ -1,22 +1,26 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.helper.PdfGenerator;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.ExerciseSheetSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -139,4 +143,29 @@ public class ExerciseSheetResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+
+    /**
+     *  {@code GET pdfReport} : Retrieves the paged exercise sheet displays.
+     */
+    @RequestMapping(value = "/pdfreport", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<InputStreamResource> getPdfReportDemo(@RequestParam("id") String name) {
+
+        String template = "export/html/template.html";
+        PdfGenerator gen = new PdfGenerator();
+        byte[] pdf = gen.getPdf(template, name);
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(pdf);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=exercise.pdf");
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(new InputStreamResource(bis));
+    }
+
 }

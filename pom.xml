@@ -361,6 +361,12 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+       <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.1.20</version>
+        </dependency>
+
         <!-- jhipster-needle-maven-add-dependency -->
     </dependencies>
 
