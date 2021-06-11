@@ -40,6 +40,8 @@
 
     <jhi-file-upload *ngIf="isUploadTask"> </jhi-file-upload>
 
+    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code"></ngx-monaco-editor>
+
     <button
       type="button"
       class="btn btn-primary"
