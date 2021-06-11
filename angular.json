@@ -96,6 +96,6 @@
   },
   "defaultProject": "etutor-plus-plus",
   "cli": {
-    "packageManager": "yarn"
+    "packageManager": "npm"
   }
 }
