@@ -1,0 +1,8 @@
+{
+  "shared": {
+    "fileUpload": {
+      "header": "Dateiupload",
+      "saveButton": "Upload speichern"
+    }
+  }
+}

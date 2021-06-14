@@ -1,0 +1,8 @@
+{
+  "shared": {
+    "fileUpload": {
+      "header": "File upload",
+      "saveButton": "Save upload"
+    }
+  }
+}
