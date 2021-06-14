@@ -126,4 +126,38 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     this.isSubmitted = true;
     this.isSaving = false;
   }
+
+  /**
+   * Asynchronously adds the file.
+   *
+   * @param fileId the file to add
+   */
+  public async handleFileAddedAsync(fileId: number): Promise<void> {
+    await this.studentService
+      .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
+      .toPromise();
+  }
+
+  /**
+   * Asynchronously removes the file.
+   *
+   * @param fileId the file to remove
+   */
+  public async handleFileRemovedAsync(fileId: number): Promise<void> {
+    await this.studentService
+      .removeUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
+      .toPromise();
+  }
+
+  /**
+   * Asynchronously sets a modified file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public async handleFileMovedAsync(oldFileId: number, newFileId: number): Promise<void> {
+    await this.studentService
+      .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, newFileId)
+      .toPromise();
+  }
 }

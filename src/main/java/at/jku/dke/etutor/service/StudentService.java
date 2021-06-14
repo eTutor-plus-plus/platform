@@ -11,10 +11,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
-import at.jku.dke.etutor.service.exception.AllTasksAlreadyAssignedException;
-import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
-import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
-import at.jku.dke.etutor.service.exception.StudentCSVImportException;
+import at.jku.dke.etutor.service.exception.*;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.*;
@@ -779,6 +776,132 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
+     * Removes a file from an upload task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param matriculationNo    the student's matriculation no
+     * @param taskNo             the task no
+     * @param fileId             the file id
+     */
+    public void removeFileFromUploadTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int fileId) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString removeQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasFileAttachmentId ?attachmentId.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasFileAttachmentId ?attachmentId.
+            }
+            """);
+
+        removeQry.setIri("?instance", courseInstanceId);
+        removeQry.setIri("?student", studentId);
+        removeQry.setIri("?sheet", exerciseSheetId);
+        removeQry.setLiteral("?orderNo", taskNo);
+        removeQry.setLiteral("?attachmentId", fileId);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(removeQry.asUpdate());
+        }
+    }
+
+    /**
+     * Sets the file for an upload task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param matriculationNo    the matriculation no
+     * @param taskNo             the task no
+     * @param fileId             the file id
+     * @throws NoUploadFileTypeException if the given task is not an upload task
+     */
+    public void setFileForUploadTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int fileId) throws NoUploadFileTypeException {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString typeAskQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
+
+            ASK {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:refersToTask ?task.
+              ?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.
+            }
+            """);
+
+        typeAskQuery.setIri("?instance", courseInstanceId);
+        typeAskQuery.setIri("?sheet", exerciseSheetId);
+        typeAskQuery.setIri("?student", studentId);
+        typeAskQuery.setLiteral("?orderNo", taskNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasFileAttachmentId ?attachmentId.
+            } INSERT {
+              ?individualTask etutor:hasFileAttachmentId ?newAttachmentId.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasFileAttachmentId ?attachmentId.
+              }
+            }
+            """);
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newAttachmentId", fileId);
+
+        try (RDFConnection connection = getConnection()) {
+
+            boolean isUploadTask = connection.queryAsk(typeAskQuery.asQuery());
+
+            if (!isUploadTask) {
+                throw new NoUploadFileTypeException();
+            }
+
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+    //region Private methods
+
+    /**
      * Assigns the next available task according to the student's current learning curve.
      *
      * @param courseInstanceUUID  the course instance uuid
@@ -995,4 +1118,5 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         connection.update(individualAssignmentInsertQry.asUpdate());
     }
+    //endregion
 }

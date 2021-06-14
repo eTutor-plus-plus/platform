@@ -75,7 +75,7 @@ export class FileUploadComponent {
   /**
    * Event handler for a file change.
    */
-  public fileChanged(event: any): void {
+  public fileChanged(): void {
     this._fileSelected = true;
   }
 

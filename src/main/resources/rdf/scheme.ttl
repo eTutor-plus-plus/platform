@@ -204,6 +204,11 @@ etutor:isLearningGoalCompleted
     rdfs:domain etutor:IndividualTask ;
     rdfs:range  xsd:boolean .
 
+etutor:hasFileAttachmentId
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:int .
+
 ## Assignments
 # Classes
 etutor:TaskAssignment

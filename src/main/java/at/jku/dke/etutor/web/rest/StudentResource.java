@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
+import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -224,6 +225,50 @@ public class StudentResource {
         } catch (at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException nfta) {
             studentService.closeExerciseSheetFromAnIndividualStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
             return ResponseEntity.ok(false);
+        }
+    }
+
+    /**
+     * {@code DELETE /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/:fileId} : Removes
+     * the file attachment of an individual task assignment.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @param fileId             the file id
+     * @return empty {@link ResponseEntity}
+     */
+    @DeleteMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/uploadTask/{taskNo}/{fileId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> removeUploadTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                 @PathVariable int taskNo, @PathVariable int fileId) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        studentService.removeFileFromUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, fileId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/:fileId} : Sets
+     * the file attachment id for an individual task assignment.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @param fileId             the file id
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/uploadTask/{taskNo}/{fileId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> setUploadTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                              @PathVariable int taskNo, @PathVariable int fileId) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        try {
+            studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, fileId);
+            return ResponseEntity.noContent().build();
+        } catch (at.jku.dke.etutor.service.exception.NoUploadFileTypeException nufte) {
+            throw new WrongTaskTypeException();
         }
     }
 }

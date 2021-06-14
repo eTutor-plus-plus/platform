@@ -38,7 +38,13 @@
       </dd>
     </dl>
 
-    <jhi-file-upload *ngIf="isUploadTask"> </jhi-file-upload>
+    <jhi-file-upload
+      *ngIf="isUploadTask"
+      (fileAdded)="handleFileAddedAsync($event)"
+      (fileRemoved)="handleFileRemovedAsync($event)"
+      (fileModified)="handleFileMovedAsync($event[0], $event[1])"
+    >
+    </jhi-file-upload>
 
     <button
       type="button"

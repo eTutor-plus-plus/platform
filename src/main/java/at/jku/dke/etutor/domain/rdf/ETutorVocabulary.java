@@ -59,6 +59,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_ORDER_NO = "hasOrderNo";
     private static final String PROP_IS_LEARNING_GOAL_COMPLETED = "isLearningGoalCompleted";
     private static final String PROP_IS_INITIAL_TEST_COMPLETED = "isInitialTestCompleted";
+    private static final String PROP_HAS_FILE_ATTACHMENT_ID = "hasFileAttachmentId";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -318,6 +319,10 @@ public final class ETutorVocabulary {
      * The isInitialTestCompleted property.
      */
     public static final Property isInitialTestCompleted = m.createProperty(URI + PROP_IS_INITIAL_TEST_COMPLETED);
+    /**
+     * The hasFileAttachmentId property.
+     */
+    public static final Property hasFileAttachmentId = m.createProperty(URI + PROP_HAS_FILE_ATTACHMENT_ID);
 
     /**
      * The goal resource.

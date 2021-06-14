@@ -26,7 +26,6 @@
         "health": "Status",
         "configuration": "Konfiguration",
         "logs": "Protokoll",
-        "audits": "Audits",
         "apidocs": "API",
         "database": "Datenbank",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
@@ -167,7 +166,8 @@
     "noFurtherTasksAvailable": "Es sind keine weiteren Aufgaben zur Zuteilung verfügbar!",
     "emptyFileNotAllowed": "Eine leere Datei ist nicht erlaubt!",
     "studentNotExists": "Der Student existiert nicht!",
-    "fileStorage": "Ein Problem bei der Dateispeicherung ist aufgetreten!"
+    "fileStorage": "Ein Problem bei der Dateispeicherung ist aufgetreten!",
+    "wrongTaskType": "Ein falscher Aufgabentype wurde ausgewählt!"
   },
   "footer": {
     "contact": "Kontakt",
