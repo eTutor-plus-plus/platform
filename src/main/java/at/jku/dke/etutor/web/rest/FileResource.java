@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.web.rest.errors.EmptyFileNotAllowedException;
 import at.jku.dke.etutor.web.rest.errors.FileStorageException;
 import at.jku.dke.etutor.web.rest.errors.StudentNotExistsException;
+import com.google.common.net.UrlEscapers;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -83,7 +84,7 @@ public class FileResource {
             ByteArrayResource resource = new ByteArrayResource(entity.getContent());
             HttpHeaders headers = new HttpHeaders();
 
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + entity.getName());
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + UrlEscapers.urlFragmentEscaper().escape(entity.getName()).replace(",", "_"));
             headers.add(HttpHeaders.CONTENT_TYPE, entity.getContentType());
             headers.add("X-Filename", entity.getName());
             headers.add("X-Content-Type", entity.getContentType());
