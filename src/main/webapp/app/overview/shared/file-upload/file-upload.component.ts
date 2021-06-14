@@ -115,9 +115,9 @@ export class FileUploadComponent {
 
     if (this._fileRemoved && newId === -1) {
       this.fileRemoved.emit(this._originalId);
-    } else if (!this._fileRemoved && newId >= 0) {
+    } else if (!this._fileRemoved && this._originalId < 0 && newId >= 0) {
       this.fileAdded.emit(newId);
-    } else if (this._fileRemoved && newId >= 0) {
+    } else if ((this._fileRemoved || (this._originalId >= 0 && this._originalId !== newId)) && newId >= 0) {
       await this.fileUploadService.deleteFile(this._originalId).toPromise();
       this.fileModified.emit([this._originalId, newId]);
     }
