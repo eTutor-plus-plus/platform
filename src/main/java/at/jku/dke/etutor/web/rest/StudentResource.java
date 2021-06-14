@@ -294,4 +294,26 @@ public class StudentResource {
 
         return ResponseEntity.ok(id);
     }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment/of-student/:matriculationNo} : Returns
+     * the file attachment's id.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @param matriculationNo    the student's matriculation number
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/uploadTask/{taskNo}/file-attachment/of-student/{matriculationNo}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                @PathVariable int taskNo, @PathVariable String matriculationNo) {
+
+        Optional<Integer> optionalId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
 }

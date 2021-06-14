@@ -48,7 +48,7 @@ public class FileResource {
      * @return {@link ResponseEntity} containing the file's id
      */
     @PostMapping
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Long> postFile(@RequestParam("file") MultipartFile file,
                                          @RequestParam(value = "fileName", defaultValue = "", required = false) String fileName) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
@@ -75,7 +75,7 @@ public class FileResource {
      * @return {@link ResponseEntity} containing the file resource
      */
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\"," + "\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Resource> getFile(@PathVariable long id) {
 
         try {
@@ -106,7 +106,7 @@ public class FileResource {
      * @return {@link ResponseEntity} containing the meta data dto
      */
     @GetMapping("{id}/metadata")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<FileMetaDataModelDTO> getFileMetaData(@PathVariable long id) {
         return ResponseEntity.of(uploadFileService.getFileMetaData(id));
     }
@@ -118,7 +118,7 @@ public class FileResource {
      * @return empty {@link ResponseEntity}
      */
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteFile(@PathVariable long id) {
         uploadFileService.removeFile(id);
         return ResponseEntity.noContent().build();

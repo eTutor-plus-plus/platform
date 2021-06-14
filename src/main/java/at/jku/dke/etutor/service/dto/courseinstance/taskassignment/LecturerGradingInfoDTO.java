@@ -13,6 +13,7 @@ public class LecturerGradingInfoDTO {
     private boolean graded;
     private int orderNo;
     private boolean submitted;
+    private String taskTypeId;
 
     /**
      * Constructor.
@@ -24,20 +25,22 @@ public class LecturerGradingInfoDTO {
     /**
      * Constructor.
      *
-     * @param taskURL   the task url
-     * @param taskTitle the task title
-     * @param completed indicates whether the task's goals are completed
-     * @param graded    indicates whether the task is graded or not
-     * @param orderNo   the order number
-     * @param submitted indicates whether the assignment has already been submitted or not
+     * @param taskURL    the task url
+     * @param taskTitle  the task title
+     * @param completed  indicates whether the task's goals are completed
+     * @param graded     indicates whether the task is graded or not
+     * @param orderNo    the order number
+     * @param submitted  indicates whether the assignment has already been submitted or not
+     * @param taskTypeId the task type's id
      */
-    public LecturerGradingInfoDTO(String taskURL, String taskTitle, boolean completed, boolean graded, int orderNo, boolean submitted) {
+    public LecturerGradingInfoDTO(String taskURL, String taskTitle, boolean completed, boolean graded, int orderNo, boolean submitted, String taskTypeId) {
         this.taskURL = taskURL;
         this.taskTitle = taskTitle;
         this.completed = completed;
         this.graded = graded;
         this.orderNo = orderNo;
         this.submitted = submitted;
+        this.taskTypeId = taskTypeId;
     }
 
     /**
@@ -146,5 +149,23 @@ public class LecturerGradingInfoDTO {
      */
     public void setSubmitted(boolean submitted) {
         this.submitted = submitted;
+    }
+
+    /**
+     * Returns the task type's id
+     *
+     * @return the task type's id
+     */
+    public String getTaskTypeId() {
+        return taskTypeId;
+    }
+
+    /**
+     * Sets the task type's id.
+     *
+     * @param taskTypeId the task type's id to set
+     */
+    public void setTaskTypeId(String taskTypeId) {
+        this.taskTypeId = taskTypeId;
     }
 }
