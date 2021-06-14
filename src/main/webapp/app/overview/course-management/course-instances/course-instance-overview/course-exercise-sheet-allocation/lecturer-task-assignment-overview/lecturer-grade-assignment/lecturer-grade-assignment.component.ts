@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LecturerTaskAssignmentService } from '../lecturer-task-assignment.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IGradingInfoVM, ILecturerGradingInfo, ILecturerStudentTaskAssignmentInfoModel } from '../lecturer-task-assignment.model';
+import { TaskAssignmentType } from 'app/overview/tasks/task.model';
 
 /**
  * Modal component for displaying
@@ -12,11 +13,12 @@ import { IGradingInfoVM, ILecturerGradingInfo, ILecturerStudentTaskAssignmentInf
 })
 export class LecturerGradeAssignmentComponent {
   public availableGradingInfos: ILecturerGradingInfo[] = [];
-  public selectedGradingInfo?: ILecturerGradingInfo;
   public currentIndex = 0;
   public isSaving = false;
+  public currentFile = -1;
 
   private _lecturerStudentInfoModel?: ILecturerStudentTaskAssignmentInfoModel;
+  private _selectedGradingInfo?: ILecturerGradingInfo;
 
   /**
    * Constructor.
@@ -25,6 +27,41 @@ export class LecturerGradeAssignmentComponent {
    * @param activeModal the injected active modal service
    */
   constructor(private lecturerTaskService: LecturerTaskAssignmentService, private activeModal: NgbActiveModal) {}
+
+  /**
+   * Sets the selected grading info.
+   *
+   * @param value the value to set
+   */
+  public set selectedGradingInfo(value: ILecturerGradingInfo | undefined) {
+    this._selectedGradingInfo = value;
+
+    if (value && value.taskTypeId === TaskAssignmentType.UploadTask.value) {
+      (async () => {
+        const exerciseSheetUUID = this.lecturerStudentInfoModel.exerciseSheetId.substr(
+          this.lecturerStudentInfoModel.exerciseSheetId.lastIndexOf('#') + 1
+        );
+
+        this.currentFile = await this.lecturerTaskService
+          .getFileIdOfStudentsAssignment(
+            this.lecturerStudentInfoModel.courseInstanceId,
+            exerciseSheetUUID,
+            value.orderNo,
+            this.lecturerStudentInfoModel.matriculationNo
+          )
+          .toPromise();
+      })();
+    } else {
+      this.currentFile = -1;
+    }
+  }
+
+  /**
+   * Returns the selected grading info.
+   */
+  public get selectedGradingInfo(): ILecturerGradingInfo | undefined {
+    return this._selectedGradingInfo;
+  }
 
   /**
    * Sets the lecturer student info model.

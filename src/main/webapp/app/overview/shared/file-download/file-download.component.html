@@ -1,0 +1,7 @@
+<ul *ngIf="fileId >= 0">
+  <li class="bold-font">
+    <span class="pointer hover-underline" (click)="downloadCurrentFile()"
+      >{{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}</span
+    >
+  </li>
+</ul>

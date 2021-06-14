@@ -11,10 +11,13 @@
     <property name="clobType" value="longvarchar" dbms="h2"/>
     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="uuidType" value="uuid" dbms="h2, postgresql"/>
+    <property name="blobType" value="BYTEA" dbms="postgresql" />
+    <property name="blobType" value="blob" dbms="h2" />
     <property name="datetimeType" value="datetime(6)" dbms="mysql, mariadb"/>
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
 
     <include file="changelog/00000000000000_initial.xml" relativeToChangelogFile="true" />
+    <include file="changelog/20210608081728_changelog.xml" relativeToChangelogFile="true" />
 
     <!-- <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/> //-->
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->

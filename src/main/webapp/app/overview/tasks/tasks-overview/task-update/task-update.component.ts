@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
-import { INewTaskModel, ITaskModel, TaskDifficulty } from '../../task.model';
+import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
@@ -17,6 +17,7 @@ import { EventManager } from 'app/core/util/event-manager.service';
 export class TaskUpdateComponent {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
+  public readonly taskTypes = TaskAssignmentType.Values;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -24,6 +25,7 @@ export class TaskUpdateComponent {
     organisationUnit: ['', [CustomValidators.required]],
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
+    taskAssignmentType: [this.taskTypes[0], [Validators.required]],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -53,12 +55,14 @@ export class TaskUpdateComponent {
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
+    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
 
     const newTask: INewTaskModel = {
       header: this.updateForm.get(['header'])!.value.trim(),
       creator: this.updateForm.get(['creator'])!.value.trim(),
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
+      taskAssignmentTypeId,
       privateTask: this.updateForm.get('privateTask')!.value,
       learningGoalIds: [],
     };
@@ -97,6 +101,7 @@ export class TaskUpdateComponent {
         url: newTask.url,
         instruction: newTask.instruction,
         privateTask: newTask.privateTask,
+        taskAssignmentTypeId: newTask.taskAssignmentTypeId,
         creationDate: this.taskModel!.creationDate,
         id: this.taskModel!.id,
         internalCreator: this.taskModel!.internalCreator,

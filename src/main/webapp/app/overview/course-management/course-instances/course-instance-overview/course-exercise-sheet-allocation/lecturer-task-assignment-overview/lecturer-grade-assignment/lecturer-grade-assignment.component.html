@@ -25,6 +25,10 @@
       <label for="assignmentText" jhiTranslate="lecturerOverview.gradingWindow.form.task">Task:</label>
       <input readonly type="text" value="{{ selectedGradingInfo?.taskTitle }}" id="assignmentText" class="form-control" />
     </div>
+    <div class="form-group" *ngIf="currentFile >= 0">
+      <h5>Abgabe:</h5>
+      <jhi-file-download [fileId]="currentFile"> </jhi-file-download>
+    </div>
     <div class="form-check">
       <input
         class="form-check-input"

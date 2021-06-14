@@ -5,11 +5,16 @@
     "searchPlaceholder": "Search...",
     "noItems": "There are no items existent!",
     "difficultyPlaceholder": "Select difficulty",
+    "taskTypePlaceholder": "Select task type",
     "difficulties": {
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard",
       "veryHard": "Very hard"
+    },
+    "taskTypes": {
+      "noType": "No type",
+      "uploadTask": "Upload task"
     },
     "fields": {
       "header": "Header:",
@@ -19,7 +24,8 @@
       "taskDifficulty": "Task difficulty:",
       "processingTime": "Processing time:",
       "url": "Url:",
-      "instruction": "Task instruction:"
+      "instruction": "Task instruction:",
+      "taskType": "Task type:"
     },
     "error": {
       "required": "This field is required!",

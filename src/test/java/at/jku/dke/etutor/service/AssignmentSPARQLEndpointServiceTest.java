@@ -208,6 +208,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(testGoal1.getId(), testGoal1.getName()));
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
 
         var insertedAssignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 
@@ -232,6 +233,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         newTaskAssignmentDTO.setOrganisationUnit("DKE");
         newTaskAssignmentDTO.addLearningGoal(new LearningGoalDisplayDTO(testGoal1.getId(), testGoal1.getName()));
         newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
 
         var assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
 

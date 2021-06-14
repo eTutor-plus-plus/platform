@@ -38,9 +38,20 @@
       </dd>
     </dl>
 
+    <jhi-file-upload
+      *ngIf="isUploadTask"
+      [fileId]="uploadTaskFileId"
+      (fileAdded)="handleFileAddedAsync($event)"
+      (fileRemoved)="handleFileRemovedAsync($event)"
+      (fileModified)="handleFileMovedAsync($event[0], $event[1])"
+      [disabled]="isSubmitted"
+    >
+    </jhi-file-upload>
+
     <button
       type="button"
       class="btn btn-primary"
+      style="margin-top: 10px"
       [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
       (click)="markTaskAsSubmittedAsync()"
     >

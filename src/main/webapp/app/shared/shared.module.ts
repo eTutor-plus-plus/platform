@@ -15,6 +15,7 @@ import { FormatMediumDatePipe } from './date/format-medium-date.pipe';
 import { SortByDirective } from './sort/sort-by.directive';
 import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { ItemCountComponent } from './pagination/item-count.component';
     }),
     TreeviewModule.forRoot(),
     ContextMenuModule,
+    MonacoEditorModule.forRoot(),
   ],
   declarations: [
     FindLanguageFromKeyPipe,
@@ -68,6 +70,7 @@ import { ItemCountComponent } from './pagination/item-count.component';
     SortByDirective,
     SortDirective,
     ItemCountComponent,
+    MonacoEditorModule,
   ],
 })
 export class SharedModule {}

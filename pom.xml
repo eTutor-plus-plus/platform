@@ -86,6 +86,8 @@
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <sonar-maven-plugin.version>3.8.0.2131</sonar-maven-plugin.version>
 
+        <apache-jena-version>4.1.0</apache-jena-version>
+
 <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
         <jacoco.utReportFile>${jacoco.utReportFolder}/test.exec</jacoco.utReportFile>
         <jacoco.itReportFolder>${project.build.directory}/jacoco/integrationTest</jacoco.itReportFolder>
@@ -121,6 +123,11 @@
             <artifactId>json-smart</artifactId>
             <version>2.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1-jre</version>
+        </dependency>
 
         <!-- Apache Commons CSV -->
         <dependency>
@@ -140,22 +147,22 @@
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-core</artifactId>
-            <version>4.0.0</version>
+            <version>${apache-jena-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-rdfconnection</artifactId>
-            <version>4.0.0</version>
+            <version>${apache-jena-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-querybuilder</artifactId>
-            <version>4.0.0</version>
+            <version>${apache-jena-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-text</artifactId>
-            <version>4.0.0</version>
+            <version>${apache-jena-version}</version>
         </dependency>
 
         <dependency>

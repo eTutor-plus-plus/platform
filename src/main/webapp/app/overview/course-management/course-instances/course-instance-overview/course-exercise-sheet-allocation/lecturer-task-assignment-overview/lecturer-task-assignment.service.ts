@@ -9,7 +9,7 @@ import {
 } from './lecturer-task-assignment.model';
 import { Observable } from 'rxjs';
 
-import { SERVER_API_URL } from '../../../../../../app.constants';
+import { SERVER_API_URL } from 'app/app.constants';
 import { Pagination } from 'app/core/request/request.model';
 import { createRequestOption } from 'app/core/request/request-util';
 
@@ -82,5 +82,26 @@ export class LecturerTaskAssignmentService {
    */
   public setGradeForAssignment(gradingInfoVM: IGradingInfoVM): Observable<any> {
     return this.http.put(`${SERVER_API_URL}api/lecturer/grading`, gradingInfoVM);
+  }
+
+  /**
+   * Returns a student's assingment files's id.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param matriculationNo the student's matriculation number
+   */
+  public getFileIdOfStudentsAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    matriculationNo: string
+  ): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment/of-student/${matriculationNo}`
+    );
   }
 }

@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
 import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
-import { ITaskModel, TaskDifficulty } from 'app/overview/tasks/task.model';
+import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
 
 // noinspection JSIgnoredPromiseFromCall
@@ -20,6 +20,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSaving = false;
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
+  public isUploadTask = false;
+  public uploadTaskFileId = -1;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -66,6 +68,14 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       (async () => {
         const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
         this._taskModel = result.body!;
+
+        this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
+
+        if (this.isUploadTask) {
+          this.uploadTaskFileId = await this.studentService
+            .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+        }
       })();
 
       (async () => {
@@ -122,5 +132,42 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     }
     this.isSubmitted = true;
     this.isSaving = false;
+  }
+
+  /**
+   * Asynchronously adds the file.
+   *
+   * @param fileId the file to add
+   */
+  public async handleFileAddedAsync(fileId: number): Promise<void> {
+    await this.studentService
+      .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
+      .toPromise();
+    this.uploadTaskFileId = fileId;
+  }
+
+  /**
+   * Asynchronously removes the file.
+   *
+   * @param fileId the file to remove
+   */
+  public async handleFileRemovedAsync(fileId: number): Promise<void> {
+    await this.studentService
+      .removeUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
+      .toPromise();
+    this.uploadTaskFileId = -1;
+  }
+
+  /**
+   * Asynchronously sets a modified file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public async handleFileMovedAsync(oldFileId: number, newFileId: number): Promise<void> {
+    await this.studentService
+      .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, newFileId)
+      .toPromise();
+    this.uploadTaskFileId = newFileId;
   }
 }

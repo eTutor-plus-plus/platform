@@ -1,9 +1,10 @@
-@prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
-@prefix etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/> .
-@prefix etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#> .
-@prefix etutor-term:       <http://www.dke.uni-linz.ac.at/etutorpp/Term#> .
-@prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:                        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:                         <http://www.w3.org/2001/XMLSchema#> .
+@prefix etutor:                      <http://www.dke.uni-linz.ac.at/etutorpp/> .
+@prefix etutor-difficulty:           <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#> .
+@prefix etutor-term:                 <http://www.dke.uni-linz.ac.at/etutorpp/Term#> .
+@prefix etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#> .
+@prefix rdf:                         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 ## Learning goals
 # Classes
@@ -203,12 +204,20 @@ etutor:isLearningGoalCompleted
     rdfs:domain etutor:IndividualTask ;
     rdfs:range  xsd:boolean .
 
+etutor:hasFileAttachmentId
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:int .
+
 ## Assignments
 # Classes
 etutor:TaskAssignment
     rdf:type rdfs:Class .
 
 etutor:DifficultyRanking
+    rdf:type rdfs:Class .
+
+etutor:TaskAssignmentType
     rdf:type rdfs:Class .
 
 # Properties
@@ -267,7 +276,13 @@ etutor:isPrivateTask
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  xsd:boolean .
 
+etutor:hasTaskAssignmentType
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskAssignment ;
+    rdfs:range  etutor:TaskAssignmentType .
+
 # Instances
+# Difficulty
 etutor-difficulty:Easy
     a          etutor:DifficultyRanking ;
     rdf:value  "1"^^xsd:int ;
@@ -287,6 +302,15 @@ etutor-difficulty:VeryHard
     a          etutor:DifficultyRanking ;
     rdf:value  "4"^^xsd:int ;
     rdfs:label "VeryHard" .
+
+# TaskAssignmentTypes
+etutor-task-assingment-type:UploadTask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "Upload task" .
+
+etutor-task-assingment-type:NoType
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "No Type" .
 
 ## Exercise sheets
 # Classes

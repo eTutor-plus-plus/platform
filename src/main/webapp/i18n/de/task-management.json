@@ -5,11 +5,16 @@
     "searchPlaceholder": "Suche...",
     "noItems": "Es sind keine Aufgaben vorhanden!",
     "difficultyPlaceholder": "Schwierigkeit auswählen",
+    "taskTypePlaceholder": "Aufgabentyp auswählen",
     "difficulties": {
       "easy": "Leicht",
       "medium": "Mittel",
       "hard": "Schwer",
       "veryHard": "Sehr schwer"
+    },
+    "taskTypes": {
+      "noType": "Kein Typ",
+      "uploadTask": "Upload Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -19,7 +24,8 @@
       "taskDifficulty": "Aufgabenschwierigkeit:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
-      "instruction": "Aufgabenstellung:"
+      "instruction": "Aufgabenstellung:",
+      "taskType": "Aufgabentyp:"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

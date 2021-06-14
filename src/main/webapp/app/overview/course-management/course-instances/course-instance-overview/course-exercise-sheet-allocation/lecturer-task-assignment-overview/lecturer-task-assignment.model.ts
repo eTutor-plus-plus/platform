@@ -78,6 +78,10 @@ export interface ILecturerGradingInfo {
    * Indicates whether the assignment has already been submitted.
    */
   submitted: boolean;
+  /**
+   * The task type's id.
+   */
+  taskTypeId: string;
 }
 
 /**

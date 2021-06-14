@@ -145,4 +145,52 @@ export class StudentService {
       null
     );
   }
+
+  /**
+   * Removes an upload task's file attachment.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param fileId the file id
+   */
+  public removeUploadTaskAttachment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, fileId: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.delete(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/${fileId}`
+    );
+  }
+
+  /**
+   * Sets the upload task's attachment.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param fileId the file id
+   */
+  public setUploadTaskAttachment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, fileId: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/${fileId}`,
+      undefined
+    );
+  }
+
+  /**
+   * Returns the file attachment id.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getFileAttachmentId(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment`
+    );
+  }
 }

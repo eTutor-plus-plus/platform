@@ -163,7 +163,11 @@
     "studentCSVImportError": "A CSV import error occurred!",
     "exerciseSheetAlreadyOpened": "The exercise sheet has already been opened!",
     "allTasksAssigned": "All tasks have already been assigned!",
-    "noFurtherTasksAvailable": "No further tasks are available for allocation!"
+    "noFurtherTasksAvailable": "No further tasks are available for allocation!",
+    "emptyFileNotAllowed": "An empty file is not allowed!",
+    "studentNotExists": "The student does not exist!",
+    "fileStorage": "A file storage problem occurred!",
+    "wrongTaskType": "The wrong task type has been selected!"
   },
   "footer": {
     "contact": "Contact",
