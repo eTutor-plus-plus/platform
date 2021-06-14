@@ -8,6 +8,7 @@
     (change)="fileChanged()"
     formControlName="fileUpload"
     class="form-control-file"
+    *ngIf="!disabled"
   />
   <br *ngIf="fileId >= 0" />
   <ul *ngIf="fileId >= 0">
@@ -15,13 +16,13 @@
       <span class="pointer hover-underline" (click)="downloadCurrentFile()"
         >{{ fileMetaData?.fileName }} - {{ fileMetaData?.submissionDate | date: 'dd.MM.yyyy HH:mm' }}</span
       >
-      <span class="pointer" (click)="removeCurrentFile()"><fa-icon icon="times"></fa-icon></span>
+      <span *ngIf="!disabled" class="pointer" (click)="removeCurrentFile()"><fa-icon icon="times"></fa-icon></span>
     </li>
   </ul>
 
   <br />
 
-  <button class="btn btn-primary" [disabled]="isSaving">
+  <button class="btn btn-primary" [disabled]="isSaving || disabled">
     <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
     <span *ngIf="isSaving">&nbsp;</span>
     <span jhiTranslate="shared.fileUpload.saveButton">Save upload</span>

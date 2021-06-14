@@ -24,6 +24,8 @@ export class FileUploadComponent {
   });
   public fileMetaData?: IFileMetaDataModel;
   public isSaving = false;
+  @Input()
+  public disabled = false;
 
   private _fileId = -1;
   private _originalId = -1;

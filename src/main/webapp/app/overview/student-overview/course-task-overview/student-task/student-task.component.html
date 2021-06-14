@@ -44,6 +44,7 @@
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
       (fileModified)="handleFileMovedAsync($event[0], $event[1])"
+      [disabled]="isSubmitted"
     >
     </jhi-file-upload>
 
