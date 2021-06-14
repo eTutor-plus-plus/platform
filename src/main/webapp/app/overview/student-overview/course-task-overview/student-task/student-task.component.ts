@@ -21,6 +21,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
+  public uploadTaskFileId = -1;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -69,6 +70,12 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
+
+        if (this.isUploadTask) {
+          this.uploadTaskFileId = await this.studentService
+            .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+        }
       })();
 
       (async () => {
@@ -136,6 +143,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     await this.studentService
       .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
       .toPromise();
+    this.uploadTaskFileId = fileId;
   }
 
   /**
@@ -147,6 +155,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     await this.studentService
       .removeUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, fileId)
       .toPromise();
+    this.uploadTaskFileId = -1;
   }
 
   /**
@@ -159,5 +168,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     await this.studentService
       .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, newFileId)
       .toPromise();
+    this.uploadTaskFileId = newFileId;
   }
 }
