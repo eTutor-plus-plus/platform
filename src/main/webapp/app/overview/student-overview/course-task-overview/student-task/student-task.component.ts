@@ -22,9 +22,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
 
-  editorOptions = { theme: 'vs-dark', language: 'javascript' };
-  code = 'function x() {\nconsole.log("Hello world!");\n}';
-
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
   private _exerciseSheetUUID = '';
