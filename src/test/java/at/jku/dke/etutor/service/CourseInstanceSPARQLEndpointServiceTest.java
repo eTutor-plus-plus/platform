@@ -1,8 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -16,11 +13,8 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
-import java.util.*;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code CourseInstanceSPARQLEndpointService} class.
@@ -96,8 +95,7 @@ public class CourseInstanceSPARQLEndpointServiceTest {
      */
     @BeforeEach
     public void setup() throws Exception {
-        Dataset dataset = DatasetFactory.createTxnMem();
-        rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
+        rdfConnectionFactory = new LocalRDFConnectionFactory();
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(rdfConnectionFactory, userService);
         exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(rdfConnectionFactory);
@@ -141,11 +139,11 @@ public class CourseInstanceSPARQLEndpointServiceTest {
 
         ParameterizedSparqlString graphQry = new ParameterizedSparqlString(
             """
-            ASK {
-                GRAPH ?graph {
+                ASK {
+                    GRAPH ?graph {
+                    }
                 }
-            }
-            """
+                """
         );
         graphQry.setIri("?graph", uri);
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {

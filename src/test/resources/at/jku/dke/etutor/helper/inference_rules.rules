@@ -1,0 +1,14 @@
+@prefix :        <http://www.dke.uni-linz.ac.at/etutorpp#> .
+@prefix text:    <http://jena.apache.org/text#> .
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb2:    <http://jena.apache.org/2016/tdb#>
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix etutor:  <http://www.dke.uni-linz.ac.at/etutorpp/> .
+
+[firstRule:
+	(?a etutor:hasSubGoal ?b)
+	(?b etutor:hasSubGoal ?c)
+	                       ->
+						   (?a etutor:hasSubGoal ?c)]

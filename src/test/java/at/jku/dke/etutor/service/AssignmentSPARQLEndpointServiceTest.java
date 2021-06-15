@@ -1,7 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.*;
-
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
@@ -14,13 +12,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import one.util.streamex.StreamEx;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdfconnection.RDFConnection;
@@ -28,6 +20,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for the {@code AssignmentSPARQLEndpointService} class.
@@ -49,8 +48,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @BeforeEach
     public void setup() throws LearningGoalAlreadyExistsException {
-        Dataset dataset = DatasetFactory.createTxnMem();
-        rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
+        rdfConnectionFactory = new LocalRDFConnectionFactory();
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
 
@@ -304,13 +302,13 @@ public class AssignmentSPARQLEndpointServiceTest {
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             String cntQuery =
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-                SELECT (COUNT(?goal) as ?cnt)
-                WHERE {
-                	?goal etutor:hasTaskAssignment ?assignment
-                }
-                """;
+                    SELECT (COUNT(?goal) as ?cnt)
+                    WHERE {
+                    	?goal etutor:hasTaskAssignment ?assignment
+                    }
+                    """;
 
             try (QueryExecution queryExecution = connection.query(cntQuery)) {
                 ResultSet set = queryExecution.execSelect();

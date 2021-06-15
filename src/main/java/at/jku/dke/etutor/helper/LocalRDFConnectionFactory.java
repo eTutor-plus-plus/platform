@@ -7,11 +7,20 @@ import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.query.text.TextIndexConfig;
 import org.apache.jena.query.text.analyzer.Util;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
+import org.apache.jena.reasoner.rulesys.Rule;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * Class which is used to created local RDF connections to an in-memory
@@ -27,16 +36,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      * Constructor.
      */
     public LocalRDFConnectionFactory() {
-        this(DatasetFactory.createTxnMem());
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param dataset the dataset for the tests
-     */
-    public LocalRDFConnectionFactory(Dataset dataset) {
-        createLuceneDataset(dataset);
+        createLuceneDataset();
     }
 
     /**
@@ -54,17 +54,24 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
      */
     @Override
     public void clearDataset() {
-        createLuceneDataset(DatasetFactory.createTxnMem());
+        createLuceneDataset();
     }
 
     /**
      * Creates a lucene dataset around the given dataset.
-     *
-     * @param dataset the dataset which should be wrapped
      */
-    private void createLuceneDataset(Dataset dataset) {
+    private void createLuceneDataset() {
         @SuppressWarnings("deprecation")
         Directory luceneDirectory = new RAMDirectory();
+
+        List<Rule> ruleList;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("inference_rules.rules")))) {
+            ruleList = Rule.parseRules(Rule.rulesParserFromReader(reader));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Must not happen!");
+        }
+
+        GenericRuleReasoner genericRuleReasoner = new GenericRuleReasoner(ruleList);
 
         EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
         entDef.setPrimaryPredicate(RDFS.label);
@@ -72,7 +79,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
         Analyzer analyzer = Util.getLocalizedAnalyzer("de");
         textIndexConfig.setAnalyzer(analyzer);
         textIndexConfig.setValueStored(true);
-
+        Dataset dataset = DatasetFactory.create(ModelFactory.createInfModel(genericRuleReasoner, ModelFactory.createDefaultModel()));
         this.dataset = TextDatasetFactory.createLucene(dataset, luceneDirectory, textIndexConfig);
     }
 }

@@ -1,8 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
@@ -11,17 +8,19 @@ import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import java.text.ParseException;
-import java.util.Optional;
 import one.util.streamex.StreamEx;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+
+import java.text.ParseException;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code ExerciseSheetSPARQLEndpointService} class.
@@ -42,8 +41,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @BeforeEach
     public void setup() throws Exception {
-        Dataset dataset = DatasetFactory.createTxnMem();
-        rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
+        rdfConnectionFactory = new LocalRDFConnectionFactory();
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(rdfConnectionFactory);
 
@@ -187,12 +185,12 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
 
         final String askQry =
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            ASK {
-              ?exerciseSheet a etutor:ExerciseSheet.
-            }
-            """;
+                ASK {
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                }
+                """;
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(askQry);
         qry.setIri("?exerciseSheet", exerciseSheetDTO.getId());

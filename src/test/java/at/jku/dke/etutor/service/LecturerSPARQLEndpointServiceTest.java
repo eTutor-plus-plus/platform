@@ -1,8 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -19,12 +16,8 @@ import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import java.util.Collections;
-import java.util.Set;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +30,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.Collections;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@link LecturerSPARQLEndpointService} class.
@@ -89,8 +88,7 @@ public class LecturerSPARQLEndpointServiceTest {
      */
     @BeforeEach
     public void setup() throws Exception {
-        Dataset dataset = DatasetFactory.createTxnMem();
-        RDFConnectionFactory rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
+        RDFConnectionFactory rdfConnectionFactory = new LocalRDFConnectionFactory();
         lecturerSPARQLEndpointService = new LecturerSPARQLEndpointService(rdfConnectionFactory);
         SPARQLEndpointService sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
         CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService = new CourseInstanceSPARQLEndpointService(
@@ -163,22 +161,22 @@ public class LecturerSPARQLEndpointServiceTest {
         // Setup demo assignment
         ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            INSERT DATA {
-              ?student etutor:hasIndividualTaskAssignment [
-              	etutor:fromExerciseSheet ?sheet ;
-                etutor:fromCourseInstance ?courseInstance;
-                etutor:hasIndividualTask [
-              		etutor:isGraded false;
-                	etutor:refersToTask ?task;
-                    etutor:hasOrderNo 1;
-                    etutor:isLearningGoalCompleted false;
-                    etutor:isSubmitted true
-              	]
-              ]
-            }
-            """
+                INSERT DATA {
+                  ?student etutor:hasIndividualTaskAssignment [
+                  	etutor:fromExerciseSheet ?sheet ;
+                    etutor:fromCourseInstance ?courseInstance;
+                    etutor:hasIndividualTask [
+                  		etutor:isGraded false;
+                    	etutor:refersToTask ?task;
+                        etutor:hasOrderNo 1;
+                        etutor:isLearningGoalCompleted false;
+                        etutor:isSubmitted true
+                  	]
+                  ]
+                }
+                """
         );
 
         demoAssignmentUpdate.setIri("?student", ETutorVocabulary.getStudentURLFromMatriculationNumber(student.getLogin()));
