@@ -5,11 +5,11 @@
         ><label>{{ assignment.task_type }}</label></b
       >
     </p>
-
     <p>{{ assignment.assignment_text }}</p>
     <p>
       <label><b>Your Solution:</b></label>
     </p>
+    <ngx-monaco-editor [options]="editorOptions" name="submission" id="submission" [(ngModel)]="submission"></ngx-monaco-editor>
     <input type="submit" value="Submit" class="btn btn-block" />
   </form>
   <form class="add-form" (ngSubmit)="onDiagnose()">

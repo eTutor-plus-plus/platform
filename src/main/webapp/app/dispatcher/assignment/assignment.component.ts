@@ -28,6 +28,8 @@ export class AssignmentComponent {
   submissionIdDto!: SubmissionIdDTO;
   gradingDto!: GradingDTO;
 
+  editorOptions = { theme: 'vs-dark', language: 'sql' };
+
   constructor(private assignmentService: AssignmentService) {}
   onDiagnose(): void {
     this.action = 'diagnose';
