@@ -1,0 +1,24 @@
+<div class="container">
+  <form class="add-form" (ngSubmit)="onSubmit()">
+    <p>
+      <b
+        ><label>{{ assignment.task_type }}</label></b
+      >
+    </p>
+
+    <p>{{ assignment.assignment_text }}</p>
+    <p>
+      <label><b>Your Solution:</b></label>
+    </p>
+    <input type="submit" value="Submit" class="btn btn-block" />
+  </form>
+  <form class="add-form" (ngSubmit)="onDiagnose()">
+    <input type="submit" value="Diagnose" class="btn btn-block" />
+  </form>
+  <p *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.error"></p>
+  <p *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.description"></p>
+  <br />
+  <p *ngIf="gradingReceived && hasErrors">{{ gradingDto.report.hint }}</p>
+  <p *ngIf="gradingReceived && !hasErrors"><b>Congratulation, your solution is correct!</b></p>
+  <p *ngIf="gradingReceived" [innerHTML]="gradingDto.result"></p>
+</div>
