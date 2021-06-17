@@ -85,6 +85,7 @@ public final class ETutorVocabulary {
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
+    private static final String INSTANCE_SQL_TASK = "SQLTask";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -381,6 +382,10 @@ public final class ETutorVocabulary {
      * The not type task assignment type instance.
      */
     public static final Resource NoType = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_NO_TYPE);
+    /**
+     * The SQL task assignment type instance.
+     */
+    public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
 
     /**
      * The easy difficulty instance.

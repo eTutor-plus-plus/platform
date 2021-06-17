@@ -109,8 +109,12 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UploadTask',
     'taskManagement.taskTypes.uploadTask'
   );
+  public static readonly SQLTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask',
+    'taskManagement.taskTypes.sqlTask'
+  );
 
-  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask];
+  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask, TaskAssignmentType.SQLTask];
 
   private readonly _value: string;
   private readonly _text: string;

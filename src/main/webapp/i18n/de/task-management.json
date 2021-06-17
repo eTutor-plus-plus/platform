@@ -14,7 +14,8 @@
     },
     "taskTypes": {
       "noType": "Kein Typ",
-      "uploadTask": "Upload Aufgabe"
+      "uploadTask": "Upload Aufgabe",
+      "sqlTask": "SQL Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",

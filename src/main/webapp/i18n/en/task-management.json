@@ -14,7 +14,8 @@
     },
     "taskTypes": {
       "noType": "No type",
-      "uploadTask": "Upload task"
+      "uploadTask": "Upload task",
+      "sqlTask": "SQL Task"
     },
     "fields": {
       "header": "Header:",
