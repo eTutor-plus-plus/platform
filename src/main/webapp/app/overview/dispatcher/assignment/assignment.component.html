@@ -5,11 +5,19 @@
         ><label>{{ assignment.task_type }}</label></b
       >
     </p>
-    <p>{{ assignment.assignment_text }}</p>
+    <div [innerHTML]="assignment.assignment_text"></div>
     <p>
       <label><b>Your Solution:</b></label>
     </p>
-    <ngx-monaco-editor [options]="editorOptions" name="submission" id="submission" [(ngModel)]="submission"></ngx-monaco-editor>
+    <div class="editor" style="height: 500px">
+      <ngx-monaco-editor
+        style="height: 100%"
+        [options]="editorOptions"
+        name="submission"
+        id="submission"
+        [(ngModel)]="submission"
+      ></ngx-monaco-editor>
+    </div>
     <input type="submit" value="Submit" class="btn btn-block" />
   </form>
   <form class="add-form" (ngSubmit)="onDiagnose()">
