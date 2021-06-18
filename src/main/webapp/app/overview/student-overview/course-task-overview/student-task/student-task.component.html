@@ -39,7 +39,7 @@
     </dl>
 
     <jhi-file-upload
-      *ngIf="isUploadTask"
+      *ngIf="isUploadTask || isSQLTask"
       [fileId]="uploadTaskFileId"
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
