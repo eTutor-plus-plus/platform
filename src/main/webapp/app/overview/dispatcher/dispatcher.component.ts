@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AccountService } from '../core/auth/account.service';
+import { AccountService } from '../../core/auth/account.service';
 import { Authority } from 'app/config/authority.constants';
 
 /**

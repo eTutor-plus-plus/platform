@@ -9,12 +9,13 @@ import { StudentSelfEvaluationComponent } from './student-overview/student-self-
 import { StudentExerciseSheetTasksComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-tasks.component';
 import { StudentTaskComponent } from './student-overview/course-task-overview/student-task/student-task.component';
 import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module';
+import { DispatcherModule } from 'app/overview/dispatcher/dispatcher.module';
 
 /**
  * Module for the overview component.
  */
 @NgModule({
-  imports: [SharedModule, RouterModule.forChild(overviewRoute), OverviewSharedModule],
+  imports: [SharedModule, RouterModule.forChild(overviewRoute), OverviewSharedModule, DispatcherModule],
   declarations: [
     OverviewComponent,
     StudentOverviewComponent,

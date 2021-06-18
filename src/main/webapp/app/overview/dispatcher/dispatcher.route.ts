@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 // import { Authority } from 'app/config/authority.constants';
-import { DispatcherComponent } from 'app/dispatcher/dispatcher.component';
-import { AssignmentsComponent } from 'app/dispatcher/assignments/assignments.component';
+import { DispatcherComponent } from 'app/overview/dispatcher/dispatcher.component';
+import { AssignmentsComponent } from 'app/overview/dispatcher/assignments/assignments.component';
 
 /**
  * Dispatcher related routes.

@@ -1,4 +1,4 @@
-import { Assignment } from 'app/dispatcher/entities/Assignment';
+import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
 
 export const ASSIGNMENTS: Assignment[] = [
   {

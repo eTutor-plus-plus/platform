@@ -72,6 +72,14 @@ export const overviewRoute: Routes = [
     },
   },
   {
+    path: 'dispatcher',
+    data: {
+      requireLogin: true,
+    },
+    canActivate: [UserRouteAccessService],
+    loadChildren: () => import('./dispatcher/dispatcher.module').then(m => m.DispatcherModule),
+  },
+  {
     path: 'student/self-assessment',
     canActivate: [UserRouteAccessService],
     data: {

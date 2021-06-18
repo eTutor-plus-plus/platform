@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
+import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
+import { ASSIGNMENTS } from 'app/overview/dispatcher/mock-assignments';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -21,7 +23,15 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
+  public isSQLTask = false;
   public uploadTaskFileId = -1;
+  /**
+   * Test Assignments
+   */
+  public assignment: Assignment = ASSIGNMENTS[0];
+  /**
+   *
+   */
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -70,6 +80,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
+
+        this.isSQLTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+        if (this._taskModel.instruction != null) {
+          this.assignment.assignment_text = this._taskModel.instruction;
+        }
 
         if (this.isUploadTask) {
           this.uploadTaskFileId = await this.studentService

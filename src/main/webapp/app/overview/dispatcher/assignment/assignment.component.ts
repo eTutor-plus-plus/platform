@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Assignment } from 'app/dispatcher/entities/Assignment';
-import { SubmissionDTO } from 'app/dispatcher/entities/SubmissionDTO';
-import { GradingDTO } from 'app/dispatcher/entities/GradingDTO';
-import { SubmissionIdDTO } from 'app/dispatcher/entities/SubmissionIdDTO';
-import { AssignmentService } from 'app/dispatcher/services/assignment.service';
+import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
+import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
+import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
+import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
+import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SubmissionDTO } from 'app/dispatcher/entities/SubmissionDTO';
-import { SubmissionIdDTO } from 'app/dispatcher/entities/SubmissionIdDTO';
-import { GradingDTO } from 'app/dispatcher/entities/GradingDTO';
+import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
+import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
+import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 
 const httpOptions = {
   headers: new HttpHeaders({

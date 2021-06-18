@@ -26,14 +26,6 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
         },
         {
-          path: 'dispatcher',
-          data: {
-            requireLogin: true,
-          },
-          canActivate: [UserRouteAccessService],
-          loadChildren: () => import('./dispatcher/dispatcher.module').then(m => m.DispatcherModule),
-        },
-        {
           path: 'overview',
           data: {
             requireLogin: true,

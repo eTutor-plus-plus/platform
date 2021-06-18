@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Assignment } from 'app/dispatcher/entities/Assignment';
-import { ASSIGNMENTS } from 'app/dispatcher/mock-assignments';
+import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
+import { ASSIGNMENTS } from 'app/overview/dispatcher/mock-assignments';
 
 @Component({
   selector: 'jhi-assignments',
