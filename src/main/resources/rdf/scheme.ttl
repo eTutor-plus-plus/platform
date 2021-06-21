@@ -310,7 +310,7 @@ etutor:hasTaskGroupCreator
 etutor:hasTaskGroupChangeDate
     rdf:type    rdf:Property ;
     rdfs:domain etutor:TaskGroup ;
-    rdfs:range  xsd:datetime .
+    rdfs:range  xsd:dateTime .
 
 # Instances
 # Difficulty
