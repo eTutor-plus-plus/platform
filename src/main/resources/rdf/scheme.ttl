@@ -281,6 +281,27 @@ etutor:hasTaskAssignmentType
     rdfs:domain etutor:TaskAssignment ;
     rdfs:range  etutor:TaskAssignmentType .
 
+## Task group
+# Classes
+etutor:TaskGroup
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:hasTaskGroupName
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskGroup ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskGroupDescription
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskGroup ;
+    rdfs:range  xsd:string .
+
+etutor:hasTask
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskGroup ;
+    rdfs:range  etutor:TaskAssignment .
+
 # Instances
 # Difficulty
 etutor-difficulty:Easy

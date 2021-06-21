@@ -24,6 +24,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_STUDENT = "Student";
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
     private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
+    private static final String CLASS_TASK_GROUP = "TaskGroup";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -82,6 +83,10 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
     private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
     private static final String PROP_HAS_EXERCISE_SHEET_TASK_COUNT = "hasExerciseSheetTaskCount";
+
+    private static final String PROP_HAS_TASK_GROUP_NAME = "hasTaskGroupName";
+    private static final String PROP_HAS_TASK_GROUP_DESCRIPTION = "hasTaskGroupDescription";
+    private static final String PROP_HAS_TASK = "hasTask";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
@@ -323,6 +328,18 @@ public final class ETutorVocabulary {
      * The hasFileAttachmentId property.
      */
     public static final Property hasFileAttachmentId = m.createProperty(URI + PROP_HAS_FILE_ATTACHMENT_ID);
+    /**
+     * The hasTaskGroupName property.
+     */
+    public static final Property hasTaskGroupName = m.createProperty(URI + PROP_HAS_TASK_GROUP_NAME);
+    /**
+     * The hasTaskGroupDescription property.
+     */
+    public static final Property hasTaskGroupDescription = m.createProperty(URI + PROP_HAS_TASK_GROUP_DESCRIPTION);
+    /**
+     * The hasTask property.
+     */
+    public static final Property hasTask = m.createProperty(URI + PROP_HAS_TASK);
 
     /**
      * The goal resource.
@@ -372,6 +389,10 @@ public final class ETutorVocabulary {
      * The individual task resource.
      */
     public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
+    /**
+     * The task group resource.
+     */
+    public static final Resource TaskGroup = m.createResource(TASK_ASSIGNMENT_TYPE_URI + CLASS_TASK_GROUP);
 
     /**
      * The upload task task assignment type instance.
