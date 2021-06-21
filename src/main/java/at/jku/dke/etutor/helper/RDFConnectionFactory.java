@@ -16,6 +16,14 @@ public interface RDFConnectionFactory {
     RDFConnection getRDFConnection();
 
     /**
+     * Returns the rdf connection which is used to access
+     * the original dataset (without inference)
+     *
+     * @return the connection
+     */
+    RDFConnection getRDFConnectionToOriginalDataset();
+
+    /**
      * Clears the dataset (only works in embedded mode).
      */
     void clearDataset();

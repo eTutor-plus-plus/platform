@@ -29,7 +29,18 @@ public class FusekiRDFConnectionFactory implements RDFConnectionFactory {
      */
     @Override
     public RDFConnection getRDFConnection() {
-        return RDFConnectionFuseki.create().destination(applicationProperties.getFuseki().getBaseUrl()).build();
+        return RDFConnectionFuseki.create().destination(getURLWithSlash() + applicationProperties.getFuseki().getInferenceDatasetName()).build();
+    }
+
+    /**
+     * Returns the rdf connection which is used to access
+     * the original dataset (without inference)
+     *
+     * @return the connection
+     */
+    @Override
+    public RDFConnection getRDFConnectionToOriginalDataset() {
+        return RDFConnectionFuseki.create().destination(getURLWithSlash() + applicationProperties.getFuseki().getOriginalDatasetName()).build();
     }
 
     /**
@@ -38,5 +49,19 @@ public class FusekiRDFConnectionFactory implements RDFConnectionFactory {
     @Override
     public void clearDataset() {
         //Not implemented!
+    }
+
+    /**
+     * Returns the base URL and ensures that it ends with a '/'.
+     *
+     * @return the base URL to the fuseki instance
+     */
+    private String getURLWithSlash() {
+        String baseUrl = applicationProperties.getFuseki().getBaseUrl();
+        if (baseUrl.length() > 0 && baseUrl.charAt(baseUrl.length() - 1) != '/') {
+            baseUrl += '/';
+        }
+
+        return baseUrl;
     }
 }

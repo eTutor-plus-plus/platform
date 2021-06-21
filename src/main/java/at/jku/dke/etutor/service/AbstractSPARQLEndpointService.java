@@ -36,6 +36,15 @@ public abstract class AbstractSPARQLEndpointService {
     }
 
     /**
+     * Returns the connection to the original data set.
+     *
+     * @return the connection to the original dataset
+     */
+    protected RDFConnection getConnectionToOriginalDataset() {
+        return rdfConnectionFactory.getRDFConnectionToOriginalDataset();
+    }
+
+    /**
      * Converts the given instant into an rdf conform string representation.
      *
      * @param instant the instant to convert.

@@ -342,3 +342,16 @@ etutor:hasExerciseSheetTaskCount
     rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:int .
+
+## Inferred properties (sub properties)
+etutor:infHasSubGoal
+    rdf:type           rdf:Property ;
+    rdfs:subPropertyOf etutor:hasSubGoal ;
+    rdfs:domain        etutor:Goal ;
+    rdfs:range         etutor:Goal .
+
+etutor:infDependsOn
+    rdf:type           rdf:Property ;
+    rdfs:subPropertyOf etutor:dependsOn ;
+    rdfs:domain        etutor:Goal ;
+    rdfs:range         etutor:Goal .

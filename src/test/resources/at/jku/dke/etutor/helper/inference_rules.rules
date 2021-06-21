@@ -6,9 +6,17 @@
 @prefix tdb2:    <http://jena.apache.org/2016/tdb#>
 @prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
 @prefix etutor:  <http://www.dke.uni-linz.ac.at/etutorpp/> .
+@include <RDFS>.
 
-[firstRule:
+[subGoalTransitivityRule:
 	(?a etutor:hasSubGoal ?b)
 	(?b etutor:hasSubGoal ?c)
+						   ->
+						   (?a etutor:hasSubGoal ?c)
+]
+
+[dependencyRule:
+	(?a etutor:dependsOn ?b)
+	(?a etutor:hasSubGoal ?c)
 	                       ->
-						   (?a etutor:hasSubGoal ?c)]
+						   (?c etutor:dependsOn ?b)]
