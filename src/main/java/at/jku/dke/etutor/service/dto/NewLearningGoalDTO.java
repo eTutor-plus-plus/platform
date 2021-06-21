@@ -1,9 +1,10 @@
 package at.jku.dke.etutor.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.net.URLEncoder;
+
 import javax.validation.constraints.NotBlank;
-import org.apache.commons.codec.Charsets;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A DTO representing a new learning goal.
@@ -36,7 +37,7 @@ public class NewLearningGoalDTO {
         if (name == null) {
             return null;
         }
-        return URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
+        return URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
     }
 
     /**
