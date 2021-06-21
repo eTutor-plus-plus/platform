@@ -5,6 +5,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -553,6 +555,16 @@ public final class ETutorVocabulary {
      */
     public static String getStudentURLFromMatriculationNumber(String matriculationNumber) {
         return URI + CLASS_STUDENT + "#" + matriculationNumber;
+    }
+
+    /**
+     * Returns the task id for a task group entity.
+     *
+     * @param name the task group's name
+     * @return id the entity's id
+     */
+    public static String getTaskGroupIdFromName(String name) {
+        return URI + CLASS_TASK_GROUP + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
     }
 
     /**

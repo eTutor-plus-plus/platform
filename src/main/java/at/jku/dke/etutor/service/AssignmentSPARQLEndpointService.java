@@ -3,10 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -649,7 +646,158 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
     }
 
+    /**
+     * Creates a new task group.
+     *
+     * @param newTaskGroupDTO the task group
+     * @param creator         the creator
+     * @return the newly created task group
+     */
+    public TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO, String creator) {
+        Objects.requireNonNull(newTaskGroupDTO);
+        Objects.requireNonNull(creator);
+
+        Model model = ModelFactory.createDefaultModel();
+
+        Instant now = Instant.now();
+
+        Resource resource = constructTaskGroupFromDTO(newTaskGroupDTO, creator, now, model);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.load(model);
+        }
+
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), resource.getURI(), creator, now);
+    }
+
+    /**
+     * Deletes a task group.
+     *
+     * @param name the name of the task group
+     */
+    public void deleteTaskGroup(String name) {
+        Objects.requireNonNull(name);
+
+        String id = ETutorVocabulary.getTaskGroupIdFromName(name);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group ?predicate ?object.
+            } WHERE {
+              ?group ?predicate ?object.
+            }
+            """);
+        query.setIri("?group", id);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+    }
+
+    /**
+     * Persists the modifications, currently only the description can be modified.
+     *
+     * @param taskGroupDTO the task group DTO
+     */
+    public void modifyTaskGroup(TaskGroupDTO taskGroupDTO) {
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              ?group etutor:hasTaskGroupDescription ?oldDescription.
+            } INSERT {
+              ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
+            """);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.append("  ?group etutor:hasTaskGroupDescription ?newDescription.");
+        }
+
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              OPTIONAL {
+                ?group etutor:hasTaskGroupDescription ?oldDescription.
+              }
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+        query.setLiteral("?newChangeDate", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the task group by name.
+     *
+     * @param name the task group's name
+     * @return {@link Optional} containing the task group, if found
+     */
+    public Optional<TaskGroupDTO> getTaskGroupByName(String name) {
+        Objects.requireNonNull(name);
+        String id = ETutorVocabulary.getTaskGroupIdFromName(name);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            CONSTRUCT {
+              ?group ?predicate ?object.
+            } WHERE {
+              ?group ?predicate ?object.
+            }
+            """);
+        query.setIri("?group", id);
+
+        try (RDFConnection connection = getConnection()) {
+            Model resultModel = connection.queryConstruct(query.asQuery());
+            Resource resource = resultModel.getResource(id);
+
+            if (resultModel.isEmpty() || resource == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(new TaskGroupDTO(resource));
+        }
+    }
+
     //region Helper methods
+
+    /**
+     * Constructs a task group resource based on the given parameters.
+     *
+     * @param newTaskGroupDTO the new task group DTO
+     * @param creator         the creator
+     * @param creationDate    the creation date
+     * @param model           the model
+     * @return {@link Resource} which represents the new task group
+     */
+    private Resource constructTaskGroupFromDTO(NewTaskGroupDTO newTaskGroupDTO, String creator, Instant creationDate, Model model) {
+        Resource taskGroupResource = model.createResource(ETutorVocabulary.getTaskGroupIdFromName(newTaskGroupDTO.getName()));
+        taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
+
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
+        }
+
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
+
+        return taskGroupResource;
+    }
 
     /**
      * Constructs a resource from the given data.
