@@ -302,6 +302,16 @@ etutor:hasTask
     rdfs:domain etutor:TaskGroup ;
     rdfs:range  etutor:TaskAssignment .
 
+etutor:hasTaskGroupCreator
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskGroup ;
+    rdfs:range  xsd:string .
+
+etutor:hasTaskGroupChangeDate
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:TaskGroup ;
+    rdfs:range  xsd:datetime .
+
 # Instances
 # Difficulty
 etutor-difficulty:Easy
