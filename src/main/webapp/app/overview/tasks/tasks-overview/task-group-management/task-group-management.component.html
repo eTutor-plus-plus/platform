@@ -1,1 +1,54 @@
-<p>task-group-management works!</p>
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Manage task groups</h4>
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <button type="button" class="btn btn-primary float-right" (click)="createNewTaskGroup()">
+      <fa-icon icon="plus"></fa-icon>
+      <span>Create new task group</span>
+    </button>
+
+    <div class="table-responsive" *ngIf="taskGroups">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of taskGroups; trackBy: trackIdentity">
+            <td>{{ item.name }}</td>
+            <td class="text-right">
+              <div class="btn-group"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="taskGroups">
+      <div class="row justify-content-center">
+        <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+      </div>
+
+      <div class="row justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [(page)]="page"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="transition()"
+        ></ngb-pagination>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="close()"><fa-icon icon="times"></fa-icon>&nbsp;<span>Close</span></button>
+    </div>
+  </div>
+</div>

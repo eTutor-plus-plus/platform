@@ -59,7 +59,7 @@ export class TaskGroupManagementService {
    * @param page the pagination info
    * @param query the optional fulltext filter
    */
-  public getPagedTaskGroups(page: Pagination, query?: string): Observable<HttpResponse<ITaskGroupDisplayDTO>> {
+  public getPagedTaskGroups(page: Pagination, query?: string): Observable<HttpResponse<ITaskGroupDisplayDTO[]>> {
     const options = createRequestOption(page);
     let url = `${SERVER_API_URL}api/task-group/displayable/list`;
 
@@ -67,6 +67,6 @@ export class TaskGroupManagementService {
       url += `?filter=${query.trim()}`;
     }
 
-    return this.http.get<ITaskGroupDisplayDTO>(url, { params: options, observe: 'response' });
+    return this.http.get<ITaskGroupDisplayDTO[]>(url, { params: options, observe: 'response' });
   }
 }
