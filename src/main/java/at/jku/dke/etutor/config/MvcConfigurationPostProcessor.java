@@ -58,7 +58,7 @@ public class MvcConfigurationPostProcessor implements BeanPostProcessor, Priorit
         if (bean instanceof RequestMappingHandlerMapping requestMappingHandlerMapping) {
 
             requestMappingHandlerMapping.setUseSuffixPatternMatch(false);
-            requestMappingHandlerMapping.setUseTrailingSlashMatch(false);
+            requestMappingHandlerMapping.setUseTrailingSlashMatch(true);
 
             // URL decode after request mapping, not before.
             requestMappingHandlerMapping.setUrlDecode(false);
