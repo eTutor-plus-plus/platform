@@ -9,6 +9,7 @@ import { TaskAssignmentUpdateComponent } from './tasks-overview/task-assignment-
 import { TaskDisplayComponent } from './tasks-overview/task-display/task-display.component';
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.component';
+import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
 
 /**
  * Module for task related components.
@@ -30,6 +31,7 @@ import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/
     TaskAssignmentUpdateComponent,
     TaskDisplayComponent,
     TaskGroupManagementComponent,
+    TaskGroupUpdateComponent,
   ],
 })
 export class TasksModule {}
