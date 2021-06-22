@@ -404,7 +404,7 @@ public final class ETutorVocabulary {
     /**
      * The task group resource.
      */
-    public static final Resource TaskGroup = m.createResource(TASK_ASSIGNMENT_TYPE_URI + CLASS_TASK_GROUP);
+    public static final Resource TaskGroup = m.createResource(URI + CLASS_TASK_GROUP);
 
     /**
      * The upload task task assignment type instance.
