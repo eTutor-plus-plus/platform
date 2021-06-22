@@ -3,9 +3,10 @@
 import { Component, OnInit } from '@angular/core';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
 
 /**
  * Component for managing task groups.
@@ -27,11 +28,13 @@ export class TaskGroupManagementComponent implements OnInit {
    * @param taskService the injected tasks service
    * @param taskGroupService the injected task group service
    * @param activeModal the injected active modal service
+   * @param modalService the injected modal service
    */
   constructor(
     private taskService: TasksService,
     private taskGroupService: TaskGroupManagementService,
-    private activeModal: NgbActiveModal
+    private activeModal: NgbActiveModal,
+    private modalService: NgbModal
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -50,8 +53,16 @@ export class TaskGroupManagementComponent implements OnInit {
     this.activeModal.dismiss();
   }
 
+  /**
+   * Opens the create task group modal window.
+   */
   public createNewTaskGroup(): void {
-    // TODO
+    const modalRef = this.modalService.open(TaskGroupUpdateComponent, { backdrop: 'static', size: 'xl' });
+    modalRef.result.then(() => {
+      this.page = 1;
+      this.query = '';
+      this.transition();
+    });
   }
 
   /**
@@ -68,7 +79,7 @@ export class TaskGroupManagementComponent implements OnInit {
    * Loads the currently selected page.
    */
   public transition(): void {
-    // TODO
+    this.loadPageAsync();
   }
 
   /**

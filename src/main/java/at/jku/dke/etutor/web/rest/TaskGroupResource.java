@@ -19,6 +19,7 @@ import tech.jhipster.web.util.PaginationUtil;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing task groups.
@@ -70,6 +71,19 @@ public class TaskGroupResource {
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * REST endpoint for retrieving a single task group.
+     *
+     * @param name the task group's name from the request path
+     * @return the {@link ResponseEntity} containing the single task group
+     */
+    @GetMapping("{name}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<TaskGroupDTO> getTaskGroup(@PathVariable String name) {
+        Optional<TaskGroupDTO> taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name);
+        return ResponseEntity.of(taskGroup);
     }
 
     /**

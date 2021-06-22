@@ -12,6 +12,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { EventManager } from 'app/core/util/event-manager.service';
 import { ITEMS_PER_SLICE } from 'app/config/pagination.constants';
+import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.component';
 
 /**
  * Component which provides an overview of the tasks.
@@ -215,6 +216,13 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
       this.entries.length = 0;
       this.loadPage(0);
     });
+  }
+
+  /**
+   * Opens the manage task groups modal.
+   */
+  public manageTaskGroups(): void {
+    this.modalService.open(TaskGroupManagementComponent, { backdrop: 'static', size: 'xl' });
   }
 
   // region Private helper methods

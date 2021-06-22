@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/core/request/request-util';
 import { Pagination } from 'app/core/request/request.model';
+import { map } from 'rxjs/operators';
 
 /**
  * Service for managing task group operations.
@@ -30,7 +31,12 @@ export class TaskGroupManagementService {
    * @param newTaskGroup the task group to create
    */
   public createNewTaskGroup(newTaskGroup: INewTaskGroupDTO): Observable<ITaskGroupDTO> {
-    return this.http.post<ITaskGroupDTO>(`${SERVER_API_URL}api/task-group`, newTaskGroup);
+    return this.http.post<ITaskGroupDTO>(`${SERVER_API_URL}api/task-group`, newTaskGroup).pipe(
+      map(x => {
+        x.changeDate = new Date(x.changeDate);
+        return x;
+      })
+    );
   }
 
   /**
@@ -42,6 +48,22 @@ export class TaskGroupManagementService {
     const encodedName = encodeURIComponent(name);
 
     return this.http.delete(`${SERVER_API_URL}api/task-group/${encodedName}`);
+  }
+
+  /**
+   * Returns a single task group.
+   *
+   * @param name the task group's name
+   */
+  public getTaskGroup(name: string): Observable<ITaskGroupDTO> {
+    const encodedName = encodeURIComponent(name);
+
+    return this.http.get<ITaskGroupDTO>(`${SERVER_API_URL}api/task-group/${encodedName}`).pipe(
+      map(x => {
+        x.changeDate = new Date(x.changeDate);
+        return x;
+      })
+    );
   }
 
   /**
