@@ -5,6 +5,7 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -17,9 +18,11 @@ import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.Serial;
@@ -652,8 +655,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * @param newTaskGroupDTO the task group
      * @param creator         the creator
      * @return the newly created task group
+     * @throws TaskGroupAlreadyExistentException if a task group with the name already exists
      */
-    public TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO, String creator) {
+    public TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO, String creator) throws TaskGroupAlreadyExistentException {
         Objects.requireNonNull(newTaskGroupDTO);
         Objects.requireNonNull(creator);
 
@@ -663,7 +667,21 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         Resource resource = constructTaskGroupFromDTO(newTaskGroupDTO, creator, now, model);
 
+        ParameterizedSparqlString existenceQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            ASK {
+              ?taskGroup a etutor:TaskGroup.
+            }
+            """);
+        existenceQuery.setIri("?taskGroup", resource.getURI());
+
         try (RDFConnection connection = getConnection()) {
+
+            if (connection.queryAsk(existenceQuery.asQuery())) {
+                throw new TaskGroupAlreadyExistentException();
+            }
+
             connection.load(model);
         }
 
@@ -700,8 +718,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
      * Persists the modifications, currently only the description can be modified.
      *
      * @param taskGroupDTO the task group DTO
+     * @return the modified task group
      */
-    public void modifyTaskGroup(TaskGroupDTO taskGroupDTO) {
+    public TaskGroupDTO modifyTaskGroup(TaskGroupDTO taskGroupDTO) {
         Objects.requireNonNull(taskGroupDTO);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
@@ -729,7 +748,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
 
         query.setIri("?group", taskGroupDTO.getId());
-        query.setLiteral("?newChangeDate", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
+        Instant now = Instant.now();
+        taskGroupDTO.setChangeDate(now);
+        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
 
         if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
             query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
@@ -738,6 +759,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
+
+        return taskGroupDTO;
     }
 
     /**
@@ -770,6 +793,80 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
 
             return Optional.of(new TaskGroupDTO(resource));
+        }
+    }
+
+    /**
+     * Returns the paged list of task groups.
+     *
+     * @param nameQry the name filter, may be null or blank
+     * @param page    the page object, must be null
+     * @return {@link Page} containing the task groups
+     */
+    public Page<TaskGroupDisplayDTO> getFilteredTaskGroupPaged(String nameQry, Pageable page) {
+        Objects.requireNonNull(page);
+
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (COUNT(?taskGroup) AS ?cnt)
+            WHERE {
+            """);
+        ParameterizedSparqlString selectQry = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (STR(?taskGroup) AS ?id) ?taskGroupName
+            WHERE {
+            """);
+
+        if (StringUtils.isNotBlank(nameQry)) {
+            countQry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", nameQry));
+            selectQry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", nameQry));
+        }
+
+        countQry.append("""
+              ?taskGroup a etutor:TaskGroup.
+            }
+            """);
+        selectQry.append("""
+              ?taskGroup a etutor:TaskGroup.
+              ?taskGroup etutor:hasTaskGroupName ?taskGroupName
+            }
+            ORDER BY (LCASE(?taskGroupName))
+            """);
+
+        if (page.isPaged()) {
+            selectQry.append("LIMIT ");
+            selectQry.append(page.getPageSize());
+            selectQry.append("\nOFFSET ");
+            selectQry.append(page.getOffset());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            List<TaskGroupDisplayDTO> taskGroupList = new ArrayList<>();
+            long count;
+            try (QueryExecution queryExecution = connection.query(selectQry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String id = solution.getLiteral("?id").getString();
+                    String taskGroupName = solution.getLiteral("?taskGroupName").getString();
+
+                    taskGroupList.add(new TaskGroupDisplayDTO(id, taskGroupName));
+                }
+            }
+
+            try (QueryExecution queryExecution = connection.query(countQry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+                //noinspection ResultOfMethodCallIgnored
+                set.hasNext();
+                count = set.nextSolution().getLiteral("?cnt").getInt();
+            }
+
+            return PageableExecutionUtils.getPage(taskGroupList, page, () -> count);
         }
     }
 

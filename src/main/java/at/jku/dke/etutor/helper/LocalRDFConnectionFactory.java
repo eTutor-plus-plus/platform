@@ -68,6 +68,7 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
 
         EntityDefinition entDef = new EntityDefinition("uri", "text", ETutorVocabulary.hasTaskHeader);
         entDef.setPrimaryPredicate(RDFS.label);
+        entDef.setPrimaryPredicate(ETutorVocabulary.hasTaskGroupName);
         TextIndexConfig textIndexConfig = new TextIndexConfig(entDef);
         Analyzer analyzer = Util.getLocalizedAnalyzer("de");
         textIndexConfig.setAnalyzer(analyzer);
