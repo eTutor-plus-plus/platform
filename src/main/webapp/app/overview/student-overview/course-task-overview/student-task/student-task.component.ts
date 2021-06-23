@@ -23,7 +23,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
-  public isSQLTask = true;
+  public isDispatcherTask = true;
   public uploadTaskFileId = -1;
   /**
    * Test Assignments
@@ -80,8 +80,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
-        this.isSQLTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
-        if (this.isSQLTask) {
+        this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+        if (this.isDispatcherTask) {
           if (this._taskModel.instruction != null) {
             this.assignment.assignment_text = this._taskModel.instruction;
           }

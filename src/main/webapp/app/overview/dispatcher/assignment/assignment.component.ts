@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
+import { mapEditorOption } from '../services/EditorOptionsMapper';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -17,10 +18,11 @@ import { AssignmentService } from 'app/overview/dispatcher/services/assignment.s
 export class AssignmentComponent {
   @Input() diagnoseLevel = '3';
   @Input() assignment!: Assignment;
+  @Input() submission = '';
+  @Input() action = 'diagnose';
+
   @Output() solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
 
-  submission = '';
-  action = 'diagnose';
   gradingReceived = false;
   hasErrors = true;
 
@@ -31,16 +33,33 @@ export class AssignmentComponent {
   editorOptions = { theme: 'vs-dark', language: 'sql' };
 
   constructor(private assignmentService: AssignmentService) {}
+  /**
+   * Implements the init method. See {@link OnInit}.
+   */
+  public ngOnInit(): void {
+    this.editorOptions.language = mapEditorOption(this.assignment.task_type);
+  }
+
+  /**
+   * Handles a click on the diagnose Button
+   */
   onDiagnose(): void {
     this.action = 'diagnose';
     this.processSubmission(false);
   }
 
+  /**
+   * Handles a click on the submit Button
+   */
   onSubmit(): void {
     this.action = 'submit';
     this.processSubmission(true);
   }
 
+  /**
+   * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
+   * @param toBeSubmitted defines if grading for submission needs to be emitted
+   */
   processSubmission(toBeSubmitted: boolean): void {
     const attributes = new Map<string, string>();
     attributes.set('action', this.action);
@@ -69,6 +88,10 @@ export class AssignmentComponent {
     });
   }
 
+  /**
+   * Requests the grading for the submission identified by this.submissionIdDto
+   * @param toBeSubmitted defines if result has to be emitted
+   */
   getGrading(toBeSubmitted: boolean): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(g => {
       this.gradingDto = g;

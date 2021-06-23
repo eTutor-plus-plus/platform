@@ -39,7 +39,7 @@
     </dl>
 
     <jhi-file-upload
-      *ngIf="isUploadTask || isSQLTask"
+      *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
@@ -47,13 +47,20 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
-    <jhi-assignment *ngIf="isSQLTask" [assignment]="assignment" diagnoseLevel="3"> </jhi-assignment>
+    <jhi-assignment
+      *ngIf="isDispatcherTask"
+      [assignment]="assignment"
+      (solutionCorrect)="markTaskAsSubmittedAsync()"
+      submission="submission"
+      diagnoseLevel="3"
+    >
+    </jhi-assignment>
 
     <button
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
-      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed || isDispatcherTask"
       (click)="markTaskAsSubmittedAsync()"
     >
       <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
