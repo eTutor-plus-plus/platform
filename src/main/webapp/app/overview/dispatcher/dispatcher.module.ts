@@ -2,8 +2,6 @@
  * Module for the dispatcher component.
  */
 import { SharedModule } from 'app/shared/shared.module';
-import { RouterModule } from '@angular/router';
-import { dispatcherRoute } from 'app/overview/dispatcher/dispatcher.route';
 import { NgModule } from '@angular/core';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 

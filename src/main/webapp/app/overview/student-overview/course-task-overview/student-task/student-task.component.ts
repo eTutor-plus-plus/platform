@@ -7,7 +7,6 @@ import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
 import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
-import { ASSIGNMENTS } from 'app/overview/dispatcher/mock-assignments';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -25,13 +24,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isUploadTask = false;
   public isDispatcherTask = true;
   public uploadTaskFileId = -1;
-  /**
-   * Test Assignments
-   */
-  public assignment: Assignment = ASSIGNMENTS[0];
-  /**
-   *
-   */
+
+  public assignment: Assignment = { assignment_text: '', exercise_id: '', task_type: '' };
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -81,11 +75,13 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
         this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+
         if (this.isDispatcherTask) {
+          this.assignment.task_type = this._taskModel.taskAssignmentTypeId;
+
           if (this._taskModel.instruction != null) {
             this.assignment.assignment_text = this._taskModel.instruction;
           }
-          this.assignment.task_type = this._taskModel.taskAssignmentTypeId;
           if (this._taskModel.taskIdForDispatcher != null) {
             this.assignment.exercise_id = this._taskModel.taskIdForDispatcher;
           }

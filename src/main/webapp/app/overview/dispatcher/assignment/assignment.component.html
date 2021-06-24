@@ -7,7 +7,7 @@
     </p>
     <div [innerHTML]="assignment.assignment_text"></div>
     <p>
-      <label><b>Your Solution:</b></label>
+      <label><strong>Your Solution:</strong></label>
     </p>
     <div class="editor" style="height: 500px">
       <ngx-monaco-editor
@@ -27,6 +27,6 @@
   <p *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.description"></p>
   <br />
   <p *ngIf="gradingReceived && hasErrors">{{ gradingDto.report.hint }}</p>
-  <p *ngIf="gradingReceived && !hasErrors"><b>Congratulation, your solution is correct!</b></p>
+  <p *ngIf="gradingReceived && !hasErrors"><strong>Congratulation, your solution is correct!</strong></p>
   <p *ngIf="gradingReceived" [innerHTML]="gradingDto.result"></p>
 </div>
