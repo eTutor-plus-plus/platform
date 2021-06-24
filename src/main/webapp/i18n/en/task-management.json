@@ -23,6 +23,7 @@
       "organisationUnit": "Organisation unit:",
       "privateTask": "Private task",
       "taskDifficulty": "Task difficulty:",
+      "taskIdForDispatcher": "Task-ID for the Dispatcher:",
       "processingTime": "Processing time:",
       "url": "Url:",
       "instruction": "Task instruction:",

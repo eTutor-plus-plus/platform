@@ -23,6 +23,7 @@
       "organisationUnit": "Organisationseinheit:",
       "privateTask": "Private Aufgabe",
       "taskDifficulty": "Aufgabenschwierigkeit:",
+      "taskIdForDispatcher": "Aufgaben-ID für das Dispatcher-Backend:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",

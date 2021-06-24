@@ -15,21 +15,18 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
   templateUrl: './assignment.component.html',
   styleUrls: ['./assignment.component.scss'],
 })
-export class AssignmentComponent {
+export class AssignmentComponent implements OnInit {
   @Input() diagnoseLevel = '3';
   @Input() assignment!: Assignment;
   @Input() submission = '';
   @Input() action = 'diagnose';
-
   @Output() solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
 
   gradingReceived = false;
   hasErrors = true;
-
   submissionDto!: SubmissionDTO;
   submissionIdDto!: SubmissionIdDTO;
   gradingDto!: GradingDTO;
-
   editorOptions = { theme: 'vs-dark', language: 'sql' };
 
   constructor(private assignmentService: AssignmentService) {}
@@ -80,8 +77,8 @@ export class AssignmentComponent {
     };
     this.submissionDto = submissionDto;
 
-    this.assignmentService.postSubmission(submissionDto).subscribe(s => {
-      this.submissionIdDto = s;
+    this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
+      this.submissionIdDto = submissionId;
       setTimeout(() => {
         this.getGrading(toBeSubmitted);
       }, 2000);
@@ -93,8 +90,8 @@ export class AssignmentComponent {
    * @param toBeSubmitted defines if result has to be emitted
    */
   getGrading(toBeSubmitted: boolean): void {
-    this.assignmentService.getGrading(this.submissionIdDto).subscribe(g => {
-      this.gradingDto = g;
+    this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
+      this.gradingDto = grading;
       this.gradingReceived = true;
       this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
         ? (this.hasErrors = true)
