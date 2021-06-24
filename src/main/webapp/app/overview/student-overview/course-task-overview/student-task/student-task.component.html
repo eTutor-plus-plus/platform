@@ -57,10 +57,11 @@
     </jhi-assignment>
 
     <button
+      *ngIf="!isDispatcherTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
-      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed || isDispatcherTask"
+      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
       (click)="markTaskAsSubmittedAsync()"
     >
       <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>

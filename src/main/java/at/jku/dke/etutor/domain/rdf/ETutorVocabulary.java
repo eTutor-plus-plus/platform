@@ -66,6 +66,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
+    private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
     private static final String PROP_HAS_TASK_ORGANISATION_UNIT = "hasTaskOrganisationUnit";
@@ -234,6 +235,10 @@ public final class ETutorVocabulary {
      * The hasTypicalProcessingTime property.
      */
     public static final Property hasTypicalProcessingTime = m.createProperty(URI + PROP_HAS_TYPICAL_PROCESSING_TIME);
+    /**
+     * The hasTaskIdForDispatcher property.
+     */
+    public static final Property hasTaskIdForDispatcher = m.createProperty(URI + PROP_HAS_TASK_ID_FOR_DISPATCHER);
     /**
      * The hasTaskDifficulty property.
      */

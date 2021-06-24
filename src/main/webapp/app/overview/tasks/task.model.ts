@@ -47,6 +47,10 @@ export interface INewTaskModel {
    */
   taskDifficultyId: string;
   /**
+   * The optional free text task id for dispatcher.
+   */
+  taskIdForDispatcher?: string;
+  /**
    * The optional free text processing time.
    */
   processingTime?: string;

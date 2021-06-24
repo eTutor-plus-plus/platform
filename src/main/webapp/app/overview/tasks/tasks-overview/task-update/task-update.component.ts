@@ -26,6 +26,7 @@ export class TaskUpdateComponent {
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
+    taskIdForDispatcher: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -77,6 +78,11 @@ export class TaskUpdateComponent {
       newTask.instruction = instructionStr.trim();
     }
 
+    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
+    if (taskIdForDispatcher.trim()) {
+      newTask.taskIdForDispatcher = taskIdForDispatcher.trim();
+    }
+
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
@@ -97,6 +103,7 @@ export class TaskUpdateComponent {
         creator: newTask.creator,
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
+        taskIdForDispatcher: newTask.taskIdForDispatcher,
         processingTime: newTask.processingTime,
         url: newTask.url,
         instruction: newTask.instruction,
@@ -136,6 +143,7 @@ export class TaskUpdateComponent {
 
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
+      const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
@@ -146,6 +154,7 @@ export class TaskUpdateComponent {
         organisationUnit: value.organisationUnit,
         privateTask: value.privateTask,
         taskDifficulty,
+        taskIdForDispatcher,
         processingTime,
         url,
         instruction,

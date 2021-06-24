@@ -24,6 +24,8 @@ public class NewTaskAssignmentDTO {
     @NotBlank
     private String header;
 
+    private String taskIdForDispatcher;
+
     private String processingTime;
 
     @NotBlank
@@ -123,6 +125,24 @@ public class NewTaskAssignmentDTO {
     }
 
     /**
+     * Returns the task id for dispatcher.
+     *
+     * @return the task id for dispatcher
+     */
+    public String getTaskIdForDispatcher() {
+        return taskIdForDispatcher;
+    }
+
+    /**
+     * Sets the task id for dispatcher.
+     *
+     * @param taskIdForDispatcher task id for the dispatcher to set
+     */
+    public void setTaskIdForDispatcher(String taskIdForDispatcher) {
+        this.taskIdForDispatcher = taskIdForDispatcher;
+    }
+
+    /**
      * Returns the processing time.
      *
      * @return the processing time
@@ -130,6 +150,7 @@ public class NewTaskAssignmentDTO {
     public String getProcessingTime() {
         return processingTime;
     }
+
 
     /**
      * Sets the processing time.

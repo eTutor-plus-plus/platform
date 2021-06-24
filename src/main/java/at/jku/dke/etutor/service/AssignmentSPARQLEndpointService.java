@@ -267,6 +267,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.appendLiteral(taskAssignment.getHeader());
             query.append(".\n");
 
+            if (StringUtils.isNotBlank(taskAssignment.getTaskIdForDispatcher())) {
+                query.append("?assignment etutor:hasTaskIdForDispatcher ");
+                query.appendLiteral(taskAssignment.getTaskIdForDispatcher().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
                 query.append("?assignment etutor:hasTypicalProcessingTime ");
                 query.appendLiteral(taskAssignment.getProcessingTime().trim());
@@ -673,6 +679,10 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
+            resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
+        }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {
             resource.addProperty(ETutorVocabulary.hasTypicalProcessingTime, newTaskAssignmentDTO.getProcessingTime().trim());

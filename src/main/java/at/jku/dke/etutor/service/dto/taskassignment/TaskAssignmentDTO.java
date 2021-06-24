@@ -51,6 +51,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
         setHeader(newTaskAssignmentDTO.getHeader());
+        setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
         setTaskDifficultyId(newTaskAssignmentDTO.getTaskDifficultyId());
         setOrganisationUnit(newTaskAssignmentDTO.getOrganisationUnit());
@@ -94,7 +95,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setLearningGoalIds(learningGoalIds);
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskCreator).getString());
         setHeader(resource.getProperty(ETutorVocabulary.hasTaskHeader).getString());
-
+        Statement taskIdForDispatcherStatement = resource.getProperty(ETutorVocabulary.hasTaskIdForDispatcher);
+        if (taskIdForDispatcherStatement != null) {
+            setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
+        }
         Statement processingTimeStatement = resource.getProperty(ETutorVocabulary.hasTypicalProcessingTime);
         if (processingTimeStatement != null) {
             setProcessingTime(processingTimeStatement.getString());
