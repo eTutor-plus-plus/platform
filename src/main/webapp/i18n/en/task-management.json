@@ -25,7 +25,9 @@
       "processingTime": "Processing time:",
       "url": "Url:",
       "instruction": "Task instruction:",
-      "taskType": "Task type:"
+      "taskType": "Task type:",
+      "taskGroup": "Task group:",
+      "taskGroupPlaceHolder": "--No group selected--"
     },
     "error": {
       "required": "This field is required!",
@@ -49,8 +51,21 @@
     "popover": {
       "title": "Information",
       "message": "Should the selected task be removed?",
+      "taskGroupMsg": "Should the selected task group be removed?",
       "cancelBtn": "No",
       "confirmBtn": "Yes"
+    },
+    "taskGroup": {
+      "editTaskGroup": "Edit task group",
+      "createNewTaskGroup": "Create new task group",
+      "close": "Close",
+      "manage": "Manage task groups",
+      "update": {
+        "newHeader": "Create new task group",
+        "editHeader": "Edit task group '{{name}}'",
+        "nameField": "Name:",
+        "descriptionField": "Description:"
+      }
     }
   }
 }

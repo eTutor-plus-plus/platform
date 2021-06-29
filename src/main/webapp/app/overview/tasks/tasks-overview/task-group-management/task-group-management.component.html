@@ -1,0 +1,76 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="taskManagement.taskGroup.manage">Manage task groups</h4>
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <button type="button" class="btn btn-primary float-right" (click)="createNewTaskGroup()">
+      <fa-icon icon="plus"></fa-icon>
+      <span jhiTranslate="taskManagement.taskGroup.createNewTaskGroup">Create new task group</span>
+    </button>
+    <br />
+    <br />
+    <div class="table-responsive" *ngIf="taskGroups">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of taskGroups; trackBy: trackIdentity">
+            <td>{{ item.name }}</td>
+            <td class="text-right">
+              <div class="btn-group">
+                <button type="button" class="btn btn-info btn-sm" (click)="editTaskGroup(item)">
+                  <fa-icon icon="pencil-alt"> </fa-icon>
+                  &nbsp;
+                  <span jhiTranslate="taskManagement.taskGroup.editTaskGroup">Edit task group</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  mwlConfirmationPopover
+                  [popoverTitle]="deletePopoverTitle"
+                  [popoverMessage]="deletePopoverMessage"
+                  [cancelText]="deletePopoverCancelBtnText"
+                  [confirmText]="deletePopoverConfirmBtnText"
+                  placement="left"
+                  (confirm)="deleteTaskGroup(item)"
+                >
+                  <fa-icon icon="trash"></fa-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="taskGroups">
+      <div class="row justify-content-center">
+        <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+      </div>
+
+      <div class="row justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [(page)]="page"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="transition()"
+        ></ngb-pagination>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="close()">
+        <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="taskManagement.taskGroup.close">Close</span>
+      </button>
+    </div>
+  </div>
+</div>

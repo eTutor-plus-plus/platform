@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
@@ -6,6 +6,8 @@ import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '.
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
+import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
+import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 
 /**
  * Component for creating / updating tasks.
@@ -14,10 +16,12 @@ import { EventManager } from 'app/core/util/event-manager.service';
   selector: 'jhi-task-update',
   templateUrl: './task-update.component.html',
 })
-export class TaskUpdateComponent {
+export class TaskUpdateComponent implements OnInit {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
+
+  public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -29,6 +33,7 @@ export class TaskUpdateComponent {
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
+    taskGroup: ['', []],
   });
 
   private _taskModel?: ITaskModel;
@@ -40,13 +45,30 @@ export class TaskUpdateComponent {
    * @param activeModal the injected active modal service
    * @param tasksService the injected tasks service
    * @param eventManager the injected event manager service
+   * @param taskGroupService the task group service
    */
   constructor(
     private fb: FormBuilder,
     private activeModal: NgbActiveModal,
     private tasksService: TasksService,
-    private eventManager: EventManager
+    private eventManager: EventManager,
+    private taskGroupService: TaskGroupManagementService
   ) {}
+
+  /**
+   * Implements the init method. See {@link OnInit}.
+   */
+  public ngOnInit(): void {
+    this.taskGroupService
+      .getPagedTaskGroups({
+        page: 0,
+        size: 1000,
+        sort: [],
+      })
+      .subscribe(response => {
+        this.taskGroups = response.body ?? [];
+      });
+  }
 
   /**
    * Saves the task.
@@ -65,6 +87,7 @@ export class TaskUpdateComponent {
       taskAssignmentTypeId,
       privateTask: this.updateForm.get('privateTask')!.value,
       learningGoalIds: [],
+      taskGroupId: this.updateForm.get(['taskGroup'])!.value,
     };
 
     const urlStr: string = this.updateForm.get('url')!.value;
@@ -102,6 +125,7 @@ export class TaskUpdateComponent {
         instruction: newTask.instruction,
         privateTask: newTask.privateTask,
         taskAssignmentTypeId: newTask.taskAssignmentTypeId,
+        taskGroupId: newTask.taskGroupId,
         creationDate: this.taskModel!.creationDate,
         id: this.taskModel!.id,
         internalCreator: this.taskModel!.internalCreator,
@@ -149,6 +173,7 @@ export class TaskUpdateComponent {
         processingTime,
         url,
         instruction,
+        taskGroup: value.taskGroupId ?? '',
       });
     }
   }

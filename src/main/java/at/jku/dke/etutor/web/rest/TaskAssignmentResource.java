@@ -10,12 +10,6 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Optional;
-import java.util.SortedSet;
-import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -25,6 +19,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedSet;
 
 /**
  * REST controller for managing task assignments
@@ -163,19 +164,21 @@ public class TaskAssignmentResource {
      * REST endpoint for retrieving the task display list which may be filtered
      * by an optional task header filter string.
      *
-     * @param taskHeader the optional task header filter query parameter
-     * @param pageable   the pagination object
+     * @param taskHeader      the optional task header filter query parameter
+     * @param taskGroupHeader the optional task group header filter query parameter
+     * @param pageable        the pagination object
      * @return {@link ResponseEntity} containing the list of task displays of the current "page"
      */
     @GetMapping("tasks/display")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<TaskDisplayDTO>> getAllTaskDisplayList(
         @RequestParam(required = false, defaultValue = "") String taskHeader,
+        @RequestParam(required = false, defaultValue = "") String taskGroupHeader,
         Pageable pageable
     ) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable, currentLogin);
+        Slice<TaskDisplayDTO> slice = assignmentSPARQLEndpointService.findAllTasks(taskHeader, pageable, currentLogin, taskGroupHeader);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Has-Next-Page", String.valueOf(slice.hasNext()));
         return new ResponseEntity<>(slice.getContent(), headers, HttpStatus.OK);

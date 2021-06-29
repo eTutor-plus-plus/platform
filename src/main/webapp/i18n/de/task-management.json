@@ -25,7 +25,9 @@
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",
-      "taskType": "Aufgabentyp:"
+      "taskType": "Aufgabentyp:",
+      "taskGroup": "Aufgabengruppe:",
+      "taskGroupPlaceHolder": "--Keine Gruppe ausgewählt--"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
@@ -49,8 +51,21 @@
     "popover": {
       "title": "Information",
       "message": "Soll die ausgewählte Aufgabe gelöscht werden?",
+      "taskGroupMsg": "Soll die ausgewählte Aufgabengruppe gelöscht werden?",
       "cancelBtn": "Nein",
       "confirmBtn": "Ja"
+    },
+    "taskGroup": {
+      "editTaskGroup": "Aufgabengruppe bearbeiten",
+      "createNewTaskGroup": "Neue Aufgabengruppe erstellen",
+      "close": "Schließen",
+      "manage": "Aufgabengruppen verwalten",
+      "update": {
+        "newHeader": "Neue Aufgabengruppe erstellen",
+        "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
+        "nameField": "Name:",
+        "descriptionField": "Beschreibung:"
+      }
     }
   }
 }

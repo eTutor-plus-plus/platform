@@ -5,6 +5,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -24,6 +26,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_STUDENT = "Student";
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
     private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
+    private static final String CLASS_TASK_GROUP = "TaskGroup";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -83,6 +86,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
     private static final String PROP_HAS_EXERCISE_SHEET_TASK_COUNT = "hasExerciseSheetTaskCount";
 
+    private static final String PROP_HAS_TASK_GROUP_NAME = "hasTaskGroupName";
+    private static final String PROP_HAS_TASK_GROUP_DESCRIPTION = "hasTaskGroupDescription";
+    private static final String PROP_HAS_TASK = "hasTask";
+    private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
+    private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
+    private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
+
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
 
@@ -121,6 +131,10 @@ public final class ETutorVocabulary {
      * The hasChangeDate property.
      */
     public static final Property hasChangeDate = m.createProperty(URI + PROP_HAS_CHANGE_DATE);
+    /**
+     * The hasTaskGroup property.
+     */
+    public static final Property hasTaskGroup = m.createProperty(URI + PROP_HAS_TASK_GROUP);
     /**
      * The hasOwner property.
      */
@@ -323,6 +337,26 @@ public final class ETutorVocabulary {
      * The hasFileAttachmentId property.
      */
     public static final Property hasFileAttachmentId = m.createProperty(URI + PROP_HAS_FILE_ATTACHMENT_ID);
+    /**
+     * The hasTaskGroupName property.
+     */
+    public static final Property hasTaskGroupName = m.createProperty(URI + PROP_HAS_TASK_GROUP_NAME);
+    /**
+     * The hasTaskGroupDescription property.
+     */
+    public static final Property hasTaskGroupDescription = m.createProperty(URI + PROP_HAS_TASK_GROUP_DESCRIPTION);
+    /**
+     * The hasTask property.
+     */
+    public static final Property hasTask = m.createProperty(URI + PROP_HAS_TASK);
+    /**
+     * The hasTaskGroupCreator property.
+     */
+    public static final Property hasTaskGroupCreator = m.createProperty(URI + PROP_HAS_TASK_GROUP_CREATOR);
+    /**
+     * The hasTaskGroupChangeDate property.
+     */
+    public static final Property hasTaskGroupChangeDate = m.createProperty(URI + PROP_HAS_TASK_GROUP_CHANGE_DATE);
 
     /**
      * The goal resource.
@@ -372,6 +406,10 @@ public final class ETutorVocabulary {
      * The individual task resource.
      */
     public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
+    /**
+     * The task group resource.
+     */
+    public static final Resource TaskGroup = m.createResource(URI + CLASS_TASK_GROUP);
 
     /**
      * The upload task task assignment type instance.
@@ -522,6 +560,16 @@ public final class ETutorVocabulary {
      */
     public static String getStudentURLFromMatriculationNumber(String matriculationNumber) {
         return URI + CLASS_STUDENT + "#" + matriculationNumber;
+    }
+
+    /**
+     * Returns the task id for a task group entity.
+     *
+     * @param name the task group's name
+     * @return id the entity's id
+     */
+    public static String getTaskGroupIdFromName(String name) {
+        return URI + CLASS_TASK_GROUP + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
     }
 
     /**

@@ -167,7 +167,8 @@
     "emptyFileNotAllowed": "An empty file is not allowed!",
     "studentNotExists": "The student does not exist!",
     "fileStorage": "A file storage problem occurred!",
-    "wrongTaskType": "The wrong task type has been selected!"
+    "wrongTaskType": "The wrong task type has been selected!",
+    "taskGroupAlreadyExistent": "The task group's name is already existent!"
   },
   "footer": {
     "contact": "Contact",

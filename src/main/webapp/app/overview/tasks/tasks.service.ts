@@ -28,13 +28,24 @@ export class TasksService {
    *
    * @param req the optional request options
    * @param headerFilter the optional header filter string
+   * @param taskGroupHeaderFilter the optional task group header filter
    */
-  public queryTaskDisplayList(req?: any, headerFilter?: string): Observable<TaskDisplayArrayResponseType> {
+  public queryTaskDisplayList(req?: any, headerFilter?: string, taskGroupHeaderFilter?: string): Observable<TaskDisplayArrayResponseType> {
     const options = createRequestOption(req);
     let url = 'api/tasks/display';
 
     if (headerFilter && headerFilter.trim().length > 0) {
       url += `?taskHeader=${headerFilter.trim()}`;
+    }
+
+    if (taskGroupHeaderFilter && taskGroupHeaderFilter.trim().length > 0) {
+      if (headerFilter && headerFilter.trim().length > 0) {
+        url += '&';
+      } else {
+        url += '?';
+      }
+
+      url += `taskGroupHeader=${taskGroupHeaderFilter.trim()}`;
     }
 
     return this.http.get<ITaskDisplayModel[]>(url, { params: options, observe: 'response' });

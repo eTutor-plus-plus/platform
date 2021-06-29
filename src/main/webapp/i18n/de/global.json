@@ -167,7 +167,8 @@
     "emptyFileNotAllowed": "Eine leere Datei ist nicht erlaubt!",
     "studentNotExists": "Der Student existiert nicht!",
     "fileStorage": "Ein Problem bei der Dateispeicherung ist aufgetreten!",
-    "wrongTaskType": "Ein falscher Aufgabentype wurde ausgewählt!"
+    "wrongTaskType": "Ein falscher Aufgabentype wurde ausgewählt!",
+    "taskGroupAlreadyExistent": "Der Aufgabengruppenname existiert bereits!"
   },
   "footer": {
     "contact": "Kontakt",
