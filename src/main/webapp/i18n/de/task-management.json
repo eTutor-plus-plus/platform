@@ -25,7 +25,9 @@
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",
-      "taskType": "Aufgabentyp:"
+      "taskType": "Aufgabentyp:",
+      "taskGroup": "Aufgabengruppe:",
+      "taskGroupPlaceHolder": "--Keine Gruppe ausgewählt--"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

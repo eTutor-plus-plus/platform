@@ -41,6 +41,8 @@ public class NewTaskAssignmentDTO {
     @TaskAssignmentTypeConstraint
     private String taskAssignmentTypeId;
 
+    private String taskGroupId;
+
     /**
      * Returns the associated learning goals.
      *
@@ -246,5 +248,23 @@ public class NewTaskAssignmentDTO {
      */
     public void setTaskAssignmentTypeId(String taskAssignmentTypeId) {
         this.taskAssignmentTypeId = taskAssignmentTypeId;
+    }
+
+    /**
+     * Returns the task group id.
+     *
+     * @return the task group id
+     */
+    public String getTaskGroupId() {
+        return taskGroupId;
+    }
+
+    /**
+     * Sets the task group id.
+     *
+     * @param taskGroupId the task group id to set
+     */
+    public void setTaskGroupId(String taskGroupId) {
+        this.taskGroupId = taskGroupId;
     }
 }

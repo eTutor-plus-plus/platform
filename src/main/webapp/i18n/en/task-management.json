@@ -25,7 +25,9 @@
       "processingTime": "Processing time:",
       "url": "Url:",
       "instruction": "Task instruction:",
-      "taskType": "Task type:"
+      "taskType": "Task type:",
+      "taskGroup": "Task group:",
+      "taskGroupPlaceHolder": "--No group selected--"
     },
     "error": {
       "required": "This field is required!",

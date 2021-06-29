@@ -49,12 +49,16 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
             CONSTRUCT { ?assignment ?predicate ?object.
             			?assignment etutor:isAssignmentOf ?othergoal.
-            			?othergoal rdfs:label ?goalName. }
+            			?othergoal rdfs:label ?goalName.
+            			?assignment etutor:hasTaskGroup ?taskGroup. }
             WHERE {
                 {
                 ?goal etutor:hasTaskAssignment ?assignment.
                 ?assignment etutor:isPrivateTask false.
                 ?assignment ?predicate ?object.
+                OPTIONAL {
+                  ?taskGroup etutor:hasTask ?assignment.
+                }
                 ?othergoal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
               } UNION {
@@ -62,6 +66,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 ?assignment etutor:isPrivateTask true.
                 ?assignment etutor:hasInternalTaskCreator ?internalTaskOwner.
                 ?assignment ?predicate ?object.
+                OPTIONAL {
+                  ?taskGroup etutor:hasTask ?assignment.
+                }
                 ?othergoal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
               }
@@ -99,13 +106,17 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
             CONSTRUCT { ?assignment ?predicate ?object.
               ?assignment etutor:isAssignmentOf ?goal.
-              ?othergoal rdfs:label ?goalName. }
+              ?othergoal rdfs:label ?goalName.
+              ?assignment etutor:hasTaskGroup ?taskGroup. }
             WHERE {
               ?assignment ?predicate ?object.
               ?assignment a etutor:TaskAssignment.
               OPTIONAL {
                 ?goal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
+              }
+              OPTIONAL {
+                ?taskGroup etutor:hasTask ?assignment.
               }
             }
             """;
@@ -258,7 +269,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                     DELETE {
-                      ?assignment ?predicate ?object
+                      ?assignment ?predicate ?object.
+                      ?taskGroup etutor:hasTask ?assignment.
                     } INSERT {
                     """
             );
@@ -297,6 +309,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
+            if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
+                query.appendIri(taskAssignment.getTaskGroupId());
+                query.append(" etutor:hasTask ?assignment.\n");
+            }
+
             query.append("?assignment etutor:isPrivateTask ");
             query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
             query.append(".\n");
@@ -305,7 +322,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 """
                     } WHERE {
                       ?assignment ?predicate ?object.
-                      FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator))
+                      FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator)).
+
+                      OPTIONAL {
+                        ?taskGroup etutor:hasTask ?assignment.
+                      }
                     }
                     """
             );
@@ -952,6 +973,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         String privateStr = String.valueOf(newTaskAssignmentDTO.isPrivateTask());
         resource.addProperty(ETutorVocabulary.isPrivateTask, privateStr, XSDDatatype.XSDboolean);
         resource.addProperty(RDF.type, ETutorVocabulary.TaskAssignment);
+
+        if (newTaskAssignmentDTO.getTaskGroupId() != null) {
+            Resource taskGroup = model.createResource(newTaskAssignmentDTO.getTaskGroupId());
+            taskGroup.addProperty(ETutorVocabulary.hasTask, resource);
+        }
 
         return resource;
     }
