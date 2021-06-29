@@ -555,7 +555,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
 
         if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
-            qry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append(String.format("?taskGroup text:query (etutor:hasTaskGroupName \"*%s*\").%n", taskGroupHeaderFilter));
             qry.append("?taskGroup a etutor:TaskGroup.\n");
             qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
@@ -576,7 +576,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
 
         if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
-            qry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append(String.format("?taskGroup text:query (etutor:hasTaskGroupName \"*%s*\").%n", taskGroupHeaderFilter));
             qry.append("?taskGroup a etutor:TaskGroup.\n");
             qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
