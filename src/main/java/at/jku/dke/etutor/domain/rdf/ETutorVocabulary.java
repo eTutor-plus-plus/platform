@@ -351,7 +351,7 @@ public final class ETutorVocabulary {
     /**
      * The hasTaskGroupChangeDate property.
      */
-    public static final Property hasTaskGroupChangeDate = m.createProperty(URI + PROP_HAS_TASK_CREATION_DATE);
+    public static final Property hasTaskGroupChangeDate = m.createProperty(URI + PROP_HAS_TASK_GROUP_CHANGE_DATE);
 
     /**
      * The goal resource.
