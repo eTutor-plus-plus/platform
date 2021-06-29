@@ -49,8 +49,21 @@
     "popover": {
       "title": "Information",
       "message": "Soll die ausgewählte Aufgabe gelöscht werden?",
+      "taskGroupMsg": "Soll die ausgewählte Aufgabengruppe gelöscht werden?",
       "cancelBtn": "Nein",
       "confirmBtn": "Ja"
+    },
+    "taskGroup": {
+      "editTaskGroup": "Aufgabengruppe bearbeiten",
+      "createNewTaskGroup": "Neue Aufgabengruppe erstellen",
+      "close": "Schließen",
+      "manage": "Aufgabengruppen verwalten",
+      "update": {
+        "newHeader": "Neue Aufgabengruppe erstellen",
+        "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
+        "nameField": "Name:",
+        "descriptionField": "Beschreibung:"
+      }
     }
   }
 }

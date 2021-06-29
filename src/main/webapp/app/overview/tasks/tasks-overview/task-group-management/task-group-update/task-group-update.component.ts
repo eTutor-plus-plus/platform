@@ -41,6 +41,10 @@ export class TaskGroupUpdateComponent {
       const name = value.substr(value.lastIndexOf('#') + 1);
 
       this.taskGroupToEdit = await this.taskGroupService.getTaskGroup(name).toPromise();
+      this.taskGroup.patchValue({
+        name: this.taskGroupToEdit.name,
+        description: this.taskGroupToEdit.description,
+      });
       this.isNew = false;
     })();
   }

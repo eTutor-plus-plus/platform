@@ -1,7 +1,9 @@
 <form (ngSubmit)="saveAsync()" [formGroup]="taskGroup">
   <div class="modal-header">
-    <h4 class="modal-title" [hidden]="!isNew">Create new task group</h4>
-    <h4 class="modal-title" [hidden]="isNew">Edit task group 'name'</h4>
+    <h4 class="modal-title" [hidden]="!isNew" jhiTranslate="taskManagement.taskGroup.update.newHeader">Create new task group</h4>
+    <h4 class="modal-title" [hidden]="isNew">
+      {{ 'taskManagement.taskGroup.update.editHeader' | translate: { name: taskGroupToEdit?.name } }}
+    </h4>
 
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
   </div>
@@ -9,8 +11,8 @@
   <div class="modal-body">
     <jhi-alert-error></jhi-alert-error>
     <div class="form-group">
-      <label class="form-control-label" for="name">Name:</label>
-      <input [disabled]="!isNew" type="text" id="name" formControlName="name" class="form-control" />
+      <label class="form-control-label" for="name" jhiTranslate="taskManagement.taskGroup.update.nameField">Name:</label>
+      <input [disabled]="!isNew" [readOnly]="!isNew" type="text" id="name" formControlName="name" class="form-control" />
 
       <div *ngIf="taskGroup.get('name')!.invalid">
         <small class="form-text text-danger" *ngIf="taskGroup.get('name')?.errors?.required" jhiTranslate="taskManagement.error.required">
@@ -19,7 +21,9 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-control-label" for="description">Description:</label>
+      <label class="form-control-label" for="description" jhiTranslate="taskManagement.taskGroup.update.descriptionField"
+        >Description:</label
+      >
       <quill-editor [placeholder]="''" id="description" formControlName="description"> </quill-editor>
     </div>
   </div>
