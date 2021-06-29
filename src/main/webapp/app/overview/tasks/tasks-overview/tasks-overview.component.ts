@@ -30,6 +30,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   public page = 0;
   public entries: ITaskDisplayModel[] = [];
   public filterString = '';
+  public taskGroupFilterString = '';
 
   public popoverTitle = 'taskManagement.popover.title';
   public popoverMessage = 'taskManagement.popover.message';
@@ -97,6 +98,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
         });
       } else {
         this.filterString = '';
+        this.taskGroupFilterString = '';
         this.entries.length = 0;
         this.singleEntryDisplay = false;
         this.loadPage(0);
@@ -198,6 +200,21 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Performs the task group filtering operation
+   * and calls the REST endpoint.
+   */
+  public performTaskGroupFiltering(): void {
+    const wordSearch = this.taskGroupFilterString;
+
+    setTimeout(() => {
+      if (wordSearch === this.taskGroupFilterString) {
+        this.entries.length = 0;
+        this.loadPage(0);
+      }
+    }, 500);
+  }
+
+  /**
    * Returns whether the currently logged-in user is allowed to edit the given task or not.
    *
    * @param currentModel the current task model
@@ -236,7 +253,8 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
           page: this.page,
           size: this.itemsPerPage,
         },
-        this.filterString
+        this.filterString,
+        this.taskGroupFilterString
       )
       .subscribe((res: HttpResponse<ITaskDisplayModel[]>) => this.paginate(res.body, res.headers));
   }

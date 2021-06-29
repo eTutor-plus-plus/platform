@@ -506,12 +506,13 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     /**
      * Returns a paged task display (task header + id). An optional header filter may be passed to this method.
      *
-     * @param headerFilter the optional header filter, might be null
-     * @param pageable     the mandatory pageable object
-     * @param user         the currently logged-in user
+     * @param headerFilter          the optional header filter, might be null
+     * @param pageable              the mandatory pageable object
+     * @param user                  the currently logged-in user
+     * @param taskGroupHeaderFilter the optional task group header filter
      * @return {@code Slice} containing the elements
      */
-    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user) {
+    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user, String taskGroupHeaderFilter) {
         Objects.requireNonNull(pageable);
         Objects.requireNonNull(user);
 
@@ -520,6 +521,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """
                 PREFIX text:   <http://jena.apache.org/text#>
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 
                 SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header ?internalCreator ?privateTask
                 WHERE {
@@ -529,6 +531,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
+            qry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append("?taskGroup a etutor:TaskGroup.\n");
+            qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
 
         qry.append(
@@ -544,6 +552,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
+            qry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append("?taskGroup a etutor:TaskGroup.\n");
+            qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
 
         qry.append(

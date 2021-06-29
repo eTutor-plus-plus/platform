@@ -13,10 +13,19 @@
     <div class="ml-auto search-box">
       <input
         *ngIf="!singleEntryDisplay"
+        type="text"
+        class="form-control float-right"
+        style="margin-bottom: 10px"
+        placeholder="Aufgabengruppen durchsuchen ..."
+        [(ngModel)]="taskGroupFilterString"
+        (keyup)="performTaskGroupFiltering()"
+      />
+      <input
+        *ngIf="!singleEntryDisplay"
         placeholder="{{ 'taskManagement.searchPlaceholder' | translate }}"
         style="max-width: 200px"
         type="text"
-        class="form-control"
+        class="form-control float-right"
         [(ngModel)]="filterString"
         (keyup)="performFiltering()"
       />
