@@ -6,6 +6,7 @@ import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '.
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
+import { SqlExerciseService } from 'app/overview/dispatcher/services/sqlExercise.service';
 
 /**
  * Component for creating / updating tasks.
@@ -27,6 +28,11 @@ export class TaskUpdateComponent {
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
     taskIdForDispatcher: [''],
+    sqlSchemaName: [''],
+    sqlCreateStatements: [''],
+    sqlInsertStatementsSubmission: [''],
+    sqlInsertStatementsDiagnose: [''],
+    sqlSolution: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -41,12 +47,14 @@ export class TaskUpdateComponent {
    * @param activeModal the injected active modal service
    * @param tasksService the injected tasks service
    * @param eventManager the injected event manager service
+   * @param sqlExerciseService the injected SQL exercise service
    */
   constructor(
     private fb: FormBuilder,
     private activeModal: NgbActiveModal,
     private tasksService: TasksService,
-    private eventManager: EventManager
+    private eventManager: EventManager,
+    private sqlExerciseService: SqlExerciseService
   ) {}
 
   /**
@@ -83,6 +91,31 @@ export class TaskUpdateComponent {
       newTask.taskIdForDispatcher = taskIdForDispatcher.trim();
     }
 
+    const sqlSchemaName: string = this.updateForm.get('sqlSchemaName')!.value;
+    if (sqlSchemaName.trim()) {
+      newTask.sqlSchemaName = sqlSchemaName.trim();
+    }
+
+    const sqlCreateStatements: string = this.updateForm.get('sqlCreateStatements')!.value;
+    if (sqlCreateStatements.trim()) {
+      newTask.sqlCreateStatements = sqlCreateStatements.trim();
+    }
+
+    const sqlInsertStatementsSubmission: string = this.updateForm.get('sqlInsertStatementsSubmission')!.value;
+    if (sqlInsertStatementsSubmission.trim()) {
+      newTask.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission.trim();
+    }
+
+    const sqlInsertStatementsDiagnose: string = this.updateForm.get('sqlInsertStatementsDiagnose')!.value;
+    if (sqlInsertStatementsDiagnose.trim()) {
+      newTask.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose.trim();
+    }
+
+    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
+    if (sqlSolution.trim()) {
+      newTask.sqlSolution = sqlSolution.trim();
+    }
+
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
@@ -104,6 +137,11 @@ export class TaskUpdateComponent {
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
         taskIdForDispatcher: newTask.taskIdForDispatcher,
+        sqlSchemaName: newTask.sqlSchemaName,
+        sqlCreateStatements: newTask.sqlCreateStatements,
+        sqlInsertStatementsSubmission: newTask.sqlInsertStatementsSubmission,
+        sqlInsertStatementsDiagnose: newTask.sqlInsertStatementsDiagnose,
+        sqlSolution: newTask.sqlSolution,
         processingTime: newTask.processingTime,
         url: newTask.url,
         instruction: newTask.instruction,
@@ -123,6 +161,14 @@ export class TaskUpdateComponent {
         },
         () => (this.isSaving = false)
       );
+    }
+
+    if (newTask.sqlSchemaName != null) {
+      const schema: string = newTask.sqlSchemaName;
+      this.sqlExerciseService.createSchema(newTask.sqlSchemaName).subscribe();
+      if (newTask.sqlCreateStatements != null) {
+        this.sqlExerciseService.createTables(schema, newTask.sqlCreateStatements).subscribe();
+      }
     }
   }
 
@@ -144,6 +190,11 @@ export class TaskUpdateComponent {
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
+      const sqlSchemaName = value.sqlSchemaName ?? '';
+      const sqlCreateStatements = value.sqlCreateStatements ?? '';
+      const sqlInsertStatementsSubmission = value.sqlInsertStatementsSubmission ?? '';
+      const sqlInsertStatementsDiagnose = value.sqlInsertStatementsDiagnose ?? '';
+      const sqlSolution = value.sqlSolution ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
@@ -155,6 +206,11 @@ export class TaskUpdateComponent {
         privateTask: value.privateTask,
         taskDifficulty,
         taskIdForDispatcher,
+        sqlSchemaName,
+        sqlCreateStatements,
+        sqlInsertStatementsSubmission,
+        sqlInsertStatementsDiagnose,
+        sqlSolution,
         processingTime,
         url,
         instruction,

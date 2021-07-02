@@ -67,6 +67,12 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
+    private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
+    private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
+    private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
+    private static final String PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE = "hasSQLInsertStatementsDiagnose";
+    private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
+
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
     private static final String PROP_HAS_TASK_ORGANISATION_UNIT = "hasTaskOrganisationUnit";
@@ -239,6 +245,26 @@ public final class ETutorVocabulary {
      * The hasTaskIdForDispatcher property.
      */
     public static final Property hasTaskIdForDispatcher = m.createProperty(URI + PROP_HAS_TASK_ID_FOR_DISPATCHER);
+    /**
+     * The hasSQLSchemaName property.
+     */
+    public static final Property hasSQLSchemaName = m.createProperty(URI + PROP_HAS_SQL_SCHEMA_NAME);
+    /**
+     * The hasSQLCreateStatements property.
+     */
+    public static final Property hasSQLCreateStatements = m.createProperty(URI + PROP_HAS_SQL_CREATE_STATEMENTS);
+    /**
+     * The hasSQLInsertStatementsSubmission property.
+     */
+    public static final Property hasSQLInsertStatementsSubmission = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION);
+    /**
+     * The hasSQLInsertStatementsDiagnose property.
+     */
+    public static final Property hasSQLInsertStatementsDiagnose = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE);
+    /**
+     * The hasSQLSolution property.
+     */
+    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);    /**
     /**
      * The hasTaskDifficulty property.
      */

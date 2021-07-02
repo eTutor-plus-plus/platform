@@ -25,6 +25,11 @@ public class NewTaskAssignmentDTO {
     private String header;
 
     private String taskIdForDispatcher;
+    private String sqlSchemaName;
+    private String sqlCreateStatements;
+    private String sqlInsertStatementsSubmission;
+    private String sqlInsertStatementsDiagnose;
+    private String sqlSolution;
 
     private String processingTime;
 
@@ -140,6 +145,86 @@ public class NewTaskAssignmentDTO {
      */
     public void setTaskIdForDispatcher(String taskIdForDispatcher) {
         this.taskIdForDispatcher = taskIdForDispatcher;
+    }
+
+    /**
+     * Returns the SQL schema name
+     * @return
+     */
+    public String getSqlSchemaName() {
+        return sqlSchemaName;
+    }
+
+    /**
+     * Sets the SQL schema name
+     * @param sqlSchemaName
+     */
+    public void setSqlSchemaName(String sqlSchemaName) {
+        this.sqlSchemaName = sqlSchemaName;
+    }
+
+    /**
+     * Returns the SQL create-table-statements
+     * @return
+     */
+    public String getSqlCreateStatements() {
+        return sqlCreateStatements;
+    }
+
+    /**
+     * Sets the SQL create-table-statements
+     * @param sqlCreateStatements
+     */
+    public void setSqlCreateStatements(String sqlCreateStatements) {
+        this.sqlCreateStatements = sqlCreateStatements;
+    }
+
+    /**
+     * Returns the SQL insert-into-statements for submissions
+     * @return
+     */
+    public String getSqlInsertStatementsSubmission() {
+        return sqlInsertStatementsSubmission;
+    }
+
+    /**
+     * Sets the SQL insert-into-statements for submissions
+     * @param sqlInsertStatementsSubmission
+     */
+    public void setSqlInsertStatementsSubmission(String sqlInsertStatementsSubmission) {
+        this.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission;
+    }
+
+    /**
+     * Returns the SQL insert-into-statements for diagnose
+     * @return
+     */
+    public String getSqlInsertStatementsDiagnose() {
+        return sqlInsertStatementsDiagnose;
+    }
+
+    /**
+     * Sets the SQL insert-into-statements for diagnose
+     * @param sqlInsertStatementsDiagnose
+     */
+    public void setSqlInsertStatementsDiagnose(String sqlInsertStatementsDiagnose) {
+        this.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
+    }
+
+    /**
+     * Returns the solution for an SQL exercise
+     * @return
+     */
+    public String getSqlSolution() {
+        return sqlSolution;
+    }
+
+    /**
+     * Sets the solution for an SQL exercise
+     * @param sqlSolution
+     */
+    public void setSqlSolution(String sqlSolution) {
+        this.sqlSolution = sqlSolution;
     }
 
     /**

@@ -273,6 +273,33 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
+            if (StringUtils.isNotBlank(taskAssignment.getSqlSchemaName())) {
+                query.append("?assignment etutor:hasSQLSchemaName ");
+                query.appendLiteral(taskAssignment.getSqlSchemaName().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getSqlCreateStatements())) {
+                query.append("?assignment etutor:hasSQLCreateStatements ");
+                query.appendLiteral(taskAssignment.getSqlCreateStatements().trim());
+                query.append(".\n");
+            }
+            if (StringUtils.isNotBlank(taskAssignment.getSqlInsertStatementsSubmission())) {
+                query.append("?assignment etutor:hasSQLInsertStatementsSubmission ");
+                query.appendLiteral(taskAssignment.getSqlInsertStatementsSubmission().trim());
+                query.append(".\n");
+            }
+            if (StringUtils.isNotBlank(taskAssignment.getSqlInsertStatementsDiagnose())) {
+                query.append("?assignment etutor:hasSQLInsertStatementsDiagnose ");
+                query.appendLiteral(taskAssignment.getSqlInsertStatementsDiagnose().trim());
+                query.append(".\n");
+            }
+            if (StringUtils.isNotBlank(taskAssignment.getSqlSolution())) {
+                query.append("?assignment etutor:hasSQLSolution ");
+                query.appendLiteral(taskAssignment.getSqlSolution().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
                 query.append("?assignment etutor:hasTypicalProcessingTime ");
                 query.appendLiteral(taskAssignment.getProcessingTime().trim());
@@ -682,6 +709,21 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSchemaName())) {
+            resource.addProperty(ETutorVocabulary.hasSQLSchemaName, newTaskAssignmentDTO.getSqlSchemaName().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlCreateStatements())) {
+            resource.addProperty(ETutorVocabulary.hasSQLCreateStatements, newTaskAssignmentDTO.getSqlCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlInsertStatementsSubmission())) {
+            resource.addProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission, newTaskAssignmentDTO.getSqlInsertStatementsSubmission().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlInsertStatementsDiagnose())) {
+            resource.addProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose, newTaskAssignmentDTO.getSqlInsertStatementsDiagnose().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+            resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {
