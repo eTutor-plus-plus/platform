@@ -3,8 +3,8 @@ import { StudentSelfEvaluationService } from './student-self-evaluation.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { ICourseInstanceInformationDTO } from '../../shared/students/students.model';
 import { CourseManagementService } from '../../course-management/course-management.service';
-import { AccountService } from '../../../core/auth/account.service';
-import { IStudentSelfEvaluationLearningGoal } from './student-self-evaluation.model';
+import { AccountService } from 'app/core/auth/account.service';
+import { IStudentSelfEvaluationLearningGoal, IStudentSelfEvaluationLearningGoalWithReference } from './student-self-evaluation.model';
 import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 
@@ -17,7 +17,7 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
   templateUrl: './student-self-evaluation.component.html',
 })
 export class StudentSelfEvaluationComponent implements OnInit {
-  public goals: IStudentSelfEvaluationLearningGoal[] = [];
+  public goals: IStudentSelfEvaluationLearningGoalWithReference[] = [];
 
   public studentSelfEvaluationForm = this.fb.group({
     learningObjectives: new FormArray([]),
@@ -128,20 +128,10 @@ export class StudentSelfEvaluationComponent implements OnInit {
   private async loadLearningGoalsAsync(): Promise<void> {
     if (this._instance) {
       const goals = await this.courseManagementService.getLearningGoalsFromCourse(this._instance.courseName, this._login).toPromise();
+      const formArray = this.controlsAsFormArray;
 
       for (const goal of goals) {
-        this.getLearningGoalsRecursive(goal);
-      }
-
-      const formArray = this.controlsAsFormArray;
-      for (const goal of this.goals) {
-        formArray.push(
-          this.fb.group({
-            id: [goal.id],
-            text: [goal.text],
-            completed: [goal.completed],
-          })
-        );
+        this.getLearningGoalsRecursive(goal, formArray, undefined);
       }
     }
   }
@@ -151,16 +141,37 @@ export class StudentSelfEvaluationComponent implements OnInit {
    * and adds the current goal to the list of available goals.
    *
    * @param goal the root goal
+   * @param formArray the form array
+   * @param parentGoal the optional parent goal
    */
-  private getLearningGoalsRecursive(goal: LearningGoalTreeviewItem): void {
-    this.goals.push({
+  private getLearningGoalsRecursive(
+    goal: LearningGoalTreeviewItem,
+    formArray: FormArray,
+    parentGoal?: IStudentSelfEvaluationLearningGoalWithReference
+  ): IStudentSelfEvaluationLearningGoalWithReference {
+    const group = this.fb.group({
+      id: [goal.value],
+      text: [goal.text],
+      completed: [false],
+    });
+
+    formArray.push(group);
+
+    const newGoal: IStudentSelfEvaluationLearningGoalWithReference = {
       id: goal.value,
       text: goal.text,
       completed: false,
-    });
+      subGoals: [],
+      parentGoal,
+      group,
+    };
+    this.goals.push(newGoal);
 
     for (const child of goal.childItems) {
-      this.getLearningGoalsRecursive(child);
+      const childGoal = this.getLearningGoalsRecursive(child, formArray, newGoal);
+      newGoal.subGoals.push(childGoal);
     }
+
+    return newGoal;
   }
 }
