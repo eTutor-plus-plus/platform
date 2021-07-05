@@ -56,7 +56,7 @@ export class AssignmentComponent implements OnInit {
 
   /**
    * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
-   * @param toBeSubmitted defines if grading for submission needs to be emitted
+   *
    */
   processSubmission(): void {
     const attributes = new Map<string, string>();

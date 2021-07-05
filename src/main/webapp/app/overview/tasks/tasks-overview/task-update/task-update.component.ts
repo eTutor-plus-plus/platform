@@ -19,6 +19,7 @@ export class TaskUpdateComponent {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
+  public editorOptions = { theme: 'vs-dark', language: 'sql' };
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -163,12 +164,31 @@ export class TaskUpdateComponent {
       );
     }
 
-    if (newTask.sqlSchemaName != null) {
-      const schema: string = newTask.sqlSchemaName;
-      this.sqlExerciseService.createSchema(newTask.sqlSchemaName).subscribe();
-      if (newTask.sqlCreateStatements != null) {
-        this.sqlExerciseService.createTables(schema, newTask.sqlCreateStatements).subscribe();
-      }
+    if (
+      newTask.sqlSchemaName != null &&
+      newTask.sqlCreateStatements != null &&
+      newTask.sqlInsertStatementsSubmission != null &&
+      newTask.sqlInsertStatementsDiagnose != null &&
+      newTask.taskIdForDispatcher != null &&
+      newTask.sqlSolution != null
+    ) {
+      this.sqlExerciseService.create(
+        newTask.sqlSchemaName,
+        newTask.sqlCreateStatements,
+        newTask.sqlInsertStatementsSubmission,
+        newTask.sqlInsertStatementsDiagnose,
+        newTask.taskIdForDispatcher,
+        newTask.sqlSolution
+      );
+    } else if (
+      newTask.sqlSchemaName != null &&
+      newTask.sqlSolution != null &&
+      newTask.taskIdForDispatcher != null &&
+      newTask.sqlCreateStatements == null &&
+      newTask.sqlInsertStatementsDiagnose == null &&
+      newTask.sqlInsertStatementsSubmission == null
+    ) {
+      this.sqlExerciseService.add(newTask.sqlSchemaName, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
   }
 
