@@ -26,7 +26,7 @@ export interface IStudentSelfEvaluationLearningGoalWithReference extends IStuden
   /**
    * The list of sub goals.
    */
-  subGoals: IStudentSelfEvaluationLearningGoal[];
+  subGoals: IStudentSelfEvaluationLearningGoalWithReference[];
   /**
    * Marks the assigned form group.
    */
@@ -34,5 +34,5 @@ export interface IStudentSelfEvaluationLearningGoalWithReference extends IStuden
   /**
    * The optional parent goal.
    */
-  parentGoal?: IStudentSelfEvaluationLearningGoal;
+  parentGoal?: IStudentSelfEvaluationLearningGoalWithReference;
 }

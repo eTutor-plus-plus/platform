@@ -122,6 +122,55 @@ export class StudentSelfEvaluationComponent implements OnInit {
   }
 
   /**
+   * Marks the selected goal (and all its sub goals) as reached.
+   *
+   * @param goal the selected goal
+   */
+  public markGoalAsReachedClicked(goal: IStudentSelfEvaluationLearningGoalWithReference): void {
+    this.markGoalAsReachedRecursive(goal);
+  }
+
+  /**
+   * Marks the selected goal (and all its super goals) as not reached.
+   *
+   * @param goal the selected goal
+   */
+  public markGoalAsNotReachedClicked(goal: IStudentSelfEvaluationLearningGoalWithReference): void {
+    this.markGoalAsUnreachedRecursive(goal);
+  }
+
+  /**
+   * Recursively marks the goal and its sub goals as reached.
+   *
+   * @param goal the goal which should be marked as reached
+   */
+  private markGoalAsReachedRecursive(goal: IStudentSelfEvaluationLearningGoalWithReference): void {
+    goal.completed = true;
+    goal.group.patchValue({
+      completed: true,
+    });
+
+    for (let i = 0; i < goal.subGoals.length; i++) {
+      this.markGoalAsReachedRecursive(goal.subGoals[i]);
+    }
+  }
+
+  /**
+   * Recursively
+   *
+   * @param goal the goal which should be marked as unreached
+   */
+  private markGoalAsUnreachedRecursive(goal: IStudentSelfEvaluationLearningGoalWithReference): void {
+    goal.completed = false;
+    goal.group.patchValue({
+      completed: false,
+    });
+    if (goal.parentGoal) {
+      this.markGoalAsUnreachedRecursive(goal.parentGoal);
+    }
+  }
+
+  /**
    * Asynchronously loads the learning goals and initializes the
    * dynamic form.
    */
