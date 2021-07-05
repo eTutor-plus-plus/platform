@@ -24,7 +24,7 @@
     "jwtSecretKey": "Njc4ZjMwNTc4OTFiNjkwMDQ1MjUwYzYzM2M4OGNhMDFhMGZjOThhN2QwMjA3MDhmNmM1MTMwMWViMTE2MzIzMWRlYzExYjhiNmI5NWRjYmRjMDYzZmE5MmQ1OTg3MDgyZDZkODIxNDkxNDhmZjkwNTA3NjExZTk3MjE3MTQ0ZmQ=",
     "embeddableLaunchScript": false,
     "useSass": true,
-    "clientPackageManager": "yarn",
+    "clientPackageManager": "npm",
     "clientFramework": "angularX",
     "clientTheme": "simplex",
     "clientThemeVariant": "light",
