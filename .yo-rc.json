@@ -4,7 +4,7 @@
       "packageName": "at.jku.dke.etutor",
       "nativeLanguage": "de"
     },
-    "jhipsterVersion": "7.0.1",
+    "jhipsterVersion": "7.1.0",
     "applicationType": "monolith",
     "baseName": "etutorPlusPlus",
     "packageName": "at.jku.dke.etutor",
@@ -47,6 +47,7 @@
     "pages": [],
     "enableHibernateCache": false,
     "reactive": false,
-    "entities": []
+    "entities": [],
+    "devServerPort": 4200
   }
 }
