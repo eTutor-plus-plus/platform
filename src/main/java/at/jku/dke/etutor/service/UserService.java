@@ -417,6 +417,15 @@ public class UserService {
     }
 
     /**
+     * Removes all deactivated users.
+     *
+     * @return the count of removed users
+     */
+    public int removeAllDeactivatedUsers() {
+        return userRepository.removeDeactivatedUsers();
+    }
+
+    /**
      * Gets a list of all the authorities.
      *
      * @return a list of all the authorities.

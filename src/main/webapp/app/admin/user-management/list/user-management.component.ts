@@ -10,6 +10,7 @@ import { Account } from 'app/core/auth/account.model';
 import { UserManagementService } from '../service/user-management.service';
 import { User } from '../user-management.model';
 import { UserManagementDeleteDialogComponent } from '../delete/user-management-delete-dialog.component';
+import { AlertService } from '../../../core/util/alert.service';
 
 @Component({
   selector: 'jhi-user-mgmt',
@@ -25,12 +26,15 @@ export class UserManagementComponent implements OnInit {
   predicate!: string;
   ascending!: boolean;
 
+  isRemovingUsers = false;
+
   constructor(
     private userService: UserManagementService,
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -82,6 +86,36 @@ export class UserManagementComponent implements OnInit {
         sort: this.predicate + ',' + (this.ascending ? ASC : DESC),
       },
     });
+  }
+
+  /**
+   * Removes all inactive users.
+   */
+  public removeAllInactiveUsers(): void {
+    this.isRemovingUsers = true;
+
+    this.userService.deleteDeactivatedUsers().subscribe(
+      value => {
+        this.alertService.addAlert(
+          {
+            type: 'success',
+            translationKey: 'userManagement.inactiveRemoved',
+            translationParams: { count: value },
+            timeout: 5000,
+          },
+          []
+        );
+
+        if (value > 0) {
+          this.loadAll();
+        }
+
+        this.isRemovingUsers = false;
+      },
+      () => {
+        this.isRemovingUsers = false;
+      }
+    );
   }
 
   private handleNavigation(): void {
