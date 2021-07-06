@@ -136,15 +136,12 @@ export class LearningGoalsComponent implements OnInit {
     (async () => {
       await this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).toPromise();
       await this.loadLearningGoalsAsync();
-      this.alertService.addAlert(
-        {
-          type: 'success',
-          translationKey: 'learningGoalManagement.learningGoalRemovedMsg',
-          translationParams: { name: goalItem.text },
-          timeout: 5000,
-        },
-        []
-      );
+      this.alertService.addAlert({
+        type: 'success',
+        translationKey: 'learningGoalManagement.learningGoalRemovedMsg',
+        translationParams: { name: goalItem.text },
+        timeout: 5000,
+      });
     })();
   }
 

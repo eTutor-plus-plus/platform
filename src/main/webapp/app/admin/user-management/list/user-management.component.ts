@@ -96,15 +96,12 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.deleteDeactivatedUsers().subscribe(
       value => {
-        this.alertService.addAlert(
-          {
-            type: 'success',
-            translationKey: 'userManagement.inactiveRemoved',
-            translationParams: { count: value },
-            timeout: 5000,
-          },
-          []
-        );
+        this.alertService.addAlert({
+          type: 'success',
+          translationKey: 'userManagement.inactiveRemoved',
+          translationParams: { count: value },
+          timeout: 5000,
+        });
 
         if (value > 0) {
           this.loadAll();
