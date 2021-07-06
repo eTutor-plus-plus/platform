@@ -60,6 +60,15 @@ export class SqlExerciseService {
     this.deleteExercise(exerciseID).subscribe(() => this.createExercise(schemaName, exerciseID, solution).subscribe());
   }
 
+  public getExerciseId(): Observable<Response> {
+    const url = this.API_URL + '/exercise/reservation';
+    return this.http.get<Response>(url);
+  }
+
+  private exerciseId(): Observable<any> {
+    const url = this.API_URL + '/exercise/reservation';
+    return this.http.get(url, { observe: 'response', responseType: 'text' });
+  }
   /**
    * requests the deletion of a given schema
    * @param schemaName the name of the schema to be deleted

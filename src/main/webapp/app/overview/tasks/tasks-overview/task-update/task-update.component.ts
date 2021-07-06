@@ -8,7 +8,7 @@ import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
-import { SqlExerciseService } from 'app/overview/dispatcher/services/sqlExercise.service';
+import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 
 /**
  * Component for creating / updating tasks.
@@ -21,7 +21,7 @@ export class TaskUpdateComponent implements OnInit {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
-  public editorOptions = { theme: 'vs-dark', language: 'sql' };
+  public editorOptions = { theme: 'vs-light', language: 'sql' };
 
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
@@ -61,7 +61,7 @@ export class TaskUpdateComponent implements OnInit {
     private activeModal: NgbActiveModal,
     private tasksService: TasksService,
     private eventManager: EventManager,
-    private sqlExerciseService: SqlExerciseService
+    private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService
   ) {}
 
@@ -113,8 +113,17 @@ export class TaskUpdateComponent implements OnInit {
     const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher.trim()) {
       newTask.taskIdForDispatcher = taskIdForDispatcher.trim();
+      this.continueSave(newTask);
+    } else if (newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.sqlExerciseService.getExerciseId().subscribe(response => {
+        newTask.taskIdForDispatcher = response.message;
+        this.continueSave(newTask);
+      });
+    } else {
+      this.continueSave(newTask);
     }
-
+  }
+  continueSave(newTask: INewTaskModel): void {
     const sqlSchemaName: string = this.updateForm.get('sqlSchemaName')!.value;
     if (sqlSchemaName.trim()) {
       newTask.sqlSchemaName = sqlSchemaName.trim();
@@ -189,12 +198,12 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     if (
-      newTask.sqlSchemaName != null &&
-      newTask.sqlCreateStatements != null &&
-      newTask.sqlInsertStatementsSubmission != null &&
-      newTask.sqlInsertStatementsDiagnose != null &&
-      newTask.taskIdForDispatcher != null &&
-      newTask.sqlSolution != null
+      newTask.sqlSchemaName &&
+      newTask.sqlCreateStatements &&
+      newTask.sqlInsertStatementsSubmission &&
+      newTask.sqlInsertStatementsDiagnose &&
+      newTask.taskIdForDispatcher &&
+      newTask.sqlSolution
     ) {
       this.sqlExerciseService.create(
         newTask.sqlSchemaName,
@@ -205,12 +214,12 @@ export class TaskUpdateComponent implements OnInit {
         newTask.sqlSolution
       );
     } else if (
-      newTask.sqlSchemaName != null &&
-      newTask.sqlSolution != null &&
-      newTask.taskIdForDispatcher != null &&
-      newTask.sqlCreateStatements == null &&
-      newTask.sqlInsertStatementsDiagnose == null &&
-      newTask.sqlInsertStatementsSubmission == null
+      newTask.sqlSchemaName &&
+      newTask.sqlSolution &&
+      newTask.taskIdForDispatcher &&
+      !newTask.sqlCreateStatements &&
+      !newTask.sqlInsertStatementsDiagnose &&
+      !newTask.sqlInsertStatementsSubmission
     ) {
       this.sqlExerciseService.add(newTask.sqlSchemaName, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
