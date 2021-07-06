@@ -90,6 +90,10 @@ export interface INewTaskModel {
    * The id of the task's type.
    **/
   taskAssignmentTypeId: string;
+  /**
+   * The optional task group id.
+   */
+  taskGroupId?: string;
 }
 
 /**

@@ -152,4 +152,10 @@ Desktop.ini
 ######################
 .eslintcache
 
+######################
+# Code coverage
+######################
+/coverage/
+/.nyc_output/
+
 .run

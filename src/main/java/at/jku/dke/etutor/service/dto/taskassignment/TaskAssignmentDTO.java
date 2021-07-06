@@ -1,19 +1,20 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.RDFS;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.RDFS;
 
 /**
  * Class for a task assignment.
@@ -64,6 +65,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setInstruction(newTaskAssignmentDTO.getInstruction());
         setPrivateTask(newTaskAssignmentDTO.isPrivateTask());
         setTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
+        setTaskGroupId(newTaskAssignmentDTO.getTaskGroupId());
 
         setId(id);
         setCreationDate(creationDate);
@@ -146,6 +148,11 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
 
         String creationDateAsString = resource.getProperty(ETutorVocabulary.hasTaskCreationDate).getString();
         setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(creationDateAsString).toInstant());
+
+        Statement taskGroupStatement = resource.getProperty(ETutorVocabulary.hasTaskGroup);
+        if (taskGroupStatement != null) {
+            setTaskGroupId(taskGroupStatement.getObject().asResource().getURI());
+        }
     }
 
     /**

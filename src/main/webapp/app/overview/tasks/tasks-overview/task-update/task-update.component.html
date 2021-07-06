@@ -152,6 +152,13 @@
       <label class="form-control-label" for="instruction" jhiTranslate="taskManagement.fields.instruction">Instructions:</label>
       <quill-editor [placeholder]="''" id="instruction" formControlName="instruction"> </quill-editor>
     </div>
+    <div class="form-group">
+      <label class="form-control-label" for="taskGroup" jhiTranslate="taskManagement.fields.taskGroup">Task group:</label>
+      <select class="form-control" name="taskGroup" id="taskGroup" formControlName="taskGroup">
+        <option value="">{{ 'taskManagement.fields.taskGroupPlaceHolder' | translate }}</option>
+        <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
+      </select>
+    </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="close()">

@@ -3,11 +3,9 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -20,9 +18,11 @@ import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.Serial;
@@ -49,12 +49,16 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
             CONSTRUCT { ?assignment ?predicate ?object.
             			?assignment etutor:isAssignmentOf ?othergoal.
-            			?othergoal rdfs:label ?goalName. }
+            			?othergoal rdfs:label ?goalName.
+            			?assignment etutor:hasTaskGroup ?taskGroup. }
             WHERE {
                 {
                 ?goal etutor:hasTaskAssignment ?assignment.
                 ?assignment etutor:isPrivateTask false.
                 ?assignment ?predicate ?object.
+                OPTIONAL {
+                  ?taskGroup etutor:hasTask ?assignment.
+                }
                 ?othergoal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
               } UNION {
@@ -62,6 +66,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 ?assignment etutor:isPrivateTask true.
                 ?assignment etutor:hasInternalTaskCreator ?internalTaskOwner.
                 ?assignment ?predicate ?object.
+                OPTIONAL {
+                  ?taskGroup etutor:hasTask ?assignment.
+                }
                 ?othergoal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
               }
@@ -99,13 +106,17 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
             CONSTRUCT { ?assignment ?predicate ?object.
               ?assignment etutor:isAssignmentOf ?goal.
-              ?othergoal rdfs:label ?goalName. }
+              ?othergoal rdfs:label ?goalName.
+              ?assignment etutor:hasTaskGroup ?taskGroup. }
             WHERE {
               ?assignment ?predicate ?object.
               ?assignment a etutor:TaskAssignment.
               OPTIONAL {
                 ?goal etutor:hasTaskAssignment ?assignment.
                 ?othergoal rdfs:label ?goalName.
+              }
+              OPTIONAL {
+                ?taskGroup etutor:hasTask ?assignment.
               }
             }
             """;
@@ -258,7 +269,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
                     DELETE {
-                      ?assignment ?predicate ?object
+                      ?assignment ?predicate ?object.
+                      ?taskGroup etutor:hasTask ?assignment.
                     } INSERT {
                     """
             );
@@ -330,6 +342,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
+            if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
+                query.appendIri(taskAssignment.getTaskGroupId());
+                query.append(" etutor:hasTask ?assignment.\n");
+            }
+
             query.append("?assignment etutor:isPrivateTask ");
             query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
             query.append(".\n");
@@ -338,7 +355,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 """
                     } WHERE {
                       ?assignment ?predicate ?object.
-                      FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator))
+                      FILTER(?predicate NOT IN (etutor:hasTaskCreationDate, etutor:hasTaskCreator, rdf:type, etutor:hasInternalTaskCreator)).
+
+                      OPTIONAL {
+                        ?taskGroup etutor:hasTask ?assignment.
+                      }
                     }
                     """
             );
@@ -539,12 +560,13 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     /**
      * Returns a paged task display (task header + id). An optional header filter may be passed to this method.
      *
-     * @param headerFilter the optional header filter, might be null
-     * @param pageable     the mandatory pageable object
-     * @param user         the currently logged-in user
+     * @param headerFilter          the optional header filter, might be null
+     * @param pageable              the mandatory pageable object
+     * @param user                  the currently logged-in user
+     * @param taskGroupHeaderFilter the optional task group header filter
      * @return {@code Slice} containing the elements
      */
-    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user) {
+    public Slice<TaskDisplayDTO> findAllTasks(String headerFilter, Pageable pageable, String user, String taskGroupHeaderFilter) {
         Objects.requireNonNull(pageable);
         Objects.requireNonNull(user);
 
@@ -553,6 +575,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """
                 PREFIX text:   <http://jena.apache.org/text#>
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 
                 SELECT DISTINCT (STR(?assignment) AS ?assignmentId) ?header ?internalCreator ?privateTask
                 WHERE {
@@ -562,6 +585,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
+            qry.append(String.format("?taskGroup text:query (etutor:hasTaskGroupName \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append("?taskGroup a etutor:TaskGroup.\n");
+            qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
 
         qry.append(
@@ -577,6 +606,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(headerFilter)) {
             qry.append(String.format("?assignment text:query (etutor:hasTaskHeader \"*%s*\").%n", headerFilter));
+        }
+
+        if (StringUtils.isNotBlank(taskGroupHeaderFilter)) {
+            qry.append(String.format("?taskGroup text:query (etutor:hasTaskGroupName \"*%s*\").%n", taskGroupHeaderFilter));
+            qry.append("?taskGroup a etutor:TaskGroup.\n");
+            qry.append("?taskGroup etutor:hasTask ?assignment.\n");
         }
 
         qry.append(
@@ -682,7 +717,252 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         }
     }
 
+    /**
+     * Creates a new task group.
+     *
+     * @param newTaskGroupDTO the task group
+     * @param creator         the creator
+     * @return the newly created task group
+     * @throws TaskGroupAlreadyExistentException if a task group with the name already exists
+     */
+    public TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO, String creator) throws TaskGroupAlreadyExistentException {
+        Objects.requireNonNull(newTaskGroupDTO);
+        Objects.requireNonNull(creator);
+
+        Model model = ModelFactory.createDefaultModel();
+
+        Instant now = Instant.now();
+
+        Resource resource = constructTaskGroupFromDTO(newTaskGroupDTO, creator, now, model);
+
+        ParameterizedSparqlString existenceQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            ASK {
+              ?taskGroup a etutor:TaskGroup.
+            }
+            """);
+        existenceQuery.setIri("?taskGroup", resource.getURI());
+
+        try (RDFConnection connection = getConnection()) {
+
+            if (connection.queryAsk(existenceQuery.asQuery())) {
+                throw new TaskGroupAlreadyExistentException();
+            }
+
+            connection.load(model);
+        }
+
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), resource.getURI(), creator, now);
+    }
+
+    /**
+     * Deletes a task group.
+     *
+     * @param name the name of the task group
+     */
+    public void deleteTaskGroup(String name) {
+        Objects.requireNonNull(name);
+
+        String id = ETutorVocabulary.getTaskGroupIdFromName(name);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group ?predicate ?object.
+            } WHERE {
+              ?group ?predicate ?object.
+            }
+            """);
+        query.setIri("?group", id);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+    }
+
+    /**
+     * Persists the modifications, currently only the description can be modified.
+     *
+     * @param taskGroupDTO the task group DTO
+     * @return the modified task group
+     */
+    public TaskGroupDTO modifyTaskGroup(TaskGroupDTO taskGroupDTO) {
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              ?group etutor:hasTaskGroupDescription ?oldDescription.
+            } INSERT {
+              ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
+            """);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.append("  ?group etutor:hasTaskGroupDescription ?newDescription.");
+        }
+
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              OPTIONAL {
+                ?group etutor:hasTaskGroupDescription ?oldDescription.
+              }
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+        Instant now = Instant.now();
+        taskGroupDTO.setChangeDate(now);
+        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+
+        return taskGroupDTO;
+    }
+
+    /**
+     * Returns the task group by name.
+     *
+     * @param name the task group's name
+     * @return {@link Optional} containing the task group, if found
+     */
+    public Optional<TaskGroupDTO> getTaskGroupByName(String name) {
+        Objects.requireNonNull(name);
+        String id = ETutorVocabulary.getTaskGroupIdFromName(name);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            CONSTRUCT {
+              ?group ?predicate ?object.
+            } WHERE {
+              ?group ?predicate ?object.
+            }
+            """);
+        query.setIri("?group", id);
+
+        try (RDFConnection connection = getConnection()) {
+            Model resultModel = connection.queryConstruct(query.asQuery());
+            Resource resource = resultModel.getResource(id);
+
+            if (resultModel.isEmpty() || resource == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(new TaskGroupDTO(resource));
+        }
+    }
+
+    /**
+     * Returns the paged list of task groups.
+     *
+     * @param nameQry the name filter, may be null or blank
+     * @param page    the page object, must be null
+     * @return {@link Page} containing the task groups
+     */
+    public Page<TaskGroupDisplayDTO> getFilteredTaskGroupPaged(String nameQry, Pageable page) {
+        Objects.requireNonNull(page);
+
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (COUNT(?taskGroup) AS ?cnt)
+            WHERE {
+            """);
+        ParameterizedSparqlString selectQry = new ParameterizedSparqlString("""
+            PREFIX text:   <http://jena.apache.org/text#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (STR(?taskGroup) AS ?id) ?taskGroupName
+            WHERE {
+            """);
+
+        if (StringUtils.isNotBlank(nameQry)) {
+            countQry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", nameQry));
+            selectQry.append(String.format("?taskGroup text:query (rdfs:label \"*%s*\").%n", nameQry));
+        }
+
+        countQry.append("""
+              ?taskGroup a etutor:TaskGroup.
+            }
+            """);
+        selectQry.append("""
+              ?taskGroup a etutor:TaskGroup.
+              ?taskGroup etutor:hasTaskGroupName ?taskGroupName
+            }
+            ORDER BY (LCASE(?taskGroupName))
+            """);
+
+        if (page.isPaged()) {
+            selectQry.append("LIMIT ");
+            selectQry.append(page.getPageSize());
+            selectQry.append("\nOFFSET ");
+            selectQry.append(page.getOffset());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            List<TaskGroupDisplayDTO> taskGroupList = new ArrayList<>();
+            long count;
+            try (QueryExecution queryExecution = connection.query(selectQry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String id = solution.getLiteral("?id").getString();
+                    String taskGroupName = solution.getLiteral("?taskGroupName").getString();
+
+                    taskGroupList.add(new TaskGroupDisplayDTO(id, taskGroupName));
+                }
+            }
+
+            try (QueryExecution queryExecution = connection.query(countQry.asQuery())) {
+                ResultSet set = queryExecution.execSelect();
+                //noinspection ResultOfMethodCallIgnored
+                set.hasNext();
+                count = set.nextSolution().getLiteral("?cnt").getInt();
+            }
+
+            return PageableExecutionUtils.getPage(taskGroupList, page, () -> count);
+        }
+    }
+
     //region Helper methods
+
+    /**
+     * Constructs a task group resource based on the given parameters.
+     *
+     * @param newTaskGroupDTO the new task group DTO
+     * @param creator         the creator
+     * @param creationDate    the creation date
+     * @param model           the model
+     * @return {@link Resource} which represents the new task group
+     */
+    private Resource constructTaskGroupFromDTO(NewTaskGroupDTO newTaskGroupDTO, String creator, Instant creationDate, Model model) {
+        Resource taskGroupResource = model.createResource(ETutorVocabulary.getTaskGroupIdFromName(newTaskGroupDTO.getName()));
+        taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
+
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
+        }
+
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
+
+        return taskGroupResource;
+    }
 
     /**
      * Constructs a resource from the given data.
@@ -745,6 +1025,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         String privateStr = String.valueOf(newTaskAssignmentDTO.isPrivateTask());
         resource.addProperty(ETutorVocabulary.isPrivateTask, privateStr, XSDDatatype.XSDboolean);
         resource.addProperty(RDF.type, ETutorVocabulary.TaskAssignment);
+
+        if (newTaskAssignmentDTO.getTaskGroupId() != null) {
+            Resource taskGroup = model.createResource(newTaskAssignmentDTO.getTaskGroupId());
+            taskGroup.addProperty(ETutorVocabulary.hasTask, resource);
+        }
 
         return resource;
     }

@@ -4,15 +4,6 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -29,6 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
+
 /**
  * Service class for SPARQL related operations.
  *
@@ -42,115 +42,115 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     //region Queries
     private static final String QRY_GOAL_COUNT =
         """
-        SELECT (COUNT(DISTINCT ?subject) as ?count)
-        WHERE {
-        	?subject ?predicate ?object.
-          FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> )
-        }
-        """;
+            SELECT (COUNT(DISTINCT ?subject) as ?count)
+            WHERE {
+            	?subject ?predicate ?object.
+              FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> )
+            }
+            """;
 
     private static final String QRY_ID_SUBJECT_COUNT =
         """
-        SELECT (COUNT(DISTINCT ?subject) as ?count)
-        WHERE {
-        	?subject ?predicate ?object.
-          FILTER(?subject = <%s> )
-        }
-        """;
+            SELECT (COUNT(DISTINCT ?subject) as ?count)
+            WHERE {
+            	?subject ?predicate ?object.
+              FILTER(?subject = <%s> )
+            }
+            """;
 
     private static final String QRY_ASK_COURSE_EXIST =
         """
-        ASK {
-        	?subject ?predicate ?object.
-          FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s> )
-        }
-        """;
+            ASK {
+            	?subject ?predicate ?object.
+              FILTER(?subject = <http://www.dke.uni-linz.ac.at/etutorpp/Course#%s> )
+            }
+            """;
 
     private static final String QRY_ASK_COURSE_WITH_OWNER_EXIST =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        ASK {
-        	?subject ?predicate ?object.
-        	?subject etutor:hasCourseCreator ?creator
-            FILTER(?subject = ?uri )
-        }
-        """;
+            ASK {
+            	?subject ?predicate ?object.
+            	?subject etutor:hasCourseCreator ?creator
+                FILTER(?subject = ?uri )
+            }
+            """;
 
     private static final String QRY_DELETE_ALL_FROM_SUBJECT =
         """
-        DELETE { ?subject ?predicate ?object }
-        WHERE {
-            ?subject ?predicate ?object.
-            FILTER(?subject = ?uri)
-        }
-        """;
+            DELETE { ?subject ?predicate ?object }
+            WHERE {
+                ?subject ?predicate ?object.
+                FILTER(?subject = ?uri)
+            }
+            """;
 
     private static final String QRY_GOAL_ASSIGNMENT_EXISTS =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        ASK {
-        	?course etutor:hasGoal ?goal
-        }
-        """;
+            ASK {
+            	?course etutor:hasGoal ?goal
+            }
+            """;
 
     private static final String QRY_GOAL_DEPENDENCIES =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?otherGoal) AS ?goalId)
-        WHERE {
-          ?goal a etutor:Goal.
-          ?goal etutor:dependsOn ?otherGoal.
-          ?otherGoal rdfs:label ?otherName
-        }
-        ORDER BY (LCASE(?otherName))
-        """;
+            SELECT (STR(?otherGoal) AS ?goalId)
+            WHERE {
+              ?goal a etutor:Goal.
+              ?goal etutor:dependsOn ?otherGoal.
+              ?otherGoal rdfs:label ?otherName
+            }
+            ORDER BY (LCASE(?otherName))
+            """;
 
     private static final String QRY_GOAL_DEPENDENCIES_TEXT =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT ?goalName
-        WHERE {
-          ?goal a etutor:Goal.
-          ?goal etutor:dependsOn ?otherGoal.
-          ?otherGoal rdfs:label ?goalName
-        }
-        ORDER BY (LCASE(?goalName))
-        """;
+            SELECT ?goalName
+            WHERE {
+              ?goal a etutor:Goal.
+              ?goal etutor:dependsOn ?otherGoal.
+              ?otherGoal rdfs:label ?goalName
+            }
+            ORDER BY (LCASE(?goalName))
+            """;
 
     private static final String DELETE_GOAL_WITH_SUBGOALS =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        DELETE {
-          ?goal ?predicate ?object.
-          ?secondGoal ?secondPredicate ?secondObject.
-          ?otherGoal etutor:dependsOn ?goal.
-          ?otherGoal1 etutor:dependsOn ?secondGoal.
-          ?parent etutor:hasSubGoal ?goal.
-        } WHERE {
-          ?goal a etutor:Goal.
-          ?goal ?predicate ?object.
-          OPTIONAL {
-            ?goal etutor:hasSubGoal* ?secondGoal.
-            ?secondGoal ?secondPredicate ?secondObject.
-            OPTIONAL {
+            DELETE {
+              ?goal ?predicate ?object.
+              ?secondGoal ?secondPredicate ?secondObject.
+              ?otherGoal etutor:dependsOn ?goal.
               ?otherGoal1 etutor:dependsOn ?secondGoal.
+              ?parent etutor:hasSubGoal ?goal.
+            } WHERE {
+              ?goal a etutor:Goal.
+              ?goal ?predicate ?object.
+              OPTIONAL {
+                ?goal etutor:hasSubGoal* ?secondGoal.
+                ?secondGoal ?secondPredicate ?secondObject.
+                OPTIONAL {
+                  ?otherGoal1 etutor:dependsOn ?secondGoal.
+                }
+              }
+              OPTIONAL {
+                ?otherGoal etutor:dependsOn ?goal.
+              }
+              OPTIONAL {
+                ?parent etutor:hasSubGoal ?goal.
+              }
             }
-          }
-          OPTIONAL {
-            ?otherGoal etutor:dependsOn ?goal.
-          }
-          OPTIONAL {
-            ?parent etutor:hasSubGoal ?goal.
-          }
-        }
-        """;
+            """;
     //endregion
 
     private final Logger log = LoggerFactory.getLogger(SPARQLEndpointService.class);
@@ -266,14 +266,14 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             if (!learningGoalDTO.isPrivateGoal()) {
                 ParameterizedSparqlString parameterizedSparqlString = new ParameterizedSparqlString(
                     """
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-                    ASK {
-                      ?subject ^etutor:hasSubGoal+ ?goal.
-                      ?goal etutor:isPrivate true.
-                      FILTER(?subject = ?startSubject)
-                    }
-                    """
+                        ASK {
+                          ?subject ^etutor:hasSubGoal+ ?goal.
+                          ?goal etutor:isPrivate true.
+                          FILTER(?subject = ?startSubject)
+                        }
+                        """
                 );
                 parameterizedSparqlString.setIri("?startSubject", learningGoalDTO.getId());
 
@@ -291,28 +291,28 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
             ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
 
-                DELETE {
-                  ?subject etutor:hasChangeDate ?changeDate.
-                  ?subject etutor:hasDescription ?description.
-                  ?subject etutor:isPrivate ?private.
-                  ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
-                }
-                INSERT {
-                  ?subject etutor:hasChangeDate ?newChangeDate.
-                  ?subject etutor:hasDescription ?newDescription.
-                  ?subject etutor:isPrivate ?newPrivate.
-                  ?subject etutor:needsVerificationBeforeCompletion ?newNeedsVerification.
-                }
-                WHERE {
-                  ?subject etutor:hasChangeDate ?changeDate.
-                  ?subject etutor:hasDescription ?description.
-                  ?subject etutor:isPrivate ?private.
-                  ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
-                }
-                """
+                    DELETE {
+                      ?subject etutor:hasChangeDate ?changeDate.
+                      ?subject etutor:hasDescription ?description.
+                      ?subject etutor:isPrivate ?private.
+                      ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
+                    }
+                    INSERT {
+                      ?subject etutor:hasChangeDate ?newChangeDate.
+                      ?subject etutor:hasDescription ?newDescription.
+                      ?subject etutor:isPrivate ?newPrivate.
+                      ?subject etutor:needsVerificationBeforeCompletion ?newNeedsVerification.
+                    }
+                    WHERE {
+                      ?subject etutor:hasChangeDate ?changeDate.
+                      ?subject etutor:hasDescription ?description.
+                      ?subject etutor:isPrivate ?private.
+                      ?subject etutor:needsVerificationBeforeCompletion ?needsVerification.
+                    }
+                    """
             );
             updateQry.setIri("?subject", learningGoalDTO.getId());
             updateQry.setLiteral("?newChangeDate", nowStr, XSDDatatype.XSDdateTime);
@@ -326,20 +326,20 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 // Update 'privateGoal' of all sub goals
                 String transitiveUpdateQry = String.format(
                     """
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-                    DELETE {
-                      ?goal etutor:isPrivate ?private
-                    }
-                    INSERT {
-                      ?goal etutor:isPrivate true
-                    }
-                    WHERE {
-                      ?subject etutor:hasSubGoal+ ?goal.
-                      ?goal etutor:isPrivate ?private.
-                      FILTER(?subject = <%s>)
-                    }
-                    """,
+                        DELETE {
+                          ?goal etutor:isPrivate ?private
+                        }
+                        INSERT {
+                          ?goal etutor:isPrivate true
+                        }
+                        WHERE {
+                          ?subject etutor:hasSubGoal+ ?goal.
+                          ?goal etutor:isPrivate ?private.
+                          FILTER(?subject = <%s>)
+                        }
+                        """,
                     learningGoalDTO.getId()
                 );
 
@@ -374,7 +374,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 throw new LearningGoalAlreadyExistsException();
             }
 
-            String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), Charsets.UTF_8);
+            String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
 
             Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
 
@@ -407,91 +407,91 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         if (showOnlyOwnGoals) {
             queryStr =
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-                CONSTRUCT {
-                  ?subject ?predicate ?object.
-                  ?subject etutor:hasReferenceCnt ?cnt.
-                  ?subject etutor:hasRoot ?root
-                } WHERE {
-                  {
-                    ?subject ?predicate ?object.
-                    ?subject a etutor:Goal.
-                    ?subject rdfs:label ?lbl
-                    {
-                      ?subject etutor:hasOwner ?currentUser.
-                    }
-                  } UNION {
-                    BIND(rdf:type AS ?predicate)
-                    BIND(etutor:SubGoal AS ?object)
-                    ?goal etutor:hasSubGoal ?subject .
-                    ?goal etutor:hasOwner ?currentUser.
-                  } {
-                    SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                      ?subject a etutor:Goal.
-                      OPTIONAL { ?course etutor:hasGoal ?subject }
-                    }
-                    GROUP BY ?subject
-                  } {
-                    SELECT ?subject ?root WHERE {
-                      ?root etutor:hasSubGoal* ?subject.
-                      FILTER (
-                        !EXISTS {
-                          ?otherGoal etutor:hasSubGoal ?root.
+                    CONSTRUCT {
+                      ?subject ?predicate ?object.
+                      ?subject etutor:hasReferenceCnt ?cnt.
+                      ?subject etutor:hasRoot ?root
+                    } WHERE {
+                      {
+                        ?subject ?predicate ?object.
+                        ?subject a etutor:Goal.
+                        ?subject rdfs:label ?lbl
+                        {
+                          ?subject etutor:hasOwner ?currentUser.
                         }
-                      )
+                      } UNION {
+                        BIND(rdf:type AS ?predicate)
+                        BIND(etutor:SubGoal AS ?object)
+                        ?goal etutor:hasSubGoal ?subject .
+                        ?goal etutor:hasOwner ?currentUser.
+                      } {
+                        SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                          ?subject a etutor:Goal.
+                          OPTIONAL { ?course etutor:hasGoal ?subject }
+                        }
+                        GROUP BY ?subject
+                      } {
+                        SELECT ?subject ?root WHERE {
+                          ?root etutor:hasSubGoal* ?subject.
+                          FILTER (
+                            !EXISTS {
+                              ?otherGoal etutor:hasSubGoal ?root.
+                            }
+                          )
+                        }
+                      }
                     }
-                  }
-                }
-                """;
+                    """;
         } else {
             queryStr =
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-                CONSTRUCT {
-                  ?subject ?predicate ?object.
-                  ?subject etutor:hasReferenceCnt ?cnt.
-                  ?subject etutor:hasRoot ?root
-                } WHERE {
-                  {
-                    ?subject ?predicate ?object.
-                    ?subject a etutor:Goal.
-                    ?subject rdfs:label ?lbl
-                    {
-                      ?subject etutor:isPrivate false.
-                    }
-                    UNION
-                    {
-                      ?subject etutor:isPrivate true.
-                      ?subject etutor:hasOwner ?currentUser.
-                    }
-                  } UNION {
-                    BIND(rdf:type AS ?predicate)
-                    BIND(etutor:SubGoal AS ?object)
-                    ?goal etutor:hasSubGoal ?subject .
-                  } {
-                    SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                      ?subject a etutor:Goal.
-                      OPTIONAL { ?course etutor:hasGoal ?subject }
-                    }
-                    GROUP BY ?subject
-                  } {
-                    SELECT ?subject ?root WHERE {
-                      ?root etutor:hasSubGoal* ?subject.
-                      FILTER (
-                        !EXISTS {
-                          ?otherGoal etutor:hasSubGoal ?root.
+                    CONSTRUCT {
+                      ?subject ?predicate ?object.
+                      ?subject etutor:hasReferenceCnt ?cnt.
+                      ?subject etutor:hasRoot ?root
+                    } WHERE {
+                      {
+                        ?subject ?predicate ?object.
+                        ?subject a etutor:Goal.
+                        ?subject rdfs:label ?lbl
+                        {
+                          ?subject etutor:isPrivate false.
                         }
-                      )
+                        UNION
+                        {
+                          ?subject etutor:isPrivate true.
+                          ?subject etutor:hasOwner ?currentUser.
+                        }
+                      } UNION {
+                        BIND(rdf:type AS ?predicate)
+                        BIND(etutor:SubGoal AS ?object)
+                        ?goal etutor:hasSubGoal ?subject .
+                      } {
+                        SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                          ?subject a etutor:Goal.
+                          OPTIONAL { ?course etutor:hasGoal ?subject }
+                        }
+                        GROUP BY ?subject
+                      } {
+                        SELECT ?subject ?root WHERE {
+                          ?root etutor:hasSubGoal* ?subject.
+                          FILTER (
+                            !EXISTS {
+                              ?otherGoal etutor:hasSubGoal ?root.
+                            }
+                          )
+                        }
+                      }
                     }
-                  }
-                }
-                """;
+                    """;
         }
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(queryStr);
@@ -550,18 +550,18 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(goalName);
         Objects.requireNonNull(goalIds);
 
-        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), StandardCharsets.UTF_8);
         String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
 
         ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            DELETE {
-              ?goal etutor:dependsOn ?otherGoal
-            }
-            INSERT {
-            """
+                DELETE {
+                  ?goal etutor:dependsOn ?otherGoal
+                }
+                INSERT {
+                """
         );
 
         for (String goalId : goalIds) {
@@ -572,14 +572,14 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
         updateQry.append(
             """
-            }
-            WHERE {
-              ?goal a etutor:Goal
-              OPTIONAL {
-                ?goal etutor:dependsOn ?otherGoal
-              }
-            }
-            """
+                }
+                WHERE {
+                  ?goal a etutor:Goal
+                  OPTIONAL {
+                    ?goal etutor:dependsOn ?otherGoal
+                  }
+                }
+                """
         );
 
         updateQry.setIri("?goal", goalUri);
@@ -597,7 +597,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @return list of dependency ids
      */
     public List<String> getDependencies(String owner, String goalName) {
-        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), StandardCharsets.UTF_8);
         String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
         ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_DEPENDENCIES);
         qry.setIri("?goal", goalUri);
@@ -625,7 +625,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
      * @return list of dependency names
      */
     public List<String> getDisplayableDependencies(String owner, String goalName) {
-        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), Charsets.UTF_8);
+        String escapedGoalName = URLEncoder.encode(goalName.replace(' ', '_'), StandardCharsets.UTF_8);
         String goalUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s", owner, escapedGoalName);
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_GOAL_DEPENDENCIES_TEXT);
@@ -703,25 +703,25 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
             ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-                DELETE {
-                    ?subject etutor:hasCourseDescription ?description.
-                    ?subject etutor:hasCourseLink ?link.
-                    ?subject etutor:hasCourseType ?type.
-                }
-                INSERT {
-                    ?subject etutor:hasCourseDescription ?newDescription.
-                    ?subject etutor:hasCourseLink ?newLink.
-                    ?subject etutor:hasCourseType ?newType.
-                }
-                WHERE {
-                    ?subject etutor:hasCourseDescription ?description.
-                    ?subject etutor:hasCourseLink ?link.
-                    ?subject etutor:hasCourseType ?type.
-                    FILTER(?subject = ?courseUri)
-                }
-                """
+                    DELETE {
+                        ?subject etutor:hasCourseDescription ?description.
+                        ?subject etutor:hasCourseLink ?link.
+                        ?subject etutor:hasCourseType ?type.
+                    }
+                    INSERT {
+                        ?subject etutor:hasCourseDescription ?newDescription.
+                        ?subject etutor:hasCourseLink ?newLink.
+                        ?subject etutor:hasCourseType ?newType.
+                    }
+                    WHERE {
+                        ?subject etutor:hasCourseDescription ?description.
+                        ?subject etutor:hasCourseLink ?link.
+                        ?subject etutor:hasCourseType ?type.
+                        FILTER(?subject = ?courseUri)
+                    }
+                    """
             );
 
             updateQry.setIri("?courseUri", courseDTO.getId());
@@ -754,25 +754,25 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            CONSTRUCT { ?course ?predicate ?object.
-                        ?course etutor:hasInstanceCount ?instanceCnt }
-            WHERE {
-              {
-                ?course a etutor:Course.
-                FILTER(?course = ?courseUri)
-              	?course ?predicate ?object.
-              } UNION {
-                SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                CONSTRUCT { ?course ?predicate ?object.
+                            ?course etutor:hasInstanceCount ?instanceCnt }
                 WHERE {
-                  ?courseInstance etutor:hasCourse ?course.
-                  FILTER(?course = ?courseUri)
+                  {
+                    ?course a etutor:Course.
+                    FILTER(?course = ?courseUri)
+                  	?course ?predicate ?object.
+                  } UNION {
+                    SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                    WHERE {
+                      ?courseInstance etutor:hasCourse ?course.
+                      FILTER(?course = ?courseUri)
+                    }
+                    GROUP BY ?course
+                  }
                 }
-                GROUP BY ?course
-              }
-            }
-            """
+                """
         );
         query.setIri("?courseUri", ETutorVocabulary.createCourseURL(name));
 
@@ -807,7 +807,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(name);
         Objects.requireNonNull(creator);
 
-        String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
+        String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
 
         ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_WITH_OWNER_EXIST);
         courseExistQry.setIri("?uri", id);
@@ -835,23 +835,23 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     public SortedSet<CourseDTO> getAllCourses() {
         String query =
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            CONSTRUCT { ?course ?predicate ?object.
-                        ?course etutor:hasInstanceCount ?instanceCnt }
-            WHERE {
-              {
-                ?course a etutor:Course.
-              	?course ?predicate ?object.
-              } UNION {
-                SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                CONSTRUCT { ?course ?predicate ?object.
+                            ?course etutor:hasInstanceCount ?instanceCnt }
                 WHERE {
-                  ?courseInstance etutor:hasCourse ?course.
+                  {
+                    ?course a etutor:Course.
+                  	?course ?predicate ?object.
+                  } UNION {
+                    SELECT ?course (COUNT(?courseInstance) AS ?instanceCnt)
+                    WHERE {
+                      ?courseInstance etutor:hasCourse ?course.
+                    }
+                    GROUP BY ?course
+                  }
                 }
-                GROUP BY ?course
-              }
-            }
-            """;
+                """;
 
         try (RDFConnection conn = getConnection()) {
             SortedSet<CourseDTO> set = new TreeSet<>();
@@ -898,52 +898,52 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString constructQry = new ParameterizedSparqlString(
             """
-              PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-              PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                  PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-              CONSTRUCT {
-                ?s ?p ?o.
-                ?s etutor:hasReferenceCnt ?cnt
-              }
-              WHERE {
-                {
-                  SELECT ?s ?p ?o WHERE {
-                    ?course etutor:hasGoal+/etutor:hasSubGoal* ?s.
-                    BIND(etutor:hasRootGoal AS ?p).
-                    ?o etutor:hasSubGoal* ?s.
-                    FILTER (
-                      !EXISTS {
-                        ?otherGoal etutor:hasSubGoal ?o.
+                  CONSTRUCT {
+                    ?s ?p ?o.
+                    ?s etutor:hasReferenceCnt ?cnt
+                  }
+                  WHERE {
+                    {
+                      SELECT ?s ?p ?o WHERE {
+                        ?course etutor:hasGoal+/etutor:hasSubGoal* ?s.
+                        BIND(etutor:hasRootGoal AS ?p).
+                        ?o etutor:hasSubGoal* ?s.
+                        FILTER (
+                          !EXISTS {
+                            ?otherGoal etutor:hasSubGoal ?o.
+                          }
+                        )
                       }
-                    )
+                    } UNION {
+                      SELECT ?s ?p ?o WHERE {
+                        ?s ?p ?o .
+                        ?course etutor:hasGoal ?s .
+                      }
+                    } UNION {
+                      SELECT ?s ?p ?o WHERE {
+                        ?s ?p ?o .
+                        ?course etutor:hasGoal ?goal .
+                        ?goal etutor:hasSubGoal* ?s .
+                      }
+                    } UNION {
+                      SELECT ?s ?p ?o WHERE {
+                        ?course etutor:hasGoal ?goal .
+                        ?goal etutor:hasSubGoal+ ?s .
+                        BIND(rdf:type AS ?p)
+                        BIND(etutor:SubGoal AS ?o)
+                      }
+                    } {
+                      SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
+                        ?s a etutor:Goal.
+                        OPTIONAL { ?course1 etutor:hasGoal ?s. }
+                      }
+                      GROUP BY ?s
+                    }
                   }
-                } UNION {
-                  SELECT ?s ?p ?o WHERE {
-                    ?s ?p ?o .
-                    ?course etutor:hasGoal ?s .
-                  }
-                } UNION {
-                  SELECT ?s ?p ?o WHERE {
-                    ?s ?p ?o .
-                    ?course etutor:hasGoal ?goal .
-                    ?goal etutor:hasSubGoal* ?s .
-                  }
-                } UNION {
-                  SELECT ?s ?p ?o WHERE {
-                    ?course etutor:hasGoal ?goal .
-                    ?goal etutor:hasSubGoal+ ?s .
-                    BIND(rdf:type AS ?p)
-                    BIND(etutor:SubGoal AS ?o)
-                  }
-                } {
-                  SELECT (COUNT(?course1) as ?cnt) ?s WHERE {
-                    ?s a etutor:Goal.
-                    OPTIONAL { ?course1 etutor:hasGoal ?s. }
-                  }
-                  GROUP BY ?s
-                }
-              }
-            """
+                """
         );
 
         constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course);
@@ -1036,13 +1036,13 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
             qry =
                 new ParameterizedSparqlString(
                     """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-                DELETE { ?course etutor:hasGoal ?goal }
-                WHERE {
-                    ?course etutor:hasGoal ?goal
-                }
-                """
+                        DELETE { ?course etutor:hasGoal ?goal }
+                        WHERE {
+                            ?course etutor:hasGoal ?goal
+                        }
+                        """
                 );
             qry.setIri("?course", learningGoalAssignmentDTO.getCourseId());
             qry.setIri("?goal", learningGoalAssignmentDTO.getLearningGoalId());
@@ -1064,11 +1064,11 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         StringBuilder builder = new StringBuilder();
         builder.append(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            DELETE { ?subject etutor:hasGoal ?goal }
-            INSERT {
-            """
+                DELETE { ?subject etutor:hasGoal ?goal }
+                INSERT {
+                """
         );
 
         for (String goal : learningGoalUpdateAssignment.getLearningGoalIds()) {
@@ -1077,15 +1077,15 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
         builder.append(
             """
-            }
-            WHERE {
-              ?subject a etutor:Course.
-              OPTIONAL {
-                ?subject etutor:hasGoal ?goal.
-              }
-              FILTER(?subject = ?course)
-            }
-            """
+                }
+                WHERE {
+                  ?subject a etutor:Course.
+                  OPTIONAL {
+                    ?subject etutor:hasGoal ?goal.
+                  }
+                  FILTER(?subject = ?course)
+                }
+                """
         );
 
         ParameterizedSparqlString updateQry = new ParameterizedSparqlString(builder.toString());
@@ -1112,13 +1112,13 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
     private Boolean isLearningGoalPrivate(RDFConnection conn, String owner, String learningGoalName) {
         String query = String.format(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT  ?privateGoal
-            WHERE {
-              <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> etutor:isPrivate ?privateGoal
-            }
-            """,
+                SELECT  ?privateGoal
+                WHERE {
+                  <http://www.dke.uni-linz.ac.at/etutorpp/%s/Goal#%s> etutor:isPrivate ?privateGoal
+                }
+                """,
             owner,
             learningGoalName
         );
