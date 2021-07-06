@@ -8,7 +8,6 @@ import { AlertErrorComponent } from './alert/alert-error.component';
 import { HasAnyAuthorityDirective } from './auth/has-any-authority.directive';
 import { TranslateRolePipe } from 'app/shared/language/translate-role.pipe';
 import { QuillModule } from 'ngx-quill';
-import { TreeviewModule } from 'ngx-treeview';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { DurationPipe } from './date/duration.pipe';
 import { FormatMediumDatetimePipe } from './date/format-medium-datetime.pipe';
@@ -17,6 +16,7 @@ import { SortByDirective } from './sort/sort-by.directive';
 import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { TreeviewModule } from './ngx-treeview/treeview.module';
 
 @NgModule({
   imports: [

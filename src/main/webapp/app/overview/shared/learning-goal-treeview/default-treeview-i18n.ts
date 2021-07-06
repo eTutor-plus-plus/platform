@@ -1,7 +1,8 @@
 /* eslint-disable */
-import { TreeviewI18n, TreeviewSelection } from 'ngx-treeview';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { TreeviewI18n } from '../../../shared/ngx-treeview/models/treeview-i18n';
+import { TreeviewSelection } from '../../../shared/ngx-treeview/models/treeview-item';
 
 /**
  * I18n provider service for the angular tree view.

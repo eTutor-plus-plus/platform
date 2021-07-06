@@ -1,8 +1,10 @@
 import { Component, Input, TemplateRef } from '@angular/core';
 import { FilterLearningGoalTreeviewItem, LearningGoalTreeviewItem } from '../learning-goal-treeview-item.model';
 import { isNil, includes } from 'lodash';
-import { TreeviewConfig, TreeviewI18n, TreeviewItemTemplateContext } from 'ngx-treeview';
 import { DefaultTreeviewI18n } from './default-treeview-i18n';
+import { TreeviewI18n } from '../../../shared/ngx-treeview/models/treeview-i18n';
+import { TreeviewItemTemplateContext } from '../../../shared/ngx-treeview/models/treeview-item-template-context';
+import { TreeviewConfig } from '../../../shared/ngx-treeview/models/treeview-config';
 
 /**
  * Component for displaying a filterable learning goal treeview.
