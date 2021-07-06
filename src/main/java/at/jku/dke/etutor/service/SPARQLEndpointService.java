@@ -894,7 +894,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         throws CourseNotFoundException, InternalModelException {
         Objects.requireNonNull(course);
 
-        String qry = String.format(QRY_ASK_COURSE_EXIST, course.replace(" ", "_"));
+        String qry = String.format(QRY_ASK_COURSE_EXIST, URLEncoder.encode(course.replace(" ", "_"), StandardCharsets.UTF_8));
 
         ParameterizedSparqlString constructQry = new ParameterizedSparqlString(
             """
@@ -946,7 +946,7 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
                 """
         );
 
-        constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + course.replace(" ", "_"));
+        constructQry.setIri("?course", "http://www.dke.uni-linz.ac.at/etutorpp/Course#" + URLEncoder.encode(course.replace(" ", "_"), StandardCharsets.UTF_8));
 
         try (RDFConnection connection = getConnection()) {
             boolean exist = connection.queryAsk(qry);
