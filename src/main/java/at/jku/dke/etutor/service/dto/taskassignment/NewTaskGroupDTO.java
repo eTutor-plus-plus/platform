@@ -12,6 +12,9 @@ public class NewTaskGroupDTO {
     @NotBlank
     private String name;
     private String description;
+    private String sqlCreateStatements;
+    private String sqlInsertStatementsSubmission;
+    private String sqlInsertStatementsDiagnose;
 
     /**
      * Constructor.
@@ -19,9 +22,15 @@ public class NewTaskGroupDTO {
      * @param name        the mandatory name
      * @param description the optional description
      */
-    public NewTaskGroupDTO(String name, String description) {
+    public NewTaskGroupDTO(String name, String description,
+                           String sqlCreateStatements,
+                           String sqlInsertStatementsSubmission,
+                           String sqlInsertStatementsDiagnose) {
         this.name = name;
         this.description = description;
+        this.sqlCreateStatements =sqlCreateStatements;
+        this.sqlInsertStatementsSubmission=sqlInsertStatementsSubmission;
+        this.sqlInsertStatementsDiagnose=sqlInsertStatementsDiagnose;
     }
 
     /**
@@ -65,5 +74,53 @@ public class NewTaskGroupDTO {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * Returns the SQL- Create Table Statements
+     * @return the statements
+     */
+    public String getSqlCreateStatements() {
+        return sqlCreateStatements;
+    }
+
+    /**
+     * Sets the SQL- Create Table Statements
+     * @param sqlCreateStatements
+     */
+    public void setSqlCreateStatements(String sqlCreateStatements) {
+        this.sqlCreateStatements = sqlCreateStatements;
+    }
+
+    /**
+     * Returns the SQL- Insert Statements for the submission schema
+     * @return the statements
+     */
+    public String getSqlInsertStatementsSubmission() {
+        return sqlInsertStatementsSubmission;
+    }
+
+    /**
+     * Sets the SQL- Insert Statements for the submission schema
+     * @param sqlInsertStatementsSubmission
+     */
+    public void setSqlInsertStatementsSubmission(String sqlInsertStatementsSubmission) {
+        this.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission;
+    }
+
+    /**
+     * Returns the SQL- Insert Statements for the diagnose schema
+     * @return
+     */
+    public String getSqlInsertStatementsDiagnose() {
+        return sqlInsertStatementsDiagnose;
+    }
+
+    /**
+     * Sets the SQL- Insert Statements for the diagnose schema
+     * @param sqlInsertStatementsDiagnose
+     */
+    public void setSqlInsertStatementsDiagnose(String sqlInsertStatementsDiagnose) {
+        this.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
     }
 }

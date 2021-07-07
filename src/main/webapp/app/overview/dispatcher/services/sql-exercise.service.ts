@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { Response } from 'app/overview/dispatcher/entities/Response';
 
 /**
- * Used to manage SQL-Exercises
+ * Used to manage SQL-Exercises in the backend (dispatcher)
  */
 
 const httpOptions = {
@@ -30,7 +30,7 @@ export class SqlExerciseService {
    * @param exerciseID the Exercise-ID of the task for identification in the dispatcher backend
    * @param solution the SQL Solution for the exercise
    */
-  public create(
+  public createSchemaAndExercise(
     schemaName: string,
     createStatements: string,
     insertSubmission: string,
@@ -40,11 +40,29 @@ export class SqlExerciseService {
   ): void {
     this.deleteSchema(schemaName).subscribe(() => {
       this.deleteExercise(exerciseID).subscribe();
-      this.createSchema(schemaName).subscribe(() => {
+      this.createSchemaUtil(schemaName).subscribe(() => {
         this.createTables(schemaName, createStatements).subscribe(() => {
           this.insertSubmission(schemaName, insertSubmission).subscribe();
           this.insertDiagnose(schemaName, insertDiagnose).subscribe();
-          this.createExercise(schemaName, exerciseID, solution).subscribe();
+          this.createExerciseUtil(schemaName, exerciseID, solution).subscribe();
+        });
+      });
+    });
+  }
+
+  /**
+   * Creates a schema, tables and data
+   * @param schemaName
+   * @param createStatements
+   * @param insertSubmission
+   * @param insertDiagnose
+   */
+  public createSchema(schemaName: string, createStatements: string, insertSubmission: string, insertDiagnose: string): void {
+    this.deleteSchema(schemaName).subscribe(() => {
+      this.createSchemaUtil(schemaName).subscribe(() => {
+        this.createTables(schemaName, createStatements).subscribe(() => {
+          this.insertSubmission(schemaName, insertSubmission).subscribe();
+          this.insertDiagnose(schemaName, insertDiagnose).subscribe();
         });
       });
     });
@@ -56,8 +74,8 @@ export class SqlExerciseService {
    * @param exerciseID the id of the exercise
    * @param solution the solution of the exercise
    */
-  public add(schemaName: string, exerciseID: string, solution: string): void {
-    this.deleteExercise(exerciseID).subscribe(() => this.createExercise(schemaName, exerciseID, solution).subscribe());
+  public createExercise(schemaName: string, exerciseID: string, solution: string): void {
+    this.deleteExercise(exerciseID).subscribe(() => this.createExerciseUtil(schemaName, exerciseID, solution).subscribe());
   }
 
   public getExerciseId(): Observable<Response> {
@@ -84,7 +102,7 @@ export class SqlExerciseService {
    * @param schemaName the name of the schema to be created
    * @private
    */
-  private createSchema(schemaName: string): Observable<Response> {
+  private createSchemaUtil(schemaName: string): Observable<Response> {
     const url = this.API_URL + '/schema/' + schemaName;
     return this.http.put<Response>(url, null, httpOptions);
   }
@@ -128,7 +146,7 @@ export class SqlExerciseService {
    * @param solution the solution for the exercise
    * @private
    */
-  private createExercise(schemaName: string, exerciseId: string, solution: string): Observable<Response> {
+  private createExerciseUtil(schemaName: string, exerciseId: string, solution: string): Observable<Response> {
     const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseId;
     return this.http.put<Response>(url, solution, httpOptions);
   }

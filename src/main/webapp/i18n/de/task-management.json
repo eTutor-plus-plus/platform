@@ -23,12 +23,12 @@
       "organisationUnit": "Organisationseinheit:",
       "privateTask": "Private Aufgabe",
       "taskDifficulty": "Aufgabenschwierigkeit:",
-      "taskIdForDispatcher": "Aufgaben-ID für das Dispatcher-Backend:",
-      "sqlSchema": "SQL Schema:",
-      "sqlCreateStatements": "SQL Create-Table-Statements:",
-      "sqlInsertStatementsSubmission": "SQL Insert-Into-Statements(Submission):",
-      "sqlInsertStatementsDiagnose": "SQL Insert-Into-Statements(Diagnose):",
-      "sqlSolution": "SQL Lösung:",
+      "taskIdForDispatcher": "Dispatcher: Exercise ID Referenz",
+      "sqlSchema": "SQL: Schema:",
+      "sqlCreateStatements": "SQL: Create-Table-Statements:",
+      "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
+      "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
+      "sqlSolution": "SQL: Lösung:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",
@@ -71,6 +71,9 @@
         "newHeader": "Neue Aufgabengruppe erstellen",
         "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
         "nameField": "Name:",
+        "sqlCreateStatements": "SQL: Create-Table-Statements",
+        "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
+        "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
         "descriptionField": "Beschreibung:"
       }
     }

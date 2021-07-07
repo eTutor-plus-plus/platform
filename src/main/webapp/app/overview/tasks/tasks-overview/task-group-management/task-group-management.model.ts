@@ -10,6 +10,18 @@ export interface INewTaskGroupDTO {
    * The optional description
    */
   description?: string;
+  /**
+   * Optional create-table-statements for an SQL-Task Group
+   */
+  sqlCreateStatements?: string;
+  /**
+   * Optional insert-into-statements for an SQL-Task Group for submissions
+   */
+  sqlInsertStatementsSubmission?: string;
+  /**
+   * Optional insert-into-statements for an SQL-Task Group for diagnose
+   */
+  sqlInsertStatementsDiagnose?: string;
 }
 
 /**

@@ -51,7 +51,6 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO) {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
-
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
             return ResponseEntity.ok(taskGroupDTO);
@@ -95,7 +94,13 @@ public class TaskGroupResource {
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
+        System.out.println("Task Group in "+ taskGroupDTO.getSqlCreateStatements());
+        System.out.println(taskGroupDTO.getSqlInsertStatementsSubmission());
+        System.out.println(taskGroupDTO.getSqlInsertStatementsDiagnose());
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
+        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlCreateStatements());
+        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlInsertStatementsSubmission());
+        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlInsertStatementsDiagnose());
         return ResponseEntity.ok(taskGroupDTOFromService);
     }
 

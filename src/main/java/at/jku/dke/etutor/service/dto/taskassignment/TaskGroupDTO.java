@@ -27,8 +27,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String id, String creator, Instant changeDate) {
-        super(name, description);
+    public TaskGroupDTO(String name, String description, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String id, String creator, Instant changeDate) {
+        super(name, description, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -51,9 +51,21 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         setName(resource.getProperty(ETutorVocabulary.hasTaskGroupName).getString());
 
         Statement descriptionStatement = resource.getProperty(ETutorVocabulary.hasTaskGroupDescription);
+        Statement sqlCreateStatement = resource.getProperty(ETutorVocabulary.hasSQLCreateStatements);
+        Statement sqlInsertSubmissionStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission);
+        Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
+        }
+        if (sqlCreateStatement != null) {
+            setSqlCreateStatements(sqlCreateStatement.getString());
+        }
+        if (sqlInsertSubmissionStatement!= null) {
+            setSqlInsertStatementsSubmission(sqlInsertSubmissionStatement.getString());
+        }
+        if (sqlInsertDiagnoseStatement!= null) {
+           setSqlInsertStatementsDiagnose(sqlInsertDiagnoseStatement.getString());
         }
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {

@@ -205,7 +205,7 @@ export class TaskUpdateComponent implements OnInit {
       newTask.taskIdForDispatcher &&
       newTask.sqlSolution
     ) {
-      this.sqlExerciseService.create(
+      this.sqlExerciseService.createSchemaAndExercise(
         newTask.sqlSchemaName,
         newTask.sqlCreateStatements,
         newTask.sqlInsertStatementsSubmission,
@@ -221,7 +221,10 @@ export class TaskUpdateComponent implements OnInit {
       !newTask.sqlInsertStatementsDiagnose &&
       !newTask.sqlInsertStatementsSubmission
     ) {
-      this.sqlExerciseService.add(newTask.sqlSchemaName, newTask.taskIdForDispatcher, newTask.sqlSolution);
+      this.sqlExerciseService.createExercise(newTask.sqlSchemaName, newTask.taskIdForDispatcher, newTask.sqlSolution);
+    } else if (newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
+      const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1, newTask.taskGroupId.length);
+      this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
   }
 

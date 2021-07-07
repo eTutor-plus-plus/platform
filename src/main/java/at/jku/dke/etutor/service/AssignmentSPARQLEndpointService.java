@@ -753,7 +753,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             connection.load(model);
         }
 
-        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), resource.getURI(), creator, now);
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(),
+            newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), resource.getURI(), creator, now);
     }
 
     /**
@@ -797,20 +799,43 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             DELETE {
               ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
               ?group etutor:hasTaskGroupDescription ?oldDescription.
+              ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+              ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+              ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
             } INSERT {
               ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
             """);
 
         if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
-            query.append("  ?group etutor:hasTaskGroupDescription ?newDescription.");
+            query.append(" ?group etutor:hasTaskGroupDescription ?newDescription.");
+            query.append("\n");
         }
 
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
+            query.append("  ?group etutor:hasSQLCreateStatements ?newSQLCreateStatements.");
+            query.append("\n");
+        }
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.append("  ?group etutor:hasSQLInsertStatementsSubmission ?newSQLInsertStatementsSubmission.");
+            query.append("\n");
+        }
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.append("  ?group etutor:hasSQLInsertStatementsDiagnose ?newSQLInsertStatementsDiagnose.");
+            query.append("\n");
+        }
         query.append("""
             } WHERE {
               ?group a etutor:TaskGroup.
               ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
               OPTIONAL {
                 ?group etutor:hasTaskGroupDescription ?oldDescription.
+              }
+              OPTIONAL {
+                ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+                ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+                ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
               }
             }
             """);
@@ -823,11 +848,20 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
             query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
         }
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
+            query.setLiteral("?newSQLCreateStatements", taskGroupDTO.getSqlCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsSubmission())) {
+            query.setLiteral("?newSQLInsertStatementsSubmission", taskGroupDTO.getSqlInsertStatementsSubmission().trim());
+        }
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            query.setLiteral("?newSQLInsertStatementsDiagnose", taskGroupDTO.getSqlInsertStatementsDiagnose().trim());
+        }
 
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
-
+        System.out.println(query);
         return taskGroupDTO;
     }
 
@@ -860,6 +894,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 return Optional.empty();
             }
 
+            TaskGroupDTO taskGroupDTO = new TaskGroupDTO(resource);
             return Optional.of(new TaskGroupDTO(resource));
         }
     }
@@ -954,13 +989,22 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
 
+
         if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlCreateStatements())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLCreateStatements, newTaskGroupDTO.getSqlCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission, newTaskGroupDTO.getSqlInsertStatementsSubmission().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose, newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim());
         }
 
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
-
         return taskGroupResource;
     }
 
