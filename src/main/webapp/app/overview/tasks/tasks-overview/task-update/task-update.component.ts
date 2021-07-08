@@ -22,6 +22,7 @@ export class TaskUpdateComponent implements OnInit {
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
   public editorOptions = { theme: 'vs-light', language: 'sql' };
+  public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
 
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
@@ -124,26 +125,6 @@ export class TaskUpdateComponent implements OnInit {
     }
   }
   continueSave(newTask: INewTaskModel): void {
-    const sqlSchemaName: string = this.updateForm.get('sqlSchemaName')!.value;
-    if (sqlSchemaName.trim()) {
-      newTask.sqlSchemaName = sqlSchemaName.trim();
-    }
-
-    const sqlCreateStatements: string = this.updateForm.get('sqlCreateStatements')!.value;
-    if (sqlCreateStatements.trim()) {
-      newTask.sqlCreateStatements = sqlCreateStatements.trim();
-    }
-
-    const sqlInsertStatementsSubmission: string = this.updateForm.get('sqlInsertStatementsSubmission')!.value;
-    if (sqlInsertStatementsSubmission.trim()) {
-      newTask.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission.trim();
-    }
-
-    const sqlInsertStatementsDiagnose: string = this.updateForm.get('sqlInsertStatementsDiagnose')!.value;
-    if (sqlInsertStatementsDiagnose.trim()) {
-      newTask.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose.trim();
-    }
-
     const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution.trim()) {
       newTask.sqlSolution = sqlSolution.trim();
@@ -170,10 +151,6 @@ export class TaskUpdateComponent implements OnInit {
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
         taskIdForDispatcher: newTask.taskIdForDispatcher,
-        sqlSchemaName: newTask.sqlSchemaName,
-        sqlCreateStatements: newTask.sqlCreateStatements,
-        sqlInsertStatementsSubmission: newTask.sqlInsertStatementsSubmission,
-        sqlInsertStatementsDiagnose: newTask.sqlInsertStatementsDiagnose,
         sqlSolution: newTask.sqlSolution,
         processingTime: newTask.processingTime,
         url: newTask.url,
@@ -197,32 +174,7 @@ export class TaskUpdateComponent implements OnInit {
       );
     }
 
-    if (
-      newTask.sqlSchemaName &&
-      newTask.sqlCreateStatements &&
-      newTask.sqlInsertStatementsSubmission &&
-      newTask.sqlInsertStatementsDiagnose &&
-      newTask.taskIdForDispatcher &&
-      newTask.sqlSolution
-    ) {
-      this.sqlExerciseService.createSchemaAndExercise(
-        newTask.sqlSchemaName,
-        newTask.sqlCreateStatements,
-        newTask.sqlInsertStatementsSubmission,
-        newTask.sqlInsertStatementsDiagnose,
-        newTask.taskIdForDispatcher,
-        newTask.sqlSolution
-      );
-    } else if (
-      newTask.sqlSchemaName &&
-      newTask.sqlSolution &&
-      newTask.taskIdForDispatcher &&
-      !newTask.sqlCreateStatements &&
-      !newTask.sqlInsertStatementsDiagnose &&
-      !newTask.sqlInsertStatementsSubmission
-    ) {
-      this.sqlExerciseService.createExercise(newTask.sqlSchemaName, newTask.taskIdForDispatcher, newTask.sqlSolution);
-    } else if (newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
+    if (newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
       const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1, newTask.taskGroupId.length);
       this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
@@ -246,14 +198,23 @@ export class TaskUpdateComponent implements OnInit {
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
-      const sqlSchemaName = value.sqlSchemaName ?? '';
-      const sqlCreateStatements = value.sqlCreateStatements ?? '';
-      const sqlInsertStatementsSubmission = value.sqlInsertStatementsSubmission ?? '';
-      const sqlInsertStatementsDiagnose = value.sqlInsertStatementsDiagnose ?? '';
       const sqlSolution = value.sqlSolution ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
+      const taskGroupId = value.taskGroupId ?? '';
+      const taskType = value.taskAssignmentTypeId;
+
+      if (taskGroupId && taskType === TaskAssignmentType.SQLTask.value) {
+        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+        this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+          this.updateForm.patchValue({
+            sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+            sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+            sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+          });
+        });
+      }
 
       this.updateForm.patchValue({
         header: value.header,
@@ -262,10 +223,6 @@ export class TaskUpdateComponent implements OnInit {
         privateTask: value.privateTask,
         taskDifficulty,
         taskIdForDispatcher,
-        sqlSchemaName,
-        sqlCreateStatements,
-        sqlInsertStatementsSubmission,
-        sqlInsertStatementsDiagnose,
         sqlSolution,
         processingTime,
         url,

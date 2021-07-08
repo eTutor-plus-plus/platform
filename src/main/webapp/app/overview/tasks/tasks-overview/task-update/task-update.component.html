@@ -105,7 +105,11 @@
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
         >SQL Create-Table-Statements:</label
       >
-      <ngx-monaco-editor [options]="editorOptions" id="sqlCreateStatements" formControlName="sqlCreateStatements"></ngx-monaco-editor>
+      <ngx-monaco-editor
+        [options]="editorOptionsReadOnly"
+        id="sqlCreateStatements"
+        formControlName="sqlCreateStatements"
+      ></ngx-monaco-editor>
     </div>
     <div class="form-group">
       <label
@@ -115,7 +119,7 @@
         >SQL Insert-Into-Statements (Submission):</label
       >
       <ngx-monaco-editor
-        [options]="editorOptions"
+        [options]="editorOptionsReadOnly"
         id="sqlInsertStatementsSubmission"
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
@@ -125,7 +129,7 @@
         >SQL Insert-Into-Statements (Diagnose):</label
       >
       <ngx-monaco-editor
-        [options]="editorOptions"
+        [options]="editorOptionsReadOnly"
         id="sqlInsertStatementsDiagnose"
         formControlName="sqlInsertStatementsDiagnose"
       ></ngx-monaco-editor>
