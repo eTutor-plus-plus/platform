@@ -22,35 +22,6 @@ export class SqlExerciseService {
   constructor(private http: HttpClient) {}
 
   /**
-   * public method that requests the creation of an exercise including tables, data, and solution.
-   * @param schemaName the schema name for the extension
-   * @param createStatements the SQL statements used to create the necessary schemas
-   * @param insertSubmission the SQL statements used to insert data into the submission-version of the tables
-   * @param insertDiagnose SQL statements used to insert data into the submission-version of the tables
-   * @param exerciseID the Exercise-ID of the task for identification in the dispatcher backend
-   * @param solution the SQL Solution for the exercise
-   */
-  public createSchemaAndExercise(
-    schemaName: string,
-    createStatements: string,
-    insertSubmission: string,
-    insertDiagnose: string,
-    exerciseID: string,
-    solution: string
-  ): void {
-    this.deleteSchema(schemaName).subscribe(() => {
-      this.deleteExercise(exerciseID).subscribe();
-      this.createSchemaUtil(schemaName).subscribe(() => {
-        this.createTables(schemaName, createStatements).subscribe(() => {
-          this.insertSubmission(schemaName, insertSubmission).subscribe();
-          this.insertDiagnose(schemaName, insertDiagnose).subscribe();
-          this.createExerciseUtil(schemaName, exerciseID, solution).subscribe();
-        });
-      });
-    });
-  }
-
-  /**
    * Creates a schema, tables and data
    * @param schemaName
    * @param createStatements
@@ -58,7 +29,7 @@ export class SqlExerciseService {
    * @param insertDiagnose
    */
   public createSchema(schemaName: string, createStatements: string, insertSubmission: string, insertDiagnose: string): void {
-    this.deleteSchema(schemaName).subscribe(() => {
+    this.deleteSchemaUtil(schemaName).subscribe(() => {
       this.createSchemaUtil(schemaName).subscribe(() => {
         this.createTables(schemaName, createStatements).subscribe(() => {
           this.insertSubmission(schemaName, insertSubmission).subscribe();
@@ -78,21 +49,36 @@ export class SqlExerciseService {
     this.deleteExercise(exerciseID).subscribe(() => this.createExerciseUtil(schemaName, exerciseID, solution).subscribe());
   }
 
+  /**
+   * Deletes a schema
+   * @param schemaName the name of the schema
+   */
+  public deleteSchema(schemaName: string): void {
+    this.deleteSchemaUtil(schemaName).subscribe();
+  }
+
+  /**
+   * Returns an available exercise id
+   */
   public getExerciseId(): Observable<Response> {
     const url = this.API_URL + '/exercise/reservation';
     return this.http.get<Response>(url);
   }
 
-  private exerciseId(): Observable<any> {
-    const url = this.API_URL + '/exercise/reservation';
-    return this.http.get(url, { observe: 'response', responseType: 'text' });
+  /**
+   * Deletes the connection for a schema and all exercises that point to this connection
+   * @param schemaName the schema name
+   */
+  public deleteConnection(schemaName: string): void {
+    const url = this.API_URL + '/schema/' + schemaName + '/connection';
+    this.http.delete(url).subscribe();
   }
   /**
    * requests the deletion of a given schema
    * @param schemaName the name of the schema to be deleted
    * @private
    */
-  private deleteSchema(schemaName: string): Observable<Response> {
+  private deleteSchemaUtil(schemaName: string): Observable<Response> {
     const url = this.API_URL + '/schema/' + schemaName;
     return this.http.delete<Response>(url, httpOptions);
   }

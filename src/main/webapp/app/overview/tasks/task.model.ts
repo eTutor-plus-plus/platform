@@ -53,22 +53,6 @@ export interface INewTaskModel {
   /**
    * Optional schema name for an SQL-Exercise
    */
-  sqlSchemaName?: string;
-  /**
-   * Optional create-table-statements for an SQL-Exercise
-   */
-  sqlCreateStatements?: string;
-  /**
-   * Optional insert-into-statements for an SQL-Exercise for submissions
-   */
-  sqlInsertStatementsSubmission?: string;
-  /**
-   * Optional insert-into-statements for an SQL-Exercise for diagnose
-   */
-  sqlInsertStatementsDiagnose?: string;
-  /**
-   * Optional solution for an SQL-Exercise
-   */
   sqlSolution?: string;
   /**
    * The optional free text processing time.

@@ -53,10 +53,6 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setCreator(newTaskAssignmentDTO.getCreator());
         setHeader(newTaskAssignmentDTO.getHeader());
         setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
-        setSqlSchemaName(newTaskAssignmentDTO.getSqlSchemaName());
-        setSqlCreateStatements(newTaskAssignmentDTO.getSqlCreateStatements());
-        setSqlInsertStatementsSubmission(newTaskAssignmentDTO.getSqlInsertStatementsSubmission());
-        setSqlInsertStatementsDiagnose(newTaskAssignmentDTO.getSqlInsertStatementsDiagnose());
         setSqlSolution(newTaskAssignmentDTO.getSqlSolution());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
         setTaskDifficultyId(newTaskAssignmentDTO.getTaskDifficultyId());
@@ -106,22 +102,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        Statement sqlSchemaNameStatement = resource.getProperty(ETutorVocabulary.hasSQLSchemaName);
-        if(sqlSchemaNameStatement != null){
-            setSqlSchemaName(sqlSchemaNameStatement.getString());
-        }
-        Statement sqlCreateStatement = resource.getProperty(ETutorVocabulary.hasSQLCreateStatements);
-        if(sqlCreateStatement != null){
-            setSqlCreateStatements(sqlCreateStatement.getString());
-        }
-        Statement sqlInsertSubmissionStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission);
-        if(sqlInsertSubmissionStatement != null){
-            setSqlInsertStatementsSubmission(sqlInsertSubmissionStatement.getString());
-        }
-        Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
-        if(sqlInsertSubmissionStatement != null){
-            setSqlInsertStatementsDiagnose(sqlInsertDiagnoseStatement.getString());
-        }
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());
