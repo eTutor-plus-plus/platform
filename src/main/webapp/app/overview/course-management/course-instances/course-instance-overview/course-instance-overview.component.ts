@@ -172,15 +172,12 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
       }
 
       await this.loadPageAsync();
-      this.alertService.addAlert(
-        {
-          type: 'success',
-          translationKey: 'courseManagement.instances.overview.courseInstanceRemoved',
-          translationParams: { name: item.name },
-          timeout: 5000,
-        },
-        []
-      );
+      this.alertService.addAlert({
+        type: 'success',
+        translationKey: 'courseManagement.instances.overview.courseInstanceRemoved',
+        translationParams: { name: item.name },
+        timeout: 5000,
+      });
     })();
   }
 

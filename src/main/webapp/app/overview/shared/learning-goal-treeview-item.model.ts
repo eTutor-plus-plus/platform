@@ -1,6 +1,6 @@
-import { TreeItem, TreeviewItem } from 'ngx-treeview';
 import { isNil } from 'lodash';
 import { ILearningGoalModel } from './learning-goal-model';
+import { TreeItem, TreeviewItem } from '../../shared/ngx-treeview/models/treeview-item';
 
 /**
  * The {@link LearningGoalTreeviewItem} interface extends the {@link TreeItem} interface

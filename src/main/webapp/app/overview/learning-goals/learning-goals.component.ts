@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
-import { TreeviewComponent } from 'ngx-treeview';
 import { ContextMenuComponent } from 'ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from 'app/core/auth/account.service';
@@ -11,6 +10,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
 import { combineLatest } from 'rxjs';
 import { AlertService } from 'app/core/util/alert.service';
+import { TreeviewComponent } from '../../shared/ngx-treeview/components/treeview/treeview.component';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -136,15 +136,12 @@ export class LearningGoalsComponent implements OnInit {
     (async () => {
       await this.learningGoalsService.deleteGoalWithSubGoals(goalItem.text).toPromise();
       await this.loadLearningGoalsAsync();
-      this.alertService.addAlert(
-        {
-          type: 'success',
-          translationKey: 'learningGoalManagement.learningGoalRemovedMsg',
-          translationParams: { name: goalItem.text },
-          timeout: 5000,
-        },
-        []
-      );
+      this.alertService.addAlert({
+        type: 'success',
+        translationKey: 'learningGoalManagement.learningGoalRemovedMsg',
+        translationParams: { name: goalItem.text },
+        timeout: 5000,
+      });
     })();
   }
 

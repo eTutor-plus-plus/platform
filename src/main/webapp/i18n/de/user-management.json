@@ -4,11 +4,13 @@
       "title": "Benutzer",
       "refreshListLabel": "Refresh list",
       "createLabel": "Neuen Benutzer erstellen",
-      "createOrEditLabel": "Benutzer erstellen oder bearbeiten"
+      "createOrEditLabel": "Benutzer erstellen oder bearbeiten",
+      "removeAllInactive": "Alle inaktiven Benutzer löschen"
     },
     "created": "Ein neuer Benutzer wurde mit ID {{ param }} erstellt",
     "updated": "Ein Benutzer mit ID {{ param }} wurde geändert",
     "deleted": "Ein Benutzer mit ID {{ param }} wurde gelöscht",
+    "inactiveRemoved": "Es wurden {{ count }} inaktive Benutzer gelöscht.",
     "delete": {
       "question": "Sind Sie sicher, dass Sie den Benutzer {{ login }} löschen möchten?"
     },

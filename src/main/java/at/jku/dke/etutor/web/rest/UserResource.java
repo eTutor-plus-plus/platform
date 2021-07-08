@@ -7,14 +7,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.MailService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
-import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.errors.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.Collections;
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +24,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing users.
@@ -102,9 +104,9 @@ public class UserResource {
      *
      * @param userDTO the user to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
-     * @throws LoginPatternFailedException if the login doesn't match the jku pattern
+     * @throws URISyntaxException               if the Location URI syntax is incorrect.
+     * @throws BadRequestAlertException         {@code 400 (Bad Request)} if the login or email is already in use.
+     * @throws LoginPatternFailedException      if the login doesn't match the jku pattern
      * @throws CollectionRequiredEntryException if the list of authorities is empty
      */
     @PostMapping("/users")
@@ -214,5 +216,18 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
         return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login)).build();
+    }
+
+    /**
+     * {@code DELETE /users/remove/deactivated} : Deletes all deactivated users.
+     *
+     * @return the {@link ResponseEntity} containing the count of removed users.
+     */
+    @DeleteMapping("/users/remove/deactivated")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<Integer> removeDeactivatedUsers() {
+        log.debug("REST request do remove all deactivated users.");
+        int removedCount = userService.removeAllDeactivatedUsers();
+        return ResponseEntity.ok(removedCount);
     }
 }

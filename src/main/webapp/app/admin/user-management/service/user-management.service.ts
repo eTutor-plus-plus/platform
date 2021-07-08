@@ -37,4 +37,11 @@ export class UserManagementService {
   authorities(): Observable<string[]> {
     return this.http.get<string[]>(this.applicationConfigService.getEndpointFor('api/authorities'));
   }
+
+  /**
+   * Removes all deactivated users.
+   */
+  public deleteDeactivatedUsers(): Observable<number> {
+    return this.http.delete<number>(`${this.resourceUrl}/remove/deactivated`);
+  }
 }

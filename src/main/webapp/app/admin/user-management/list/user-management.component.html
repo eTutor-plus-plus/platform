@@ -3,6 +3,11 @@
     <span id="user-management-page-heading" jhiTranslate="userManagement.home.title" data-cy="userManagementPageHeading">Users</span>
 
     <div class="d-flex justify-content-end">
+      <button [disabled]="isRemovingUsers" (click)="removeAllInactiveUsers()" class="btn btn-danger mr-2">
+        <fa-icon icon="trash"></fa-icon>
+        <span jhiTranslate="userManagement.home.removeAllInactive">Remove all inactive users</span>
+      </button>
+
       <button class="btn btn-info mr-2" (click)="loadAll()" [disabled]="isLoading">
         <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
         <span jhiTranslate="userManagement.home.refreshListLabel">Refresh List</span>
