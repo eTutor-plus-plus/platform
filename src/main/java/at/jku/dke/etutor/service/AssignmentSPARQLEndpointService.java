@@ -795,12 +795,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.append("\n");
         }
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsSubmission())) {
             query.append("  ?group etutor:hasSQLInsertStatementsSubmission ?newSQLInsertStatementsSubmission.");
             query.append("\n");
         }
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsDiagnose())) {
             query.append("  ?group etutor:hasSQLInsertStatementsDiagnose ?newSQLInsertStatementsDiagnose.");
             query.append("\n");
         }
