@@ -1,1 +1,40 @@
-<p>lecturer-overview works!</p>
+<hr />
+<h4>Own courses</h4>
+
+<div class="table-responsive" *ngIf="courses">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Course name</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of courses">
+        <td>{{ item.name }}</td>
+        <td class="text-right">
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary">Show statistics</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="courses">
+  <div class="row justify-content-center">
+    <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+  </div>
+
+  <div class="row justify-content-center">
+    <ngb-pagination
+      [collectionSize]="totalItems"
+      [(page)]="page"
+      [pageSize]="itemsPerPage"
+      [rotate]="true"
+      [boundaryLinks]="true"
+      (pageChange)="transition()"
+    ></ngb-pagination>
+  </div>
+</div>
