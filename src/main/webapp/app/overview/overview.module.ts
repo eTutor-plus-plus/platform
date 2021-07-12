@@ -9,6 +9,7 @@ import { StudentSelfEvaluationComponent } from './student-overview/student-self-
 import { StudentExerciseSheetTasksComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-tasks.component';
 import { StudentTaskComponent } from './student-overview/course-task-overview/student-task/student-task.component';
 import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module';
+import { LecturerOverviewComponent } from './lecturer-overview/lecturer-overview.component';
 
 /**
  * Module for the overview component.
@@ -22,6 +23,7 @@ import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module
     StudentSelfEvaluationComponent,
     StudentExerciseSheetTasksComponent,
     StudentTaskComponent,
+    LecturerOverviewComponent,
   ],
 })
 export class OverviewModule {}
