@@ -1,11 +1,11 @@
 <hr />
-<h4>Own courses</h4>
+<h4 jhiTranslate="lecturerOverview.overviewComponent.header">Own courses</h4>
 
 <div class="table-responsive" *ngIf="courses">
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>Course name</th>
+        <th jhiTranslate="lecturerOverview.overviewComponent.table.courseName">Course name</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -14,7 +14,9 @@
         <td>{{ item.name }}</td>
         <td class="text-right">
           <div class="btn-group">
-            <button type="button" class="btn btn-secondary">Show statistics</button>
+            <button type="button" class="btn btn-secondary" jhiTranslate="lecturerOverview.overviewComponent.table.showStatistics">
+              Show statistics
+            </button>
           </div>
         </td>
       </tr>

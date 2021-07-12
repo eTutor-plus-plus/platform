@@ -18,6 +18,13 @@
         "taskGraded": "Has this task already been graded?",
         "saveEvaluation": "Save evaluation"
       }
+    },
+    "overviewComponent": {
+      "header": "Own courses",
+      "table": {
+        "courseName": "Course name",
+        "showStatistics": "Show statistics"
+      }
     }
   }
 }

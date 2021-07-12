@@ -18,6 +18,13 @@
         "taskGraded": "Aufgabe bereits beurteilt?",
         "saveEvaluation": "Beurteilung speichern"
       }
+    },
+    "overviewComponent": {
+      "header": "Eigene LVAs",
+      "table": {
+        "courseName": "Kursbezeichnung",
+        "showStatistics": "Statistiken anzeigen"
+      }
     }
   }
 }
