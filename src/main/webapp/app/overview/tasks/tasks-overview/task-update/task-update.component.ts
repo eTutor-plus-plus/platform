@@ -23,7 +23,7 @@ export class TaskUpdateComponent implements OnInit {
   public readonly taskTypes = TaskAssignmentType.Values;
   public editorOptions = { theme: 'vs-light', language: 'sql' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
-
+  public isSQLTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -124,6 +124,12 @@ export class TaskUpdateComponent implements OnInit {
       this.continueSave(newTask);
     }
   }
+
+  /**
+   * Continues saving the task (task id for SQL-Tasks have to bee assigned by the dispatcher before saving can be continued)
+   * @param newTask
+   */
+
   continueSave(newTask: INewTaskModel): void {
     const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution.trim()) {
@@ -203,17 +209,20 @@ export class TaskUpdateComponent implements OnInit {
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
       const taskGroupId = value.taskGroupId ?? '';
-      const taskType = value.taskAssignmentTypeId;
+      const taskAssignmentTypeId = value.taskAssignmentTypeId;
 
-      if (taskGroupId && taskType === TaskAssignmentType.SQLTask.value) {
-        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
-        this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
-          this.updateForm.patchValue({
-            sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
-            sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
-            sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+        this.isSQLTask = true;
+        if (taskGroupId) {
+          const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+          this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+            this.updateForm.patchValue({
+              sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+              sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+              sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+            });
           });
-        });
+        }
       }
 
       this.updateForm.patchValue({
@@ -245,5 +254,34 @@ export class TaskUpdateComponent implements OnInit {
    */
   public get isNew(): boolean {
     return this._taskModel === undefined;
+  }
+
+  /**
+   * Reacts to a change of the taskType in the update form
+   */
+  public taskTypeChanged(): void {
+    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.isSQLTask = true;
+    } else {
+      this.isSQLTask = false;
+    }
+  }
+  /**
+   * Reacts to a change of the taskGroup by patching the relevant data from the group in the update form
+   */
+  public taskGroupChanged(): void {
+    const taskGroupId = this.updateForm.get(['taskGroup'])!.value as string | undefined;
+
+    if (taskGroupId) {
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+        this.updateForm.patchValue({
+          sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+          sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+          sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+        });
+      });
+    }
   }
 }
