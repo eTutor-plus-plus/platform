@@ -22,7 +22,7 @@
     "overviewComponent": {
       "header": "Own courses",
       "table": {
-        "courseName": "Course name",
+        "courseName": "Course instance name",
         "showStatistics": "Show statistics"
       }
     }

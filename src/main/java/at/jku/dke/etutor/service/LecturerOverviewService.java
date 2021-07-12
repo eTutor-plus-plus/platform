@@ -47,11 +47,13 @@ public class LecturerOverviewService extends AbstractSPARQLEndpointService {
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT ?courseName (STR(?course) AS ?courseId)
+            SELECT ?courseName (STR(?course) AS ?courseInstanceId)
             WHERE {
               ?course etutor:hasCourseCreator ?creator.
               ?course a etutor:Course.
-              ?course rdfs:label ?courseName.
+              ?courseInstance etutor:hasCourse ?course.
+              ?courseInstance a etutor:CourseInstance.
+              ?courseInstance rdfs:label ?courseName.
             }
             ORDER BY LCASE(?courseName)
             """);
@@ -66,10 +68,12 @@ public class LecturerOverviewService extends AbstractSPARQLEndpointService {
         ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT (COUNT(?course) AS ?cnt)
+            SELECT (COUNT(?courseInstance) AS ?cnt)
             WHERE {
               ?course etutor:hasCourseCreator ?creator.
               ?course a etutor:Course.
+              ?courseInstance etutor:hasCourse ?course.
+              ?courseInstance a etutor:CourseInstance.
             }
             """);
 
@@ -92,7 +96,7 @@ public class LecturerOverviewService extends AbstractSPARQLEndpointService {
                 while (set.hasNext()) {
                     QuerySolution solution = set.nextSolution();
                     String name = solution.getLiteral("?courseName").getString();
-                    String id = solution.getLiteral("?courseId").getString();
+                    String id = solution.getLiteral("?courseInstanceId").getString();
 
                     courses.add(new CourseOverviewDTO(id, name));
                 }

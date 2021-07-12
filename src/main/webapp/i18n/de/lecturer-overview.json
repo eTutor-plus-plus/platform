@@ -22,7 +22,7 @@
     "overviewComponent": {
       "header": "Eigene LVAs",
       "table": {
-        "courseName": "Kursbezeichnung",
+        "courseName": "Kursabhaltungsbezeichnung",
         "showStatistics": "Statistiken anzeigen"
       }
     }
