@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
-import { ITaskGroupDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
+import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 
 /**
@@ -15,12 +15,15 @@ import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercis
 export class TaskGroupUpdateComponent {
   public isNew = true;
   public isSaving = false;
+  public isSQLTask = false;
+  public readonly taskGroupTypes = TaskGroupType.Values;
   public taskGroupToEdit?: ITaskGroupDTO;
   public editorOptions = { theme: 'vs-light', language: 'sql' };
 
   public taskGroup = this.fb.group({
     name: ['', [Validators.required]],
     description: ['', []],
+    taskGroupType: [this.taskGroupTypes[0], [Validators.required]],
     sqlCreateStatements: ['', []],
     sqlInsertStatementsSubmission: ['', []],
     sqlInsertStatementsDiagnose: ['', []],
@@ -58,6 +61,9 @@ export class TaskGroupUpdateComponent {
         sqlInsertStatementsSubmission: this.taskGroupToEdit.sqlInsertStatementsSubmission,
         sqlInsertStatementsDiagnose: this.taskGroupToEdit.sqlInsertStatementsDiagnose,
       });
+      if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
+        this.isSQLTask = true;
+      }
       this.isNew = false;
     })();
   }
@@ -76,6 +82,7 @@ export class TaskGroupUpdateComponent {
     this.isSaving = true;
     const name = this.taskGroup.get(['name'])!.value as string;
     const description = this.taskGroup.get(['description'])!.value as string | undefined;
+    const taskGroupTypeId = (this.taskGroup.get(['taskGroupType'])!.value as TaskGroupType).value;
     const sqlCreateStatements = this.taskGroup.get(['sqlCreateStatements'])!.value as string | undefined;
     const sqlInsertStatementsSubmission = this.taskGroup.get(['sqlInsertStatementsSubmission'])!.value as string | undefined;
     const sqlInsertStatementsDiagnose = this.taskGroup.get(['sqlInsertStatementsDiagnose'])!.value as string | undefined;
@@ -85,6 +92,7 @@ export class TaskGroupUpdateComponent {
           .createNewTaskGroup({
             name,
             description,
+            taskGroupTypeId,
             sqlCreateStatements,
             sqlInsertStatementsSubmission,
             sqlInsertStatementsDiagnose,
@@ -95,6 +103,7 @@ export class TaskGroupUpdateComponent {
         this.activeModal.close(newTaskGroup);
       } else {
         this.taskGroupToEdit!.description = description;
+        this.taskGroupToEdit!.taskGroupTypeId = taskGroupTypeId;
         this.taskGroupToEdit!.sqlCreateStatements = sqlCreateStatements;
         this.taskGroupToEdit!.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission;
         this.taskGroupToEdit!.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
@@ -111,5 +120,10 @@ export class TaskGroupUpdateComponent {
       this.isSaving = false;
       throw e;
     }
+  }
+
+  public groupTypeChanged(): void {
+    const groupType = (this.taskGroup.get(['taskGroupType'])!.value as TaskGroupType).value;
+    groupType === TaskGroupType.SQLType.value ? (this.isSQLTask = true) : (this.isSQLTask = false);
   }
 }

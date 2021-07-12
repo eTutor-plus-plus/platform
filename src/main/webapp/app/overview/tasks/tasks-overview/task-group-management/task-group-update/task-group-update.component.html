@@ -27,14 +27,30 @@
       >
       <quill-editor [placeholder]="''" id="description" formControlName="description"> </quill-editor>
     </div>
-
     <div class="form-group">
+      <label class="form-control-label" for="taskGroupType" jhiTranslate="taskManagement.taskGroup.update.taskGroupType">Task type:</label>
+      <select class="form-control" name="taskGroupType" id="taskGroupType" formControlName="taskGroupType" (change)="groupTypeChanged()">
+        <option value="" disabled>{{ 'taskManagement.taskGroup.groupTypePlaceholder' | translate }}</option>
+        <option *ngFor="let taskGroupType of taskGroupTypes" [ngValue]="taskGroupType">{{ taskGroupType.text | translate }}</option>
+      </select>
+
+      <div *ngIf="taskGroup.get('taskGroupType')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="taskGroup.get('taskGroupType')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.taskGroup.update.sqlCreateStatements"
         >SQL: Create-Table-Statements</label
       >
       <ngx-monaco-editor [options]="editorOptions" id="sqlCreateStatements" formControlName="sqlCreateStatements"></ngx-monaco-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label
         class="form-control-label"
         for="sqlInsertStatementsSubmission"
@@ -47,7 +63,7 @@
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label
         class="form-control-label"
         for="sqlInsertStatementsDiagnose"

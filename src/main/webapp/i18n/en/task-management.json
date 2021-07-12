@@ -67,6 +67,7 @@
       "createNewTaskGroup": "Create new task group",
       "close": "Close",
       "manage": "Manage task groups",
+      "groupTypePlaceholder": "Typ auswählen",
       "update": {
         "newHeader": "Create new task group",
         "editHeader": "Edit task group '{{name}}'",
@@ -74,7 +75,12 @@
         "sqlCreateStatements": "SQL: Create-Table-Statements",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
-        "descriptionField": "Description:"
+        "descriptionField": "Description:",
+        "taskGroupType": "Type:",
+        "types": {
+          "noType": "No Type",
+          "sqlType": "SQL Group"
+        }
       }
     }
   }

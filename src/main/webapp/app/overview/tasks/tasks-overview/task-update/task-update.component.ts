@@ -84,7 +84,7 @@ export class TaskUpdateComponent implements OnInit {
   /**
    * Saves the task.
    */
-  public save(): void {
+  public async save(): Promise<void> {
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
@@ -114,23 +114,15 @@ export class TaskUpdateComponent implements OnInit {
     const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher.trim()) {
       newTask.taskIdForDispatcher = taskIdForDispatcher.trim();
-      this.continueSave(newTask);
     } else if (newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-      this.sqlExerciseService.getExerciseId().subscribe(response => {
-        newTask.taskIdForDispatcher = response.message;
-        this.continueSave(newTask);
-      });
-    } else {
-      this.continueSave(newTask);
+      await this.sqlExerciseService
+        .getExerciseId()
+        .toPromise()
+        .then(response => {
+          newTask.taskIdForDispatcher = response.message;
+        });
     }
-  }
 
-  /**
-   * Continues saving the task (task id for SQL-Tasks have to bee assigned by the dispatcher before saving can be continued)
-   * @param newTask
-   */
-
-  continueSave(newTask: INewTaskModel): void {
     const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution.trim()) {
       newTask.sqlSolution = sqlSolution.trim();
@@ -180,7 +172,12 @@ export class TaskUpdateComponent implements OnInit {
       );
     }
 
-    if (newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
+    if (
+      newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
+      newTask.sqlSolution &&
+      newTask.taskGroupId &&
+      newTask.taskIdForDispatcher
+    ) {
       const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1, newTask.taskGroupId.length);
       this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
@@ -211,20 +208,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
 
-      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-        this.isSQLTask = true;
-        if (taskGroupId) {
-          const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
-          this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
-            this.updateForm.patchValue({
-              sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
-              sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
-              sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
-            });
-          });
-        }
-      }
-
+      this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
       this.updateForm.patchValue({
         header: value.header,
         creator: value.creator,
@@ -248,6 +232,28 @@ export class TaskUpdateComponent implements OnInit {
     return this._taskModel;
   }
 
+  /**
+   * Checks wether taskType requires additional form fields.
+   * Fetches additional values from the taskGroup and patches it in the update form.
+   * @param taskAssignmentTypeId
+   * @param taskGroupId
+   * @private
+   */
+  public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
+    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.isSQLTask = true;
+      if (taskGroupId) {
+        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+        this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+          this.updateForm.patchValue({
+            sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+            sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+            sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+          });
+        });
+      }
+    }
+  }
   /**
    * Returns whether this modal window is in new mode.
    * {@code true} = new mode, {@code false} = edit mode

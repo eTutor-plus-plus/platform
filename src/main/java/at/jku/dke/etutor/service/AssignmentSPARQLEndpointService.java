@@ -732,7 +732,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             connection.load(model);
         }
 
-        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(),
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
             newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
             newTaskGroupDTO.getSqlInsertStatementsDiagnose(), resource.getURI(), creator, now);
     }
@@ -967,7 +967,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         Resource taskGroupResource = model.createResource(ETutorVocabulary.getTaskGroupIdFromName(newTaskGroupDTO.getName()));
         taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
-
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupType, newTaskGroupDTO.getTaskGroupTypeId());
 
         if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
