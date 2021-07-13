@@ -112,8 +112,11 @@ export class TaskGroupUpdateComponent {
         this.isSaving = false;
         this.activeModal.close(taskFromService);
       }
+
       if (sqlCreateStatements && sqlInsertStatementsDiagnose && sqlInsertStatementsSubmission) {
-        this.sqlExerciseService.createSchema(name, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose);
+        this.sqlExerciseService
+          .executeDDL(name, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose)
+          .subscribe();
       }
     } catch (e) {
       this.isSaving = false;

@@ -28,15 +28,18 @@ export class SqlExerciseService {
    * @param insertSubmission
    * @param insertDiagnose
    */
-  public createSchema(schemaName: string, createStatements: string, insertSubmission: string, insertDiagnose: string): void {
-    this.deleteSchemaUtil(schemaName).subscribe(() => {
-      this.createSchemaUtil(schemaName).subscribe(() => {
-        this.createTables(schemaName, createStatements).subscribe(() => {
-          this.insertSubmission(schemaName, insertSubmission).subscribe();
-          this.insertDiagnose(schemaName, insertDiagnose).subscribe();
-        });
-      });
-    });
+  public executeDDL(schema: string, createStatements: string, insertSubmission: string, insertDiagnose: string): Observable<any> {
+    const url = this.API_URL + '/schema';
+    return this.http.post<Response>(
+      url,
+      {
+        createStatements: createStatements.trim().split(';'),
+        insertStatementsSubmission: insertSubmission.trim().split(';'),
+        insertStatementsDiagnose: insertDiagnose.trim().split(';'),
+        schemaName: schema,
+      },
+      httpOptions
+    );
   }
 
   /**

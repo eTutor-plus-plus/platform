@@ -810,7 +810,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
-        System.out.println("NoType:" +query);
         return taskGroupDTO;
     }
 
@@ -872,7 +871,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
-        System.out.println("SQL: "+query);
+
         return taskGroupDTO;
     }
 
