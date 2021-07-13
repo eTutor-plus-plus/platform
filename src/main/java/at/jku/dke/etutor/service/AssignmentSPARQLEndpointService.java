@@ -764,7 +764,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Persists the modifications for task groups of "noType", currently only the description can be modified.
+     * Persists the modifications for task groups, currently only the description can be modified.
      *
      * @param taskGroupDTO the task group DTO
      * @return the modified task group
@@ -826,19 +826,11 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
             DELETE {
-              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
-              ?group etutor:hasTaskGroupDescription ?oldDescription.
               ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
               ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
               ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
             } INSERT {
-              ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
             """);
-
-        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
-            query.append(" ?group etutor:hasTaskGroupDescription ?newDescription.");
-            query.append("\n");
-        }
 
         if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
             query.append("  ?group etutor:hasSQLCreateStatements ?newSQLCreateStatements.");
@@ -857,10 +849,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         query.append("""
             } WHERE {
               ?group a etutor:TaskGroup.
-              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
-              OPTIONAL {
-                ?group etutor:hasTaskGroupDescription ?oldDescription.
-              }
               OPTIONAL {
                 ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
                 ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
@@ -870,13 +858,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
 
         query.setIri("?group", taskGroupDTO.getId());
-        Instant now = Instant.now();
-        taskGroupDTO.setChangeDate(now);
-        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
-            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
-        }
         if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
             query.setLiteral("?newSQLCreateStatements", taskGroupDTO.getSqlCreateStatements().trim());
         }
