@@ -11,6 +11,7 @@ import { StudentTaskComponent } from './student-overview/course-task-overview/st
 import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module';
 import { LecturerOverviewComponent } from './lecturer-overview/lecturer-overview.component';
 import { CourseManagementSharedModule } from './course-management-shared/course-management-shared.module';
+import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/course-instance-statistics-overview/course-instance-statistics-overview.component';
 
 /**
  * Module for the overview component.
@@ -25,6 +26,7 @@ import { CourseManagementSharedModule } from './course-management-shared/course-
     StudentExerciseSheetTasksComponent,
     StudentTaskComponent,
     LecturerOverviewComponent,
+    CourseInstanceStatisticsOverviewComponent,
   ],
 })
 export class OverviewModule {}
