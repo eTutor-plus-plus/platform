@@ -27,7 +27,7 @@
       >
       <quill-editor [placeholder]="''" id="description" formControlName="description"> </quill-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isNew">
       <label class="form-control-label" for="taskGroupType" jhiTranslate="taskManagement.taskGroup.update.taskGroupType">Task type:</label>
       <select class="form-control" name="taskGroupType" id="taskGroupType" formControlName="taskGroupType" (change)="groupTypeChanged()">
         <option value="" disabled>{{ 'taskManagement.taskGroup.groupTypePlaceholder' | translate }}</option>

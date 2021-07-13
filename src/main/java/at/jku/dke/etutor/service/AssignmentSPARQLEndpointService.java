@@ -764,12 +764,62 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Persists the modifications, currently only the description can be modified.
+     * Persists the modifications for task groups of "noType", currently only the description can be modified.
      *
      * @param taskGroupDTO the task group DTO
      * @return the modified task group
      */
     public TaskGroupDTO modifyTaskGroup(TaskGroupDTO taskGroupDTO) {
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              ?group etutor:hasTaskGroupDescription ?oldDescription.
+            } INSERT {
+              ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
+            """);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.append(" ?group etutor:hasTaskGroupDescription ?newDescription.");
+            query.append("\n");
+        }
+
+
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              OPTIONAL {
+                ?group etutor:hasTaskGroupDescription ?oldDescription.
+              }
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+        Instant now = Instant.now();
+        taskGroupDTO.setChangeDate(now);
+        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+        System.out.println("NoType:" +query);
+        return taskGroupDTO;
+    }
+
+    /**
+     * Persists the modified taskGroup of type "SQL"
+     * @param taskGroupDTO the taskGroupDTO
+     * @return the modified taskGroup
+     */
+    public TaskGroupDTO modifySQLTaskGroup(TaskGroupDTO taskGroupDTO) {
         Objects.requireNonNull(taskGroupDTO);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
@@ -840,7 +890,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
-        System.out.println(query);
+        System.out.println("SQL: "+query);
         return taskGroupDTO;
     }
 
@@ -1045,5 +1095,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         return resource;
     }
+
     //endregion
 }

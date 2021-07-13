@@ -103,7 +103,6 @@ export class TaskGroupUpdateComponent {
         this.activeModal.close(newTaskGroup);
       } else {
         this.taskGroupToEdit!.description = description;
-        this.taskGroupToEdit!.taskGroupTypeId = taskGroupTypeId;
         this.taskGroupToEdit!.sqlCreateStatements = sqlCreateStatements;
         this.taskGroupToEdit!.sqlInsertStatementsSubmission = sqlInsertStatementsSubmission;
         this.taskGroupToEdit!.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
