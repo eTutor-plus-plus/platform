@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ICourseOverviewModel } from './lecturer-overview.model';
 import { Pagination } from '../../core/request/request.model';
 import { createRequestOption } from '../../core/request/request-util';
 import { SERVER_API_URL } from '../../app.constants';
+import { IDisplayableCourseInstanceDTO } from '../course-management/course-mangement.model';
 
 /**
  * Service which is used for lecturer overview related functions.
@@ -25,10 +25,10 @@ export class LecturerOverviewService {
    *
    * @param page the pagination information
    */
-  public getPagedCoursesOfUser(page: Pagination): Observable<HttpResponse<ICourseOverviewModel[]>> {
+  public getPagedCoursesOfUser(page: Pagination): Observable<HttpResponse<IDisplayableCourseInstanceDTO[]>> {
     const options = createRequestOption(page);
 
-    return this.http.get<ICourseOverviewModel[]>(`${SERVER_API_URL}api/lecturer-overview/courses`, {
+    return this.http.get<IDisplayableCourseInstanceDTO[]>(`${SERVER_API_URL}api/lecturer-overview/courses`, {
       params: options,
       observe: 'response',
     });

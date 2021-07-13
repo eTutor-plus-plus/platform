@@ -3,7 +3,10 @@
 import { Component, OnInit } from '@angular/core';
 import { LecturerOverviewService } from './lecturer-overview.service';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from '../../config/pagination.constants';
-import { ICourseOverviewModel } from './lecturer-overview.model';
+import { StudentAssignmentModalComponent } from '../course-management-shared/student-assignment-modal/student-assignment-modal.component';
+import { CourseExerciseSheetAllocationComponent } from '../course-management-shared/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { IDisplayableCourseInstanceDTO } from '../course-management/course-mangement.model';
 
 /**
  * Component which is used for displaying an overview for a lecturer.
@@ -17,14 +20,15 @@ export class LecturerOverviewComponent implements OnInit {
   public page = 1;
   public readonly itemsPerPage: number;
   public totalItems = 0;
-  public courses: ICourseOverviewModel[] = [];
+  public courseInstances: IDisplayableCourseInstanceDTO[] = [];
 
   /**
    * Constructor.
    *
    * @param lecturerOverviewService the injected lecturer overview service
+   * @param modalService the injected modal service
    */
-  constructor(private lecturerOverviewService: LecturerOverviewService) {
+  constructor(private lecturerOverviewService: LecturerOverviewService, private modalService: NgbModal) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
 
@@ -47,8 +51,18 @@ export class LecturerOverviewComponent implements OnInit {
    *
    * @param selectedCourse the selected course
    */
-  public showStatistics(selectedCourse: ICourseOverviewModel): void {
-    //TODO: Open new page.
+  public showStatistics(selectedCourse: IDisplayableCourseInstanceDTO): void {
+    // TODO: Open new page.
+  }
+
+  public showAssignExerciseSheetModalWindow(selectedCourse: IDisplayableCourseInstanceDTO): void {
+    const modalRef = this.modalService.open(CourseExerciseSheetAllocationComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as CourseExerciseSheetAllocationComponent).courseInstance = selectedCourse;
+  }
+
+  public showAssignStudentsModalWindow(selectedCourse: IDisplayableCourseInstanceDTO): void {
+    const modalRef = this.modalService.open(StudentAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as StudentAssignmentModalComponent).courseInstance = selectedCourse;
   }
 
   /**
@@ -64,6 +78,6 @@ export class LecturerOverviewComponent implements OnInit {
       .toPromise();
 
     this.totalItems = Number(result.headers.get(COUNT_HEADER));
-    this.courses = result.body ?? [];
+    this.courseInstances = result.body ?? [];
   }
 }

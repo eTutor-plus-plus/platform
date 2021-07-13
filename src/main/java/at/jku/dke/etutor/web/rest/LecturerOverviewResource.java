@@ -2,8 +2,9 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
+import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
 import at.jku.dke.etutor.service.LecturerOverviewService;
-import at.jku.dke.etutor.service.dto.CourseOverviewDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -29,14 +30,17 @@ import java.util.List;
 public class LecturerOverviewResource {
 
     private final LecturerOverviewService lecturerOverviewService;
+    private final CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService;
 
     /**
      * Constructor.
      *
-     * @param lecturerOverviewService the injected lecturer overview service
+     * @param lecturerOverviewService             the injected lecturer overview service
+     * @param courseInstanceSPARQLEndpointService the injected course instance SPARQL endpoint service
      */
-    public LecturerOverviewResource(LecturerOverviewService lecturerOverviewService) {
+    public LecturerOverviewResource(LecturerOverviewService lecturerOverviewService, CourseInstanceSPARQLEndpointService courseInstanceSPARQLEndpointService) {
         this.lecturerOverviewService = lecturerOverviewService;
+        this.courseInstanceSPARQLEndpointService = courseInstanceSPARQLEndpointService;
     }
 
     /**
@@ -48,10 +52,10 @@ public class LecturerOverviewResource {
      */
     @GetMapping("courses")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<CourseOverviewDTO>> getPagedCoursesOfUser(Pageable pageable) {
+    public ResponseEntity<List<DisplayableCourseInstanceDTO>> getPagedCoursesOfUser(Pageable pageable) {
         String user = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Page<CourseOverviewDTO> page = lecturerOverviewService.getPagedCoursesOfUser(user, pageable);
+        Page<DisplayableCourseInstanceDTO> page = courseInstanceSPARQLEndpointService.getDisplayableCourseInstancesForLecturer(user, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

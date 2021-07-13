@@ -9,7 +9,6 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
 import at.jku.dke.etutor.service.exception.CourseNotFoundException;
-import java.util.*;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -21,10 +20,13 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * SPARQL endpoint service for managing course instances.
@@ -34,81 +36,81 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
     private static final String QRY_ASK_COURSE_INSTANCE_EXISTS =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        ASK {
-          ?courseInstance a etutor:CourseInstance
-        }
-        """;
+            ASK {
+              ?courseInstance a etutor:CourseInstance
+            }
+            """;
 
     private static final String QRY_ASK_COURSE_EXISTS =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        ASK {
-          ?course a etutor:Course
-        }
-        """;
+            ASK {
+              ?course a etutor:Course
+            }
+            """;
 
     private static final String QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE =
         """
-         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-         CONSTRUCT {
-           ?courseInstance ?predicate ?object.
-           ?course rdfs:label ?courseName.
-           ?course a etutor:Course.
-           ?courseInstance etutor:hasStudent ?student.
-           ?student rdfs:label ?matriklNr.
-           ?student a etutor:Student.
-         }
-         WHERE {
-           ?courseInstance etutor:hasCourse ?course.
-           ?course rdfs:label ?courseName.
-           ?courseInstance a etutor:CourseInstance.
-           ?courseInstance ?predicate ?object.
-           OPTIONAL {
-             ?courseInstance etutor:hasStudent ?student.
-             ?student rdfs:label ?matriklNr.
-           }
-         }
-        """;
+             CONSTRUCT {
+               ?courseInstance ?predicate ?object.
+               ?course rdfs:label ?courseName.
+               ?course a etutor:Course.
+               ?courseInstance etutor:hasStudent ?student.
+               ?student rdfs:label ?matriklNr.
+               ?student a etutor:Student.
+             }
+             WHERE {
+               ?courseInstance etutor:hasCourse ?course.
+               ?course rdfs:label ?courseName.
+               ?courseInstance a etutor:CourseInstance.
+               ?courseInstance ?predicate ?object.
+               OPTIONAL {
+                 ?courseInstance etutor:hasStudent ?student.
+                 ?student rdfs:label ?matriklNr.
+               }
+             }
+            """;
 
     private static final String QRY_CONSTRUCT_STUDENTS_OF_INSTANCE =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        CONSTRUCT {
-          ?student rdfs:label ?matriklNr.
-          ?student a etutor:Student.
-        } WHERE {
-          ?courseInstance a etutor:CourseInstance.
-          OPTIONAL {
-            ?courseInstance etutor:hasStudent ?student.
-            ?student rdfs:label ?matriklNr.
-          }
-        }
-        """;
+            CONSTRUCT {
+              ?student rdfs:label ?matriklNr.
+              ?student a etutor:Student.
+            } WHERE {
+              ?courseInstance a etutor:CourseInstance.
+              OPTIONAL {
+                ?courseInstance etutor:hasStudent ?student.
+                ?student rdfs:label ?matriklNr.
+              }
+            }
+            """;
 
     private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?sheet) as ?sheetId) ?lbl (COUNT(?individualAssignment) AS ?cnt)
-        WHERE {
-          ?courseInstance a etutor:CourseInstance.
-          ?courseInstance etutor:hasExerciseSheet ?sheet.
-          ?sheet rdfs:label ?lbl
-          OPTIONAL {
-            ?individualAssignment etutor:fromExerciseSheet ?sheet.
-          }
-        }
-        GROUP BY ?sheet ?lbl
-        ORDER BY (LCASE(?lbl))
-        """;
+            SELECT (STR(?sheet) as ?sheetId) ?lbl (COUNT(?individualAssignment) AS ?cnt)
+            WHERE {
+              ?courseInstance a etutor:CourseInstance.
+              ?courseInstance etutor:hasExerciseSheet ?sheet.
+              ?sheet rdfs:label ?lbl
+              OPTIONAL {
+                ?individualAssignment etutor:fromExerciseSheet ?sheet.
+              }
+            }
+            GROUP BY ?sheet ?lbl
+            ORDER BY (LCASE(?lbl))
+            """;
 
     private static final String QRY_DROP_NAMED_GRAPH = """
         DROP SILENT GRAPH ?graph
@@ -116,23 +118,23 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
     private static final String QRY_DELETE_COURSE_INSTANCE =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        DELETE {
-          ?instance ?predicate ?object.
-          ?individualTaskAssignment etutor:fromCourseInstance ?instance.
-          ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
-          ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
-        } WHERE {
-          ?instance a etutor:CourseInstance.
-          ?instance ?predicate ?object.
-          OPTIONAL {
-            ?individualTaskAssignment etutor:fromCourseInstance ?instance.
-            ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
-            ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
-          }
-        }
-        """;
+            DELETE {
+              ?instance ?predicate ?object.
+              ?individualTaskAssignment etutor:fromCourseInstance ?instance.
+              ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+              ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?instance ?predicate ?object.
+              OPTIONAL {
+                ?individualTaskAssignment etutor:fromCourseInstance ?instance.
+                ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+                ?individualTaskAssignment etutor:fromExerciseSheet ?individualExerciseSheet.
+              }
+            }
+            """;
 
     private final UserService userService;
 
@@ -192,15 +194,15 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
                 """
-                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-                DELETE {
-                  ?courseInstance etutor:hasStudent ?student.
-                  ?student a etutor:Student.
-                  ?student rdfs:label ?matriculationNr.
-                } INSERT {
-                """
+                    DELETE {
+                      ?courseInstance etutor:hasStudent ?student.
+                      ?student a etutor:Student.
+                      ?student rdfs:label ?matriculationNr.
+                    } INSERT {
+                    """
             );
 
             for (String matriculationNumber : matriculationNumbers) {
@@ -218,14 +220,14 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
             updateQry.append(
                 """
-                } WHERE {
-                  ?courseInstance a etutor:CourseInstance.
-                  OPTIONAL {
-                    ?courseInstance etutor:hasStudent ?student.
-                    ?student rdfs:label ?matriculationNr.
-                  }
-                }
-                """
+                    } WHERE {
+                      ?courseInstance a etutor:CourseInstance.
+                      OPTIONAL {
+                        ?courseInstance etutor:hasStudent ?student.
+                        ?student rdfs:label ?matriculationNr.
+                      }
+                    }
+                    """
             );
             updateQry.setIri("?courseInstance", courseInstanceId);
             connection.update(updateQry.asUpdate());
@@ -335,6 +337,63 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
     }
 
     /**
+     * Returns the paged course instances of a user who is a course instructor.
+     *
+     * @param login the user's login (AK number)
+     * @param page  the pagination information
+     * @return paged course instances
+     */
+    public Page<DisplayableCourseInstanceDTO> getDisplayableCourseInstancesForLecturer(String login, Pageable page) {
+        Objects.requireNonNull(login);
+        Objects.requireNonNull(page);
+
+        ParameterizedSparqlString selectQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT (str(?instance) as ?instanceId) ?year (str(?term) as ?termId) ?instanceName (COUNT(?student) as ?studentCnt)
+            WHERE {
+              ?course etutor:hasCourseCreator ?creator.
+              ?course a etutor:Course.
+              ?instance etutor:hasCourse ?course.
+              ?instance a etutor:CourseInstance.
+              ?instance rdfs:label ?instanceName.
+              ?instance etutor:hasInstanceYear ?year.
+              ?instance etutor:hasTerm ?term.
+              OPTIONAL {
+                ?instance etutor:hasStudent ?student
+              }
+            }
+            GROUP BY ?instance ?year ?term ?instanceName
+            ORDER BY ?year ?term ?instanceName
+            """);
+
+        ParameterizedSparqlString countQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT (COUNT(?courseInstance) AS ?cnt)
+            WHERE {
+              ?course etutor:hasCourseCreator ?creator.
+              ?course a etutor:Course.
+              ?courseInstance etutor:hasCourse ?course.
+              ?courseInstance a etutor:CourseInstance.
+            }
+            """);
+
+        if (page.isPaged()) {
+            selectQry.append("LIMIT ");
+            selectQry.append(page.getPageSize());
+            selectQry.append("\nOFFSET ");
+            selectQry.append(page.getOffset());
+        }
+
+        selectQry.setLiteral("?creator", login);
+        countQry.setLiteral("?creator", login);
+
+        return retrieveDisplayableCoursePageFromQuery(page, selectQry, countQry);
+    }
+
+    /**
      * Returns the page of displayable course instances.
      *
      * @param courseName the course name
@@ -348,23 +407,23 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         String courseId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/Course#%s", courseName.replace(' ', '_'));
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (str(?instance) as ?instanceId) ?year (str(?term) as ?termId) ?instanceName (COUNT(?student) as ?studentCnt)
-            WHERE {
-              ?instance a etutor:CourseInstance.
-              ?instance etutor:hasCourse ?course.
-              ?instance rdfs:label ?instanceName.
-              ?instance etutor:hasInstanceYear ?year.
-              ?instance etutor:hasTerm ?term.
-              OPTIONAL {
-                ?instance etutor:hasStudent ?student
-              }
-            }
-            GROUP BY ?instance ?year ?term ?instanceName
-            ORDER BY ?year ?term ?instanceName
-            """
+                SELECT (str(?instance) as ?instanceId) ?year (str(?term) as ?termId) ?instanceName (COUNT(?student) as ?studentCnt)
+                WHERE {
+                  ?instance a etutor:CourseInstance.
+                  ?instance etutor:hasCourse ?course.
+                  ?instance rdfs:label ?instanceName.
+                  ?instance etutor:hasInstanceYear ?year.
+                  ?instance etutor:hasTerm ?term.
+                  OPTIONAL {
+                    ?instance etutor:hasStudent ?student
+                  }
+                }
+                GROUP BY ?instance ?year ?term ?instanceName
+                ORDER BY ?year ?term ?instanceName
+                """
         );
 
         if (page.isPaged()) {
@@ -377,42 +436,18 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         ParameterizedSparqlString countQry = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT (COUNT(DISTINCT ?instance) as ?cnt)
-            WHERE {
-              ?instance a etutor:CourseInstance.
-              ?instance etutor:hasCourse ?course.
-            }
-            """
+                SELECT (COUNT(DISTINCT ?instance) as ?cnt)
+                WHERE {
+                  ?instance a etutor:CourseInstance.
+                  ?instance etutor:hasCourse ?course.
+                }
+                """
         );
         countQry.setIri("?course", courseId);
 
-        try (RDFConnection connection = getConnection()) {
-            List<DisplayableCourseInstanceDTO> list = new ArrayList<>();
-            int count;
-            try (QueryExecution execution = connection.query(query.asQuery())) {
-                ResultSet set = execution.execSelect();
-
-                while (set.hasNext()) {
-                    QuerySolution solution = set.nextSolution();
-                    String id = solution.getLiteral("?instanceId").getString();
-                    int year = solution.getLiteral("?year").getInt();
-                    String termId = solution.getLiteral("?termId").getString();
-                    int studentCount = solution.getLiteral("?studentCnt").getInt();
-                    String name = solution.getLiteral("?instanceName").getString();
-                    list.add(new DisplayableCourseInstanceDTO(id, name, studentCount, year, termId));
-                }
-            }
-            try (QueryExecution execution = connection.query(countQry.asQuery())) {
-                ResultSet set = execution.execSelect();
-                //noinspection ResultOfMethodCallIgnored
-                set.hasNext();
-                QuerySolution solution = set.nextSolution();
-                count = solution.getLiteral("?cnt").getInt();
-            }
-            return PageableExecutionUtils.getPage(list, page, () -> count);
-        }
+        return retrieveDisplayableCoursePageFromQuery(page, query, countQry);
     }
 
     /**
@@ -430,10 +465,10 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            INSERT DATA {
-            """
+                INSERT DATA {
+                """
         );
 
         for (String exerciseSheetUri : exerciseSheets) {
@@ -536,6 +571,44 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
     //region Private helper methods
 
     /**
+     * Returns the page of course instances from the given select and corresponding count query.
+     *
+     * @param page      the pagination object
+     * @param selectQry the select query
+     * @param countQry  the corresponding count query
+     * @return page of course instances
+     */
+    @NotNull
+    private Page<DisplayableCourseInstanceDTO> retrieveDisplayableCoursePageFromQuery(@NotNull Pageable page, @NotNull ParameterizedSparqlString selectQry,
+                                                                                      @NotNull ParameterizedSparqlString countQry) {
+        try (RDFConnection connection = getConnection()) {
+            List<DisplayableCourseInstanceDTO> list = new ArrayList<>();
+            int count;
+            try (QueryExecution execution = connection.query(selectQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    String id = solution.getLiteral("?instanceId").getString();
+                    int year = solution.getLiteral("?year").getInt();
+                    String termId = solution.getLiteral("?termId").getString();
+                    int studentCount = solution.getLiteral("?studentCnt").getInt();
+                    String name = solution.getLiteral("?instanceName").getString();
+                    list.add(new DisplayableCourseInstanceDTO(id, name, studentCount, year, termId));
+                }
+            }
+            try (QueryExecution execution = connection.query(countQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+                //noinspection ResultOfMethodCallIgnored
+                set.hasNext();
+                QuerySolution solution = set.nextSolution();
+                count = solution.getLiteral("?cnt").getInt();
+            }
+            return PageableExecutionUtils.getPage(list, page, () -> count);
+        }
+    }
+
+    /**
      * Returns the student info cache from a given student iterator.
      *
      * @param studentIterator the student iterator
@@ -574,15 +647,15 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
 
         ParameterizedSparqlString courseQuery = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT ?courseName
-            WHERE {
-              ?course a etutor:Course.
-              ?course rdfs:label ?courseName.
-            }
-            """
+                SELECT ?courseName
+                WHERE {
+                  ?course a etutor:Course.
+                  ?course rdfs:label ?courseName.
+                }
+                """
         );
         courseQuery.setIri("?course", newCourseInstanceDTO.getCourseId());
 
@@ -629,19 +702,19 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
     private void copyLearningGoalsIntoNamedCourseInstanceGraph(String courseInstanceId, RDFConnection connection) {
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            INSERT {
-              GRAPH ?instance {
-              	?goal a etutor:Goal.
-              }
-            }
-            WHERE {
-              ?instance a etutor:CourseInstance.
-              ?instance etutor:hasCourse ?course.
-              ?course etutor:hasGoal/etutor:hasSubGoal* ?goal.
-            }
-            """
+                INSERT {
+                  GRAPH ?instance {
+                  	?goal a etutor:Goal.
+                  }
+                }
+                WHERE {
+                  ?instance a etutor:CourseInstance.
+                  ?instance etutor:hasCourse ?course.
+                  ?course etutor:hasGoal/etutor:hasSubGoal* ?goal.
+                }
+                """
         );
         query.setIri("?instance", courseInstanceId);
 
