@@ -296,6 +296,27 @@ public class StudentResource {
     }
 
     /**
+     * Sets the submission for an individual task assignment
+     *
+     * @param courseInstanceUUID the course instance id
+     * @param exerciseSheetUUID the exercise sheet id
+     * @param taskNo the task no
+     * @param submission the submission
+     * @return
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{submission}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                              @PathVariable int taskNo, @PathVariable String submission) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        studentService.setLastSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment/of-student/:matriculationNo} : Returns
      * the file attachment's id.
      *
