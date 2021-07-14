@@ -305,7 +305,6 @@ public class StudentResource {
      * @param submission the submission
      * @return
      */
-
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
@@ -317,8 +316,8 @@ public class StudentResource {
     }
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} : Returns
-     * the file attachment's id.
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission} : Returns
+     * the submission.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -333,9 +332,52 @@ public class StudentResource {
 
         Optional<String> optionalSubmission = studentService.getSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
-        String id = optionalSubmission.orElse("");
+        String submission = optionalSubmission.orElse("");
 
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok(submission);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/:points}
+     * Sets the points for an individual task
+     *
+     * @param courseInstanceUUID the course instance id
+     * @param exerciseSheetUUID the exercise sheet id
+     * @param taskNo the task no
+     * @param points the points
+     * @return
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{points}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> setDispatcherPoints(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                              @PathVariable int taskNo, @PathVariable int points) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission} : Returns
+     * the points.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the points
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherpoints")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getDispatcherPoints(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalPoints = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int points = optionalPoints.orElse(0);
+
+        return ResponseEntity.ok(points);
     }
 
     /**

@@ -27,6 +27,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
   public assignment: Assignment = { assignment_text: '', exercise_id: '', task_type: '' };
   public submission = '';
+  public dispatcherPoints = 0;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -86,10 +87,15 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           if (this._taskModel.taskIdForDispatcher != null) {
             this.assignment.exercise_id = this._taskModel.taskIdForDispatcher;
           }
+
+          this.submission = await this.studentService
+            .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+
+          this.dispatcherPoints = await this.studentService
+            .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
         }
-        this.submission = await this.studentService
-          .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
-          .toPromise();
 
         if (this.isUploadTask) {
           this.uploadTaskFileId = await this.studentService
@@ -191,6 +197,13 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     this.uploadTaskFileId = newFileId;
   }
 
+  /**
+   * Asynchronously marks the task as submitted and sets the points for an assignment evaluated as solved by the dispatcher
+   */
+  public async handleSolutionCorrectAsync(): Promise<void> {
+    await this.markTaskAsSubmittedAsync();
+    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, 1).toPromise();
+  }
   /**
    * Asynchronously adds a submission
    * @param submission the submission

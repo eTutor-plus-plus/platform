@@ -222,4 +222,35 @@ export class StudentService {
       responseType: 'text' as 'json',
     });
   }
+  /**
+   * Sets the points assigned by the dispatcher.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param points the points
+   */
+  public setDispatcherPoints(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, points: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${points}`,
+      undefined
+    );
+  }
+
+  /**
+   * Returns points assigned by the dispatcher.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getDispatcherPoints(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherpoints`
+    );
+  }
 }

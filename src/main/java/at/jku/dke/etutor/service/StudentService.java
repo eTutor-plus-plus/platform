@@ -962,6 +962,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      *      * @param exerciseSheetUUID  the exercise sheet UUID
      *      * @param matriculationNo    the matriculation no
      *      * @param taskNo             the task no
+     *      * @param submission         the submission
      */
 
     public void setLastSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
@@ -1055,6 +1056,114 @@ public class StudentService extends AbstractSPARQLEndpointService {
                         return Optional.empty();
                     }
                     return Optional.of(submissionLiteral.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the points for an individual task that are assigned by the dispatcher
+     * @param courseInstanceUUID the course instance UUID
+     *      * @param exerciseSheetUUID  the exercise sheet UUID
+     *      * @param matriculationNo    the matriculation no
+     *      * @param taskNo             the task no
+     *      * @param points             the points
+     */
+
+    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int points){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasDispatcherPoints ?oldDispatcherPoints.
+            } INSERT {
+              ?individualTask etutor:hasDispatcherPoints ?newDispatcherPoints.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasDispatcherPoints ?oldDispatcherPoints.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newDispatcherPoints", points);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+
+    /**
+     * Returns the points for an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the points
+     */
+    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?dispatcherPoints
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasDispatcherPoints ?dispatcherPoints.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal pointsLiteral = solution.getLiteral("?dispatcherPoints");
+
+                    if (pointsLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(pointsLiteral.getInt());
                 } else {
                     return Optional.empty();
                 }

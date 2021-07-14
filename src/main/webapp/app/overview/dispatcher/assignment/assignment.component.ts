@@ -18,8 +18,9 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
 export class AssignmentComponent implements OnInit {
   @Input() public submission!: string;
   @Input() public assignment!: Assignment;
-  @Input() public diagnoseLevel = '3';
-  @Input() public action = 'diagnose';
+  @Input() public diagnoseLevel!: string;
+  @Input() public action!: string;
+  @Input() public points!: number;
   @Output() public solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
 
@@ -42,7 +43,7 @@ export class AssignmentComponent implements OnInit {
   /**
    * Handles a click on the diagnose Button
    */
-  onDiagnose(): void {
+  private onDiagnose(): void {
     this.action = 'diagnose';
     this.processSubmission();
   }
@@ -50,7 +51,7 @@ export class AssignmentComponent implements OnInit {
   /**
    * Handles a click on the submit Button
    */
-  onSubmit(): void {
+  private onSubmit(): void {
     this.action = 'submit';
     this.processSubmission();
   }
@@ -59,9 +60,38 @@ export class AssignmentComponent implements OnInit {
    * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
    *
    */
-  processSubmission(): void {
+  private processSubmission(): void {
     this.submissionAdded.emit(this.submission);
 
+    const submissionDto = this.initializeSubmissionDTO();
+
+    this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
+      this.submissionIdDto = submissionId;
+      setTimeout(() => {
+        this.getGrading();
+      }, 2000);
+    });
+  }
+
+  /**
+   * Requests the grading for the submission identified by this.submissionIdDto
+   */
+  private getGrading(): void {
+    this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
+      this.gradingDto = grading;
+      this.gradingReceived = true;
+      this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
+        ? (this.hasErrors = true)
+        : (this.hasErrors = false);
+
+      if (!this.hasErrors && this.action === 'submit') {
+        this.solutionCorrect.emit(this.assignment);
+        this.points = 1;
+      }
+    });
+  }
+
+  private initializeSubmissionDTO(): SubmissionDTO {
     const attributes = new Map<string, string>();
     attributes.set('action', this.action);
     attributes.set('submission', this.submission);
@@ -81,28 +111,6 @@ export class AssignmentComponent implements OnInit {
     };
     this.submissionDto = submissionDto;
 
-    this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
-      this.submissionIdDto = submissionId;
-      setTimeout(() => {
-        this.getGrading();
-      }, 2000);
-    });
-  }
-
-  /**
-   * Requests the grading for the submission identified by this.submissionIdDto
-   */
-  getGrading(): void {
-    this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
-      this.gradingDto = grading;
-      this.gradingReceived = true;
-      this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
-        ? (this.hasErrors = true)
-        : (this.hasErrors = false);
-
-      if (!this.hasErrors && this.action === 'submit') {
-        this.solutionCorrect.emit(this.assignment);
-      }
-    });
+    return submissionDto;
   }
 }

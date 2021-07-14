@@ -1,11 +1,10 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
+  <fa-icon *ngIf="points !== 0" icon="check"></fa-icon>
+  <p>{{ points }}/1</p>
   <form class="add-form" (ngSubmit)="onSubmit()">
-    <p>
-      <b
-        ><label>{{ assignment.task_type }}</label></b
-      >
-    </p>
+    <br />
     <div [innerHTML]="assignment.assignment_text"></div>
+    <br />
     <p>
       <label><strong>Your Solution:</strong></label>
     </p>
