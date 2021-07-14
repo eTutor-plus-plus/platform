@@ -1,9 +1,4 @@
-<jhi-assignment
-  *ngFor="let assignment of assignments"
-  [assignment]="assignment"
-  diagnoseLevel="{{ this.diagnoseLevel }}"
-  (solutionCorrect)="assignmentSolved(assignment)"
->
+<jhi-assignment *ngFor="let assignment of assignments" [assignment]="assignment" (solutionCorrect)="assignmentSolved(assignment)">
 </jhi-assignment>
 <p *ngIf="assignmentsSubmitted">You solved {{ solvedAssignments.size }} out of {{ assignments.length }} assignments!</p>
 <form class="add-form" (ngSubmit)="onSubmit()">

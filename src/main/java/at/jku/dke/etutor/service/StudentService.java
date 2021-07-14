@@ -1170,7 +1170,114 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
+    /**
+     * Sets the (highest) chosen diagnose level for an individual task
+     * @param courseInstanceUUID the course instance UUID
+     *      * @param exerciseSheetUUID  the exercise sheet UUID
+     *      * @param matriculationNo    the matriculation no
+     *      * @param taskNo             the task no
+     *      * @param points             the diagnose level
+     */
+
+    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasDiagnoseLevel ?oldDiagnoseLevel.
+            } INSERT {
+              ?individualTask etutor:hasDiagnoseLevel ?newDiagnoseLevel.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasDiagnoseLevel ?oldDiagnoseLevel.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newDiagnoseLevel", diagnoseLevel);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the highest chosen diagnose level an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the points
+     */
+    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?diagnoseLevel
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasDiagnoseLevel ?diagnoseLevel.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal diagnoseLevelLiteral = solution.getLiteral("?diagnoseLevel");
+
+                    if (diagnoseLevelLiteral== null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(diagnoseLevelLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
     //region Private methods
+
 
     /**
      * Assigns the next available task according to the student's current learning curve.

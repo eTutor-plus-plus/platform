@@ -296,7 +296,7 @@ public class StudentResource {
     }
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
+     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
      * Sets the submission for an individual task
      *
      * @param courseInstanceUUID the course instance id
@@ -338,7 +338,7 @@ public class StudentResource {
     }
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/:points}
+     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/:points}
      * Sets the points for an individual task
      *
      * @param courseInstanceUUID the course instance id
@@ -359,7 +359,7 @@ public class StudentResource {
 
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission} : Returns
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/dispatcherpoints} : Returns
      * the points.
      *
      * @param courseInstanceUUID the course instance UUID
@@ -378,6 +378,48 @@ public class StudentResource {
         int points = optionalPoints.orElse(0);
 
         return ResponseEntity.ok(points);
+    }
+
+    /**
+     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level/:diagnoseLevel}
+     * Sets the diagnose level for an individual task
+     *
+     * @param courseInstanceUUID the course instance id
+     * @param exerciseSheetUUID the exercise sheet id
+     * @param taskNo the task no
+     * @param diagnoseLevel the diagnose level
+     * @return
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/diagnose-level/{diagnoseLevel}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> setHighestDiagnoseLevel(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                    @PathVariable int taskNo, @PathVariable int diagnoseLevel) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, diagnoseLevel);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level} : Returns
+     * the diagnose level.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the diagnose level
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/diagnose-level")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getDiagnoseLevel(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                       @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int diagnoseLevel = optionalDiagnoseLevel.orElse(0);
+
+        return ResponseEntity.ok(diagnoseLevel);
     }
 
     /**

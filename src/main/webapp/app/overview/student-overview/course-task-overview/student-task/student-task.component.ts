@@ -7,7 +7,6 @@ import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
 import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
-import { LecturerTaskAssignmentService } from '../../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-task-assignment.service';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -28,6 +27,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
   public assignment: Assignment = { assignment_text: '', exercise_id: '', task_type: '' };
   public submission = '';
+  public diagnoseLevel = 0;
   public dispatcherPoints = 0;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
@@ -51,8 +51,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     private location: Location,
     private activatedRoute: ActivatedRoute,
     private taskService: TasksService,
-    private studentService: StudentService,
-    private lecturerTaskAssignmentService: LecturerTaskAssignmentService
+    private studentService: StudentService
   ) {
     const nav = this.router.getCurrentNavigation();
 
@@ -96,6 +95,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
           this.dispatcherPoints = await this.studentService
             .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+
+          this.diagnoseLevel = await this.studentService
+            .getDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
         }
 
@@ -200,11 +203,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Asynchronously marks the task as submitted and sets the points for an assignment evaluated as solved by the dispatcher
+   * Asynchronously marks the task as submitted and sets the points for an assignment as graded by the dispatcher
    */
-  public async handleSolutionCorrectAsync(): Promise<void> {
+  public async handleSolutionCorrectAsync($event: number): Promise<void> {
     await this.markTaskAsSubmittedAsync();
-    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, 1).toPromise();
+    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
   }
   /**
    * Asynchronously adds a submission
@@ -214,5 +217,13 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     await this.studentService
       .setSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, submission)
       .toPromise();
+  }
+
+  /**
+   * Asynchronously sets the highest chosen diagnose level
+   * @param $event
+   */
+  public async handleDiagnoseLevelIncreasedAsync($event: number): Promise<void> {
+    await this.studentService.setDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
   }
 }

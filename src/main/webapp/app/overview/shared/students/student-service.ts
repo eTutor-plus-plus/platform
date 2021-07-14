@@ -253,4 +253,36 @@ export class StudentService {
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherpoints`
     );
   }
+
+  /**
+   * Sets the diagnose level.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param diagnoseLevel the diagnose level
+   */
+  public setDiagnoseLevel(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, diagnoseLevel: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/diagnose-level/${diagnoseLevel}`,
+      undefined
+    );
+  }
+
+  /**
+   * Returns diagnose level.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getDiagnoseLevel(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/diagnose-level`
+    );
+  }
 }

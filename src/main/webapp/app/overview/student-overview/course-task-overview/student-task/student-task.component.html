@@ -49,12 +49,15 @@
     </jhi-file-upload>
     <jhi-assignment
       *ngIf="isDispatcherTask"
-      [assignment]="assignment"
+      (diagnoseLevelIncreased)="handleDiagnoseLevelIncreasedAsync($event)"
       (submissionAdded)="handleSubmissionAddedAsync($event)"
-      (solutionCorrect)="handleSolutionCorrectAsync()"
+      (solutionCorrect)="handleSolutionCorrectAsync($event)"
+      [assignment]="assignment"
       [submission]="submission"
       [points]="dispatcherPoints"
-      diagnoseLevel="0"
+      [maxPoints]="5"
+      [highestDiagnoseLevel]="diagnoseLevel"
+      [diagnoseLevel]="diagnoseLevel.toFixed()"
     >
     </jhi-assignment>
 

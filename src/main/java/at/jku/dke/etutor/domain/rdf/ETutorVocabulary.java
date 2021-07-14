@@ -65,6 +65,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_FILE_ATTACHMENT_ID = "hasFileAttachmentId";
     private static final String PROP_HAS_SUBMISSION = "hasSubmission";
     private static final String PROP_HAS_DISPATCHER_POINTS = "hasDispatcherPoints";
+    private static final String PROP_HAS_DIAGNOSE_LEVEL = "hasDiagnoseLevel";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -387,6 +388,10 @@ public final class ETutorVocabulary {
      * The hasDispatcherPoints property
      */
     public static final Property hasDispatcherPoints = m.createProperty(URI+PROP_HAS_DISPATCHER_POINTS);
+    /**
+     * The hasDiagnoseLevel property
+     */
+    public static final Property hasDiagnoseLevel = m.createProperty(URI+PROP_HAS_DIAGNOSE_LEVEL);
     /**
      * The hasTaskGroupName property.
      */

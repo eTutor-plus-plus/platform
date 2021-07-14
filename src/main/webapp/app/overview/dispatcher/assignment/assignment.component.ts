@@ -18,11 +18,14 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
 export class AssignmentComponent implements OnInit {
   @Input() public submission!: string;
   @Input() public assignment!: Assignment;
-  @Input() public diagnoseLevel!: string;
   @Input() public action!: string;
   @Input() public points!: number;
-  @Output() public solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
+  @Input() public maxPoints!: number;
+  @Input() public diagnoseLevel!: string;
+  @Input() public highestDiagnoseLevel!: number;
+  @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
+  @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
 
   public diagnoseLevels = ['0', '1', '2', '3'];
   public gradingReceived = false;
@@ -68,7 +71,7 @@ export class AssignmentComponent implements OnInit {
    *
    */
   private processSubmission(): void {
-    this.submissionAdded.emit(this.submission);
+    this.emitSubmissionEvents();
 
     const submissionDto = this.initializeSubmissionDTO();
 
@@ -82,7 +85,7 @@ export class AssignmentComponent implements OnInit {
   }
 
   /**
-   * Requests the grading for the submission identified by this.submissionIdDto
+   * Requests the grading for the submission identified by this.submissionIdDto from the assignment service
    */
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
@@ -92,13 +95,34 @@ export class AssignmentComponent implements OnInit {
         ? (this.hasErrors = true)
         : (this.hasErrors = false);
 
-      if (!this.hasErrors && this.action === 'submit') {
-        this.solutionCorrect.emit(this.assignment);
-        this.points = 1;
-      }
+      this.emitGrading();
     });
   }
 
+  /**
+   * Emits the events in the course of a submission
+   * @private
+   */
+  private emitSubmissionEvents(): void {
+    const diagnoseLevel = parseInt(this.diagnoseLevel, 10);
+    if (diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
+      this.diagnoseLevelIncreased.emit(diagnoseLevel);
+      this.highestDiagnoseLevel = diagnoseLevel;
+    }
+    this.submissionAdded.emit(this.submission);
+  }
+
+  private emitGrading(): void {
+    if (!this.hasErrors && this.action === 'submit') {
+      const grading = this.maxPoints - this.highestDiagnoseLevel;
+      this.solutionCorrect.emit(grading);
+      this.points = grading;
+    }
+  }
+  /**
+   * Initializes the SubmissionDTO as required by the dispatcher
+   * @private
+   */
   private initializeSubmissionDTO(): SubmissionDTO {
     const attributes = new Map<string, string>();
     attributes.set('action', this.action);

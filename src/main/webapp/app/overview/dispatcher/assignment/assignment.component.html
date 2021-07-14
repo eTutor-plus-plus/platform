@@ -6,7 +6,7 @@
     </select>
   </div>
   <fa-icon *ngIf="isSolved()" icon="check"></fa-icon>
-  <p>{{ points }}/1</p>
+  <p>{{ points }}/{{ maxPoints }}</p>
 
   <form class="add-form" (ngSubmit)="onSubmit()">
     <br />
