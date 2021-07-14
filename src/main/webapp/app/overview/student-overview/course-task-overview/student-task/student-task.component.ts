@@ -7,6 +7,7 @@ import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
 import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
+import { LecturerTaskAssignmentService } from '../../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-task-assignment.service';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -50,7 +51,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     private location: Location,
     private activatedRoute: ActivatedRoute,
     private taskService: TasksService,
-    private studentService: StudentService
+    private studentService: StudentService,
+    private lecturerTaskAssignmentService: LecturerTaskAssignmentService
   ) {
     const nav = this.router.getCurrentNavigation();
 

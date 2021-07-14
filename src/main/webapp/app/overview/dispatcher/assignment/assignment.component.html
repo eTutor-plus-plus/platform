@@ -1,6 +1,13 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
-  <fa-icon *ngIf="points !== 0" icon="check"></fa-icon>
+  <div align="right">
+    <select [(ngModel)]="diagnoseLevel">
+      <option value="" disabled>Diagnose Level wählen</option>
+      <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">{{ chosenDiagnoseLevel }}</option>
+    </select>
+  </div>
+  <fa-icon *ngIf="isSolved()" icon="check"></fa-icon>
   <p>{{ points }}/1</p>
+
   <form class="add-form" (ngSubmit)="onSubmit()">
     <br />
     <div [innerHTML]="assignment.assignment_text"></div>
@@ -22,11 +29,11 @@
   <form class="add-form" (ngSubmit)="onDiagnose()">
     <input type="submit" value="Diagnose" class="btn btn-block" />
   </form>
+  <p *ngIf="gradingReceived && !hasErrors"><strong>Congratulation, your solution is correct!</strong></p>
+  <p *ngIf="gradingReceived && hasErrors"><strong>Your solution is not correct!</strong></p>
   <p *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.error"></p>
   <p *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.description"></p>
   <br />
   <p *ngIf="gradingReceived && hasErrors">{{ gradingDto.report.hint }}</p>
-  <p *ngIf="gradingReceived && !hasErrors"><strong>Congratulation, your solution is correct!</strong></p>
-  <p *ngIf="gradingReceived && hasErrors"><strong>Your solution is not correct!</strong></p>
   <p *ngIf="gradingReceived" [innerHTML]="gradingDto.result"></p>
 </div>

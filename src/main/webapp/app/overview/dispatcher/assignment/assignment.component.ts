@@ -24,6 +24,7 @@ export class AssignmentComponent implements OnInit {
   @Output() public solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
 
+  public diagnoseLevels = ['0', '1', '2', '3'];
   public gradingReceived = false;
   public hasErrors = true;
   public gradingDto!: GradingDTO;
@@ -43,7 +44,7 @@ export class AssignmentComponent implements OnInit {
   /**
    * Handles a click on the diagnose Button
    */
-  private onDiagnose(): void {
+  public onDiagnose(): void {
     this.action = 'diagnose';
     this.processSubmission();
   }
@@ -51,11 +52,17 @@ export class AssignmentComponent implements OnInit {
   /**
    * Handles a click on the submit Button
    */
-  private onSubmit(): void {
+  public onSubmit(): void {
     this.action = 'submit';
     this.processSubmission();
   }
 
+  /**
+   * Returns wheter this assignment has already been solved by the student
+   */
+  public isSolved(): boolean {
+    return this.points !== 0;
+  }
   /**
    * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
    *
@@ -67,6 +74,7 @@ export class AssignmentComponent implements OnInit {
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
       this.submissionIdDto = submissionId;
+      this.submissionDto.submissionId = submissionId.submissionId;
       setTimeout(() => {
         this.getGrading();
       }, 2000);
