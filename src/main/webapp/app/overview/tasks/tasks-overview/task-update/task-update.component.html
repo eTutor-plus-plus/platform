@@ -76,7 +76,13 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="taskAssignmentType" jhiTranslate="taskManagement.fields.taskType">Task type:</label>
-      <select class="form-control" name="taskAssignmentType" id="taskAssignmentType" formControlName="taskAssignmentType">
+      <select
+        class="form-control"
+        name="taskAssignmentType"
+        id="taskAssignmentType"
+        formControlName="taskAssignmentType"
+        (change)="taskTypeChanged()"
+      >
         <option value="" disabled>{{ 'taskManagement.taskTypePlaceholder' | translate }}</option>
         <option *ngFor="let taskType of taskTypes" [ngValue]="taskType">{{ taskType.text | translate }}</option>
       </select>
@@ -91,13 +97,13 @@
         </small>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="taskIdForDispatcher" jhiTranslate="taskManagement.fields.taskIdForDispatcher"
         >Task-ID for the Dispatcher:</label
       >
       <input type="text" class="form-control" name="taskIdForDispatcher" id="taskIdForDispatcher" formControlName="taskIdForDispatcher" />
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
         >SQL Create-Table-Statements:</label
       >
@@ -107,7 +113,7 @@
         formControlName="sqlCreateStatements"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label
         class="form-control-label"
         for="sqlInsertStatementsSubmission"
@@ -120,7 +126,7 @@
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.fields.sqlInsertStatementsDiagnose"
         >SQL Insert-Into-Statements (Diagnose):</label
       >
@@ -130,7 +136,7 @@
         formControlName="sqlInsertStatementsDiagnose"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
@@ -154,7 +160,7 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="taskGroup" jhiTranslate="taskManagement.fields.taskGroup">Task group:</label>
-      <select class="form-control" name="taskGroup" id="taskGroup" formControlName="taskGroup">
+      <select class="form-control" name="taskGroup" (change)="taskGroupChanged()" id="taskGroup" formControlName="taskGroup">
         <option value="">{{ 'taskManagement.fields.taskGroupPlaceHolder' | translate }}</option>
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>

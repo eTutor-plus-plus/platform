@@ -732,7 +732,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             connection.load(model);
         }
 
-        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(),
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
             newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
             newTaskGroupDTO.getSqlInsertStatementsDiagnose(), resource.getURI(), creator, now);
     }
@@ -764,7 +764,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Persists the modifications, currently only the description can be modified.
+     * Persists the modifications for task groups, currently only the description can be modified.
      *
      * @param taskGroupDTO the task group DTO
      * @return the modified task group
@@ -778,9 +778,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             DELETE {
               ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
               ?group etutor:hasTaskGroupDescription ?oldDescription.
-              ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
-              ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
-              ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
             } INSERT {
               ?group etutor:hasTaskGroupChangeDate ?newChangeDate.
             """);
@@ -789,6 +786,50 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.append(" ?group etutor:hasTaskGroupDescription ?newDescription.");
             query.append("\n");
         }
+
+
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
+              OPTIONAL {
+                ?group etutor:hasTaskGroupDescription ?oldDescription.
+              }
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+        Instant now = Instant.now();
+        taskGroupDTO.setChangeDate(now);
+        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
+            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+        return taskGroupDTO;
+    }
+
+    /**
+     * Persists the modified taskGroup of type "SQL"
+     * @param taskGroupDTO the taskGroupDTO
+     * @return the modified taskGroup
+     */
+    public TaskGroupDTO modifySQLTaskGroup(TaskGroupDTO taskGroupDTO) {
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+              ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+              ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
+            } INSERT {
+            """);
 
         if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
             query.append("  ?group etutor:hasSQLCreateStatements ?newSQLCreateStatements.");
@@ -807,10 +848,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         query.append("""
             } WHERE {
               ?group a etutor:TaskGroup.
-              ?group etutor:hasTaskGroupChangeDate ?oldChangeDate.
-              OPTIONAL {
-                ?group etutor:hasTaskGroupDescription ?oldDescription.
-              }
               OPTIONAL {
                 ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
                 ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
@@ -820,13 +857,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
 
         query.setIri("?group", taskGroupDTO.getId());
-        Instant now = Instant.now();
-        taskGroupDTO.setChangeDate(now);
-        query.setLiteral("?newChangeDate", instantToRDFString(now), XSDDatatype.XSDdateTime);
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
-            query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
-        }
         if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
             query.setLiteral("?newSQLCreateStatements", taskGroupDTO.getSqlCreateStatements().trim());
         }
@@ -840,7 +871,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
-        System.out.println(query);
+
         return taskGroupDTO;
     }
 
@@ -967,7 +998,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         Resource taskGroupResource = model.createResource(ETutorVocabulary.getTaskGroupIdFromName(newTaskGroupDTO.getName()));
         taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
-
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupType, newTaskGroupDTO.getTaskGroupTypeId());
 
         if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
@@ -1045,5 +1076,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         return resource;
     }
+
     //endregion
 }

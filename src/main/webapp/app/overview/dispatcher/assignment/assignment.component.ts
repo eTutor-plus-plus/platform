@@ -21,6 +21,7 @@ export class AssignmentComponent implements OnInit {
   @Input() public diagnoseLevel = '3';
   @Input() public action = 'diagnose';
   @Output() public solutionCorrect: EventEmitter<Assignment> = new EventEmitter();
+  @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
 
   public gradingReceived = false;
   public hasErrors = true;
@@ -59,6 +60,8 @@ export class AssignmentComponent implements OnInit {
    *
    */
   processSubmission(): void {
+    this.submissionAdded.emit(this.submission);
+
     const attributes = new Map<string, string>();
     attributes.set('action', this.action);
     attributes.set('submission', this.submission);

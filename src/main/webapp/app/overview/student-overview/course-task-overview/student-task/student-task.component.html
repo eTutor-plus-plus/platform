@@ -50,6 +50,7 @@
     <jhi-assignment
       *ngIf="isDispatcherTask"
       [assignment]="assignment"
+      (submissionAdded)="handleSubmissionAddedAsync($event)"
       (solutionCorrect)="markTaskAsSubmittedAsync()"
       submission="submission"
       diagnoseLevel="3"

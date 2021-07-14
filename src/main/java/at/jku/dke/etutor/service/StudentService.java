@@ -956,6 +956,56 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
     }
 
+    /**
+     * Sets the submission for an individual task
+     * @param courseInstanceUUID the course instance UUID
+     *      * @param exerciseSheetUUID  the exercise sheet UUID
+     *      * @param matriculationNo    the matriculation no
+     *      * @param taskNo             the task no
+     */
+
+    public void setLastSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasSubmission ?oldSubmission.
+            } INSERT {
+              ?individualTask etutor:hasSubmission ?newSubmission.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasSubmission ?oldSubmission.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newSubmission", submission);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
     //region Private methods
 
     /**

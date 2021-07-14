@@ -186,4 +186,14 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       .toPromise();
     this.uploadTaskFileId = newFileId;
   }
+
+  /**
+   * Asynchronously adds a submission
+   * @param submission the submission
+   */
+  public async handleSubmissionAddedAsync(submission: string): Promise<void> {
+    await this.studentService
+      .setSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, submission)
+      .toPromise();
+  }
 }

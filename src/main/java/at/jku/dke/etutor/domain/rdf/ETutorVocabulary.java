@@ -63,6 +63,7 @@ public final class ETutorVocabulary {
     private static final String PROP_IS_LEARNING_GOAL_COMPLETED = "isLearningGoalCompleted";
     private static final String PROP_IS_INITIAL_TEST_COMPLETED = "isInitialTestCompleted";
     private static final String PROP_HAS_FILE_ATTACHMENT_ID = "hasFileAttachmentId";
+    private static final String PROP_HAS_SUBMISSION = "hasLastSubmission";
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
@@ -95,6 +96,7 @@ public final class ETutorVocabulary {
 
     private static final String PROP_HAS_TASK_GROUP_NAME = "hasTaskGroupName";
     private static final String PROP_HAS_TASK_GROUP_DESCRIPTION = "hasTaskGroupDescription";
+    private static final String PROP_HAS_TASK_GROUP_TYPE = "hasTaskGroupType";
     private static final String PROP_HAS_TASK = "hasTask";
     private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
@@ -103,6 +105,9 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+
+    private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
+    private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -128,6 +133,10 @@ public final class ETutorVocabulary {
      * The namespace for task assignment types.
      */
     public static final String TASK_ASSIGNMENT_TYPE_URI = "http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#";
+    /**
+     * The namespace for taskg group types.
+     */
+    public static final String TASK_GROUP_TYPE_TURI = "http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#";
 
     private static final Model m = ModelFactory.createDefaultModel();
 
@@ -370,6 +379,10 @@ public final class ETutorVocabulary {
      */
     public static final Property hasFileAttachmentId = m.createProperty(URI + PROP_HAS_FILE_ATTACHMENT_ID);
     /**
+     * THe hasLastSubmission property
+     */
+    public static final Property hasSubmission = m.createProperty(URI+ PROP_HAS_SUBMISSION);
+    /**
      * The hasTaskGroupName property.
      */
     public static final Property hasTaskGroupName = m.createProperty(URI + PROP_HAS_TASK_GROUP_NAME);
@@ -377,6 +390,10 @@ public final class ETutorVocabulary {
      * The hasTaskGroupDescription property.
      */
     public static final Property hasTaskGroupDescription = m.createProperty(URI + PROP_HAS_TASK_GROUP_DESCRIPTION);
+    /**
+     * The hasTaskGroupType property.
+     */
+    public static final Property hasTaskGroupType = m.createProperty(URI+PROP_HAS_TASK_GROUP_TYPE);
     /**
      * The hasTask property.
      */
@@ -455,7 +472,14 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
-
+    /**
+     * The no type task group type
+     */
+    public static final Resource NoTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_NO_TYPE_TASK_GROUP);
+    /**
+     * The SQL type task group type
+     */
+    public static final Resource SQLTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_SQL_TYPE_TASK_GROUP);
     /**
      * The easy difficulty instance.
      */

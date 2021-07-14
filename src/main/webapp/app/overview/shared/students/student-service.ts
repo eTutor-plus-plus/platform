@@ -193,4 +193,18 @@ export class StudentService {
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment`
     );
   }
+
+  public setSubmissionForAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    submission: string
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${submission}`,
+      undefined
+    );
+  }
 }

@@ -67,6 +67,7 @@
       "createNewTaskGroup": "Neue Aufgabengruppe erstellen",
       "close": "Schließen",
       "manage": "Aufgabengruppen verwalten",
+      "groupTypePlaceholder": "Typ auswählen",
       "update": {
         "newHeader": "Neue Aufgabengruppe erstellen",
         "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
@@ -74,7 +75,12 @@
         "sqlCreateStatements": "SQL: Create-Table-Statements",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
-        "descriptionField": "Beschreibung:"
+        "descriptionField": "Beschreibung:",
+        "taskGroupType": "Typ:",
+        "types": {
+          "noType": "Kein Typ",
+          "sqlType": "SQL Gruppe"
+        }
       }
     }
   }

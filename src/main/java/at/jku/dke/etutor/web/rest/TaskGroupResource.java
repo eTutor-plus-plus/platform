@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
@@ -94,13 +95,10 @@ public class TaskGroupResource {
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
-        System.out.println("Task Group in "+ taskGroupDTO.getSqlCreateStatements());
-        System.out.println(taskGroupDTO.getSqlInsertStatementsSubmission());
-        System.out.println(taskGroupDTO.getSqlInsertStatementsDiagnose());
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
-        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlCreateStatements());
-        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlInsertStatementsSubmission());
-        System.out.println("Task Group modified"+taskGroupDTOFromService.getSqlInsertStatementsDiagnose());
+        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
+            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
+        }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }
 

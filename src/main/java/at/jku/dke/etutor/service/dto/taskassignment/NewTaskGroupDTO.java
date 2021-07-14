@@ -1,5 +1,7 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
+import at.jku.dke.etutor.service.dto.validation.TaskGroupTypeConstraint;
+
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -12,6 +14,9 @@ public class NewTaskGroupDTO {
     @NotBlank
     private String name;
     private String description;
+    @NotBlank
+    @TaskGroupTypeConstraint
+    private String taskGroupTypeId;
     private String sqlCreateStatements;
     private String sqlInsertStatementsSubmission;
     private String sqlInsertStatementsDiagnose;
@@ -23,11 +28,13 @@ public class NewTaskGroupDTO {
      * @param description the optional description
      */
     public NewTaskGroupDTO(String name, String description,
+                           String taskGroupTypeId,
                            String sqlCreateStatements,
                            String sqlInsertStatementsSubmission,
                            String sqlInsertStatementsDiagnose) {
         this.name = name;
         this.description = description;
+        this.taskGroupTypeId = taskGroupTypeId;
         this.sqlCreateStatements =sqlCreateStatements;
         this.sqlInsertStatementsSubmission=sqlInsertStatementsSubmission;
         this.sqlInsertStatementsDiagnose=sqlInsertStatementsDiagnose;
@@ -86,7 +93,7 @@ public class NewTaskGroupDTO {
 
     /**
      * Sets the SQL- Create Table Statements
-     * @param sqlCreateStatements
+     * @param sqlCreateStatements the statements
      */
     public void setSqlCreateStatements(String sqlCreateStatements) {
         this.sqlCreateStatements = sqlCreateStatements;
@@ -110,7 +117,7 @@ public class NewTaskGroupDTO {
 
     /**
      * Returns the SQL- Insert Statements for the diagnose schema
-     * @return
+     * @return the statements
      */
     public String getSqlInsertStatementsDiagnose() {
         return sqlInsertStatementsDiagnose;
@@ -122,5 +129,21 @@ public class NewTaskGroupDTO {
      */
     public void setSqlInsertStatementsDiagnose(String sqlInsertStatementsDiagnose) {
         this.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
+    }
+
+    /**
+     * Returns the task group type
+     * @return the task group type
+     */
+    public String getTaskGroupTypeId() {
+        return taskGroupTypeId;
+    }
+
+    /**
+     * Sets the task group type
+     * @param taskGroupTypeId the type
+     */
+    public void setTaskGroupTypeId(String taskGroupTypeId) {
+        this.taskGroupTypeId = taskGroupTypeId;
     }
 }
