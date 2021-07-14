@@ -28,5 +28,6 @@
   <br />
   <p *ngIf="gradingReceived && hasErrors">{{ gradingDto.report.hint }}</p>
   <p *ngIf="gradingReceived && !hasErrors"><strong>Congratulation, your solution is correct!</strong></p>
+  <p *ngIf="gradingReceived && hasErrors"><strong>Your solution is not correct!</strong></p>
   <p *ngIf="gradingReceived" [innerHTML]="gradingDto.result"></p>
 </div>

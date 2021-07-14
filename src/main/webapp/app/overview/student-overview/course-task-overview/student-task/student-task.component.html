@@ -52,8 +52,8 @@
       [assignment]="assignment"
       (submissionAdded)="handleSubmissionAddedAsync($event)"
       (solutionCorrect)="markTaskAsSubmittedAsync()"
-      submission="submission"
-      diagnoseLevel="3"
+      [submission]="submission"
+      diagnoseLevel="0"
     >
     </jhi-assignment>
 

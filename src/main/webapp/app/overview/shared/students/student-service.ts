@@ -194,6 +194,13 @@ export class StudentService {
     );
   }
 
+  /**
+   * Sets the submitted solution for the task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   * @param submission the submission to be set
+   */
   public setSubmissionForAssignment(
     courseInstanceId: string,
     exerciseSheetUUID: string,
@@ -203,8 +210,16 @@ export class StudentService {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${submission}`,
-      undefined
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`,
+      submission
     );
+  }
+
+  public getSubmissionForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<any>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`, {
+      responseType: 'text' as 'json',
+    });
   }
 }

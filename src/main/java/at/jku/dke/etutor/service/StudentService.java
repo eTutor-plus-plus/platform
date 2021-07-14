@@ -1006,6 +1006,61 @@ public class StudentService extends AbstractSPARQLEndpointService {
             connection.update(insertQry.asUpdate());
         }
     }
+
+    /**
+     * Returns the submission for an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the submission
+     */
+    public Optional<String> getSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?submission
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasSubmission ?submission.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal submissionLiteral = solution.getLiteral("?submission");
+
+                    if (submissionLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(submissionLiteral.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
     //region Private methods
 
     /**

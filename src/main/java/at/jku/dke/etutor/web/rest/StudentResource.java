@@ -296,7 +296,8 @@ public class StudentResource {
     }
 
     /**
-     * Sets the submission for an individual task assignment
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
+     * Sets the submission for an individual task
      *
      * @param courseInstanceUUID the course instance id
      * @param exerciseSheetUUID the exercise sheet id
@@ -304,17 +305,38 @@ public class StudentResource {
      * @param submission the submission
      * @return
      */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{submission}")
+
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @PathVariable String submission) {
+                                              @PathVariable int taskNo, @RequestBody String submission) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
         studentService.setLastSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} : Returns
+     * the file attachment's id.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                       @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
+        Optional<String> optionalSubmission = studentService.getSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        String id = optionalSubmission.orElse("");
+
+        return ResponseEntity.ok(id);
+    }
 
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment/of-student/:matriculationNo} : Returns

@@ -26,6 +26,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public uploadTaskFileId = -1;
 
   public assignment: Assignment = { assignment_text: '', exercise_id: '', task_type: '' };
+  public submission = '';
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -86,6 +87,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
             this.assignment.exercise_id = this._taskModel.taskIdForDispatcher;
           }
         }
+        this.submission = await this.studentService
+          .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+          .toPromise();
 
         if (this.isUploadTask) {
           this.uploadTaskFileId = await this.studentService
