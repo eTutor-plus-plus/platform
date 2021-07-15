@@ -16,13 +16,14 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
   styleUrls: ['./assignment.component.scss'],
 })
 export class AssignmentComponent implements OnInit {
-  @Input() public submission!: string;
-  @Input() public assignment!: Assignment;
-  @Input() public action!: string;
-  @Input() public points!: number;
-  @Input() public maxPoints!: number;
-  @Input() public diagnoseLevel!: string;
-  @Input() public highestDiagnoseLevel!: number;
+  @Input() public assignment: Assignment | undefined;
+  @Input() public submission: string | undefined;
+  @Input() public action: string | undefined;
+  @Input() public diagnoseLevel = '0';
+  @Input() public highestDiagnoseLevel = 0;
+  @Input() public points = 0;
+  @Input() public maxPoints = 0;
+
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
   @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
@@ -36,12 +37,18 @@ export class AssignmentComponent implements OnInit {
   private submissionDto!: SubmissionDTO;
   private submissionIdDto!: SubmissionIdDTO;
 
+  /**
+   * The constructor
+   * @param assignmentService service for communicating with the dispatcher
+   */
   constructor(private assignmentService: AssignmentService) {}
   /**
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
-    this.editorOptions.language = mapEditorOption(this.assignment.task_type);
+    if (this.assignment?.task_type) {
+      this.editorOptions.language = mapEditorOption(this.assignment.task_type);
+    }
   }
 
   /**
@@ -65,6 +72,12 @@ export class AssignmentComponent implements OnInit {
    */
   public isSolved(): boolean {
     return this.points !== 0;
+  }
+  /**
+   * Returns the assignmentText
+   */
+  public getAssignmentText(): string {
+    return this.assignment?.assignment_text ?? '';
   }
   /**
    * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
@@ -91,12 +104,21 @@ export class AssignmentComponent implements OnInit {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
       this.gradingReceived = true;
-      this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
-        ? (this.hasErrors = true)
-        : (this.hasErrors = false);
 
+      this.hasError();
       this.emitGrading();
     });
+  }
+
+  /**
+   * Verifies if the submission has been evaluated as correct by the dispatcher
+   * and sets this.hasErrors accordingly
+   * @private
+   */
+  private hasError(): void {
+    this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
+      ? (this.hasErrors = true)
+      : (this.hasErrors = false);
   }
 
   /**
@@ -112,6 +134,10 @@ export class AssignmentComponent implements OnInit {
     this.submissionAdded.emit(this.submission);
   }
 
+  /**
+   * Emits the points if the assignment has been submitted and solved
+   * @private
+   */
   private emitGrading(): void {
     if (!this.hasErrors && this.action === 'submit') {
       const grading = this.maxPoints - this.highestDiagnoseLevel;
@@ -125,8 +151,8 @@ export class AssignmentComponent implements OnInit {
    */
   private initializeSubmissionDTO(): SubmissionDTO {
     const attributes = new Map<string, string>();
-    attributes.set('action', this.action);
-    attributes.set('submission', this.submission);
+    attributes.set('action', this.action ?? '');
+    attributes.set('submission', this.submission ?? '');
     attributes.set('diagnoseLevel', this.diagnoseLevel);
 
     const jsonAttributes: { [k: string]: any } = {};
@@ -136,9 +162,9 @@ export class AssignmentComponent implements OnInit {
 
     const submissionDto: SubmissionDTO = {
       submissionId: '',
-      exerciseId: this.assignment.exercise_id,
+      exerciseId: this.assignment?.exercise_id ?? '',
       passedAttributes: jsonAttributes,
-      taskType: this.assignment.task_type,
+      taskType: this.assignment?.task_type ?? '',
       passedParameters: new Map<string, string>(),
     };
     this.submissionDto = submissionDto;

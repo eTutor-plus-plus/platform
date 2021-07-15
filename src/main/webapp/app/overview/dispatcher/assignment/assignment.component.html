@@ -10,7 +10,7 @@
 
   <form class="add-form" (ngSubmit)="onSubmit()">
     <br />
-    <div [innerHTML]="assignment.assignment_text"></div>
+    <div [innerHTML]="getAssignmentText()"></div>
     <br />
     <p>
       <label><strong>Your Solution:</strong></label>
