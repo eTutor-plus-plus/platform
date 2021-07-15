@@ -39,6 +39,7 @@ export class TaskUpdateComponent implements OnInit {
     sqlInsertStatementsSubmission: [''],
     sqlInsertStatementsDiagnose: [''],
     sqlSolution: [''],
+    maxPoints: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -128,6 +129,11 @@ export class TaskUpdateComponent implements OnInit {
       newTask.sqlSolution = sqlSolution.trim();
     }
 
+    const maxPoints: number = this.updateForm.get('maxPoints')!.value;
+    if (maxPoints) {
+      newTask.maxPoints = Math.round(maxPoints);
+    }
+
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
@@ -150,6 +156,7 @@ export class TaskUpdateComponent implements OnInit {
         taskDifficultyId: newTask.taskDifficultyId,
         taskIdForDispatcher: newTask.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
+        maxPoints: newTask.maxPoints,
         processingTime: newTask.processingTime,
         url: newTask.url,
         instruction: newTask.instruction,
@@ -202,6 +209,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const sqlSolution = value.sqlSolution ?? '';
+      const maxPoints = value.maxPoints ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
@@ -217,6 +225,7 @@ export class TaskUpdateComponent implements OnInit {
         taskDifficulty,
         taskIdForDispatcher,
         sqlSolution,
+        maxPoints,
         processingTime,
         url,
         instruction,

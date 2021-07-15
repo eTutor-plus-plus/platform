@@ -51,9 +51,13 @@ export interface INewTaskModel {
    */
   taskIdForDispatcher?: string;
   /**
-   * Optional schema name for an SQL-Exercise
+   * Optional solution for an SQL-Exercise
    */
   sqlSolution?: string;
+  /**
+   * Optional max points for the taks
+   */
+  maxPoints?: number;
   /**
    * The optional free text processing time.
    */

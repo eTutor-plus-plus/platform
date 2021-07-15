@@ -29,6 +29,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public submission = '';
   public diagnoseLevel = 0;
   public dispatcherPoints = 0;
+  public maxPoints = 10;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -82,11 +83,15 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         if (this.isDispatcherTask) {
           this.assignment.task_type = this._taskModel.taskAssignmentTypeId;
 
-          if (this._taskModel.instruction != null) {
+          if (this._taskModel.instruction) {
             this.assignment.assignment_text = this._taskModel.instruction;
           }
-          if (this._taskModel.taskIdForDispatcher != null) {
+          if (this._taskModel.taskIdForDispatcher) {
             this.assignment.exercise_id = this._taskModel.taskIdForDispatcher;
+          }
+
+          if (this._taskModel.maxPoints) {
+            this.maxPoints = this._taskModel.maxPoints;
           }
 
           this.submission = await this.studentService

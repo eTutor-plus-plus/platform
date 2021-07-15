@@ -26,6 +26,7 @@ public class NewTaskAssignmentDTO {
 
     private String taskIdForDispatcher;
     private String sqlSolution;
+    private int maxPoints;
 
     private String processingTime;
 
@@ -159,6 +160,22 @@ public class NewTaskAssignmentDTO {
      */
     public void setSqlSolution(String sqlSolution) {
         this.sqlSolution = sqlSolution;
+    }
+
+    /**
+     * Returns the maxPoints
+     * @return the maxPoints
+     */
+    public int getMaxPoints() {
+        return maxPoints;
+    }
+
+    /**
+     * Sets the maxPoints
+     * @param maxPoints the maxPoints
+     */
+    public void setMaxPoints(int maxPoints) {
+        this.maxPoints = maxPoints;
     }
 
     /**

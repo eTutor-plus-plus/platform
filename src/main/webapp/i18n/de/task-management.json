@@ -29,6 +29,7 @@
       "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Lösung:",
+      "maxPoints": "Erreichbare Punkteanzahl:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",

@@ -14,9 +14,7 @@ const httpOptionsWithContent = {
 };
 
 const httpOptionsTextResponse = {
-  headers: new HttpHeaders({
-    'Content-Type': 'application/json',
-  }),
+  responseType: 'text' as 'json',
 };
 
 @Injectable({

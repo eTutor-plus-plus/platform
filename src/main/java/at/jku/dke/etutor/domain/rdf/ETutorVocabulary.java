@@ -78,6 +78,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE = "hasSQLInsertStatementsDiagnose";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
+    private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -290,6 +291,10 @@ public final class ETutorVocabulary {
      * The hasSQLSolution property.
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);    /**
+     /* *
+     *The hasMaxPoints property
+     */
+    public static final Property hasMaxPoints = m.createProperty(URI+PROP_HAS_MAX_POINTS);
     /**
      * The hasTaskDifficulty property.
      */
