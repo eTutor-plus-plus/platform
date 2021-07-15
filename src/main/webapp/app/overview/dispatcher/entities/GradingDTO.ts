@@ -1,3 +1,6 @@
+/**
+ * The Grading-DTO to map grading responses from the dispatcher
+ */
 export interface GradingDTO {
   submissionId: string;
   maxPoints: number;
