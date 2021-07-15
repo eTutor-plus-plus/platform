@@ -1,0 +1,10 @@
+{
+  "dispatcherAssignment": {
+    "assignment": {
+      "congratulation": "Congratulation, your solution is correct!",
+      "notCorrect": "Sorry, your solution is not correct!",
+      "diagnoseLevelPlaceholder": "Choose diagnose level:",
+      "yourSolution": "Your solution:"
+    }
+  }
+}
