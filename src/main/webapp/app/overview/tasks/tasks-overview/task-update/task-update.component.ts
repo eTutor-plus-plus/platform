@@ -178,8 +178,8 @@ export class TaskUpdateComponent implements OnInit {
       newTask.taskGroupId &&
       newTask.taskIdForDispatcher
     ) {
-      const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1, newTask.taskGroupId.length);
-      this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
+      const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
+      await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
     }
   }
 
@@ -243,7 +243,7 @@ export class TaskUpdateComponent implements OnInit {
     if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       this.isSQLTask = true;
       if (taskGroupId) {
-        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
         this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
           this.updateForm.patchValue({
             sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
@@ -280,7 +280,7 @@ export class TaskUpdateComponent implements OnInit {
     const taskGroupId = this.updateForm.get(['taskGroup'])!.value as string | undefined;
 
     if (taskGroupId) {
-      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1, taskGroupId.length);
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
       this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
         this.updateForm.patchValue({
           sqlCreateStatements: taskGroupDTO.sqlCreateStatements,

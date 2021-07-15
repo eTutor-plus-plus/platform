@@ -48,16 +48,19 @@ export class SqlExerciseService {
    * @param exerciseID the id of the exercise
    * @param solution the solution of the exercise
    */
-  public createExercise(schemaName: string, exerciseID: string, solution: string): void {
-    this.deleteExercise(exerciseID).subscribe(() => this.createExerciseUtil(schemaName, exerciseID, solution).subscribe());
+  public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
+    await this.deleteExercise(exerciseID).toPromise();
+    const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseID;
+    await this.http.put<Response>(url, solution, httpOptions).toPromise();
   }
 
   /**
    * Deletes a schema
    * @param schemaName the name of the schema
    */
-  public deleteSchema(schemaName: string): void {
-    this.deleteSchemaUtil(schemaName).subscribe();
+  public deleteSchema(schemaName: string): Observable<Response> {
+    const url = this.API_URL + '/schema/' + schemaName;
+    return this.http.delete<Response>(url, httpOptions);
   }
 
   /**
@@ -72,72 +75,9 @@ export class SqlExerciseService {
    * Deletes the connection for a schema and all exercises that point to this connection
    * @param schemaName the schema name
    */
-  public deleteConnection(schemaName: string): void {
+  public deleteConnection(schemaName: string): Observable<any> {
     const url = this.API_URL + '/schema/' + schemaName + '/connection';
-    this.http.delete(url).subscribe();
-  }
-  /**
-   * requests the deletion of a given schema
-   * @param schemaName the name of the schema to be deleted
-   * @private
-   */
-  private deleteSchemaUtil(schemaName: string): Observable<Response> {
-    const url = this.API_URL + '/schema/' + schemaName;
-    return this.http.delete<Response>(url, httpOptions);
-  }
-
-  /**
-   * requests the creation of a given schema
-   * @param schemaName the name of the schema to be created
-   * @private
-   */
-  private createSchemaUtil(schemaName: string): Observable<Response> {
-    const url = this.API_URL + '/schema/' + schemaName;
-    return this.http.put<Response>(url, null, httpOptions);
-  }
-
-  /**
-   * requests the execution of the given statements on the given schema
-   * @param schemaName the name of the schema
-   * @param statements the statements to be executed
-   * @private
-   */
-  private createTables(schemaName: string, statements: string): Observable<Response> {
-    const url = this.API_URL + '/schema/' + schemaName + '/table';
-    return this.http.put<Response>(url, statements, httpOptions);
-  }
-
-  /**
-   * requests the execution of the given statements on the submission-version of the given schema
-   * @param schemaName the name of the schema
-   * @param statements the statements to be executed
-   * @private
-   */
-  private insertSubmission(schemaName: string, statements: string): Observable<Response> {
-    const url = this.API_URL + '/schema/' + schemaName + '/submission/data';
-    return this.http.post<Response>(url, statements, httpOptions);
-  }
-  /**
-   * requests the execution of the given statements on the diagnose-version of the given schema
-   * @param schemaName the name of the schema
-   * @param statements the statements to be executed
-   * @private
-   */
-  private insertDiagnose(schemaName: string, statements: string): Observable<Response> {
-    const url = this.API_URL + '/schema/' + schemaName + '/diagnose/data';
-    return this.http.post<Response>(url, statements, httpOptions);
-  }
-
-  /**
-   * requests the adding of the solution
-   * @param schemaName the name of the schema where the exercise has to be executed
-   * @param exerciseId the id identifying the exercise
-   * @param solution the solution for the exercise
-   * @private
-   */
-  private createExerciseUtil(schemaName: string, exerciseId: string, solution: string): Observable<Response> {
-    const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseId;
-    return this.http.put<Response>(url, solution, httpOptions);
+    return this.http.delete(url);
   }
 
   /**
