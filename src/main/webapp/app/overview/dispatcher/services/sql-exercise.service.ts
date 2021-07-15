@@ -2,12 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DISPATCHER_URL } from 'app/overview/dispatcher/constants';
 import { Observable } from 'rxjs';
-import { Response } from 'app/overview/dispatcher/entities/Response';
 
 /**
  * Used to manage SQL-Exercises in the backend (dispatcher)
  */
-const httpOptions = {
+const httpOptionsWithContent = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json',
+  }),
+  responseType: 'text' as 'json',
+};
+
+const httpOptionsTextResponse = {
   headers: new HttpHeaders({
     'Content-Type': 'application/json',
   }),
@@ -37,12 +43,7 @@ export class SqlExerciseService {
         insertStatementsDiagnose: insertDiagnose.trim().split(';'),
         schemaName: schema,
       },
-      {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-        }),
-        responseType: 'text' as 'json',
-      }
+      httpOptionsWithContent
     );
   }
 
@@ -55,14 +56,7 @@ export class SqlExerciseService {
   public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
     await this.deleteExercise(exerciseID).toPromise();
     const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseID;
-    await this.http
-      .put<string>(url, solution, {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-        }),
-        responseType: 'text' as 'json',
-      })
-      .toPromise();
+    await this.http.put<string>(url, solution, httpOptionsWithContent).toPromise();
   }
 
   /**
@@ -71,9 +65,7 @@ export class SqlExerciseService {
    */
   public deleteSchema(schemaName: string): Observable<string> {
     const url = this.API_URL + '/schema/' + schemaName;
-    return this.http.delete<string>(url, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 
   /**
@@ -81,9 +73,7 @@ export class SqlExerciseService {
    */
   public getExerciseId(): Observable<string> {
     const url = this.API_URL + '/exercise/reservation';
-    return this.http.get<string>(url, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
   /**
@@ -92,9 +82,7 @@ export class SqlExerciseService {
    */
   public deleteConnection(schemaName: string): Observable<any> {
     const url = this.API_URL + '/schema/' + schemaName + '/connection';
-    return this.http.delete(url, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.delete(url, httpOptionsTextResponse);
   }
 
   /**
@@ -104,8 +92,6 @@ export class SqlExerciseService {
    */
   private deleteExercise(exerciseId: string): Observable<string> {
     const url = this.API_URL + '/exercise/' + exerciseId;
-    return this.http.delete<string>(url, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 }
