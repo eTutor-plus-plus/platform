@@ -119,7 +119,7 @@ export class TaskUpdateComponent implements OnInit {
         .getExerciseId()
         .toPromise()
         .then(response => {
-          newTask.taskIdForDispatcher = response.message;
+          newTask.taskIdForDispatcher = response;
         });
     }
 
