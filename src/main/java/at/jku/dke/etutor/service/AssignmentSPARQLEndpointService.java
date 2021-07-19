@@ -85,7 +85,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             }
             WHERE {
               ?assignment ?predicate ?object.
-              ?goal etutor:hasTaskAssignment ?assignment.
+              OPTIONAL {
+                ?goal etutor:hasTaskAssignment ?assignment.
+              }
             }
             """;
 
