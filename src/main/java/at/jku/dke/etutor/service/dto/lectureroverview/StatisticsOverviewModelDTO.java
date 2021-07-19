@@ -10,7 +10,10 @@ import java.util.List;
  * @author fne
  */
 public class StatisticsOverviewModelDTO {
-    private List<StatisticsOverviewModelDTO> learningGoalAchievementOverview;
+
+    private String courseInstanceName;
+    private int studentCount;
+    private List<LearningGoalProgressDTO> learningGoalAchievementOverview;
 
     /**
      * Constructor.
@@ -20,11 +23,47 @@ public class StatisticsOverviewModelDTO {
     }
 
     /**
+     * Returns the course instance's name.
+     *
+     * @return the course instance's name
+     */
+    public String getCourseInstanceName() {
+        return courseInstanceName;
+    }
+
+    /**
+     * Sets the course instance's name.
+     *
+     * @param courseInstanceName the name to set
+     */
+    public void setCourseInstanceName(String courseInstanceName) {
+        this.courseInstanceName = courseInstanceName;
+    }
+
+    /**
+     * Returns the student count.
+     *
+     * @return the student count
+     */
+    public int getStudentCount() {
+        return studentCount;
+    }
+
+    /**
+     * Sets the student count.
+     *
+     * @param studentCount the student count to set
+     */
+    public void setStudentCount(int studentCount) {
+        this.studentCount = studentCount;
+    }
+
+    /**
      * Returns the list of learning goal achievements.
      *
      * @return the list of learning goal achievements
      */
-    public List<StatisticsOverviewModelDTO> getLearningGoalAchievementOverview() {
+    public List<LearningGoalProgressDTO> getLearningGoalAchievementOverview() {
         return learningGoalAchievementOverview;
     }
 
@@ -33,7 +72,7 @@ public class StatisticsOverviewModelDTO {
      *
      * @param learningGoalAchievementOverview the list to set
      */
-    public void setLearningGoalAchievementOverview(List<StatisticsOverviewModelDTO> learningGoalAchievementOverview) {
+    public void setLearningGoalAchievementOverview(List<LearningGoalProgressDTO> learningGoalAchievementOverview) {
         this.learningGoalAchievementOverview = learningGoalAchievementOverview;
     }
 
@@ -42,7 +81,7 @@ public class StatisticsOverviewModelDTO {
      *
      * @param modelToAdd the model to add
      */
-    public void addStatisticOverviewModel(StatisticsOverviewModelDTO modelToAdd) {
+    public void addStatisticOverviewModel(LearningGoalProgressDTO modelToAdd) {
         if (learningGoalAchievementOverview != null) {
             learningGoalAchievementOverview.add(modelToAdd);
         }

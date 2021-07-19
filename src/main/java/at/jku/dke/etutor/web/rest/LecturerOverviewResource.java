@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.CourseInstanceSPARQLEndpointService;
 import at.jku.dke.etutor.service.LecturerOverviewService;
 import at.jku.dke.etutor.service.dto.courseinstance.DisplayableCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.lectureroverview.StatisticsOverviewModelDTO;
+import at.jku.dke.etutor.web.rest.errors.CourseInstanceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -71,7 +72,11 @@ public class LecturerOverviewResource {
     @GetMapping("statistics/{courseInstanceId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<StatisticsOverviewModelDTO> getOverviewStatisticsForCourseInstance(@PathVariable String courseInstanceId) {
-        var statistics = this.lecturerOverviewService.getCourseInstanceOverviewStatistics(courseInstanceId);
-        return ResponseEntity.ok(statistics);
+        try {
+            var statistics = this.lecturerOverviewService.getCourseInstanceOverviewStatistics(courseInstanceId);
+            return ResponseEntity.ok(statistics);
+        } catch (at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException courseInstanceNotFoundException) {
+            throw new CourseInstanceNotFoundException();
+        }
     }
 }

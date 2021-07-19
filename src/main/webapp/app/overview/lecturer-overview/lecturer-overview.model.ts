@@ -4,6 +4,14 @@
  */
 export interface IStatisticsOverviewModelDTO {
   /**
+   * The course instance's name.
+   */
+  courseInstanceName: string;
+  /**
+   * The total count of students.
+   */
+  studentCount: number;
+  /**
    * List of learning goal achievements.
    */
   learningGoalAchievementOverview: ILearningGoalProgressDTO[];
