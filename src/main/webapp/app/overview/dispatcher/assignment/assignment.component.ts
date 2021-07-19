@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
@@ -16,9 +15,9 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
   styleUrls: ['./assignment.component.scss'],
 })
 export class AssignmentComponent implements OnInit {
-  @Input() public assignment: Assignment | undefined;
+  @Input() public exercise_id: string | undefined;
+  @Input() public task_type: string | undefined;
   @Input() public submission: string | undefined;
-  @Input() public action: string | undefined;
   @Input() public diagnoseLevel = '0';
   @Input() public highestDiagnoseLevel = 0;
   @Input() public points = 0;
@@ -36,6 +35,7 @@ export class AssignmentComponent implements OnInit {
 
   private submissionDto!: SubmissionDTO;
   private submissionIdDto!: SubmissionIdDTO;
+  private action!: string;
 
   /**
    * The constructor
@@ -46,8 +46,8 @@ export class AssignmentComponent implements OnInit {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
-    if (this.assignment?.task_type) {
-      this.editorOptions.language = mapEditorOption(this.assignment.task_type);
+    if (this.task_type) {
+      this.editorOptions.language = mapEditorOption(this.task_type);
     }
   }
 
@@ -73,12 +73,7 @@ export class AssignmentComponent implements OnInit {
   public isSolved(): boolean {
     return this.points !== 0;
   }
-  /**
-   * Returns the assignmentText
-   */
-  public getAssignmentText(): string {
-    return this.assignment?.assignment_text ?? '';
-  }
+
   /**
    * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
    *
@@ -151,7 +146,7 @@ export class AssignmentComponent implements OnInit {
    */
   private initializeSubmissionDTO(): SubmissionDTO {
     const attributes = new Map<string, string>();
-    attributes.set('action', this.action ?? '');
+    attributes.set('action', this.action);
     attributes.set('submission', this.submission ?? '');
     attributes.set('diagnoseLevel', this.diagnoseLevel);
 
@@ -162,9 +157,9 @@ export class AssignmentComponent implements OnInit {
 
     const submissionDto: SubmissionDTO = {
       submissionId: '',
-      exerciseId: this.assignment?.exercise_id ?? '',
+      exerciseId: this.exercise_id ?? '',
       passedAttributes: jsonAttributes,
-      taskType: this.assignment?.task_type ?? '',
+      taskType: this.task_type ?? '',
       passedParameters: new Map<string, string>(),
     };
     this.submissionDto = submissionDto;

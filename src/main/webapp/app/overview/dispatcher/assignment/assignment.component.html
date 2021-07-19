@@ -1,6 +1,6 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
   <div align="right">
-    <select [(ngModel)]="diagnoseLevel">
+    <select class="form-control" [(ngModel)]="diagnoseLevel">
       <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
       <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">{{ chosenDiagnoseLevel }}</option>
     </select>
@@ -13,7 +13,6 @@
 
   <div>
     <form class="add-form" (ngSubmit)="onSubmit()">
-      <div [innerHTML]="getAssignmentText()"></div>
       <div>
         <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
       </div>

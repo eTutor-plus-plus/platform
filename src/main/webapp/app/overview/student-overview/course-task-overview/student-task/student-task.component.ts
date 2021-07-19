@@ -6,7 +6,6 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
-import { Assignment } from 'app/overview/dispatcher/entities/Assignment';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -25,7 +24,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isDispatcherTask = true;
   public uploadTaskFileId = -1;
 
-  public assignment: Assignment = { assignment_text: '', exercise_id: '', task_type: '' };
+  public exercise_id = '';
+  public task_type = '';
   public submission = '';
   public diagnoseLevel = 0;
   public dispatcherPoints = 0;
@@ -81,13 +81,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
 
         if (this.isDispatcherTask) {
-          this.assignment.task_type = this._taskModel.taskAssignmentTypeId;
+          this.task_type = this._taskModel.taskAssignmentTypeId;
 
-          if (this._taskModel.instruction) {
-            this.assignment.assignment_text = this._taskModel.instruction;
-          }
           if (this._taskModel.taskIdForDispatcher) {
-            this.assignment.exercise_id = this._taskModel.taskIdForDispatcher;
+            this.exercise_id = this._taskModel.taskIdForDispatcher;
           }
 
           if (this._taskModel.maxPoints) {

@@ -132,6 +132,8 @@ export class TaskUpdateComponent implements OnInit {
     const maxPoints: number = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = Math.round(maxPoints);
+    } else {
+      newTask.maxPoints = 10;
     }
 
     const processingTime: string = this.updateForm.get('processingTime')!.value;
