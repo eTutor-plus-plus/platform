@@ -5,6 +5,7 @@ import { Pagination } from '../../core/request/request.model';
 import { createRequestOption } from '../../core/request/request-util';
 import { SERVER_API_URL } from '../../app.constants';
 import { IDisplayableCourseInstanceDTO } from '../course-management/course-mangement.model';
+import { IStatisticsOverviewModelDTO } from './lecturer-overview.model';
 
 /**
  * Service which is used for lecturer overview related functions.
@@ -32,5 +33,16 @@ export class LecturerOverviewService {
       params: options,
       observe: 'response',
     });
+  }
+
+  /**
+   * Returns the statistical overview from the given course instance.
+   *
+   * @param courseInstanceId the course instance's id
+   */
+  public getStatisticalOverviewOfCourseInstance(courseInstanceId: string): Observable<IStatisticsOverviewModelDTO> {
+    const courseInstanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<IStatisticsOverviewModelDTO>(`${SERVER_API_URL}api/lecturer-overview/statistics/${courseInstanceUUID}`);
   }
 }
