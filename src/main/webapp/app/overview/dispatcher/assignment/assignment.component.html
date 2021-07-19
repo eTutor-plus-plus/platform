@@ -1,5 +1,6 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
-  <div align="right">
+  <div>
+    <label>Feedback-Niveau:</label>
     <select class="form-control" [(ngModel)]="diagnoseLevel">
       <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
       <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">{{ chosenDiagnoseLevel }}</option>
