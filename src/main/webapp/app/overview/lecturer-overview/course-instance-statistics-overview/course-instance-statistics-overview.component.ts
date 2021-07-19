@@ -1,6 +1,8 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LecturerOverviewService } from '../lecturer-overview.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 /**
@@ -21,8 +23,9 @@ export class CourseInstanceStatisticsOverviewComponent implements OnInit, OnDest
    *
    * @param lecturerOverviewService the injected lecturer overview service
    * @param activatedRoute the injected activated route service
+   * @param router the injected routing service
    */
-  constructor(private lecturerOverviewService: LecturerOverviewService, private activatedRoute: ActivatedRoute) {}
+  constructor(private lecturerOverviewService: LecturerOverviewService, private activatedRoute: ActivatedRoute, private router: Router) {}
 
   /**
    * Implements the init method. See {@link OnInit}.
@@ -38,5 +41,12 @@ export class CourseInstanceStatisticsOverviewComponent implements OnInit, OnDest
    */
   public ngOnDestroy(): void {
     this._activatedRouteSubscription?.unsubscribe();
+  }
+
+  /**
+   * Navigates back to the overview.
+   */
+  public navigateBackToOverview(): void {
+    this.router.navigate(['/', 'overview']);
   }
 }

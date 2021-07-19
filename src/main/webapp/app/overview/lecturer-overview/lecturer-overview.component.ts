@@ -7,6 +7,7 @@ import { StudentAssignmentModalComponent } from '../course-management-shared/stu
 import { CourseExerciseSheetAllocationComponent } from '../course-management-shared/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IDisplayableCourseInstanceDTO } from '../course-management/course-mangement.model';
+import { ActivatedRoute, Router } from '@angular/router';
 
 /**
  * Component which is used for displaying an overview for a lecturer.
@@ -27,8 +28,15 @@ export class LecturerOverviewComponent implements OnInit {
    *
    * @param lecturerOverviewService the injected lecturer overview service
    * @param modalService the injected modal service
+   * @param router the injected routing service
+   * @param activatedRoute the injected actice route
    */
-  constructor(private lecturerOverviewService: LecturerOverviewService, private modalService: NgbModal) {
+  constructor(
+    private lecturerOverviewService: LecturerOverviewService,
+    private modalService: NgbModal,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
 
@@ -52,7 +60,8 @@ export class LecturerOverviewComponent implements OnInit {
    * @param selectedCourse the selected course
    */
   public showStatistics(selectedCourse: IDisplayableCourseInstanceDTO): void {
-    // TODO: Open new page.
+    const courseInstanceId = selectedCourse.id.substr(selectedCourse.id.lastIndexOf('#') + 1);
+    this.router.navigate(['lecturer', 'statistics', courseInstanceId], { relativeTo: this.activatedRoute });
   }
 
   public showAssignExerciseSheetModalWindow(selectedCourse: IDisplayableCourseInstanceDTO): void {
