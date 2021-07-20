@@ -38,11 +38,9 @@ export class LecturerOverviewService {
   /**
    * Returns the statistical overview from the given course instance.
    *
-   * @param courseInstanceId the course instance's id
+   * @param courseInstanceUUID the course instance's UUID
    */
-  public getStatisticalOverviewOfCourseInstance(courseInstanceId: string): Observable<IStatisticsOverviewModelDTO> {
-    const courseInstanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-
+  public getStatisticalOverviewOfCourseInstance(courseInstanceUUID: string): Observable<IStatisticsOverviewModelDTO> {
     return this.http.get<IStatisticsOverviewModelDTO>(`${SERVER_API_URL}api/lecturer-overview/statistics/${courseInstanceUUID}`);
   }
 }

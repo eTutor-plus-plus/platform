@@ -12,12 +12,13 @@ import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module
 import { LecturerOverviewComponent } from './lecturer-overview/lecturer-overview.component';
 import { CourseManagementSharedModule } from './course-management-shared/course-management-shared.module';
 import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/course-instance-statistics-overview/course-instance-statistics-overview.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 /**
  * Module for the overview component.
  */
 @NgModule({
-  imports: [SharedModule, RouterModule.forChild(overviewRoute), OverviewSharedModule, CourseManagementSharedModule],
+  imports: [SharedModule, RouterModule.forChild(overviewRoute), OverviewSharedModule, CourseManagementSharedModule, NgxSpinnerModule],
   declarations: [
     OverviewComponent,
     StudentOverviewComponent,
