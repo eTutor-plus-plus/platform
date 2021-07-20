@@ -703,10 +703,12 @@ public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointS
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
                 PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
                 INSERT {
                   GRAPH ?instance {
                   	?goal a etutor:Goal.
+                  	?goal etutor:hasFailedCount "0"^^xsd:int
                   }
                 }
                 WHERE {

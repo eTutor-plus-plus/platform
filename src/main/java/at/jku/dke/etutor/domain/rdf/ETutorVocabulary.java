@@ -79,6 +79,7 @@ public final class ETutorVocabulary {
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
     private static final String PROP_IS_COMPLETED_FROM = "isCompletedFrom";
+    private static final String PROP_HAS_FAILED_COUNT = "hasFailedCount";
 
     private static final String PROP_CONTAINS_LEARNING_GOAL = "containsLearningGoal";
     private static final String PROP_HAS_EXERCISE_SHEET_DIFFICULTY = "hasExerciseSheetDifficulty";
@@ -280,6 +281,10 @@ public final class ETutorVocabulary {
      * The isCompletedFrom property.
      */
     public static final Property isCompletedFrom = m.createProperty(URI + PROP_IS_COMPLETED_FROM);
+    /**
+     * The hasFailedCount property.
+     */
+    public static final Property hasFailedCount = m.createProperty(URI + PROP_HAS_FAILED_COUNT);
 
     /**
      * The containsLearningGoal property.
