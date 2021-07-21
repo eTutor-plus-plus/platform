@@ -34,7 +34,6 @@ export class TaskUpdateComponent implements OnInit {
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
     taskIdForDispatcher: [''],
-    sqlSchemaName: [''],
     sqlCreateStatements: [''],
     sqlInsertStatementsSubmission: [''],
     sqlInsertStatementsDiagnose: [''],
@@ -131,9 +130,7 @@ export class TaskUpdateComponent implements OnInit {
 
     const maxPoints: number = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
-      newTask.maxPoints = Math.round(maxPoints);
-    } else {
-      newTask.maxPoints = 10;
+      newTask.maxPoints = maxPoints;
     }
 
     const processingTime: string = this.updateForm.get('processingTime')!.value;
@@ -219,6 +216,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
 
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
+
       this.updateForm.patchValue({
         header: value.header,
         creator: value.creator,
@@ -244,7 +242,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Checks wether taskType requires additional form fields.
+   * Checks if the taskType requires additional form fields in the course of "set TaskModel".
    * Fetches additional values from the taskGroup and patches it in the update form.
    * @param taskAssignmentTypeId
    * @param taskGroupId
@@ -253,16 +251,7 @@ export class TaskUpdateComponent implements OnInit {
   public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
     if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       this.isSQLTask = true;
-      if (taskGroupId) {
-        const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
-        this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
-          this.updateForm.patchValue({
-            sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
-            sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
-            sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
-          });
-        });
-      }
+      this.patchSQLValues(taskGroupId);
     }
   }
   /**
@@ -280,8 +269,11 @@ export class TaskUpdateComponent implements OnInit {
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       this.isSQLTask = true;
+      this.updateForm.get('maxPoints')!.setValidators(Validators.required);
     } else {
       this.isSQLTask = false;
+      this.updateForm.get('maxPoints')!.clearValidators();
+      this.updateForm.updateValueAndValidity();
     }
   }
   /**
@@ -289,7 +281,14 @@ export class TaskUpdateComponent implements OnInit {
    */
   public taskGroupChanged(): void {
     const taskGroupId = this.updateForm.get(['taskGroup'])!.value as string | undefined;
+    this.patchSQLValues(taskGroupId);
+  }
 
+  /**
+   * Patches the values from an SQL-Task group in the update form
+   * @param taskGroupId the task-group-id
+   */
+  private patchSQLValues(taskGroupId: string | undefined): void {
     if (taskGroupId) {
       const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
       this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
