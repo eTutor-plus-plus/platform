@@ -55,9 +55,9 @@ export interface INewTaskModel {
    */
   sqlSolution?: string;
   /**
-   * Optional max points for the taks
+   * Optional max points
    */
-  maxPoints?: number;
+  maxPoints?: string;
   /**
    * The optional free text processing time.
    */

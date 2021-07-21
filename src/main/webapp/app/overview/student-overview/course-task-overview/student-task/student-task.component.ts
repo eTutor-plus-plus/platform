@@ -29,7 +29,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public submission = '';
   public diagnoseLevel = 0;
   public dispatcherPoints = 0;
-  public maxPoints = 10;
+  public maxPoints = '';
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;

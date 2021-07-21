@@ -128,7 +128,7 @@ export class TaskUpdateComponent implements OnInit {
       newTask.sqlSolution = sqlSolution.trim();
     }
 
-    const maxPoints: number = this.updateForm.get('maxPoints')!.value;
+    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
     }

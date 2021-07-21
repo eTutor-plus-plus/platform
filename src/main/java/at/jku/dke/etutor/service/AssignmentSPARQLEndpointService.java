@@ -293,7 +293,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
-            if(taskAssignment.getMaxPoints() != 0 ){
+            if(StringUtils.isNotBlank(taskAssignment.getMaxPoints())){
                 query.append("?assignment etutor:hasMaxPoints ");
                 query.appendLiteral(taskAssignment.getMaxPoints());
                 query.append(".\n");
@@ -1057,8 +1057,8 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }
 
-        if(newTaskAssignmentDTO.getMaxPoints() != 0){
-            resource.addProperty(ETutorVocabulary.hasMaxPoints, Integer.toString(newTaskAssignmentDTO.getMaxPoints()));
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){
+            resource.addProperty(ETutorVocabulary.hasMaxPoints, newTaskAssignmentDTO.getMaxPoints());
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {

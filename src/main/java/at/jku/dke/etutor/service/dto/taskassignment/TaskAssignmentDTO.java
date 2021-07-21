@@ -109,7 +109,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         }
         Statement maxPointsStatement = resource.getProperty(ETutorVocabulary.hasMaxPoints);
         if(maxPointsStatement != null){
-            setMaxPoints(maxPointsStatement.getInt());
+            setMaxPoints(maxPointsStatement.getString());
         }
         Statement processingTimeStatement = resource.getProperty(ETutorVocabulary.hasTypicalProcessingTime);
         if (processingTimeStatement != null) {

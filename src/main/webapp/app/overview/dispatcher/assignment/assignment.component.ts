@@ -21,7 +21,7 @@ export class AssignmentComponent implements OnInit {
   @Input() public diagnoseLevel = '0';
   @Input() public highestDiagnoseLevel = 0;
   @Input() public points = 0;
-  @Input() public maxPoints = 0;
+  @Input() public maxPoints = '';
 
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
@@ -135,7 +135,7 @@ export class AssignmentComponent implements OnInit {
    */
   private emitGrading(): void {
     if (!this.hasErrors && this.action === 'submit') {
-      const grading = this.maxPoints - this.highestDiagnoseLevel;
+      const grading = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel;
       this.solutionCorrect.emit(grading);
       this.points = grading;
     }
