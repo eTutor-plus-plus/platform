@@ -14,6 +14,12 @@ import { AssignmentService } from 'app/overview/dispatcher/services/assignment.s
   styleUrls: ['./assignment.component.scss'],
 })
 export class AssignmentComponent implements AfterContentChecked {
+  public diagnoseLevels = [
+    'dispatcherAssignment.assignment.diagnoseLevel.none',
+    'dispatcherAssignment.assignment.diagnoseLevel.little',
+    'dispatcherAssignment.assignment.diagnoseLevel.some',
+    'dispatcherAssignment.assignment.diagnoseLevel.much',
+  ];
   @Input() public exercise_id: string | undefined;
   @Input() public task_type: string | undefined;
   @Input() public submission: string | undefined;
@@ -25,7 +31,6 @@ export class AssignmentComponent implements AfterContentChecked {
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
   @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
 
-  public diagnoseLevels = ['None', 'Little', 'Some', 'Much'];
   public diagnoseLevelText = '';
 
   public gradingReceived = false;
@@ -60,18 +65,18 @@ export class AssignmentComponent implements AfterContentChecked {
    * Maps the diagnose level to the text representation
    * @param number the diagnose level as number
    */
-  public static mapDiagnoseLevel(number: number): string {
+  public mapDiagnoseLevel(number: number): string {
     switch (number) {
       case 0:
-        return 'None';
+        return this.diagnoseLevels[0];
       case 1:
-        return 'Little';
+        return this.diagnoseLevels[1];
       case 2:
-        return 'Some';
+        return this.diagnoseLevels[2];
       case 3:
-        return 'Much';
+        return this.diagnoseLevels[3];
       default:
-        return 'None';
+        return this.diagnoseLevels[0];
     }
   }
   public ngAfterContentChecked(): void {
@@ -79,7 +84,7 @@ export class AssignmentComponent implements AfterContentChecked {
       this.editorOptions = { theme: 'vs-dark', language: AssignmentComponent.mapEditorLanguage(this.task_type) };
     }
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
-      this.diagnoseLevelText = AssignmentComponent.mapDiagnoseLevel(this.highestDiagnoseLevel);
+      this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
     }
   }
 
@@ -207,13 +212,13 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   private mapDiagnoseText(text: string): number {
     switch (text) {
-      case 'None':
+      case this.diagnoseLevels[0]:
         return 0;
-      case 'Little':
+      case this.diagnoseLevels[1]:
         return 1;
-      case 'Some':
+      case this.diagnoseLevels[2]:
         return 2;
-      case 'Much':
+      case this.diagnoseLevels[3]:
         return 3;
       default:
         return 0;
