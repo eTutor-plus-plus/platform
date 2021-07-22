@@ -18,7 +18,7 @@ export class AssignmentComponent implements OnInit {
   @Input() public exercise_id: string | undefined;
   @Input() public task_type: string | undefined;
   @Input() public submission: string | undefined;
-  @Input() public diagnoseLevel = '0';
+  @Input() public diagnoseLevelText = 'None';
   @Input() public highestDiagnoseLevel = 0;
   @Input() public points = 0;
   @Input() public maxPoints = '';
@@ -27,12 +27,13 @@ export class AssignmentComponent implements OnInit {
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
   @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
 
-  public diagnoseLevels = ['0', '1', '2', '3'];
+  public diagnoseLevels = ['None', 'Little', 'Some', 'Much'];
   public gradingReceived = false;
   public hasErrors = true;
   public gradingDto!: GradingDTO;
   public editorOptions = { theme: 'vs-dark', language: 'sql' };
 
+  private diagnoseLevel = 0;
   private submissionDto!: SubmissionDTO;
   private submissionIdDto!: SubmissionIdDTO;
   private action!: string;
@@ -42,6 +43,24 @@ export class AssignmentComponent implements OnInit {
    * @param assignmentService service for communicating with the dispatcher
    */
   constructor(private assignmentService: AssignmentService) {}
+  /**
+   * Maps the diagnose level to the text representation
+   */
+  public static mapDiagnoseLevel(number: number): string {
+    switch (number) {
+      case 0:
+        return 'None';
+      case 1:
+        return 'Little';
+      case 2:
+        return 'Some';
+      case 3:
+        return 'Much';
+      default:
+        return 'None';
+    }
+  }
+
   /**
    * Implements the init method. See {@link OnInit}.
    */
@@ -121,7 +140,8 @@ export class AssignmentComponent implements OnInit {
    * @private
    */
   private emitSubmissionEvents(): void {
-    const diagnoseLevel = parseInt(this.diagnoseLevel, 10);
+    const diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
+    this.diagnoseLevel = diagnoseLevel;
     if (diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
       this.diagnoseLevelIncreased.emit(diagnoseLevel);
       this.highestDiagnoseLevel = diagnoseLevel;
@@ -148,7 +168,7 @@ export class AssignmentComponent implements OnInit {
     const attributes = new Map<string, string>();
     attributes.set('action', this.action);
     attributes.set('submission', this.submission ?? '');
-    attributes.set('diagnoseLevel', this.diagnoseLevel);
+    attributes.set('diagnoseLevel', this.diagnoseLevel.toFixed());
 
     const jsonAttributes: { [k: string]: any } = {};
     attributes.forEach((key, value) => {
@@ -165,5 +185,25 @@ export class AssignmentComponent implements OnInit {
     this.submissionDto = submissionDto;
 
     return submissionDto;
+  }
+
+  /**
+   * Maps the diagnose level text to its number representation
+   * @param text
+   * @private
+   */
+  private mapDiagnoseText(text: string): number {
+    switch (text) {
+      case 'None':
+        return 0;
+      case 'Little':
+        return 1;
+      case 'Some':
+        return 2;
+      case 'Much':
+        return 3;
+      default:
+        return 0;
+    }
   }
 }

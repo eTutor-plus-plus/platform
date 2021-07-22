@@ -3,7 +3,7 @@
     "assignment": {
       "congratulation": "Congratulation, your solution is correct!",
       "notCorrect": "Sorry, your solution is not correct!",
-      "diagnoseLevelPlaceholder": "Choose diagnose level:",
+      "diagnoseLevelPlaceholder": "Choose the feedback-level:",
       "yourSolution": "Your solution:"
     }
   }
