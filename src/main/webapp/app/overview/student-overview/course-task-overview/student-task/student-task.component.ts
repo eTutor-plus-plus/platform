@@ -6,7 +6,6 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
-import { AssignmentComponent } from '../../../dispatcher/assignment/assignment.component';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -29,7 +28,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public task_type = '';
   public submission = '';
   public diagnoseLevel = 0;
-  public diagnoseLevelText = '';
   public dispatcherPoints = 0;
   public maxPoints = '';
 
@@ -104,8 +102,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this.diagnoseLevel = await this.studentService
             .getDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
-
-          this.diagnoseLevelText = AssignmentComponent.mapDiagnoseLevel(this.diagnoseLevel);
         }
 
         if (this.isUploadTask) {

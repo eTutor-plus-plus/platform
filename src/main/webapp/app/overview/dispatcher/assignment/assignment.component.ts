@@ -1,9 +1,8 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { AfterContentChecked, Component, EventEmitter, Input, Output } from '@angular/core';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
-import { mapEditorOption } from '../services/EditorOptionsMapper';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -14,13 +13,12 @@ import { mapEditorOption } from '../services/EditorOptionsMapper';
   templateUrl: './assignment.component.html',
   styleUrls: ['./assignment.component.scss'],
 })
-export class AssignmentComponent implements OnInit {
+export class AssignmentComponent implements AfterContentChecked {
   @Input() public exercise_id: string | undefined;
   @Input() public task_type: string | undefined;
   @Input() public submission: string | undefined;
-  @Input() public diagnoseLevelText = 'None';
-  @Input() public highestDiagnoseLevel = 0;
-  @Input() public points = 0;
+  @Input() public highestDiagnoseLevel!: number;
+  @Input() public points!: number;
   @Input() public maxPoints = '';
 
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
@@ -28,10 +26,12 @@ export class AssignmentComponent implements OnInit {
   @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
 
   public diagnoseLevels = ['None', 'Little', 'Some', 'Much'];
+  public diagnoseLevelText = '';
+
   public gradingReceived = false;
   public hasErrors = true;
   public gradingDto!: GradingDTO;
-  public editorOptions = { theme: 'vs-dark', language: 'sql' };
+  public editorOptions = { theme: 'vs-dark', language: '' };
 
   private diagnoseLevel = 0;
   private submissionDto!: SubmissionDTO;
@@ -43,8 +43,22 @@ export class AssignmentComponent implements OnInit {
    * @param assignmentService service for communicating with the dispatcher
    */
   constructor(private assignmentService: AssignmentService) {}
+
+  /**
+   * Maps the task type to the language for the editor
+   * @param taskType the task type
+   */
+  public static mapEditorLanguage(taskType: string): string {
+    switch (taskType) {
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
+        return 'sql';
+      default:
+        return 'sql';
+    }
+  }
   /**
    * Maps the diagnose level to the text representation
+   * @param number the diagnose level as number
    */
   public static mapDiagnoseLevel(number: number): string {
     switch (number) {
@@ -60,13 +74,12 @@ export class AssignmentComponent implements OnInit {
         return 'None';
     }
   }
-
-  /**
-   * Implements the init method. See {@link OnInit}.
-   */
-  public ngOnInit(): void {
-    if (this.task_type) {
-      this.editorOptions.language = mapEditorOption(this.task_type);
+  public ngAfterContentChecked(): void {
+    if (!this.editorOptions.language && this.task_type) {
+      this.editorOptions = { theme: 'vs-dark', language: AssignmentComponent.mapEditorLanguage(this.task_type) };
+    }
+    if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
+      this.diagnoseLevelText = AssignmentComponent.mapDiagnoseLevel(this.highestDiagnoseLevel);
     }
   }
 
