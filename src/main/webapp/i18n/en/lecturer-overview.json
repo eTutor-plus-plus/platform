@@ -33,7 +33,9 @@
       "achievementHeader": "Learning goal achievements",
       "colGoalName": "Learning goal name",
       "colAbsoluteCnt": "Absolute count",
-      "colRelativeCnt": "Relative count"
+      "colRelativeCnt": "Relative count",
+      "failureCountHeader": "Failure count per learning goal",
+      "colFailedGoalCnt": "Failed try count"
     }
   }
 }

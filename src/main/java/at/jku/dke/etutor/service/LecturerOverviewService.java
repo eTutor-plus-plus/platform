@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.lectureroverview.FailedGoalViewDTO;
 import at.jku.dke.etutor.service.dto.lectureroverview.LearningGoalProgressDTO;
 import at.jku.dke.etutor.service.dto.lectureroverview.StatisticsOverviewModelDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -114,8 +117,61 @@ public class LecturerOverviewService extends AbstractSPARQLEndpointService {
                     statisticsOverviewModel.addStatisticOverviewModel(new LearningGoalProgressDTO(goalId, goalName, absoluteCount, relativeCount));
                 }
             }
+
+            statisticsOverviewModel.setFailedGoalView(getFailedGoals(connection, courseInstanceUrl, false));
         }
 
         return statisticsOverviewModel;
+    }
+
+    /**
+     * Returns the list of failed goals for the given course instance url.
+     *
+     * @param connection        the RDF connection
+     * @param courseInstanceUrl the course instance URL
+     * @param includeZeroGoals  {@code true} if goals with zero failed goals should also be included, otherwise {@code false}
+     * @return list of failed goals
+     */
+    private List<FailedGoalViewDTO> getFailedGoals(RDFConnection connection, String courseInstanceUrl, boolean includeZeroGoals) {
+        List<FailedGoalViewDTO> retList = new ArrayList<>();
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT (STR(?goal) AS ?goalId) ?goalName ?failedCount
+            WHERE {
+              GRAPH ?courseInstance {
+                ?goal a etutor:Goal.
+                ?goal etutor:hasFailedCount ?failedCount.
+            """);
+
+        if (!includeZeroGoals) {
+            query.append("FILTER(?failedCount > 0)\n");
+        }
+
+        query.append("""
+              }
+              ?goal rdfs:label ?goalName.
+            }
+            ORDER BY DESC(?failedCount) DESC(LCASE(?goalName))
+            """);
+
+        query.setIri("?courseInstance", courseInstanceUrl);
+
+        try (var qryExecution = connection.query(query.asQuery())) {
+            var set = qryExecution.execSelect();
+
+            while (set.hasNext()) {
+                var solution = set.nextSolution();
+
+                String goalId = solution.getLiteral("?goalId").getString();
+                String goalName = solution.getLiteral("?goalName").getString();
+                int failedCount = solution.getLiteral("?failedCount").getInt();
+
+                retList.add(new FailedGoalViewDTO(goalId, goalName, failedCount));
+            }
+        }
+        return retList;
     }
 }

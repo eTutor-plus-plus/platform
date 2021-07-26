@@ -33,7 +33,9 @@
       "achievementHeader": "Lernzielerreichung",
       "colGoalName": "Lernzielname",
       "colAbsoluteCnt": "Absolute Anzahl",
-      "colRelativeCnt": "Relative Anzahl"
+      "colRelativeCnt": "Relative Anzahl",
+      "failureCountHeader": "Anzahl an gescheiterten Versuchen je Lernziel",
+      "colFailedGoalCnt": "Anzahl an gescheiterten Versuchen"
     }
   }
 }

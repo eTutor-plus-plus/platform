@@ -14,12 +14,14 @@ public class StatisticsOverviewModelDTO {
     private String courseInstanceName;
     private int studentCount;
     private List<LearningGoalProgressDTO> learningGoalAchievementOverview;
+    private List<FailedGoalViewDTO> failedGoalView;
 
     /**
      * Constructor.
      */
     public StatisticsOverviewModelDTO() {
         learningGoalAchievementOverview = new ArrayList<>();
+        failedGoalView = new ArrayList<>();
     }
 
     /**
@@ -84,6 +86,35 @@ public class StatisticsOverviewModelDTO {
     public void addStatisticOverviewModel(LearningGoalProgressDTO modelToAdd) {
         if (learningGoalAchievementOverview != null) {
             learningGoalAchievementOverview.add(modelToAdd);
+        }
+    }
+
+    /**
+     * Returns the failed goals view list.
+     *
+     * @return the failed goals view list
+     */
+    public List<FailedGoalViewDTO> getFailedGoalView() {
+        return failedGoalView;
+    }
+
+    /**
+     * Sets the failed goal view list.
+     *
+     * @param failedGoalView the list to set
+     */
+    public void setFailedGoalView(List<FailedGoalViewDTO> failedGoalView) {
+        this.failedGoalView = failedGoalView;
+    }
+
+    /**
+     * Adds an item to the list of failed goals.
+     *
+     * @param item the item to add
+     */
+    public void addFailedGoalViewItem(FailedGoalViewDTO item) {
+        if (failedGoalView != null) {
+            failedGoalView.add(item);
         }
     }
 }

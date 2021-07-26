@@ -15,6 +15,10 @@ export interface IStatisticsOverviewModelDTO {
    * List of learning goal achievements.
    */
   learningGoalAchievementOverview: ILearningGoalProgressDTO[];
+  /**
+   * List of failed goal entries.
+   */
+  failedGoalView: IFailedGoalViewDTO[];
 }
 
 /**
@@ -37,4 +41,22 @@ export interface ILearningGoalProgressDTO {
    * The relative count of students who reached the goal.
    */
   relativeCount: number;
+}
+
+/**
+ * Interface that represents a failed goal.
+ */
+export interface IFailedGoalViewDTO {
+  /**
+   * The goal id.
+   */
+  id: string;
+  /**
+   * The goal's name.
+   */
+  name: string;
+  /**
+   * The failure count.
+   */
+  failureCount: number;
 }

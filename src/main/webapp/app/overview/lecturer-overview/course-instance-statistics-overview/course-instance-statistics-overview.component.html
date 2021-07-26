@@ -38,4 +38,23 @@
       </tbody>
     </table>
   </div>
+
+  <hr />
+  <h5 jhiTranslate="lecturerOverview.courseInstanceStatistics.failureCountHeader">Failure count per learning goal</h5>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colGoalName">Learning goal name</th>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colFailedGoalCnt">Failed goal count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of statisticsInfo.failedGoalView">
+          <td>{{ entry.name }}</td>
+          <td>{{ entry.failureCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
