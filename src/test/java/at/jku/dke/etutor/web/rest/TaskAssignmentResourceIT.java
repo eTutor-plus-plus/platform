@@ -1,9 +1,5 @@
 package at.jku.dke.etutor.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -19,11 +15,6 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
-import java.net.URL;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +25,23 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.net.URL;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 /**
  * Integration tests for the {@link TaskAssignmentResource} REST controller.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
+@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -266,7 +267,10 @@ public class TaskAssignmentResourceIT {
         assertThat(assignmentsFromDB).isNotEmpty().hasSize(1);
 
         var assignmentFromDB = assignmentsFromDB.first();
-        assertThat(assignmentFromDB).isEqualToIgnoringGivenFields(assignment, "creationDate");
+        assertThat(assignmentFromDB)
+            .usingRecursiveComparison()
+            .ignoringFields("creationDate")
+            .isEqualTo(assignment);
     }
 
     /**
@@ -431,7 +435,9 @@ public class TaskAssignmentResourceIT {
         String jsonData = result.getResponse().getContentAsString();
 
         TaskAssignmentDTO taskAssignmentDTO = TestUtil.convertFromJSONString(jsonData, TaskAssignmentDTO.class);
-        assertThat(taskAssignmentDTO).isEqualToComparingFieldByField(assignment);
+        assertThat(taskAssignmentDTO)
+            .usingRecursiveComparison()
+            .isEqualTo(assignment);
     }
 
     /**
