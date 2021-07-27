@@ -5,6 +5,7 @@ import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -71,7 +72,7 @@ public class UploadFileService {
     public FileEntity getFile(long fileId) throws FileNotExistsException {
         try {
             return fileRepository.getOne(fileId);
-        } catch (EntityNotFoundException enfe) {
+        } catch (EntityNotFoundException | JpaObjectRetrievalFailureException ex) {
             throw new FileNotExistsException();
         }
     }
