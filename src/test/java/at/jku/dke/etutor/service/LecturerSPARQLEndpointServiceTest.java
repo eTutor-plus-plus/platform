@@ -17,6 +17,8 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -37,10 +39,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -410,6 +409,9 @@ public class LecturerSPARQLEndpointServiceTest {
         studentService.markTaskAssignmentAsSubmitted(dmCourseInstanceUUID, exerciseSheetUUID, student.getLogin(), taskInfo.orderNo());
         lecturerSPARQLEndpointService.updateGradeForAssignment(dmCourseInstanceUUID, exerciseSheetUUID, student.getLogin(), taskInfo.orderNo(), true);
 
-        //TODO: Implement methods for retrieving a student's reached goals.
+        List<String> reachedGoalIds = studentService.getReachedGoalsOfStudentAndCourseInstance(dmCourseInstanceUrl, student.getLogin());
+        List<String> allGoalIds = StreamEx.of(selfEvaluations).map(StudentSelfEvaluationLearningGoalDTO::getId).toList();
+        List<String> notReachedGoals = ListUtils.subtract(allGoalIds, reachedGoalIds);
+        assertThat(notReachedGoals).isEmpty();
     }
 }

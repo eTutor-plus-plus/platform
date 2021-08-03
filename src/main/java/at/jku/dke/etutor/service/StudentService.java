@@ -565,7 +565,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUri);
 
         try (RDFConnection connection = getConnection()) {
-            connection.load(courseInstanceUri.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceUri), model);
 
             connection.update(qry.asUpdate());
         }
@@ -953,6 +953,21 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     return Optional.empty();
                 }
             }
+        }
+    }
+
+    /**
+     * Returns the reached goal ids of a student from a given course instance.
+     *
+     * @param courseInstanceUrl   the course instance URL
+     * @param matriculationNumber the student's matriculation number
+     * @return {@link List} containing the reached goals' ids
+     */
+    public @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String matriculationNumber) {
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        try (RDFConnection connection = getConnection()) {
+            return getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
         }
     }
 

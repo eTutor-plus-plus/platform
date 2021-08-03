@@ -498,7 +498,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
 
         if (!model.isEmpty()) {
-            connection.load(courseInstanceURL.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceURL), model);
         }
 
         if (goals.size() > 0) {
@@ -565,7 +565,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
 
         if (!model.isEmpty()) {
-            connection.load(courseInstanceURL.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceURL), model);
         }
 
         if (newGoals.size() > 0) {

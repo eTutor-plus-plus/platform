@@ -58,6 +58,16 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
     }
 
     /**
+     * Returns whether a hashtag replacement is needed or not.
+     *
+     * @return {@code true} if a hashtag replacement is needed, otherwise {@code false}
+     */
+    @Override
+    public boolean needsHashtagReplacement() {
+        return false;
+    }
+
+    /**
      * Creates a lucene dataset around the given dataset.
      *
      * @param dataset the dataset which should be wrapped
