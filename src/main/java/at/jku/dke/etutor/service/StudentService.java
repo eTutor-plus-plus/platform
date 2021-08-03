@@ -715,7 +715,35 @@ public class StudentService extends AbstractSPARQLEndpointService {
         alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
         alreadyAssignedTaskQuery.setIri("?student", studentUrl);
 
+        ParameterizedSparqlString isClosedTaskQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?closed
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:isClosed ?closed.
+            }
+            """);
+        isClosedTaskQry.setIri("?instance", courseInstanceId);
+        isClosedTaskQry.setIri("?sheet", sheetId);
+        isClosedTaskQry.setIri("?student", studentUrl);
+
         try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(isClosedTaskQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal closedLiteral = solution.getLiteral("?closed");
+                    if (closedLiteral != null && closedLiteral.getBoolean()) {
+                        return false;
+                    }
+                }
+            }
+
             try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
                 ResultSet set = execution.execSelect();
                 if (!set.hasNext()) {

@@ -15,8 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
 @IntegrationTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@Transactional
 public class DomainUserDetailsServiceIT {
 
     private static final String USER_ONE_LOGIN = "test-user-one";
