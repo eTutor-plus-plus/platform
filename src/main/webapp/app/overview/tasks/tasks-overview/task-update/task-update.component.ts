@@ -24,6 +24,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptions = { theme: 'vs-light', language: 'sql' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
   public isSQLTask = false;
+  public dispatcherIdAlreadySet = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -206,6 +207,7 @@ export class TaskUpdateComponent implements OnInit {
 
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
+      const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const sqlSolution = value.sqlSolution ?? '';
       const maxPoints = value.maxPoints ?? '';
@@ -215,6 +217,9 @@ export class TaskUpdateComponent implements OnInit {
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
 
+      if (taskIdForDispatcher) {
+        this.dispatcherIdAlreadySet = true;
+      }
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
 
       this.updateForm.patchValue({
@@ -223,6 +228,7 @@ export class TaskUpdateComponent implements OnInit {
         organisationUnit: value.organisationUnit,
         privateTask: value.privateTask,
         taskDifficulty,
+        taskAssignmentType,
         taskIdForDispatcher,
         sqlSolution,
         maxPoints,

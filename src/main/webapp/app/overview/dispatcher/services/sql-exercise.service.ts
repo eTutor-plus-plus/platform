@@ -88,7 +88,7 @@ export class SqlExerciseService {
    * @param exerciseId the id identifying the exercise
    * @private
    */
-  private deleteExercise(exerciseId: string): Observable<string> {
+  public deleteExercise(exerciseId: string): Observable<string> {
     const url = this.API_URL + '/exercise/' + exerciseId;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }

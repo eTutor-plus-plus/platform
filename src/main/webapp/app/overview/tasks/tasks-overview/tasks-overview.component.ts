@@ -13,6 +13,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { EventManager } from 'app/core/util/event-manager.service';
 import { ITEMS_PER_SLICE } from 'app/config/pagination.constants';
 import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.component';
+import { SqlExerciseService } from '../../dispatcher/services/sql-exercise.service';
 
 /**
  * Component which provides an overview of the tasks.
@@ -55,6 +56,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    */
   constructor(
     private tasksService: TasksService,
+    private sqlExerciseService: SqlExerciseService,
     private modalService: NgbModal,
     private eventManager: EventManager,
     private translatePipe: TranslatePipe,
@@ -232,6 +234,13 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
     this.tasksService.deleteAssignment(currentModel.taskId).subscribe(() => {
       this.entries.length = 0;
       this.loadPage(0);
+    });
+
+    this.tasksService.getTaskAssignmentById(currentModel.taskId).subscribe(response => {
+      const id = response.body?.taskIdForDispatcher;
+      if (id) {
+        this.sqlExerciseService.deleteExercise(id).subscribe();
+      }
     });
   }
 
