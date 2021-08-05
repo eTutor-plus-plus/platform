@@ -1146,18 +1146,6 @@
                                 <goals>
                                     <goal>npm</goal>
                                 </goals>
-                                      
-</execution>
-                            <execution>
-                                <id>webapp build test</id>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <phase>test</phase>
-                                <configuration>
-                                    <arguments>run webapp:test</arguments>
-                                    <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
-                                </configuration>
                             </execution>
                             <execution>
                                 <id>webapp build prod</id>
