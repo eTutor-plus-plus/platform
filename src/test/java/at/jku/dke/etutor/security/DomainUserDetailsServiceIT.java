@@ -1,35 +1,29 @@
 package at.jku.dke.etutor.security;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import at.jku.dke.etutor.IntegrationTest;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
-import java.util.Locale;
-import liquibase.integration.spring.SpringLiquibase;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Integrations tests for {@link DomainUserDetailsService}.
  */
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @IntegrationTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Transactional
 public class DomainUserDetailsServiceIT {
 
@@ -45,15 +39,6 @@ public class DomainUserDetailsServiceIT {
 
     @Autowired
     private UserDetailsService domainUserDetailsService;
-
-    @Autowired
-    private SpringLiquibase springLiquibase;
-
-    @BeforeAll
-    public void initBeforeAll() throws Exception {
-        springLiquibase.setDropFirst(true);
-        springLiquibase.afterPropertiesSet();
-    }
 
     @BeforeEach
     public void init() {
@@ -89,13 +74,7 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
-    void assertThatUserCanBeFoundByLogin() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
-    }
-
-    @Test
+    @Transactional
     void assertThatUserCanBeFoundByLoginIgnoreCase() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN.toUpperCase(Locale.ENGLISH));
         assertThat(userDetails).isNotNull();
@@ -103,6 +82,7 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
+    @Transactional
     void assertThatUserCanBeFoundByEmail() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL);
         assertThat(userDetails).isNotNull();
@@ -110,6 +90,7 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
+    @Transactional
     void assertThatUserCanBeFoundByEmailIgnoreCase() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH));
         assertThat(userDetails).isNotNull();
@@ -117,6 +98,7 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
+    @Transactional
     void assertThatEmailIsPrioritizedOverLogin() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
         assertThat(userDetails).isNotNull();
@@ -124,6 +106,7 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
+    @Transactional
     void assertThatUserNotActivatedExceptionIsThrownForNotActivatedUsers() {
         assertThatExceptionOfType(UserNotActivatedException.class)
             .isThrownBy(() -> domainUserDetailsService.loadUserByUsername(USER_THREE_LOGIN));
