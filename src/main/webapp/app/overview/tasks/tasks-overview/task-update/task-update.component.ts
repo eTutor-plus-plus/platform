@@ -237,6 +237,7 @@ export class TaskUpdateComponent implements OnInit {
         instruction,
         taskGroup: value.taskGroupId ?? '',
       });
+      this.taskTypeChanged();
     }
   }
 
