@@ -794,7 +794,7 @@ public class StudentServiceIT {
      * The status (completed / not completed) is inferred from the given regex
      * pattern which is matched with the goal's name.
      *
-     * @param model           the model.
+     * @param model           the model
      * @param completePattern the completion pattern
      * @return list of evaluations
      */
