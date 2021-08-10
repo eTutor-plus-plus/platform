@@ -163,7 +163,8 @@ public final class ETutorVocabulary {
     /**
      * The needsVerificationBeforeCompletion property.
      */
-    public static final Property needsVerificationBeforeCompletion = m.createProperty(URI + PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION);
+    public static final Property needsVerificationBeforeCompletion =
+        m.createProperty(URI + PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION);
     /**
      * The hasCourseDescription property.
      */
@@ -215,7 +216,8 @@ public final class ETutorVocabulary {
     /**
      * The hasIndividualTaskAssignment property.
      */
-    public static final Property hasIndividualTaskAssignment = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT);
+    public static final Property hasIndividualTaskAssignment =
+        m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT);
     /**
      * The fromCourseInstance property.
      */
@@ -293,15 +295,18 @@ public final class ETutorVocabulary {
     /**
      * The hasExerciseSheetDifficulty property.
      */
-    public static final Property hasExerciseSheetDifficulty = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
+    public static final Property hasExerciseSheetDifficulty =
+        m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
     /**
      * The hasInternalExerciseSheetCreator property.
      */
-    public static final Property hasInternalExerciseSheetCreator = m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
+    public static final Property hasInternalExerciseSheetCreator =
+        m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
     /**
      * The hasExerciseSheetCreationTime property.
      */
-    public static final Property hasExerciseSheetCreationTime = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
+    public static final Property hasExerciseSheetCreationTime =
+        m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
     /**
      * The hasExerciseSheetTaskCount property.
      */
@@ -455,6 +460,17 @@ public final class ETutorVocabulary {
     public static final Resource Summer = m.createResource(TERM_SUMMER_URI);
 
     /**
+     * Creates the URL of an individual user goal.
+     *
+     * @param userLogin the goal's creator
+     * @param goalName  the goal's name
+     * @return unique goal URL
+     */
+    public static String createGoalUrl(String userLogin, String goalName) {
+        return URI + userLogin + "/" + CLASS_GOAL + "#" + goalName;
+    }
+
+    /**
      * Creates an individual goal resource from a given model.
      *
      * @param userLogin the login of the user
@@ -463,7 +479,7 @@ public final class ETutorVocabulary {
      * @return the individual goal resource
      */
     public static Resource createUserGoalResourceOfModel(String userLogin, String goalName, Model model) {
-        return model.createResource(URI + userLogin + "/" + CLASS_GOAL + "#" + goalName);
+        return model.createResource(createGoalUrl(userLogin, goalName));
     }
 
     /**

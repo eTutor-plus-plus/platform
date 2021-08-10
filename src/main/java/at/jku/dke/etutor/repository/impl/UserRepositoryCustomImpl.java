@@ -40,4 +40,19 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
         return updateQuery.executeUpdate();
     }
+
+    /**
+     * Removes a user by its login.
+     *
+     * @param login the login
+     */
+    @Override
+    @Transactional
+    public void removeByLogin(String login) {
+        Query removalQry = entityManager.createQuery("""
+            DELETE FROM User u WHERE u.login = :login
+            """);
+        removalQry.setParameter("login", login);
+        removalQry.executeUpdate();
+    }
 }

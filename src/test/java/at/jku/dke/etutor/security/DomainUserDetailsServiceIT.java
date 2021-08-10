@@ -5,13 +5,14 @@ import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.repository.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 
@@ -24,13 +25,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @IntegrationTest
-@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DomainUserDetailsServiceIT {
 
     private static final String USER_ONE_LOGIN = "test-user-one";
     private static final String USER_ONE_EMAIL = "test-user-one@localhost";
-    private static final String USER_TWO_LOGIN = "test-user-two";
-    private static final String USER_TWO_EMAIL = "test-user-two@localhost";
+    private static final String USER_TWO_LOGIN = "test-user-two1";
+    private static final String USER_TWO_EMAIL = "test-user-two1@localhost";
     private static final String USER_THREE_LOGIN = "test-user-three";
     private static final String USER_THREE_EMAIL = "test-user-three@localhost";
 
@@ -40,7 +41,7 @@ public class DomainUserDetailsServiceIT {
     @Autowired
     private UserDetailsService domainUserDetailsService;
 
-    @BeforeEach
+    @BeforeAll
     public void init() {
         User userOne = new User();
         userOne.setLogin(USER_ONE_LOGIN);
@@ -50,7 +51,7 @@ public class DomainUserDetailsServiceIT {
         userOne.setFirstName("userOne");
         userOne.setLastName("doe");
         userOne.setLangKey("en");
-        userRepository.save(userOne);
+        userRepository.saveAndFlush(userOne);
 
         User userTwo = new User();
         userTwo.setLogin(USER_TWO_LOGIN);
@@ -60,7 +61,7 @@ public class DomainUserDetailsServiceIT {
         userTwo.setFirstName("userTwo");
         userTwo.setLastName("doe");
         userTwo.setLangKey("en");
-        userRepository.save(userTwo);
+        userRepository.saveAndFlush(userTwo);
 
         User userThree = new User();
         userThree.setLogin(USER_THREE_LOGIN);
@@ -70,19 +71,26 @@ public class DomainUserDetailsServiceIT {
         userThree.setFirstName("userThree");
         userThree.setLastName("doe");
         userThree.setLangKey("en");
-        userRepository.save(userThree);
+        userRepository.saveAndFlush(userThree);
+        userRepository.flush();
+    }
+
+    @AfterAll
+    public void tearDown() {
+        userRepository.removeByLogin(USER_ONE_LOGIN);
+        userRepository.removeByLogin(USER_TWO_LOGIN);
+        userRepository.removeByLogin(USER_THREE_LOGIN);
     }
 
     @Test
-    @Transactional
     void assertThatUserCanBeFoundByLoginIgnoreCase() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN.toUpperCase(Locale.ENGLISH));
+        UserDetails userDetails =
+            domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN.toUpperCase(Locale.ENGLISH));
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
     }
 
     @Test
-    @Transactional
     void assertThatUserCanBeFoundByEmail() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL);
         assertThat(userDetails).isNotNull();
@@ -90,15 +98,14 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
-    @Transactional
     void assertThatUserCanBeFoundByEmailIgnoreCase() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH));
+        UserDetails userDetails =
+            domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH));
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo(USER_TWO_LOGIN);
     }
 
     @Test
-    @Transactional
     void assertThatEmailIsPrioritizedOverLogin() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
         assertThat(userDetails).isNotNull();
@@ -106,7 +113,6 @@ public class DomainUserDetailsServiceIT {
     }
 
     @Test
-    @Transactional
     void assertThatUserNotActivatedExceptionIsThrownForNotActivatedUsers() {
         assertThatExceptionOfType(UserNotActivatedException.class)
             .isThrownBy(() -> domainUserDetailsService.loadUserByUsername(USER_THREE_LOGIN));
