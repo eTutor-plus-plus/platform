@@ -206,6 +206,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
   /**
    * Asynchronously marks the task as submitted and sets the points for an assignment as graded by the dispatcher
+   * @param $event the event
    */
   public async handleSolutionCorrectAsync($event: number): Promise<void> {
     await this.markTaskAsSubmittedAsync();
@@ -223,7 +224,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
   /**
    * Asynchronously sets the highest chosen diagnose level
-   * @param $event
+   * @param $event the event
    */
   public async handleDiagnoseLevelIncreasedAsync($event: number): Promise<void> {
     await this.studentService.setDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
