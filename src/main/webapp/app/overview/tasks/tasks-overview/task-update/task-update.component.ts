@@ -40,6 +40,7 @@ export class TaskUpdateComponent implements OnInit {
     sqlInsertStatementsDiagnose: [''],
     sqlSolution: [''],
     maxPoints: [''],
+    diagnoseLevelWeighting: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -113,8 +114,8 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
-    if (taskIdForDispatcher.trim()) {
-      newTask.taskIdForDispatcher = taskIdForDispatcher.trim();
+    if (taskIdForDispatcher) {
+      newTask.taskIdForDispatcher = taskIdForDispatcher;
     } else if (newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       await this.sqlExerciseService
         .getExerciseId()
@@ -134,6 +135,10 @@ export class TaskUpdateComponent implements OnInit {
       newTask.maxPoints = maxPoints;
     }
 
+    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    if (diagnoseLevelWeighting.trim()) {
+      newTask.diagnoseLevelWeighting = diagnoseLevelWeighting.trim();
+    }
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
@@ -148,6 +153,15 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
+      if (
+        newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
+        newTask.sqlSolution &&
+        newTask.taskGroupId &&
+        newTask.taskIdForDispatcher
+      ) {
+        const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
+        await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
+      }
     } else {
       const editedTask: ITaskModel = {
         header: newTask.header,
@@ -157,6 +171,7 @@ export class TaskUpdateComponent implements OnInit {
         taskIdForDispatcher: newTask.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
         maxPoints: newTask.maxPoints,
+        diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
         url: newTask.url,
         instruction: newTask.instruction,
@@ -177,16 +192,14 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
-    }
 
-    if (
-      newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
-      newTask.sqlSolution &&
-      newTask.taskGroupId &&
-      newTask.taskIdForDispatcher
-    ) {
-      const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
-      await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
+      if (
+        editedTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
+        editedTask.taskIdForDispatcher &&
+        editedTask.sqlSolution
+      ) {
+        this.sqlExerciseService.updateExerciseSolution(editedTask.taskIdForDispatcher, editedTask.sqlSolution).subscribe();
+      }
     }
   }
 
@@ -211,6 +224,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const sqlSolution = value.sqlSolution ?? '';
       const maxPoints = value.maxPoints ?? '';
+      const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
@@ -232,6 +246,7 @@ export class TaskUpdateComponent implements OnInit {
         taskIdForDispatcher,
         sqlSolution,
         maxPoints,
+        diagnoseLevelWeighting,
         processingTime,
         url,
         instruction,
@@ -277,9 +292,12 @@ export class TaskUpdateComponent implements OnInit {
     if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       this.isSQLTask = true;
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
+      this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
+      this.updateForm.updateValueAndValidity();
     } else {
       this.isSQLTask = false;
       this.updateForm.get('maxPoints')!.clearValidators();
+      this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
       this.updateForm.updateValueAndValidity();
     }
   }

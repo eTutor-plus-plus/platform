@@ -26,6 +26,7 @@ export class AssignmentComponent implements AfterContentChecked {
   @Input() public highestDiagnoseLevel!: number;
   @Input() public points!: number;
   @Input() public maxPoints = '';
+  @Input() public diagnoseLevelWeighting = '';
 
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
   @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
@@ -79,6 +80,11 @@ export class AssignmentComponent implements AfterContentChecked {
         return this.diagnoseLevels[0];
     }
   }
+
+  /**
+   * Lyfecycle method that sets the language for the editor in accordance to the task type
+   * and the diagnose-level in the dropdown according to the highest chosen diagnose level
+   */
   public ngAfterContentChecked(): void {
     if (!this.editorOptions.language && this.task_type) {
       this.editorOptions = { theme: 'vs-dark', language: AssignmentComponent.mapEditorLanguage(this.task_type) };
@@ -105,14 +111,14 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Returns wheter this assignment has already been solved by the student
+   * Returns whether this assignment has already been solved by the student
    */
   public isSolved(): boolean {
     return this.points !== 0;
   }
 
   /**
-   * Creates a SubmissionDTO and uses assignment.service to send it to dispatcher
+   * Creates a SubmissionDTO and uses the assignment service to send it to the dispatcher
    *
    */
   private processSubmission(): void {
@@ -154,7 +160,8 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Emits the events in the course of a submission
+   * Emits the events in the course of a submission,
+   * namely adjusting the highest diagnose level if needed and updating the latest submission
    * @private
    */
   private emitSubmissionEvents(): void {
@@ -168,15 +175,28 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Emits the points if the assignment has been submitted and solved
+   * Emits the points if the assignment has been submitted and solved but not previously solved
    * @private
    */
   private emitGrading(): void {
-    if (!this.hasErrors && this.action === 'submit') {
-      const grading = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel;
+    if (!this.isSolved() && !this.hasErrors && this.action === 'submit') {
+      const grading = this.caluclatePoints();
       this.solutionCorrect.emit(grading);
       this.points = grading;
     }
+  }
+
+  /**
+   * Calculates the achieved points with regards to the max-points,
+   * the highest chosen diagnose level and the weighting of the diagnose level.
+   * @private
+   */
+  private caluclatePoints(): number {
+    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * parseInt(this.diagnoseLevelWeighting, 10);
+    if (points > 1) {
+      return points;
+    }
+    return 1;
   }
   /**
    * Initializes the SubmissionDTO as required by the dispatcher

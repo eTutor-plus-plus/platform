@@ -46,15 +46,24 @@ export class SqlExerciseService {
   }
 
   /**
-   * public method that adds the solution of the task in the dispatcher backend
+   * Adds the solution of the task in the dispatcher backend
    * @param schemaName the name of the schema to execute student's submissions on
    * @param exerciseID the id of the exercise
    * @param solution the solution of the exercise
    */
   public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
-    await this.deleteExercise(exerciseID).toPromise();
     const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseID;
     await this.http.put<string>(url, solution, httpOptionsWithContent).toPromise();
+  }
+
+  /**
+   * Updates the solution of an existing exercise
+   * @param exerciseID the id
+   * @param newSolution the solution
+   */
+  public updateExerciseSolution(exerciseID: string, newSolution: string): Observable<string> {
+    const url = this.API_URL + '/exercise/' + exerciseID + '?newSolution=' + newSolution;
+    return this.http.post<string>(url, null, httpOptionsTextResponse);
   }
 
   /**

@@ -55,6 +55,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
         setSqlSolution(newTaskAssignmentDTO.getSqlSolution());
         setMaxPoints(newTaskAssignmentDTO.getMaxPoints());
+        setDiagnoseLevelWeighting(newTaskAssignmentDTO.getDiagnoseLevelWeighting());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
         setTaskDifficultyId(newTaskAssignmentDTO.getTaskDifficultyId());
         setOrganisationUnit(newTaskAssignmentDTO.getOrganisationUnit());
@@ -110,6 +111,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         Statement maxPointsStatement = resource.getProperty(ETutorVocabulary.hasMaxPoints);
         if(maxPointsStatement != null){
             setMaxPoints(maxPointsStatement.getString());
+        }
+        Statement diagnoseLevelWeightingStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseLevelWeighting);
+        if(diagnoseLevelWeightingStatement != null){
+            setDiagnoseLevelWeighting(diagnoseLevelWeightingStatement.getString());
         }
         Statement processingTimeStatement = resource.getProperty(ETutorVocabulary.hasTypicalProcessingTime);
         if (processingTimeStatement != null) {

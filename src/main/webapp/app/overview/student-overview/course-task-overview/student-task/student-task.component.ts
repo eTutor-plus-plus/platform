@@ -30,6 +30,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public diagnoseLevel = 0;
   public dispatcherPoints = 0;
   public maxPoints = '';
+  public diagnoseLevelWeighting = '';
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -89,6 +90,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
           if (this._taskModel.maxPoints) {
             this.maxPoints = this._taskModel.maxPoints;
+          }
+
+          if (this._taskModel.diagnoseLevelWeighting) {
+            this.diagnoseLevelWeighting = this._taskModel.diagnoseLevelWeighting;
           }
 
           this.submission = await this.studentService

@@ -299,6 +299,12 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
+            if(StringUtils.isNotBlank(taskAssignment.getDiagnoseLevelWeighting())){
+                query.append("?assignment etutor:hasDiagnoseLevelWeighting ");
+                query.appendLiteral(taskAssignment.getDiagnoseLevelWeighting());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
                 query.append("?assignment etutor:hasTypicalProcessingTime ");
                 query.appendLiteral(taskAssignment.getProcessingTime().trim());
@@ -1059,6 +1065,10 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){
             resource.addProperty(ETutorVocabulary.hasMaxPoints, newTaskAssignmentDTO.getMaxPoints());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDiagnoseLevelWeighting())){
+            resource.addProperty(ETutorVocabulary.hasDiagnoseLevelWeighting, newTaskAssignmentDTO.getDiagnoseLevelWeighting());
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {

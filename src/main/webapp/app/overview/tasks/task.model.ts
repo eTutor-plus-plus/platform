@@ -51,6 +51,10 @@ export interface INewTaskModel {
    */
   taskIdForDispatcher?: string;
   /**
+   * The optional weighting with regards to the diagnose level
+   */
+  diagnoseLevelWeighting?: string;
+  /**
    * Optional solution for an SQL-Exercise
    */
   sqlSolution?: string;

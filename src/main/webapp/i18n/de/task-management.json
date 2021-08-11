@@ -30,6 +30,7 @@
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Lösung:",
       "maxPoints": "Erreichbare Punkteanzahl:",
+      "diagnoseLevelWeighting": "Gewichtung des Diagnose-Levels:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",

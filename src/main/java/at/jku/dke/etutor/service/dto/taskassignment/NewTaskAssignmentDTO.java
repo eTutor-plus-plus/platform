@@ -27,6 +27,7 @@ public class NewTaskAssignmentDTO {
     private String taskIdForDispatcher;
     private String sqlSolution;
     private String maxPoints;
+    private String diagnoseLevelWeighting;
 
     private String processingTime;
 
@@ -176,6 +177,20 @@ public class NewTaskAssignmentDTO {
      */
     public void setMaxPoints(String maxPoints) {
         this.maxPoints = maxPoints;
+    }
+    /**
+     * Returns the weighting for the diagnose level
+     * @return the weighting
+     */
+    public String getDiagnoseLevelWeighting() {
+        return diagnoseLevelWeighting;
+    }
+    /**
+     * Sets the weighting for the diagnose level
+     * @param diagnoseLevelWeighting
+     */
+    public void setDiagnoseLevelWeighting(String diagnoseLevelWeighting) {
+        this.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
 
     /**
