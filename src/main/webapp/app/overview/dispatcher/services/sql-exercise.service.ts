@@ -52,8 +52,18 @@ export class SqlExerciseService {
    * @param solution the solution of the exercise
    */
   public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
+    await this.deleteExercise(exerciseID).toPromise();
     const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseID;
     await this.http.put<string>(url, solution, httpOptionsWithContent).toPromise();
+  }
+
+  /**
+   * Fetches the solution of a given exercise
+   * @param id the id of the exercise
+   */
+  public getSolution(id: string): Observable<string> {
+    const url = this.API_URL + '/exercise/' + id + '/solution';
+    return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
   /**
@@ -62,8 +72,8 @@ export class SqlExerciseService {
    * @param newSolution the solution
    */
   public updateExerciseSolution(exerciseID: string, newSolution: string): Observable<string> {
-    const url = this.API_URL + '/exercise/' + exerciseID + '?newSolution=' + newSolution;
-    return this.http.post<string>(url, null, httpOptionsTextResponse);
+    const url = this.API_URL + '/exercise/' + exerciseID;
+    return this.http.post<string>(url, newSolution, httpOptionsTextResponse);
   }
 
   /**

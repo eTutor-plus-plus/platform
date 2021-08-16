@@ -235,6 +235,12 @@ export class TaskUpdateComponent implements OnInit {
       }
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
 
+      if (!sqlSolution && taskIdForDispatcher) {
+        this.sqlExerciseService.getSolution(taskIdForDispatcher).subscribe(response => {
+          this.patchSQLSolution(response);
+        });
+      }
+
       this.updateForm.patchValue({
         header: value.header,
         creator: value.creator,
@@ -323,5 +329,16 @@ export class TaskUpdateComponent implements OnInit {
         });
       });
     }
+  }
+
+  /**
+   * Patches the solution for an sql exercise in the update form
+   * @param solution the solution to be patched
+   * @private
+   */
+  private patchSQLSolution(solution: string): void {
+    this.updateForm.patchValue({
+      sqlSolution: solution,
+    });
   }
 }
