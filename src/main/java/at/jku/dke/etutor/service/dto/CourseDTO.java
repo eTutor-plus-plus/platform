@@ -3,15 +3,16 @@ package at.jku.dke.etutor.service.dto;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.validation.CourseTypeConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.net.URL;
-import java.net.URLEncoder;
-import javax.validation.constraints.NotBlank;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDFS;
+
+import javax.validation.constraints.NotBlank;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * DTO class which represents a course.
@@ -38,7 +39,8 @@ public class CourseDTO implements Comparable<CourseDTO> {
     /**
      * Empty constructor; needed for serialization.
      */
-    public CourseDTO() {}
+    public CourseDTO() {
+    }
 
     /**
      * Constructor.
@@ -97,7 +99,7 @@ public class CourseDTO implements Comparable<CourseDTO> {
         if (name == null) {
             return null;
         }
-        return URLEncoder.encode(name.replace(' ', '_').trim(), Charsets.UTF_8);
+        return URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
     }
 
     /**
@@ -292,11 +294,11 @@ public class CourseDTO implements Comparable<CourseDTO> {
      * general contract for the {@code hashCode} method, which states
      * that equal objects must have equal hash codes.
      *
-     * @param   o   the reference object with which to compare.
-     * @return  {@code true} if this object is the same as the obj
-     *          argument; {@code false} otherwise.
-     * @see     #hashCode()
-     * @see     java.util.HashMap
+     * @param o the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj
+     * argument; {@code false} otherwise.
+     * @see #hashCode()
+     * @see java.util.HashMap
      */
     @Override
     public boolean equals(Object o) {
@@ -333,13 +335,11 @@ public class CourseDTO implements Comparable<CourseDTO> {
      *     for unequal objects may improve the performance of hash tables.
      * </ul>
      *
-     * @implSpec
-     * As far as is reasonably practical, the {@code hashCode} method defined
+     * @return a hash code value for this object.
+     * @implSpec As far as is reasonably practical, the {@code hashCode} method defined
      * by class {@code Object} returns distinct integers for distinct objects.
-     *
-     * @return  a hash code value for this object.
-     * @see     java.lang.Object#equals(java.lang.Object)
-     * @see     java.lang.System#identityHashCode
+     * @see java.lang.Object#equals(java.lang.Object)
+     * @see java.lang.System#identityHashCode
      */
     @Override
     public int hashCode() {

@@ -18,6 +18,24 @@
         "taskGraded": "Has this task already been graded?",
         "saveEvaluation": "Save evaluation"
       }
+    },
+    "overviewComponent": {
+      "header": "Own courses",
+      "table": {
+        "courseName": "Course instance name",
+        "showStatistics": "Show statistics"
+      }
+    },
+    "courseInstanceStatistics": {
+      "header": "Statistical overview of course instance '{{instanceName}}'",
+      "backBtnText": "Navigate back to overview",
+      "totalStudentCntText": "Total number of this course instance's students: {{cnt}}",
+      "achievementHeader": "Learning goal achievements",
+      "colGoalName": "Learning goal name",
+      "colAbsoluteCnt": "Absolute count",
+      "colRelativeCnt": "Relative count",
+      "failureCountHeader": "Failure count per learning goal",
+      "colFailedGoalCnt": "Failed try count"
     }
   }
 }

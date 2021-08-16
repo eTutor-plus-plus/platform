@@ -1,0 +1,57 @@
+<hr />
+<h4 jhiTranslate="lecturerOverview.overviewComponent.header">Own courses</h4>
+
+<div class="table-responsive" *ngIf="courseInstances">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th jhiTranslate="lecturerOverview.overviewComponent.table.courseName">Course instance name</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of courseInstances">
+        <td>{{ item.name }}</td>
+        <td class="text-right">
+          <div class="btn-group">
+            <button type="button" class="btn btn-info btn-sm" (click)="showAssignExerciseSheetModalWindow(item)">
+              <fa-icon icon="tasks"></fa-icon>
+              <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignExerciseSheet"
+                >Assign exercise sheet</span
+              >
+            </button>
+            <button type="button" class="btn btn-info btn-sm" (click)="showAssignStudentsModalWindow(item)">
+              <fa-icon icon="user-friends"></fa-icon>
+              <span class="d-none d-md-inline" jhiTranslate="courseManagement.instances.overview.assignStudents">Assign students</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="showStatistics(item)"
+              jhiTranslate="lecturerOverview.overviewComponent.table.showStatistics"
+            >
+              Show statistics
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="courseInstances">
+  <div class="row justify-content-center">
+    <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+  </div>
+
+  <div class="row justify-content-center">
+    <ngb-pagination
+      [collectionSize]="totalItems"
+      [(page)]="page"
+      [pageSize]="itemsPerPage"
+      [rotate]="true"
+      [boundaryLinks]="true"
+      (pageChange)="transition()"
+    ></ngb-pagination>
+  </div>
+</div>

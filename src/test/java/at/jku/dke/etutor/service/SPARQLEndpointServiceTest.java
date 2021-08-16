@@ -1,22 +1,23 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code SPARQLEndpointService} class.
@@ -628,7 +629,9 @@ public class SPARQLEndpointServiceTest {
 
         var courses = sparqlEndpointService.getAllCourses();
         course = courses.first();
-        assertThat(course).isEqualToComparingFieldByField(courseFromService);
+        assertThat(course)
+            .usingRecursiveComparison()
+            .isEqualTo(courseFromService);
     }
 
     /**

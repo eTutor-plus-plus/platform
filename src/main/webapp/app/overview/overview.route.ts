@@ -6,6 +6,7 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Authority } from 'app/config/authority.constants';
 import { StudentExerciseSheetTasksComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-tasks.component';
 import { StudentTaskComponent } from 'app/overview/student-overview/course-task-overview/student-task/student-task.component';
+import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/course-instance-statistics-overview/course-instance-statistics-overview.component';
 
 /**
  * Overview related routes.
@@ -78,5 +79,13 @@ export const overviewRoute: Routes = [
       authorities: [Authority.STUDENT],
     },
     component: StudentSelfEvaluationComponent,
+  },
+  {
+    path: 'lecturer/statistics/:instanceId',
+    canActivate: [UserRouteAccessService],
+    data: {
+      authorities: [Authority.INSTRUCTOR],
+    },
+    component: CourseInstanceStatisticsOverviewComponent,
   },
 ];

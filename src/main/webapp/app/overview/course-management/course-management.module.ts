@@ -12,12 +12,8 @@ import { LearningGoalAssignmentDisplayComponent } from './learning-goal-assignme
 import { OverviewSharedModule } from '../shared/overview-shared.module';
 import { CourseInstanceCreationComponent } from './course-instances/course-instance-creation/course-instance-creation.component';
 import { CourseInstanceOverviewComponent } from './course-instances/course-instance-overview/course-instance-overview.component';
-import { StudentAssignmentModalComponent } from './course-instances/course-instance-overview/student-assignment-modal/student-assignment-modal.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { CourseExerciseSheetAllocationComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
-import { LecturerTaskAssignmentOverviewComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
-import { LecturerGradeAssignmentComponent } from './course-instances/course-instance-overview/course-exercise-sheet-allocation/lecturer-task-assignment-overview/lecturer-grade-assignment/lecturer-grade-assignment.component';
-
+import { CourseManagementSharedModule } from '../course-management-shared/course-management-shared.module';
 /**
  * The module for course management related components.
  */
@@ -33,6 +29,7 @@ import { LecturerGradeAssignmentComponent } from './course-instances/course-inst
     }),
     NgSelectModule,
     NgxSpinnerModule,
+    CourseManagementSharedModule,
   ],
   declarations: [
     CourseManagementComponent,
@@ -42,10 +39,6 @@ import { LecturerGradeAssignmentComponent } from './course-instances/course-inst
     LearningGoalAssignmentDisplayComponent,
     CourseInstanceCreationComponent,
     CourseInstanceOverviewComponent,
-    StudentAssignmentModalComponent,
-    CourseExerciseSheetAllocationComponent,
-    LecturerTaskAssignmentOverviewComponent,
-    LecturerGradeAssignmentComponent,
   ],
 })
 export class CourseManagementModule {}

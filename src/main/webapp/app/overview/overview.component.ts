@@ -25,4 +25,12 @@ export class OverviewComponent {
   public isUserStudent(): boolean {
     return this.account.hasAnyAuthority(Authority.STUDENT);
   }
+
+  /**
+   * Returns whether the currently logged-in user is
+   * a lecturer / course instructor or not.
+   */
+  public isLecturer(): boolean {
+    return this.account.hasAnyAuthority(Authority.INSTRUCTOR);
+  }
 }

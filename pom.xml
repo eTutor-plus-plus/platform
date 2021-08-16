@@ -35,7 +35,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <start-class>at.jku.dke.etutor.EtutorPlusPlusApp</start-class>
-        <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m</argLine>
+        <argLine>-Djava.security.egd=file:/dev/./urandom</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
         <!-- These remain empty unless the corresponding profile is active -->
@@ -128,6 +128,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>30.1.1-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
         </dependency>
 
         <!-- Apache Commons CSV -->

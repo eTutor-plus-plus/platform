@@ -1,0 +1,60 @@
+<ngx-spinner></ngx-spinner>
+
+<div *ngIf="statisticsInfo">
+  <h4>
+    <span>{{ 'lecturerOverview.courseInstanceStatistics.header' | translate: { instanceName: statisticsInfo.courseInstanceName } }}</span>
+
+    <div class="d-flex justify-content-end">
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="navigateBackToOverview()"
+        jhiTranslate="lecturerOverview.courseInstanceStatistics.backBtnText"
+      >
+        Navigate back to overview
+      </button>
+    </div>
+  </h4>
+
+  <h5>{{ 'lecturerOverview.courseInstanceStatistics.totalStudentCntText' | translate: { cnt: statisticsInfo.studentCount } }}</h5>
+
+  <hr />
+  <h5 jhiTranslate="lecturerOverview.courseInstanceStatistics.achievementHeader">Learning goal achievements</h5>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colGoalName">Learning goal name</th>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colAbsoluteCnt">Absolute count</th>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colRelativeCnt">Relative count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let achievement of statisticsInfo.learningGoalAchievementOverview">
+          <td>{{ achievement.goalName }}</td>
+          <td>{{ achievement.absoluteCount }}</td>
+          <td>{{ achievement.relativeCount | number: '3.2-2' }} %</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr />
+  <h5 jhiTranslate="lecturerOverview.courseInstanceStatistics.failureCountHeader">Failure count per learning goal</h5>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colGoalName">Learning goal name</th>
+          <th jhiTranslate="lecturerOverview.courseInstanceStatistics.colFailedGoalCnt">Failed goal count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of statisticsInfo.failedGoalView">
+          <td>{{ entry.name }}</td>
+          <td>{{ entry.failureCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

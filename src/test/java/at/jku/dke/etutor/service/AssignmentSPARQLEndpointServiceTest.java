@@ -378,7 +378,9 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(optionalTaskFromDb).isPresent();
         TaskAssignmentDTO taskFromDb = optionalTaskFromDb.get();
 
-        assertThat(taskFromDb).isEqualToComparingFieldByField(task);
+        assertThat(taskFromDb)
+            .usingRecursiveComparison()
+            .isEqualTo(task);
 
         optionalTaskFromDb = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId("123");
         assertThat(optionalTaskFromDb).isEmpty();
