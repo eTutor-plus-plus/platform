@@ -24,7 +24,6 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptions = { theme: 'vs-light', language: 'sql' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
   public isSQLTask = false;
-  public dispatcherIdAlreadySet = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -136,8 +135,8 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
-    if (diagnoseLevelWeighting.trim()) {
-      newTask.diagnoseLevelWeighting = diagnoseLevelWeighting.trim();
+    if (diagnoseLevelWeighting) {
+      newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
@@ -222,7 +221,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
-      const sqlSolution = value.sqlSolution ?? '';
+      const sqlSolution = value.sqlSolution;
       const maxPoints = value.maxPoints ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
@@ -232,7 +231,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
 
       if (taskIdForDispatcher) {
-        this.dispatcherIdAlreadySet = true;
+        this.updateForm.get('taskIdForDispatcher')!.disable();
       }
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
 
