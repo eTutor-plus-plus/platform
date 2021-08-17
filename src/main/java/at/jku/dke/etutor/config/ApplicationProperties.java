@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
 
     private final Fuseki fuseki = new Fuseki();
+    private final Dispatcher dispatcher = new Dispatcher();
 
     /**
      * Getter for the field <code>fuseki</code>
@@ -20,6 +21,15 @@ public class ApplicationProperties {
      */
     public Fuseki getFuseki() {
         return fuseki;
+    }
+
+    /**
+     * Getter for the field <code>dispatcher</code>
+     *
+     * @return a {@link ApplicationProperties.Dispatcher} object
+     */
+    public Dispatcher getDispatcher() {
+        return dispatcher;
     }
 
     /**
@@ -45,6 +55,31 @@ public class ApplicationProperties {
          */
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+    }
+
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class Dispatcher{
+        private String url = "http://localhost:8081";
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

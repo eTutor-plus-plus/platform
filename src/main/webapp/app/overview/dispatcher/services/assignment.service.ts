@@ -19,7 +19,7 @@ export class AssignmentService {
   constructor(private http: HttpClient) {}
 
   postSubmission(submission: SubmissionDTO): Observable<SubmissionIdDTO> {
-    const url = DISPATCHER_URL + '/submission';
+    const url = 'api/dispatcher/submission';
     return this.http.post<SubmissionIdDTO>(url, submission, httpOptions);
   }
 
