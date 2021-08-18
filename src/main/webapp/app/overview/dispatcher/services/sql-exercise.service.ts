@@ -53,7 +53,7 @@ export class SqlExerciseService {
    */
   public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
     await this.deleteExercise(exerciseID).toPromise();
-    const url = this.API_URL + '/exercise/' + schemaName + '/' + exerciseID;
+    const url = 'api/dispatcher/sql/exercise/' + schemaName + '/' + exerciseID;
     await this.http.put<string>(url, solution, httpOptionsWithContent).toPromise();
   }
 
@@ -62,7 +62,7 @@ export class SqlExerciseService {
    * @param id the id of the exercise
    */
   public getSolution(id: string): Observable<string> {
-    const url = this.API_URL + '/exercise/' + id + '/solution';
+    const url = 'api/dispatcher/sql/exercise/' + id + '/solution';
     return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
@@ -72,7 +72,7 @@ export class SqlExerciseService {
    * @param newSolution the solution
    */
   public updateExerciseSolution(exerciseID: string, newSolution: string): Observable<string> {
-    const url = this.API_URL + '/exercise/' + exerciseID;
+    const url = 'api/dispatcher/sql/exercise/' + exerciseID + '/solution';
     return this.http.post<string>(url, newSolution, httpOptionsTextResponse);
   }
 
@@ -81,7 +81,7 @@ export class SqlExerciseService {
    * @param schemaName the name of the schema
    */
   public deleteSchema(schemaName: string): Observable<string> {
-    const url = this.API_URL + '/schema/' + schemaName;
+    const url = 'api/dispatcher/sql/schema/' + schemaName;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.config.JHipsterDefaults;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,10 +30,7 @@ public class DispatcherProxyResource {
     @GetMapping(value="/grading/{submissionId}")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId){
         var client = HttpClient.newHttpClient();
-        var request = HttpRequest.newBuilder()
-            .uri(URI.create(dispatcherURL+"/grading/"+submissionId))
-            .GET()
-            .build();
+        var request = getGetRequest(dispatcherURL+"/grading/"+submissionId);
 
         return getStringResponseEntity(client, request);
     }
@@ -44,8 +42,8 @@ public class DispatcherProxyResource {
      */
     @PostMapping(value="/submission")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto);
+        var client = HttpClient.newHttpClient();
+        var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto);
 
         return getStringResponseEntity(client, request);
     }
@@ -60,6 +58,59 @@ public class DispatcherProxyResource {
         var client = HttpClient.newHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl);
 
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the PUT-request for creating an SQL-exercise to the dispatcher
+     * @param solution the solution for the exercise
+     * @param schemaName the schema/task-group
+     * @param id the exercise-id
+     * @return an ResponseEntity
+     */
+    @PutMapping(value="/sql/exercise/{schemaName}/{id}")
+    public ResponseEntity<String> createExercise(@RequestBody String solution, @PathVariable String schemaName, @PathVariable int id){
+        var client = HttpClient.newHttpClient();
+        var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName+"/"+id, solution);
+
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the GET-request for getting the solution to an SQL-exercise to the dispatcher
+     * @return a ResponseEntity
+     */
+    @GetMapping(value="/sql/exercise/{id}/solution")
+    public ResponseEntity<String> getSolution(@PathVariable int id){
+        var client = HttpClient.newHttpClient();
+        var request = getGetRequest(dispatcherURL+"/sql/exercise/"+id+"/solution");
+
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the request to update the solution of an existing exercise to the dispatcher
+     * @param id the id
+     * @param newSolution the new solution
+     * @return a ResponseEntity as received by the dispatcher
+     */
+    @PostMapping(value="/sql/exercise/{id}/solution")
+    public ResponseEntity<String> updateExerciseSolution(@PathVariable int id, @RequestBody String newSolution){
+        var client = HttpClient.newHttpClient();
+        var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution);
+
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the request to delete a schema to the dispatcher
+     * @param schemaName the schema
+     * @return a ResponseEntity
+     */
+    @DeleteMapping(value="/sql/schema/{schemaName}")
+    public ResponseEntity<String> deleteSchema(@PathVariable String schemaName){
+        var client = HttpClient.newHttpClient();
+        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName);
         return getStringResponseEntity(client, request);
     }
 
@@ -92,6 +143,45 @@ public class DispatcherProxyResource {
             .uri(URI.create(url))
             .POST(HttpRequest.BodyPublishers.ofString(json))
             .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json")
+            .build();
+    }
+
+    /**
+     * Utility method that returns a Put-HttpRequest
+     * @param url the url
+     * @param json the body
+     * @return the HttpRequest
+     */
+    @NotNull
+    private HttpRequest getPutRequestWithBody(String url, String json){
+        return HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .PUT(HttpRequest.BodyPublishers.ofString(json))
+            .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json")
+            .build();
+    }
+
+    /**
+     * Utility method that returns a GET-HttpRequest
+     * @param url the url
+     * @return the HttpRequest
+     */
+    private HttpRequest getGetRequest(String url){
+        return HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .GET()
+            .build();
+    }
+
+    /**
+     * Utility method that returns a DELETE-HttpRequest
+     * @param url the url
+     * @return the HttpRequest
+     */
+    private HttpRequest getDeleteRequest(String url){
+        return HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .DELETE()
             .build();
     }
 }
