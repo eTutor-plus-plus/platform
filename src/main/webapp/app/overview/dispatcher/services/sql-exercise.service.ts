@@ -26,13 +26,13 @@ export class SqlExerciseService {
 
   /**
    * Creates a schema, tables and data
-   * @param schemaName
-   * @param createStatements
-   * @param insertSubmission
-   * @param insertDiagnose
+   * @param schemaName the schema
+   * @param createStatements the create-table-statements
+   * @param insertSubmission the insert-into-statements for the submission version of the schema
+   * @param insertDiagnose the insert-into-statements for the diagnose version of the schema
    */
   public executeDDL(schema: string, createStatements: string, insertSubmission: string, insertDiagnose: string): Observable<any> {
-    const url = this.API_URL + '/schema';
+    const url = 'api/dispatcher/sql/schema';
     return this.http.post<string>(
       url,
       {

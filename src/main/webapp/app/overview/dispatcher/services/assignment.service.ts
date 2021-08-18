@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
-import { DISPATCHER_URL } from 'app/overview/dispatcher/constants';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -24,7 +23,7 @@ export class AssignmentService {
   }
 
   getGrading(submissionId: SubmissionIdDTO): Observable<GradingDTO> {
-    const url = DISPATCHER_URL + '/grading/' + submissionId.submissionId;
+    const url = 'api/dispatcher/grading/' + submissionId.submissionId;
     return this.http.get<GradingDTO>(url);
   }
 }
