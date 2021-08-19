@@ -89,7 +89,7 @@ export class SqlExerciseService {
    * Returns an available exercise id
    */
   public getExerciseId(): Observable<string> {
-    const url = this.API_URL + '/exercise/reservation';
+    const url = 'api/dispatcher/sql/exercise/reservation';
     return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
@@ -98,7 +98,7 @@ export class SqlExerciseService {
    * @param schemaName the schema name
    */
   public deleteConnection(schemaName: string): Observable<any> {
-    const url = this.API_URL + '/schema/' + schemaName + '/connection';
+    const url = 'api/dispatcher/sql/schema/' + schemaName + '/connection';
     return this.http.delete(url, httpOptionsTextResponse);
   }
 
@@ -108,7 +108,7 @@ export class SqlExerciseService {
    * @private
    */
   public deleteExercise(exerciseId: string): Observable<string> {
-    const url = this.API_URL + '/exercise/' + exerciseId;
+    const url = 'api/dispatcher/sql/exercise/' + exerciseId;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 }

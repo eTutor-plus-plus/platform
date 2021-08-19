@@ -2,6 +2,9 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +15,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Proxy that connects the frontend with the dispatcher
  */
+@Configuration
 @RestController
 @RequestMapping("/api/dispatcher")
 public class DispatcherProxyResource {
@@ -29,7 +36,7 @@ public class DispatcherProxyResource {
 
     @GetMapping(value="/grading/{submissionId}")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/grading/"+submissionId);
 
         return getStringResponseEntity(client, request);
@@ -42,7 +49,7 @@ public class DispatcherProxyResource {
      */
     @PostMapping(value="/submission")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto);
 
         return getStringResponseEntity(client, request);
@@ -55,7 +62,7 @@ public class DispatcherProxyResource {
      */
     @PostMapping(value="/sql/schema")
     public ResponseEntity<String> executeDDL(@RequestBody String ddl){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl);
 
         return getStringResponseEntity(client, request);
@@ -70,7 +77,7 @@ public class DispatcherProxyResource {
      */
     @PutMapping(value="/sql/exercise/{schemaName}/{id}")
     public ResponseEntity<String> createExercise(@RequestBody String solution, @PathVariable String schemaName, @PathVariable int id){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName+"/"+id, solution);
 
         return getStringResponseEntity(client, request);
@@ -82,7 +89,7 @@ public class DispatcherProxyResource {
      */
     @GetMapping(value="/sql/exercise/{id}/solution")
     public ResponseEntity<String> getSolution(@PathVariable int id){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/sql/exercise/"+id+"/solution");
 
         return getStringResponseEntity(client, request);
@@ -96,7 +103,7 @@ public class DispatcherProxyResource {
      */
     @PostMapping(value="/sql/exercise/{id}/solution")
     public ResponseEntity<String> updateExerciseSolution(@PathVariable int id, @RequestBody String newSolution){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution);
 
         return getStringResponseEntity(client, request);
@@ -109,8 +116,38 @@ public class DispatcherProxyResource {
      */
     @DeleteMapping(value="/sql/schema/{schemaName}")
     public ResponseEntity<String> deleteSchema(@PathVariable String schemaName){
-        var client = HttpClient.newHttpClient();
+        var client = getHttpClient();
         var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName);
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the request to get an available exercise-id to the dispatcher
+     * @return the id
+     */
+    @GetMapping(value="/sql/exercise/reservation")
+    public ResponseEntity<String> getExerciseID(){
+        var client = getHttpClient();
+        var request = getGetRequest(dispatcherURL+"/sql/exercise/reservation");
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the reuqest for deleting a connection associated with a given schema to the dispatcher
+     * @param schemaName the schema
+     * @return a ResponseEntity as received by the disptacher
+     */
+    @DeleteMapping(value="/sql/schema/{schemaName}/connection")
+    public ResponseEntity<String> deleteConnection(@PathVariable String schemaName){
+        var client = getHttpClient();
+        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName+"/connection");
+        return getStringResponseEntity(client, request);
+    }
+
+    @DeleteMapping(value = "/sql/exercise/{id}")
+    public ResponseEntity<String> deleteExercise(@PathVariable int id){
+        var client = getHttpClient();
+        var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);
         return getStringResponseEntity(client, request);
     }
 
@@ -124,10 +161,13 @@ public class DispatcherProxyResource {
     private ResponseEntity<String> getStringResponseEntity(HttpClient client, HttpRequest request) {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return ResponseEntity.ok(response.body());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
+        }finally {
+            client = null;
+            System.gc();
         }
     }
 
@@ -178,10 +218,32 @@ public class DispatcherProxyResource {
      * @param url the url
      * @return the HttpRequest
      */
+    @NotNull
     private HttpRequest getDeleteRequest(String url){
         return HttpRequest.newBuilder()
             .uri(URI.create(url))
             .DELETE()
+            .build();
+    }
+
+    /**
+     * Utility method that returns an ExecutorService
+     * @return the ExecutorService
+     */
+    private ExecutorService getExecutorService(){
+        return Executors.newSingleThreadExecutor();
+    }
+
+    /**
+     * Utility method that returns an ExecutorService
+     * @return the HttpClient
+     */
+    public HttpClient getHttpClient(){
+        return  HttpClient
+            .newBuilder()
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .connectTimeout(Duration.ofSeconds(5))
+            .executor(getExecutorService())
             .build();
     }
 }
