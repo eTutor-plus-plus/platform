@@ -373,3 +373,8 @@ etutor:hasExerciseSheetTaskCount
     rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:int .
+
+etutor:isGenerateWholeExerciseSheet
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  xsd:boolean .
