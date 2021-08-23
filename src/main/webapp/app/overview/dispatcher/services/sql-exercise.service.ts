@@ -111,4 +111,12 @@ export class SqlExerciseService {
     const url = 'api/dispatcher/sql/exercise/' + exerciseId;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }
+
+  /**
+   * Requests an SQL-Table
+   */
+  public getHTMLTable(tableName: string): Observable<string> {
+    const url = 'api/dispatcher/sql/table/' + tableName;
+    return this.http.get<string>(url, httpOptionsTextResponse);
+  }
 }

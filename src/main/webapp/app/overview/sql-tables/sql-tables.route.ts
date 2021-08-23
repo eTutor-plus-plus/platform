@@ -6,7 +6,7 @@ import { SqlTableComponent } from './sql-table/sql-table.component';
  */
 export const sqlTablesRoute: Routes = [
   {
-    path: '',
+    path: ':tableName',
     component: SqlTableComponent,
   },
 ];
