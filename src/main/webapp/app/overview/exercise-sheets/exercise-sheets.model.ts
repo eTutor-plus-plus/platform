@@ -20,6 +20,10 @@ export interface INewExerciseSheetDTO {
    * The exercise sheet's task count.
    */
   taskCount: number;
+  /**
+   * Indicates whether or not the whole exercise sheet should be generated at once.
+   */
+  generateWholeExerciseSheet: boolean;
 }
 
 /**

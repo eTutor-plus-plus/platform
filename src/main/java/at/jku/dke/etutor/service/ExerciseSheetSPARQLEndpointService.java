@@ -120,11 +120,13 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                     ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
                     ?exerciseSheet etutor:containsLearningGoal ?goal.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                    ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
                 }
                 INSERT {
                     ?exerciseSheet rdfs:label ?newLbl.
                     ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
+                    ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?newGenerate.
                 """
         );
 
@@ -142,6 +144,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                   ?exerciseSheet rdfs:label ?lbl.
                   ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
                   ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                  ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
                   OPTIONAL {
                     ?exerciseSheet etutor:containsLearningGoal ?goal.
                   }
@@ -153,6 +156,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         query.setLiteral("?newLbl", exerciseSheetDTO.getName().trim());
         query.setIri("?newDifficulty", exerciseSheetDTO.getDifficultyId());
         query.setLiteral("?newTaskCount", exerciseSheetDTO.getTaskCount());
+        query.setLiteral("?newGenerate", exerciseSheetDTO.isGenerateWholeExerciseSheet());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());

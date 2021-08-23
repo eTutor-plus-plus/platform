@@ -11,7 +11,8 @@
         "name": "Name:",
         "difficulty": "Schwierigkeit:",
         "learningGoals": "Lernziele",
-        "taskCount": "Anzahl der Aufgaben:"
+        "taskCount": "Anzahl der Aufgaben:",
+        "generateWholeExerciseSheet": "Den gesamten Übungszettel auf einmal generieren?"
       },
       "error": {
         "required": "Dieses Feld ist erforderlich!",

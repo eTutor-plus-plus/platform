@@ -31,6 +31,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
     name: ['', [CustomValidators.required]],
     difficulty: [this.difficulties[0], [Validators.required]],
     taskCount: [1, [Validators.required, Validators.min(1)]],
+    generateWholeExerciseSheet: [false],
   });
 
   private _exerciseSheet?: IExerciseSheetDTO;
@@ -85,17 +86,12 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         difficultyId,
         learningGoals: this._selectedGoals,
         taskCount: this.updateForm.get(['taskCount'])!.value,
+        generateWholeExerciseSheet: this.updateForm.get(['generateWholeExerciseSheet'])!.value,
       };
 
       this.exerciseSheetService.insertExerciseSheet(newExerciseSheet).subscribe(
-        () => {
-          this.eventManager.broadcast('exercise-sheets-changed');
-          this.isSaving = false;
-          this.activeModal.close();
-        },
-        () => {
-          this.isSaving = false;
-        }
+        () => this.onSaveSuccess(),
+        () => this.onSaveError()
       );
     } else {
       const exerciseSheet: IExerciseSheetDTO = {
@@ -106,17 +102,12 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         internalCreator: this.exerciseSheet!.internalCreator,
         id: this.exerciseSheet!.id,
         taskCount: this.updateForm.get(['taskCount'])!.value,
+        generateWholeExerciseSheet: this.updateForm.get(['generateWholeExerciseSheet'])!.value,
       };
 
       this.exerciseSheetService.updateExerciseSheet(exerciseSheet).subscribe(
-        () => {
-          this.eventManager.broadcast('exercise-sheets-changed');
-          this.isSaving = false;
-          this.activeModal.close();
-        },
-        () => {
-          this.isSaving = false;
-        }
+        () => this.onSaveSuccess(),
+        () => this.onSaveError()
       );
     }
   }
@@ -167,6 +158,7 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         name: value.name,
         difficulty,
         taskCount: value.taskCount,
+        generateWholeExerciseSheet: value.generateWholeExerciseSheet,
       });
 
       this._selectedGoals = value.learningGoals;
@@ -179,5 +171,21 @@ export class ExerciseSheetUpdateComponent implements OnInit {
    */
   public get exerciseSheet(): IExerciseSheetDTO | undefined {
     return this._exerciseSheet;
+  }
+
+  /**
+   * Handles the on save success.
+   */
+  private onSaveSuccess(): void {
+    this.eventManager.broadcast('exercise-sheets-changed');
+    this.isSaving = false;
+    this.activeModal.close();
+  }
+
+  /**
+   * Handles the on save error.
+   */
+  private onSaveError(): void {
+    this.isSaving = false;
   }
 }

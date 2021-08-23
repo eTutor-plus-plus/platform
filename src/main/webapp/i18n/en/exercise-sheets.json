@@ -11,7 +11,8 @@
         "name": "Name:",
         "difficulty": "Difficulty:",
         "learningGoals": "Learning goals",
-        "taskCount": "Task count:"
+        "taskCount": "Task count:",
+        "generateWholeExerciseSheet": "Generate whole exercise sheet at once?"
       },
       "error": {
         "required": "This field is required!",
