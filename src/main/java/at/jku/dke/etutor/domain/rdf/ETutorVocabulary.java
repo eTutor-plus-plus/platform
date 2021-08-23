@@ -27,6 +27,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
     private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
     private static final String CLASS_TASK_GROUP = "TaskGroup";
+    private static final String CLASS_LEARNING_GOAL_ASSIGNMENT = "LearningGoalAssignment";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -87,6 +88,9 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
     private static final String PROP_HAS_EXERCISE_SHEET_TASK_COUNT = "hasExerciseSheetTaskCount";
     private static final String PROP_IS_GENERATE_WHOLE_EXERCISE_SHEET = "isGenerateWholeExerciseSheet";
+
+    private static final String PROP_CONTAINS_LEARNING_GOAL_ASSIGNMENT = "containsLearningGoalAssignment";
+    private static final String PROP_HAS_PRIORITY = "hasPriority";
 
     private static final String PROP_HAS_TASK_GROUP_NAME = "hasTaskGroupName";
     private static final String PROP_HAS_TASK_GROUP_DESCRIPTION = "hasTaskGroupDescription";
@@ -317,6 +321,14 @@ public final class ETutorVocabulary {
      */
     public static final Property isGenerateWholeExerciseSheet = m.createProperty(URI + PROP_IS_GENERATE_WHOLE_EXERCISE_SHEET);
     /**
+     * The containsLearningGoalAssignment property.
+     */
+    public static final Property containsLearningGoalAssignment = m.createProperty(URI + PROP_CONTAINS_LEARNING_GOAL_ASSIGNMENT);
+    /**
+     * The hasPriority property.
+     */
+    public static final Property hasPriority = m.createProperty(URI + PROP_HAS_PRIORITY);
+    /**
      * The hasIndividualTask property.
      */
     public static final Property hasIndividualTask = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK);
@@ -401,6 +413,10 @@ public final class ETutorVocabulary {
      * The exercise sheet resource.
      */
     public static final Resource ExerciseSheet = m.createResource(URI + CLASS_EXERCISE_SHEET);
+    /**
+     * The learning goal assignment resource.
+     */
+    public static final Resource LearningGoalAssignment = m.createResource(URI + CLASS_LEARNING_GOAL_ASSIGNMENT);
     /**
      * The course instance resource.
      */

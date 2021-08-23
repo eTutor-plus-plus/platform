@@ -351,7 +351,7 @@ etutor:ExerciseSheet
 # Properties
 etutor:containsLearningGoal
     rdf:type    rdf:Property ;
-    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:domain etutor:LearningGoalAssignment ;
     rdfs:range  etutor:Goal .
 
 etutor:hasExerciseSheetDifficulty
@@ -378,3 +378,19 @@ etutor:isGenerateWholeExerciseSheet
     rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:boolean .
+
+## Learning goal assignment
+# Classes
+etutor:LearningGoalAssignment
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:containsLearningGoalAssignment
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  etutor:LearningGoalAssignment .
+
+etutor:hasPriority
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:LearningGoalAssignment ;
+    rdfs:range  xsd:unsignedInt .
