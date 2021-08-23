@@ -2,15 +2,16 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO class for an existing exercise sheet.
@@ -43,6 +44,7 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
         setDifficultyId(baseDTO.getDifficultyId());
         setLearningGoals(baseDTO.getLearningGoals());
         setTaskCount(baseDTO.getTaskCount());
+        setGenerateWholeExerciseSheet(baseDTO.isGenerateWholeExerciseSheet());
 
         this.id = id;
         this.creationDate = creationDate;
@@ -66,6 +68,7 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
                 .parse(resource.getProperty(ETutorVocabulary.hasExerciseSheetCreationTime).getString())
                 .toInstant()
         );
+        setGenerateWholeExerciseSheet(resource.getProperty(ETutorVocabulary.isGenerateWholeExerciseSheet).getBoolean());
         setTaskCount(resource.getProperty(ETutorVocabulary.hasExerciseSheetTaskCount).getInt());
         List<LearningGoalDisplayDTO> goals = new ArrayList<>();
         StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoal);

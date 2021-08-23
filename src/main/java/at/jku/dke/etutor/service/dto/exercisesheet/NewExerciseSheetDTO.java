@@ -3,11 +3,12 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO class for a new exercise sheet.
@@ -28,6 +29,8 @@ public class NewExerciseSheetDTO {
 
     @Min(1)
     private int taskCount;
+
+    private boolean generateWholeExerciseSheet;
 
     /**
      * Returns the name.
@@ -126,5 +129,23 @@ public class NewExerciseSheetDTO {
         if (learningGoals != null && learningGoal != null) {
             learningGoals.remove(learningGoal);
         }
+    }
+
+    /**
+     * Returns whether or not a whole exercise sheet should be generated.
+     *
+     * @return {@code true} if the whole exercise sheet should be generated, otherwise {@code false}
+     */
+    public boolean isGenerateWholeExerciseSheet() {
+        return generateWholeExerciseSheet;
+    }
+
+    /**
+     * Sets whether or not a whole exercise sheet should be generated
+     *
+     * @param generateWholeExerciseSheet {@code true} if the whole exercise sheet should be generated, otherwise {@code false}
+     */
+    public void setGenerateWholeExerciseSheet(boolean generateWholeExerciseSheet) {
+        this.generateWholeExerciseSheet = generateWholeExerciseSheet;
     }
 }

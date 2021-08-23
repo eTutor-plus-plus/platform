@@ -387,6 +387,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             String.valueOf(newExerciseSheetDTO.getTaskCount()),
             XSDDatatype.XSDint
         );
+        resource.addProperty(ETutorVocabulary.isGenerateWholeExerciseSheet, String.valueOf(newExerciseSheetDTO.isGenerateWholeExerciseSheet()), XSDDatatype.XSDboolean);
 
         for (LearningGoalDisplayDTO entry : newExerciseSheetDTO.getLearningGoals()) {
             resource.addProperty(ETutorVocabulary.containsLearningGoal, model.createResource(entry.getId()));
