@@ -72,12 +72,12 @@ export const overviewRoute: Routes = [
     },
   },
   {
-    path: 'dispatcher',
+    path: 'sql-tables',
     data: {
       requireLogin: true,
     },
     canActivate: [UserRouteAccessService],
-    loadChildren: () => import('./dispatcher/dispatcher.module').then(m => m.DispatcherModule),
+    loadChildren: () => import('./sql-tables/sql-tables.module').then(m => m.SqlTablesModule),
   },
   {
     path: 'student/self-assessment',
