@@ -26,7 +26,7 @@ export class SqlExerciseService {
 
   /**
    * Creates a schema, tables and data
-   * @param schemaName the schema
+   * @param schema the schema
    * @param createStatements the create-table-statements
    * @param insertSubmission the insert-into-statements for the submission version of the schema
    * @param insertDiagnose the insert-into-statements for the diagnose version of the schema

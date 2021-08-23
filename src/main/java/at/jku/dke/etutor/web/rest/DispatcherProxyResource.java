@@ -135,7 +135,7 @@ public class DispatcherProxyResource {
     /**
      * Sends the reuqest for deleting a connection associated with a given schema to the dispatcher
      * @param schemaName the schema
-     * @return a ResponseEntity as received by the disptacher
+     * @return a ResponseEntity as received by the dispatcher
      */
     @DeleteMapping(value="/sql/schema/{schemaName}/connection")
     public ResponseEntity<String> deleteConnection(@PathVariable String schemaName){
@@ -144,6 +144,11 @@ public class DispatcherProxyResource {
         return getStringResponseEntity(client, request);
     }
 
+    /**
+     * Sends the request to delete an exercise to the dispatcher
+     * @param id the exercise-id
+     * @return the response from the dispatcher
+     */
     @DeleteMapping(value = "/sql/exercise/{id}")
     public ResponseEntity<String> deleteExercise(@PathVariable int id){
         var client = getHttpClient();
@@ -151,8 +156,26 @@ public class DispatcherProxyResource {
         return getStringResponseEntity(client, request);
     }
 
+    @GetMapping(value="sql/table/{tableName}")
+    public ResponseEntity<String> getHTMLTable(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
+        String url = dispatcherURL+"/sql/table/"+tableName;
+        if(exerciseId != -1){
+            url += "?exerciseId="+exerciseId;
+            if(!taskGroup.equalsIgnoreCase("")){
+                url += "&&taskGroup="+taskGroup;
+            }
+        }else if(!taskGroup.equalsIgnoreCase("")){
+            url+="?taskGroup="+taskGroup;
+        }
+        var client = getHttpClient();
+        var request = getGetRequest(url);
+
+
+        return getStringResponseEntity(client, request);
+    }
+
     /**
-     * Utility method that sends an HttpRequest and returns the body wrapped inside an ResponseEntity<String>
+     * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>
      * @param client the HttpClient
      * @param request the HttpRequest
      * @return the ResponseEntity
