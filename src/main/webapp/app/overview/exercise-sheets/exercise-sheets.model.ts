@@ -15,7 +15,7 @@ export interface INewExerciseSheetDTO {
   /**
    * The learning goals.
    */
-  learningGoals: ILearningGoalDisplayModel[];
+  learningGoals: ILearningGaolAssignmentDTO[];
   /**
    * The exercise sheet's task count.
    */
@@ -24,6 +24,20 @@ export interface INewExerciseSheetDTO {
    * Indicates whether or not the whole exercise sheet should be generated at once.
    */
   generateWholeExerciseSheet: boolean;
+}
+
+/**
+ * Interface which represents a learning goal assignment.
+ */
+export interface ILearningGaolAssignmentDTO {
+  /**
+   * The associated learning goal.
+   */
+  learningGoal: ILearningGoalDisplayModel;
+  /**
+   * The priority - must be greater than 0
+   */
+  priority: number;
 }
 
 /**
