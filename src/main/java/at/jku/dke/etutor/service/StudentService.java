@@ -1078,7 +1078,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?courseInstance a etutor:CourseInstance.
                 ?courseInstance etutor:hasCourse ?course.
                 ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
-                ?sheet etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
+                ?sheet etutor:containsLearningGoalAssignment/etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
                 ?sheet etutor:hasExerciseSheetDifficulty/rdf:value ?sheetDifficultyValue.
 
                 ?task a etutor:TaskAssignment.

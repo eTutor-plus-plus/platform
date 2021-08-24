@@ -6,6 +6,7 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import one.util.streamex.StreamEx;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.Optional;
 
@@ -83,7 +85,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
@@ -144,12 +149,20 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
         exerciseSheetDTO.setName("Newtest");
+        exerciseSheetDTO.setLearningGoals(StreamEx.of(exerciseSheetDTO.getLearningGoals())
+            .map(x -> new LearningGoalAssignmentDTO(x.getLearningGoal(), 2))
+            .toList());
+
+        ((LocalRDFConnectionFactory) rdfConnectionFactory).writeDefaultGraph(new File("testfile.ttl"));
 
         exerciseSheetSPARQLEndpointService.updateExerciseSheet(exerciseSheetDTO);
 
@@ -157,7 +170,6 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         Optional<ExerciseSheetDTO> optionalExerciseSheetFromDb = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         assertThat(optionalExerciseSheetFromDb).isPresent();
         ExerciseSheetDTO exerciseSheetFromDb = optionalExerciseSheetFromDb.get();
-
         assertThat(exerciseSheetFromDb)
             .usingRecursiveComparison()
             .ignoringFields("learningGoals")
@@ -170,7 +182,8 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @Test
     public void testDeleteExerciseSheetNull() {
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null))
+            .isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -184,7 +197,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 

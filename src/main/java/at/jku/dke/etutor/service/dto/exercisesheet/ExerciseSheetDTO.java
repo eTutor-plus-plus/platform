@@ -70,14 +70,17 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
         );
         setGenerateWholeExerciseSheet(resource.getProperty(ETutorVocabulary.isGenerateWholeExerciseSheet).getBoolean());
         setTaskCount(resource.getProperty(ETutorVocabulary.hasExerciseSheetTaskCount).getInt());
-        List<LearningGoalDisplayDTO> goals = new ArrayList<>();
-        StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoal);
+        List<LearningGoalAssignmentDTO> goals = new ArrayList<>();
+        StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoalAssignment);
         try {
             while (stmtIterator.hasNext()) {
                 Statement statement = stmtIterator.nextStatement();
-                Resource goalResource = statement.getObject().asResource();
+                Resource goalAssignmentResource = statement.getObject().asResource();
+                int priority = goalAssignmentResource.getProperty(ETutorVocabulary.hasPriority).getInt();
+
+                Resource goalResource = goalAssignmentResource.getProperty(ETutorVocabulary.containsLearningGoal).getResource();
                 String goalName = goalResource.getProperty(RDFS.label).getString();
-                goals.add(new LearningGoalDisplayDTO(goalResource.getURI(), goalName));
+                goals.add(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO(goalResource.getURI(), goalName), priority));
             }
         } finally {
             stmtIterator.close();

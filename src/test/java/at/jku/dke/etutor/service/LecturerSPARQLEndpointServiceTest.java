@@ -11,6 +11,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -165,7 +166,10 @@ public class LecturerSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Test exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         newExerciseSheetDTO.setLearningGoals(
-            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+            StreamEx.of(goal1, goal2)
+                .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+                .map(x -> new LearningGoalAssignmentDTO(x, 1))
+                .toList()
         );
         newExerciseSheetDTO.setTaskCount(1);
 
@@ -369,7 +373,7 @@ public class LecturerSPARQLEndpointServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
