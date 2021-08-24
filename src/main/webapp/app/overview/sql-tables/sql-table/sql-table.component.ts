@@ -1,9 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SqlExerciseService } from '../../dispatcher/services/sql-exercise.service';
 
+/**
+ * Component that displays an sql-table
+ */
 @Component({
   selector: 'jhi-tasks-overview',
   templateUrl: './sql-table.component.html',
@@ -19,8 +22,17 @@ export class SqlTableComponent implements OnInit, OnDestroy {
   private _paramMapSubscription?: Subscription;
   private _queryParamSubscription?: Subscription;
 
+  /**
+   * constructor
+   * @param router the injected routing service
+   * @param activatedRoute the injected activated route
+   * @param sqlService the injected sql-service
+   */
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private sqlService: SqlExerciseService) {}
 
+  /**
+   * Implements the init method. See {@link OnInit}.
+   */
   public ngOnInit(): void {
     this._paramMapSubscription = this.activatedRoute.paramMap.subscribe(paramMap => {
       this.tableName = paramMap.get('tableName')!;
@@ -34,6 +46,9 @@ export class SqlTableComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Implements the destroy method. See {@link OnDestroy}.
+   */
   ngOnDestroy(): void {
     this._queryParamSubscription?.unsubscribe();
     this._paramMapSubscription?.unsubscribe();

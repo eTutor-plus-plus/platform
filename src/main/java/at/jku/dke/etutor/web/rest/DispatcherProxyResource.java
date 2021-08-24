@@ -2,13 +2,11 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.config.JHipsterDefaults;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,6 +32,11 @@ public class DispatcherProxyResource {
         this.dispatcherURL = properties.getDispatcher().getUrl();
     }
 
+    /**
+     * Requests a grading from the dispatcher
+     * @param submissionId the submission-id identifying the grading
+     * @return the response from the dispatcher
+     */
     @GetMapping(value="/grading/{submissionId}")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId){
         var client = getHttpClient();
@@ -48,9 +51,11 @@ public class DispatcherProxyResource {
      * @return the submission-id
      */
     @PostMapping(value="/submission")
-    public ResponseEntity<String> postSubmission(@RequestBody String submissionDto){
+    public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language){
         var client = getHttpClient();
-        var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto);
+        var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto)
+            .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
+            .build();
 
         return getStringResponseEntity(client, request);
     }
@@ -63,7 +68,7 @@ public class DispatcherProxyResource {
     @PostMapping(value="/sql/schema")
     public ResponseEntity<String> executeDDL(@RequestBody String ddl){
         var client = getHttpClient();
-        var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl);
+        var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl).build();
 
         return getStringResponseEntity(client, request);
     }
@@ -104,7 +109,7 @@ public class DispatcherProxyResource {
     @PostMapping(value="/sql/exercise/{id}/solution")
     public ResponseEntity<String> updateExerciseSolution(@PathVariable int id, @RequestBody String newSolution){
         var client = getHttpClient();
-        var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution);
+        var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution).build();
 
         return getStringResponseEntity(client, request);
     }
@@ -200,13 +205,11 @@ public class DispatcherProxyResource {
      * @param json the body
      * @return the HttpRequest
      */
-    @NotNull
-    private HttpRequest getPostRequestWithBody(String url, String json){
+    private HttpRequest.Builder getPostRequestWithBody(String url, String json){
         return HttpRequest.newBuilder()
             .uri(URI.create(url))
             .POST(HttpRequest.BodyPublishers.ofString(json))
-            .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json")
-            .build();
+            .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json");
     }
 
     /**

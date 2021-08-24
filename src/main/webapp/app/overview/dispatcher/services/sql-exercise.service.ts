@@ -113,7 +113,10 @@ export class SqlExerciseService {
   }
 
   /**
-   * Requests an SQL-Table
+   * Requests an sql-table as html-table
+   * @param tableName the name of the table
+   * @param exerciseId an optional id providing context
+   * @param taskGroup optional taskGroup providing context
    */
   public getHTMLTable(
     tableName: string,
