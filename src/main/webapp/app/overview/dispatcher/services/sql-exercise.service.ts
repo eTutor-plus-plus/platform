@@ -115,8 +115,21 @@ export class SqlExerciseService {
   /**
    * Requests an SQL-Table
    */
-  public getHTMLTable(tableName: string): Observable<string> {
-    const url = 'api/dispatcher/sql/table/' + tableName;
+  public getHTMLTable(
+    tableName: string,
+    exerciseId?: string | null | undefined,
+    taskGroup?: string | null | undefined
+  ): Observable<string> {
+    let url = 'api/dispatcher/sql/table/' + tableName;
+    if (exerciseId) {
+      url += '?exerciseId=' + exerciseId;
+      if (taskGroup) {
+        url += '&&taskGroup=' + taskGroup;
+      }
+    } else if (taskGroup) {
+      url += '?taskGroup=' + taskGroup;
+    }
+
     return this.http.get<string>(url, httpOptionsTextResponse);
   }
 }
