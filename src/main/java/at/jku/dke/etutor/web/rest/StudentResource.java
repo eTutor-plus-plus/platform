@@ -297,7 +297,7 @@ public class StudentResource {
 
     /**
      * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
-     * Sets the submission for an individual task
+     * Sets a submission for an individual task
      *
      * @param courseInstanceUUID the course instance id
      * @param exerciseSheetUUID the exercise sheet id
@@ -316,6 +316,26 @@ public class StudentResource {
     }
 
     /**
+     * Returns all submissions mady by a student for a specific individual task
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the submissions
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submissions")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<List<String>> getAllSubmissions(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                          @PathVariable int taskNo){
+
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<List<String>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        List<String> submissions = optionalSubmissions.orElse(null);
+
+        return ResponseEntity.ok(submissions);
+    }
+
+    /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission} : Returns
      * the submission.
      *
@@ -326,11 +346,11 @@ public class StudentResource {
      */
     @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<String> getSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+    public ResponseEntity<String> getLatestSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                        @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<String> optionalSubmission = studentService.getSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<String> optionalSubmission = studentService.getLatestSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         String submission = optionalSubmission.orElse("");
 
@@ -345,7 +365,7 @@ public class StudentResource {
      * @param exerciseSheetUUID the exercise sheet id
      * @param taskNo the task no
      * @param points the points
-     * @return
+     * @return a ResponseEntity
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{points}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")

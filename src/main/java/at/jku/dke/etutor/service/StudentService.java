@@ -307,6 +307,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
         SELECT ?student ?instant ?submission ?exerciseSheet ?courseInstance ?orderNo ?taskInstruction
         WHERE{
         	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
@@ -1027,7 +1028,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
         }
 
-        setLastSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission);
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission);
     }
 
     /**
@@ -1038,7 +1039,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo the task number
      * @param submission the submission
      */
-    public void setLastSubmissionForIndividualTask(String courseInstanceId, String exerciseSheetId, String studentId, int taskNo, String submission){
+    public void setLatestSubmissionForIndividualTask(String courseInstanceId, String exerciseSheetId, String studentId, int taskNo, String submission){
         ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
@@ -1074,14 +1075,56 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Returns the submission for an individual task assignment
+     * Returns all submissions for an individual task
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return a list containing the submissions
+     */
+    public Optional<List<String>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheet", sheetId);
+        query.setIri("?courseInstance", courseInstanceId);
+        query.setLiteral("?orderNo", taskNo);
+
+        System.out.println(query);
+
+        List<String> submissions = new ArrayList<>();
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal submissionLiteral = solution.getLiteral("?submission");
+
+                    submissions.add(submissionLiteral.getString());
+                }
+            }
+        }
+        if(submissions.isEmpty()) return Optional.empty();
+        return Optional.of(submissions);
+    }
+
+    /**
+     * Returns the latest/current submission for an individual task assignment
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
      * @param matriculationNo the matriculation number
      * @param taskNo the task number
      * @return {@link Optional} containing the submission
      */
-    public Optional<String> getSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<String> getLatestSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1136,7 +1179,6 @@ public class StudentService extends AbstractSPARQLEndpointService {
      *      * @param taskNo             the task no
      *      * @param points             the points
      */
-
     public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int points){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
