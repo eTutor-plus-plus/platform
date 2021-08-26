@@ -308,7 +308,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?student ?instant ?submission ?exerciseSheet ?courseInstance ?orderNo ?taskInstruction
+        SELECT ?instant ?submission
         WHERE{
         	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           	?individualAssignment a etutor:IndividualTaskAssignment.

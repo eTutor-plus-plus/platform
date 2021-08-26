@@ -215,6 +215,12 @@ export class StudentService {
     );
   }
 
+  /**
+   * Returns the latest submission for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
   public getSubmissionForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
@@ -222,6 +228,24 @@ export class StudentService {
       responseType: 'text' as 'json',
     });
   }
+
+  /**
+   * Returns all submissions for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
+  public getAllSubmissionsForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<string> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<string>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submissions`,
+      {
+        responseType: 'text' as 'json',
+      }
+    );
+  }
+
   /**
    * Sets the points assigned by the dispatcher.
    *
