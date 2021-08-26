@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -281,6 +282,47 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           ?individualAssignment etutor:fromExerciseSheet ?sheet;
                                 etutor:fromCourseInstance ?courseInstance;
+        }
+        """;
+
+    private static final String QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+          ?individualTask etutor:hasIndividualTaskSubmission [
+            a etutor:IndividualTaskSubmission;
+            etutor:hasSubmission ?submission;
+            etutor:hasInstant ?instant;
+          ].
+        }
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+    private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        SELECT ?student ?instant ?submission ?exerciseSheet ?courseInstance ?orderNo ?taskInstruction
+        WHERE{
+        	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          	?individualAssignment a etutor:IndividualTaskAssignment.
+          	?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                 etutor:fromCourseInstance ?courseInstance.
+          	?individualAssignment etutor:hasIndividualTask ?individualTask.
+          	?individualTask a etutor:IndividualTask;
+                           etutor:hasOrderNo ?orderNo;
+                           etutor:refersToTask ?taskAssignment;
+                           etutor:hasIndividualTaskSubmission ?taskSubmission.
+          	?taskSubmission etutor:hasSubmission ?submission;
+                           etutor:hasInstant ?instant.
+          	OPTIONAL{
+            	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
+          	}
         }
         """;
 
@@ -957,15 +999,14 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Sets the submission for an individual task
-     * @param courseInstanceUUID the course instance UUID
-     *      * @param exerciseSheetUUID  the exercise sheet UUID
-     *      * @param matriculationNo    the matriculation no
-     *      * @param taskNo             the task no
-     *      * @param submission         the submission
+     * Handles a submission for an individual task
+      * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @param submission the submission
      */
-
-    public void setLastSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
+    public void setSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -974,6 +1015,30 @@ public class StudentService extends AbstractSPARQLEndpointService {
         String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
 
+        ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
+        insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission);
+        insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
+        insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", Instant.now().toString());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
+        }
+
+        setLastSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission);
+    }
+
+    /**
+     * Updates the latest submission for an individual task
+     * @param courseInstanceId the course instance
+     * @param exerciseSheetId the exercise sheet
+     * @param studentId the student id
+     * @param taskNo the task number
+     * @param submission the submission
+     */
+    public void setLastSubmissionForIndividualTask(String courseInstanceId, String exerciseSheetId, String studentId, int taskNo, String submission){
         ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 

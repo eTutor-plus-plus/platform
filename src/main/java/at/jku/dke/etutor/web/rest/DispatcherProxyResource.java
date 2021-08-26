@@ -89,7 +89,7 @@ public class DispatcherProxyResource {
     }
 
     /**
-     * Sends the GET-request for getting the solution to an SQL-exercise to the dispatcher
+     * Sends the GET-request for getting the solution for an SQL-exercise to the dispatcher
      * @return a ResponseEntity
      */
     @GetMapping(value="/sql/exercise/{id}/solution")

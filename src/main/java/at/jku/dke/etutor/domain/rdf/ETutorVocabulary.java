@@ -26,6 +26,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_STUDENT = "Student";
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
     private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
+    private static final String CLASS_INDIVIDUAL_TASK_SUBMISSION = "IndividualTaskSubmission";
     private static final String CLASS_TASK_GROUP = "TaskGroup";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
@@ -55,6 +56,7 @@ public final class ETutorVocabulary {
     private static final String PROP_FROM_COURSE_INSTANCE = "fromCourseInstance";
     private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
     private static final String PROP_HAS_INDIVIDUAL_TASK = "hasIndividualTask";
+    private static final String PROP_HAS_INDIVIDUAL_TASK_SUBMISSION = "hasIndividualTaskSubmission";
     private static final String PROP_IS_CLOSED = "isClosed";
     private static final String PROP_IS_GRADED = "isGraded";
     private static final String PROP_IS_SUBMITTED = "isSubmitted";
@@ -359,6 +361,10 @@ public final class ETutorVocabulary {
      */
     public static final Property hasIndividualTask = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK);
     /**
+     * The hasIndividualTaskSubmission property
+     */
+    public static final Property hasIndividualTaskSubmission = m.createProperty(URI+PROP_HAS_INDIVIDUAL_TASK_SUBMISSION);
+    /**
      * The isClosed property.
      */
     public static final Property isClosed = m.createProperty(URI + PROP_IS_CLOSED);
@@ -475,6 +481,10 @@ public final class ETutorVocabulary {
      * The individual task resource.
      */
     public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
+    /**
+     * The individual task submission resource.
+     */
+    public static final Resource IndividualTaskSubmission = m.createResource(URI + CLASS_INDIVIDUAL_TASK_SUBMISSION);
     /**
      * The task group resource.
      */
