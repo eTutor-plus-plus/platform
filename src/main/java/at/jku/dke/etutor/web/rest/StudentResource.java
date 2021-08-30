@@ -321,8 +321,8 @@ public class StudentResource {
      * @return the submissions
      */
     @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submissions/{matriculationNo}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Map<Instant, String>> getAllSubmissions(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Map<Instant, String>> getAllSubmissionsOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                           @PathVariable int taskNo, @PathVariable String matriculationNo){
 
         Optional<Map<Instant, String>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);

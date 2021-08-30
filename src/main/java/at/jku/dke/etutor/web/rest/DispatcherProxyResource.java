@@ -1,11 +1,13 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
+import at.jku.dke.etutor.security.AuthoritiesConstants;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,6 +40,7 @@ public class DispatcherProxyResource {
      * @return the response from the dispatcher
      */
     @GetMapping(value="/grading/{submissionId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId){
         var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/grading/"+submissionId);
@@ -51,6 +54,7 @@ public class DispatcherProxyResource {
      * @return the submission-id
      */
     @PostMapping(value="/submission")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language){
         var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto)
@@ -66,6 +70,7 @@ public class DispatcherProxyResource {
      * @return an response entity
      */
     @PostMapping(value="/sql/schema")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> executeDDL(@RequestBody String ddl){
         var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl).build();
@@ -81,6 +86,7 @@ public class DispatcherProxyResource {
      * @return an ResponseEntity
      */
     @PutMapping(value="/sql/exercise/{schemaName}/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> createExercise(@RequestBody String solution, @PathVariable String schemaName, @PathVariable int id){
         var client = getHttpClient();
         var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName+"/"+id, solution);
@@ -92,7 +98,9 @@ public class DispatcherProxyResource {
      * Sends the GET-request for getting the solution for an SQL-exercise to the dispatcher
      * @return a ResponseEntity
      */
+
     @GetMapping(value="/sql/exercise/{id}/solution")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getSolution(@PathVariable int id){
         var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/sql/exercise/"+id+"/solution");
@@ -107,6 +115,7 @@ public class DispatcherProxyResource {
      * @return a ResponseEntity as received by the dispatcher
      */
     @PostMapping(value="/sql/exercise/{id}/solution")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> updateExerciseSolution(@PathVariable int id, @RequestBody String newSolution){
         var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution).build();
@@ -120,6 +129,7 @@ public class DispatcherProxyResource {
      * @return a ResponseEntity
      */
     @DeleteMapping(value="/sql/schema/{schemaName}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteSchema(@PathVariable String schemaName){
         var client = getHttpClient();
         var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName);
@@ -143,6 +153,7 @@ public class DispatcherProxyResource {
      * @return a ResponseEntity as received by the dispatcher
      */
     @DeleteMapping(value="/sql/schema/{schemaName}/connection")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteConnection(@PathVariable String schemaName){
         var client = getHttpClient();
         var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName+"/connection");
@@ -155,6 +166,7 @@ public class DispatcherProxyResource {
      * @return the response from the dispatcher
      */
     @DeleteMapping(value = "/sql/exercise/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteExercise(@PathVariable int id){
         var client = getHttpClient();
         var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);

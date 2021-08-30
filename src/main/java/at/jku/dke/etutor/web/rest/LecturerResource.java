@@ -103,4 +103,10 @@ public class LecturerResource {
         );
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("points/{courseInstanceUUID}/{exerciseSheetUUID}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        return null;
+    }
 }

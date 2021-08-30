@@ -209,6 +209,25 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
             }
             """;
 
+
+    private static final String QRY_SELECT_POINTS_FOR_EXERCISE_SHEET = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+
+        SELECT ?student ?maxPoints ?points
+          WHERE{
+                         ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                         ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
+                                               etutor:fromCourseInstance ?courseInstanceId;
+                                     			etutor:hasIndividualTask ?individualTask.
+               			?individualTask etutor:hasDispatcherPoints ?points;
+                                         etutor:refersToTask ?taskAssignment.
+               			?taskAssignment etutor:hasMaxPoints ?maxPoints
+
+         }
+        """;
+
     /**
      * Constructor.
      *
