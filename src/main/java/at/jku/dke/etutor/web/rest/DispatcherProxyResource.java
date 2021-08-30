@@ -141,6 +141,7 @@ public class DispatcherProxyResource {
      * @return the id
      */
     @GetMapping(value="/sql/exercise/reservation")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getExerciseID(){
         var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/sql/exercise/reservation");

@@ -6,7 +6,8 @@
       "matriculationNumber": "Matrikelnummer",
       "submitted": "Vollständig abgegeben",
       "fullyGraded": "Vollständig beurteilt",
-      "btnGrade": "Beurteilen"
+      "btnGrade": "Beurteilen",
+      "btnExport": "Export"
     },
     "footerClose": "Schließen",
     "gradingWindow": {

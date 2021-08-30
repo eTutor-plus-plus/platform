@@ -3,7 +3,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SqlExerciseService } from '../../dispatcher/services/sql-exercise.service';
-import { StudentService } from '../../shared/students/student-service';
 
 /**
  * Component that displays an sql-table

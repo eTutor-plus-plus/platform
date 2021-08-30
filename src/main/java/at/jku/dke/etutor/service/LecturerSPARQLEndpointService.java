@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
@@ -18,11 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Service endpoint for managing lecturer related data.
@@ -214,18 +214,20 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
+        SELECT ?student ?maxPoints ?points ?taskAssignment ?taskAssignmentHeader
+                 WHERE{
+                                          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                                          ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
+                                                                etutor:fromCourseInstance ?courseInstanceId;
+                                                      			etutor:hasIndividualTask ?individualTask.
+                                			OPTIONAL{
+                                			    ?individualTask etutor:hasDispatcherPoints ?points.
+                                			}
+                                		    ?individualTask etutor:refersToTask ?taskAssignment.
+                                			?taskAssignment etutor:hasMaxPoints ?maxPoints;
+                                                   etutor:hasTaskHeader ?taskAssignmentHeader.
 
-        SELECT ?student ?maxPoints ?points
-          WHERE{
-                         ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                         ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
-                                               etutor:fromCourseInstance ?courseInstanceId;
-                                     			etutor:hasIndividualTask ?individualTask.
-               			?individualTask etutor:hasDispatcherPoints ?points;
-                                         etutor:refersToTask ?taskAssignment.
-               			?taskAssignment etutor:hasMaxPoints ?maxPoints
-
-         }
+                          }
         """;
 
     /**
@@ -550,5 +552,49 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         if (newGoals.size() > 0) {
             adjustParentGoalsRecursive(courseInstanceURL, studentURL, newGoals, connection);
         }
+    }
+
+    public Optional<Map<String, List<TaskPointEntryDTO>>> getPointsOverviewForExerciseSheet(String exerciseSheetUUID, String courseInstanceUUID){
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(courseInstanceUUID);
+
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_POINTS_FOR_EXERCISE_SHEET);
+        query.setIri("?courseInstanceId", courseInstanceId);
+        query.setIri("?exerciseSheetId", exerciseSheetId);
+
+        Map<String, List<TaskPointEntryDTO>> overviewInfo = new HashMap<>();
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.next();
+
+                    Resource studentResource = solution.getResource("?student");
+                    String student = studentResource.getURI();
+                    Literal pointsLiteral = solution.getLiteral("?points");
+                    double points = 0;
+                    if(pointsLiteral != null) points = pointsLiteral.getDouble();
+                    Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
+                    Literal taskAssignmentHeaderLiteral = solution.getLiteral("?taskAssignmentHeader");
+                    Resource taskAssignmentResource = solution.getResource("?taskAssignment");
+                    String taskAssignment = taskAssignmentResource.getURI();
+
+                    if(!overviewInfo.containsKey(student)){
+                        overviewInfo.put(student, new ArrayList<>());
+                    }
+                    overviewInfo.get(student).add(new TaskPointEntryDTO(
+                        maxPointsLiteral.getDouble(),
+                        points,
+                        taskAssignmentHeaderLiteral.getString(),
+                        taskAssignment));
+                }
+                if (overviewInfo.isEmpty()) return Optional.empty();
+            }
+        }
+            return Optional.of(overviewInfo);
     }
 }

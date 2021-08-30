@@ -8,6 +8,7 @@ import { CourseManagementService } from '../../../course-management.service';
 import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import { LecturerTaskAssignmentService } from './lecturer-task-assignment-overview/lecturer-task-assignment.service';
 
 /**
  * Modal window for displaying exercise sheet assignments.
@@ -44,7 +45,8 @@ export class CourseExerciseSheetAllocationComponent {
     private fb: FormBuilder,
     private exerciseSheetService: ExerciseSheetsService,
     private courseService: CourseManagementService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private lecturerAssignmentService: LecturerTaskAssignmentService
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -135,6 +137,11 @@ export class CourseExerciseSheetAllocationComponent {
     this.loadExerciseSheetsPageAsync();
   }
 
+  public exportPointsForExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    const exerciseSheetUUID = item.internalId.substr(item.internalId.lastIndexOf('#') + 1);
+    const courseInstanceUUID = this._courseInstance?.id.substr(this._courseInstance.id.lastIndexOf('#') + 1);
+    this.lecturerAssignmentService.getExerciseSheetPointOverview(courseInstanceUUID!, exerciseSheetUUID).subscribe();
+  }
   /**
    * Asynchronously saves the form.
    */

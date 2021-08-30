@@ -104,4 +104,12 @@ export class LecturerTaskAssignmentService {
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment/of-student/${matriculationNo}`
     );
   }
+
+  public getExerciseSheetPointOverview(courseInstanceId: string, exerciseSheetUUID: string): Observable<string> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<string>(
+      `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/points-overview`,
+      { responseType: 'text' as 'json' }
+    );
+  }
 }

@@ -4,8 +4,12 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.LecturerSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -104,9 +108,18 @@ public class LecturerResource {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("points/{courseInstanceUUID}/{exerciseSheetUUID}")
+    /**
+     * Returns the achieved points vs. the maximum points for a given course instance and exercise sheet grouped by the students
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @return the ResponseEntity containing the overview of points
+     */
+    @GetMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
-        return null;
+    public ResponseEntity<Map<String, List<TaskPointEntryDTO>>> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        Optional<Map<String, List<TaskPointEntryDTO>>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        Map<String, List<TaskPointEntryDTO>> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+
+        return ResponseEntity.ok(pointsOverviewInfo);
     }
 }

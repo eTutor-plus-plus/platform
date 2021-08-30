@@ -91,6 +91,11 @@ export class LecturerTaskAssignmentOverviewComponent {
     };
   }
 
+  public exportExerciseSheetPointOverview(): void {
+    const exerciseSheetUUID = this.assignedSheetInfo.exerciseSheetId.substr(this.assignedSheetInfo.exerciseSheetId.lastIndexOf('#') + 1);
+    this.lecturerAssignmentService.getExerciseSheetPointOverview(this.assignedSheetInfo.courseInstanceId, exerciseSheetUUID).subscribe();
+  }
+
   /**
    * Asynchronously loads the page.
    */

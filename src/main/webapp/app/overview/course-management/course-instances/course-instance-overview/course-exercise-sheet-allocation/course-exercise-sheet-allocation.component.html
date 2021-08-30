@@ -29,6 +29,9 @@
                 <button [disabled]="!isSelected(item)" (click)="openLecturerAssignmentOverview(item)" class="btn btn-info">
                   LVA-Leiter Übersicht öffnen
                 </button>
+                <button [disabled]="!isSelected(item)" (click)="exportPointsForExerciseSheet(item)" class="btn btn-info">
+                  Punkte-Export
+                </button>
               </div>
             </td>
           </tr>
