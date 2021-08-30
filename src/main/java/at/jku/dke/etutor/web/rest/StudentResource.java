@@ -17,10 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * REST controller for managing students.
@@ -322,15 +320,13 @@ public class StudentResource {
      * @param taskNo the task number
      * @return the submissions
      */
-    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submissions")
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submissions/{matriculationNo}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<List<String>> getAllSubmissions(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                          @PathVariable int taskNo){
+    public ResponseEntity<Map<Instant, String>> getAllSubmissions(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                          @PathVariable int taskNo, @PathVariable String matriculationNo){
 
-        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-
-        Optional<List<String>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
-        List<String> submissions = optionalSubmissions.orElse(null);
+        Optional<Map<Instant, String>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Map<Instant, String> submissions = optionalSubmissions.orElse(null);
 
         return ResponseEntity.ok(submissions);
     }

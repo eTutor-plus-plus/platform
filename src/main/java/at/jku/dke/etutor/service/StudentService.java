@@ -308,7 +308,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?instant ?submission
+        SELECT ?instant ?submission ?taskInstruction
         WHERE{
         	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           	?individualAssignment a etutor:IndividualTaskAssignment.
@@ -1082,7 +1082,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo the task number
      * @return a list containing the submissions
      */
-    public Optional<List<String>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<Map<Instant, String>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1097,9 +1097,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         query.setIri("?courseInstance", courseInstanceId);
         query.setLiteral("?orderNo", taskNo);
 
-        System.out.println(query);
-
-        List<String> submissions = new ArrayList<>();
+        Map<Instant, String> submissions = new HashMap<>();
 
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(query.asQuery())) {
@@ -1107,8 +1105,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 while (set.hasNext()) {
                     QuerySolution solution = set.nextSolution();
                     Literal submissionLiteral = solution.getLiteral("?submission");
+                    Literal instantLiteral = solution.getLiteral("?instant");
 
-                    submissions.add(submissionLiteral.getString());
+                    submissions.put(Instant.parse(instantLiteral.getString()), submissionLiteral.getString());
                 }
             }
         }
