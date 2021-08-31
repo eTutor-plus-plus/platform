@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CourseManagementService } from '../../../course-management.service';
+import { CourseManagementService } from '../../course-management/course-management.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder } from '@angular/forms';
-import { StudentService } from '../../../../shared/students/student-service';
-import { IStudentFullNameInfoDTO } from '../../../../shared/students/students.model';
-import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
+import { StudentService } from '../../shared/students/student-service';
+import { IStudentFullNameInfoDTO } from '../../shared/students/students.model';
+import { IDisplayableCourseInstanceDTO } from '../../course-management/course-mangement.model';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { EventManager } from 'app/core/util/event-manager.service';
 
@@ -14,7 +14,6 @@ import { EventManager } from 'app/core/util/event-manager.service';
 @Component({
   selector: 'jhi-student-assignment-modal',
   templateUrl: './student-assignment-modal.component.html',
-  styleUrls: ['./student-assignment-modal.component.scss'],
 })
 export class StudentAssignmentModalComponent implements OnInit {
   public isSaving = false;

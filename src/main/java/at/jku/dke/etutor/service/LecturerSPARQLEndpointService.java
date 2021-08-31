@@ -407,6 +407,46 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                 updatedFailedGoalQry.setLiteral("?orderNo", orderNo);
 
                 connection.update(updatedFailedGoalQry.asUpdate());
+
+                ParameterizedSparqlString updateFailedCountQry = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+                    DELETE {
+                      GRAPH ?courseinstance {
+                        ?goal etutor:hasFailedCount ?oldCount.
+                      }
+                    }
+                    INSERT {
+                      GRAPH ?courseinstance {
+                        ?goal etutor:hasFailedCount ?newCount.
+                      }
+                    }
+                    WHERE {
+                      ?courseinstance a etutor:CourseInstance.
+                      ?courseinstance etutor:hasCourse ?course.
+                      ?goal a etutor:Goal.
+                      ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                      ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                            etutor:fromCourseInstance ?courseinstance.
+                      ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                      ?individualTask etutor:hasOrderNo ?orderNo.
+                      ?individualTask etutor:refersToTask ?task.
+                      ?goal etutor:hasTaskAssignment ?task.
+                      GRAPH ?courseinstance {
+                        ?goal a etutor:Goal.
+                        ?goal etutor:hasFailedCount ?oldCount.
+                      }
+                      BIND((?oldCount + 1) AS ?newCount)
+                    }
+                    """);
+
+                updateFailedCountQry.setIri("?courseinstance", courseInstanceURL);
+                updateFailedCountQry.setIri("?student", studentURL);
+                updateFailedCountQry.setIri("?sheet", exerciseSheetURL);
+                updateFailedCountQry.setLiteral("?orderNo", orderNo);
+
+                connection.update(updateFailedCountQry.asUpdate());
             }
         }
     }
@@ -479,7 +519,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
 
         if (!model.isEmpty()) {
-            connection.load(courseInstanceURL.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceURL), model);
         }
 
         if (goals.size() > 0) {
@@ -546,7 +586,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
 
         if (!model.isEmpty()) {
-            connection.load(courseInstanceURL.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceURL), model);
         }
 
         if (newGoals.size() > 0) {

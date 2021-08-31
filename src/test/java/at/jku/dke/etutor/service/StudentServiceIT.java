@@ -5,11 +5,26 @@ import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.CourseDTO;
+import at.jku.dke.etutor.service.dto.LearningGoalUpdateAssignmentDTO;
+import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.service.exception.NoFurtherTasksAvailableException;
+import at.jku.dke.etutor.service.exception.NoUploadFileTypeException;
 import at.jku.dke.etutor.service.exception.StudentCSVImportException;
 import liquibase.integration.spring.SpringLiquibase;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
+import org.javatuples.Quartet;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,6 +56,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional
 public class StudentServiceIT {
 
+    private static final String OWNER = "admin";
+
     @Autowired
     private RDFConnectionFactory rdfConnectionFactory;
 
@@ -50,6 +69,9 @@ public class StudentServiceIT {
 
     @Autowired
     private ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
+
+    @Autowired
+    private AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     @Autowired
     private StudentService studentService;
@@ -353,4 +375,488 @@ public class StudentServiceIT {
 
         assertThat(studentService.hasStudentOpenedTheExerciseSheet(mNr, courseInstanceUUID, exerciseSheetUUID)).isTrue();
     }
+
+    /**
+     * Tests the open exercise sheet method with an already opened
+     * exercise sheet.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testOpenAlreadyOpenedExerciseSheet() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(1);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        assertThatThrownBy(() -> studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID))
+            .isInstanceOf(ExerciseSheetAlreadyOpenedException.class);
+    }
+
+    /**
+     * Tests the close exercise sheet from an individual student method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testCloseExerciseSheetFromAnIndividualStudent() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(2);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        studentService.closeExerciseSheetFromAnIndividualStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+        boolean canAssignNext = studentService.canAssignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+        assertThat(canAssignNext).isFalse();
+    }
+
+    /**
+     * Tests the is task submitted method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testTestIsTaskSubmitted() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(1);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        boolean taskSubmitted = studentService.isTaskSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+        assertThat(taskSubmitted).isFalse();
+
+        // Submit task
+        studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+
+        taskSubmitted = studentService.isTaskSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+        assertThat(taskSubmitted).isTrue();
+    }
+
+    /**
+     * Tests the can assign next task method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testCanAssignNextTask() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join|innerjoin).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment1");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment2");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(2);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+
+        boolean canAssignNextTask = studentService.canAssignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+        assertThat(canAssignNextTask).isTrue();
+
+        studentService.assignNextTaskForStudent(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+
+        canAssignNextTask = studentService.canAssignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber);
+        assertThat(canAssignNextTask).isFalse();
+    }
+
+    /**
+     * Tests the set file for upload task method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testSetFileForUploadTask() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.UploadTask.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(1);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        final int fileId = 2;
+
+        // Submit task
+        studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
+
+        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+
+        assertThat(optionalFileId).isPresent();
+        assertThat(optionalFileId).hasValue(fileId);
+    }
+
+    /**
+     * Tests the remove file from upload task method.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testRemoveFileFromUploadTask() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.UploadTask.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(1);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        final int fileId = 3;
+
+        // Submit task
+        studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
+        studentService.removeFileFromUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
+
+        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+
+        assertThat(optionalFileId).isEmpty();
+    }
+
+    /**
+     * Tests the setting and retrieval of a file id from a non upload task.
+     *
+     * @throws Exception must not be thrown
+     */
+    @Test
+    public void testSetAndGetFileIdOfNonUploadTask() throws Exception {
+        var values = initTestGoalAndCourse();
+
+        Model model = values.getValue0();
+        CourseDTO course = values.getValue1();
+        String courseInstanceId = values.getValue2();
+        String courseInstanceUUID = values.getValue3();
+
+        String matriculationNumber = importStudentsAndGetFirstStudentsMatriculationNumber();
+
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.singletonList(matriculationNumber), courseInstanceId);
+
+        // Self evaluation:
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = getStudentSelfEvaluations(model, "^(?!Basic SQL|outerjoin|join).*$");
+        studentService.saveSelfEvaluation(courseInstanceUUID, matriculationNumber, selfEvaluations);
+
+        // Create task and exercise sheet
+        // Task
+        NewTaskAssignmentDTO newTaskAssignmentDTO = new TaskAssignmentDTO();
+        newTaskAssignmentDTO.setCreator(OWNER);
+        newTaskAssignmentDTO.setHeader("Join assignment");
+        newTaskAssignmentDTO.setTaskDifficultyId(ETutorVocabulary.Medium.getURI());
+        newTaskAssignmentDTO.setOrganisationUnit("DKE");
+        newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.NoType.getURI());
+        newTaskAssignmentDTO.setLearningGoalIds(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+
+        assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
+
+        // Create corresponding exercise sheet.
+        NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
+        newExerciseSheetDTO.setName("Join exercise sheet");
+        newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setTaskCount(1);
+
+        ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
+        String exerciseSheetUUID = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
+
+        studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+
+        assertThatThrownBy(() -> studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, 5))
+            .isInstanceOf(NoUploadFileTypeException.class);
+
+        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+
+        assertThat(optionalFileId).isEmpty();
+    }
+
+    //region Private helper methods
+
+    /**
+     * Imports the mock students and returns the matriculation number from the first student.
+     *
+     * @return the matriculation number from the first student
+     * @throws Exception must not be thrown
+     */
+    private String importStudentsAndGetFirstStudentsMatriculationNumber() throws Exception {
+        MultipartFile file = new MockMultipartFile(
+            "file.csv",
+            "file.csv",
+            "text/csv",
+            FileCopyUtils.copyToByteArray(getClass().getResourceAsStream("test_students.csv"))
+        );
+
+        var importedStudents = studentService.importStudentsFromFile(file);
+        return importedStudents.get(0).getMatriculationNumber();
+    }
+
+    /**
+     * Returns the self evaluations, based on the learning goals from the model.
+     * The status (completed / not completed) is inferred from the given regex
+     * pattern which is matched with the goal's name.
+     *
+     * @param model           the model
+     * @param completePattern the completion pattern
+     * @return list of evaluations
+     */
+    private List<StudentSelfEvaluationLearningGoalDTO> getStudentSelfEvaluations(Model model, String completePattern) {
+        List<StudentSelfEvaluationLearningGoalDTO> selfEvaluations = new ArrayList<>();
+        ResIterator resIterator = model.listSubjectsWithProperty(RDF.type, ETutorVocabulary.Goal);
+
+        Pattern pattern = Pattern.compile(StringUtils.isBlank(completePattern) ? ".*" : completePattern, Pattern.CASE_INSENSITIVE);
+
+        while (resIterator.hasNext()) {
+            Resource resource = resIterator.nextResource();
+            String goalId = resource.getURI();
+            String goalName = resource.getProperty(RDFS.label).getString();
+
+            var selfEvaluation = new StudentSelfEvaluationLearningGoalDTO();
+            selfEvaluation.setId(goalId);
+            selfEvaluation.setText(goalName);
+            selfEvaluation.setCompleted(pattern.matcher(goalName).matches());
+
+            selfEvaluations.add(selfEvaluation);
+        }
+
+        return selfEvaluations;
+    }
+
+    /**
+     * Inserts the basic SQL hierarchy and creates a course and a course instance.
+     *
+     * @return {@link Quartet} containing the RDF model (learning goals), the course dto,
+     * the course instance url (id) and the course instance uuid
+     * @throws Exception must not be thrown
+     */
+    private Quartet<Model, CourseDTO, String, String> initTestGoalAndCourse() throws Exception {
+        rdfConnectionFactory.clearDataset();
+        sparqlEndpointService.insertScheme();
+
+        //noinspection ConstantConditions
+        Model model = RDFTestUtil.uploadLearningGoalHierarchy(rdfConnectionFactory, getClass().getResource("goal_hierarchy.ttl"));
+
+        // Insert course
+        CourseDTO dmCourse = new CourseDTO();
+        dmCourse.setName("Datenmodellierung");
+        dmCourse.setCourseType("Modul");
+        dmCourse = sparqlEndpointService.insertNewCourse(dmCourse, OWNER);
+
+        // Set learning goal assignment
+        var goalAssignment = new LearningGoalUpdateAssignmentDTO();
+        goalAssignment.setCourseId(dmCourse.getId());
+        goalAssignment.setLearningGoalIds(Collections.singletonList("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Basic_SQL"));
+
+        sparqlEndpointService.setGoalAssignment(goalAssignment);
+
+        // Create course instance
+        NewCourseInstanceDTO dmCourseInstance = new NewCourseInstanceDTO();
+        dmCourseInstance.setCourseId(dmCourse.getId());
+        dmCourseInstance.setYear(2021);
+        dmCourseInstance.setTermId(ETutorVocabulary.Winter.getURI());
+
+        String dmCourseInstanceUrl = courseInstanceSPARQLEndpointService.createNewCourseInstance(dmCourseInstance);
+        String dmCourseInstanceUUID = dmCourseInstanceUrl.substring(dmCourseInstanceUrl.lastIndexOf('#') + 1);
+
+        return Quartet.with(model, dmCourse, dmCourseInstanceUrl, dmCourseInstanceUUID);
+    }
+    //endregion
 }

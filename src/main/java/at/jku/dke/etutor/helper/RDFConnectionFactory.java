@@ -19,4 +19,11 @@ public interface RDFConnectionFactory {
      * Clears the dataset (only works in embedded mode).
      */
     void clearDataset();
+
+    /**
+     * Returns whether a hashtag replacement is needed or not.
+     *
+     * @return {@code true} if a hashtag replacement is needed, otherwise {@code false}
+     */
+    boolean needsHashtagReplacement();
 }

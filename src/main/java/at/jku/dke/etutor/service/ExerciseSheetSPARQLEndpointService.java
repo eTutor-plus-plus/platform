@@ -6,9 +6,6 @@ import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -25,46 +22,51 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * Service endpoint for managing exercise sheets.
  *
  * @author fne
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @Service
 public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_EXERCISE_BY_ID =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        CONSTRUCT { ?exerciseSheet ?p ?o.
-        			?exerciseSheet etutor:containsLearningGoal ?goal.
-        			?goal rdfs:label ?goalName.
-        			?goal a etutor:Goal }
-        WHERE {
-          ?exerciseSheet a etutor:ExerciseSheet.
-          ?exerciseSheet ?p ?o.
-          OPTIONAL {
-            ?exerciseSheet etutor:containsLearningGoal ?goal.
-            ?goal rdfs:label ?goalName
-          }
-        }
-        """;
+            CONSTRUCT { ?exerciseSheet ?p ?o.
+            			?exerciseSheet etutor:containsLearningGoal ?goal.
+            			?goal rdfs:label ?goalName.
+            			?goal a etutor:Goal }
+            WHERE {
+              ?exerciseSheet a etutor:ExerciseSheet.
+              ?exerciseSheet ?p ?o.
+              OPTIONAL {
+                ?exerciseSheet etutor:containsLearningGoal ?goal.
+                ?goal rdfs:label ?goalName
+              }
+            }
+            """;
 
     private static final String DELETE_EXERCISE_BY_ID =
         """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        DELETE { ?exerciseSheet ?predicate ?object }
-        WHERE {
-          ?exerciseSheet a etutor:ExerciseSheet.
-          ?exerciseSheet ?predicate ?object.
-        }
-        """;
+            DELETE { ?exerciseSheet ?predicate ?object }
+            WHERE {
+              ?exerciseSheet a etutor:ExerciseSheet.
+              ?exerciseSheet ?predicate ?object.
+            }
+            """;
 
     /**
      * Constructor.
@@ -110,20 +112,20 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            DELETE {
-                ?exerciseSheet rdfs:label ?lbl.
-                ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-                ?exerciseSheet etutor:containsLearningGoal ?goal.
-                ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
-            }
-            INSERT {
-                ?exerciseSheet rdfs:label ?newLbl.
-                ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
-                ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
-            """
+                DELETE {
+                    ?exerciseSheet rdfs:label ?lbl.
+                    ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+                    ?exerciseSheet etutor:containsLearningGoal ?goal.
+                    ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                }
+                INSERT {
+                    ?exerciseSheet rdfs:label ?newLbl.
+                    ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
+                    ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
+                """
         );
 
         for (LearningGoalDisplayDTO learningGoalDisplayDTO : exerciseSheetDTO.getLearningGoals()) {
@@ -134,17 +136,17 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         query.append(
             """
-            }
-            WHERE {
-              ?exerciseSheet a etutor:ExerciseSheet.
-              ?exerciseSheet rdfs:label ?lbl.
-              ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-              ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
-              OPTIONAL {
-                ?exerciseSheet etutor:containsLearningGoal ?goal.
-              }
-            }
-            """
+                }
+                WHERE {
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                  ?exerciseSheet rdfs:label ?lbl.
+                  ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
+                  ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                  OPTIONAL {
+                    ?exerciseSheet etutor:containsLearningGoal ?goal.
+                  }
+                }
+                """
         );
 
         query.setIri("?exerciseSheet", exerciseSheetDTO.getId());
@@ -194,13 +196,13 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX text:   <http://jena.apache.org/text#>
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX text:   <http://jena.apache.org/text#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
-            WHERE {
-            """
+                SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
+                WHERE {
+                """
         );
 
         if (StringUtils.isNotBlank(nameQry)) {
@@ -209,15 +211,15 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         query.append(
             """
-              ?exerciseSheet a etutor:ExerciseSheet.
-              ?exerciseSheet rdfs:label ?name.
-              OPTIONAL {
-                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
-              }
-            }
-            GROUP BY ?exerciseSheet ?name
-            ORDER BY (LCASE(?name))
-            """
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                  ?exerciseSheet rdfs:label ?name.
+                  OPTIONAL {
+                    ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
+                  }
+                }
+                GROUP BY ?exerciseSheet ?name
+                ORDER BY (LCASE(?name))
+                """
         );
 
         if (page.isPaged()) {
@@ -260,23 +262,23 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         ParameterizedSparqlString countQry = new ParameterizedSparqlString(
             """
-            PREFIX text:   <http://jena.apache.org/text#>
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX text:   <http://jena.apache.org/text#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (COUNT(DISTINCT ?exerciseSheet) as ?cnt)
-            WHERE {
-            """
+                SELECT (COUNT(DISTINCT ?exerciseSheet) as ?cnt)
+                WHERE {
+                """
         );
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
-            PREFIX text:   <http://jena.apache.org/text#>
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX text:   <http://jena.apache.org/text#>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
-            WHERE {
-            """
+                SELECT (STR(?exerciseSheet) as ?id) ?name (COUNT(?individualAssignment) AS ?cnt)
+                WHERE {
+                """
         );
 
         if (StringUtils.isNotBlank(nameQry)) {
@@ -286,23 +288,23 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
 
         query.append(
             """
-              ?exerciseSheet a etutor:ExerciseSheet.
-              ?exerciseSheet rdfs:label ?name.
-              OPTIONAL {
-                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
-              }
-            }
-            GROUP BY ?exerciseSheet ?name
-            ORDER BY (LCASE(?name))
-            """
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                  ?exerciseSheet rdfs:label ?name.
+                  OPTIONAL {
+                    ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet.
+                  }
+                }
+                GROUP BY ?exerciseSheet ?name
+                ORDER BY (LCASE(?name))
+                """
         );
 
         countQry.append(
             """
-              ?exerciseSheet a etutor:ExerciseSheet.
-              ?exerciseSheet rdfs:label ?name.
-            }
-            """
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                  ?exerciseSheet rdfs:label ?name.
+                }
+                """
         );
 
         if (page.isPaged()) {

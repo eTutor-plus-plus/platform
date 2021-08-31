@@ -1,29 +1,33 @@
 package at.jku.dke.etutor.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Collection;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import one.util.streamex.StreamEx;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Collection;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility class for testing REST controllers.
@@ -235,5 +239,114 @@ public final class TestUtil {
         return mapper.readValue(jsonData, mapper.getTypeFactory().constructCollectionType(collectionType, type));
     }
 
-    private TestUtil() {}
+    /**
+     * Generates a new test user details class.
+     *
+     * @param username    the username
+     * @param authorities the associated authorities
+     * @return instance of a mock user details class
+     */
+    public static UserDetails generateTestUserDetails(String username, String... authorities) {
+        return new TestUserDetails(username, authorities);
+    }
+
+    private TestUtil() {
+    }
+
+    /**
+     * Class which represents a mock user details implementation.
+     */
+    private static class TestUserDetails implements UserDetails {
+
+        private final String username;
+        private final String[] authorities;
+
+        /**
+         * Constructor.
+         *
+         * @param username    the user name
+         * @param authorities the authorities
+         */
+        public TestUserDetails(String username, String... authorities) {
+            this.username = username;
+            this.authorities = authorities;
+        }
+
+        /**
+         * Returns the authorities granted to the user. Cannot return <code>null</code>.
+         *
+         * @return the authorities, sorted by natural key (never <code>null</code>)
+         */
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return StreamEx.of(authorities).map(x -> (GrantedAuthority) () -> x).toList();
+        }
+
+        /**
+         * Returns the password used to authenticate the user.
+         *
+         * @return the password
+         */
+        @Override
+        public String getPassword() {
+            return null;
+        }
+
+        /**
+         * Returns the username used to authenticate the user. Cannot return
+         * <code>null</code>.
+         *
+         * @return the username (never <code>null</code>)
+         */
+        @Override
+        public String getUsername() {
+            return username;
+        }
+
+        /**
+         * Indicates whether the user's account has expired. An expired account cannot be
+         * authenticated.
+         *
+         * @return <code>true</code> if the user's account is valid (ie non-expired),
+         * <code>false</code> if no longer valid (ie expired)
+         */
+        @Override
+        public boolean isAccountNonExpired() {
+            return true;
+        }
+
+        /**
+         * Indicates whether the user is locked or unlocked. A locked user cannot be
+         * authenticated.
+         *
+         * @return <code>true</code> if the user is not locked, <code>false</code> otherwise
+         */
+        @Override
+        public boolean isAccountNonLocked() {
+            return true;
+        }
+
+        /**
+         * Indicates whether the user's credentials (password) has expired. Expired
+         * credentials prevent authentication.
+         *
+         * @return <code>true</code> if the user's credentials are valid (ie non-expired),
+         * <code>false</code> if no longer valid (ie expired)
+         */
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return true;
+        }
+
+        /**
+         * Indicates whether the user is enabled or disabled. A disabled user cannot be
+         * authenticated.
+         *
+         * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
+         */
+        @Override
+        public boolean isEnabled() {
+            return true;
+        }
+    }
 }

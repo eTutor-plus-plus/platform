@@ -11,7 +11,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -69,11 +68,12 @@ public class UploadFileService {
      */
     @Transactional(readOnly = true)
     public FileEntity getFile(long fileId) throws FileNotExistsException {
-        try {
-            return fileRepository.getOne(fileId);
-        } catch (EntityNotFoundException enfe) {
-            throw new FileNotExistsException();
+        Optional<FileEntity> file = fileRepository.findById(fileId);
+
+        if (file.isPresent()) {
+            return file.get();
         }
+        throw new FileNotExistsException();
     }
 
     /**

@@ -19,6 +19,24 @@
         "taskGraded": "Aufgabe bereits beurteilt?",
         "saveEvaluation": "Beurteilung speichern"
       }
+    },
+    "overviewComponent": {
+      "header": "Eigene LVAs",
+      "table": {
+        "courseName": "Kursabhaltungsbezeichnung",
+        "showStatistics": "Statistiken anzeigen"
+      }
+    },
+    "courseInstanceStatistics": {
+      "header": "Statistische Übersicht der Kursabhaltung '{{instanceName}}'",
+      "backBtnText": "Zurück zur Übersicht navigieren",
+      "totalStudentCntText": "Gesamanzahl der Studierenden dieser Lehrveranstaltungsabhaltung: {{cnt}}",
+      "achievementHeader": "Lernzielerreichung",
+      "colGoalName": "Lernzielname",
+      "colAbsoluteCnt": "Absolute Anzahl",
+      "colRelativeCnt": "Relative Anzahl",
+      "failureCountHeader": "Anzahl an gescheiterten Versuchen je Lernziel",
+      "colFailedGoalCnt": "Anzahl an gescheiterten Versuchen"
     }
   }
 }

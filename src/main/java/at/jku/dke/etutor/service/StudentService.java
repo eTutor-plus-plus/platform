@@ -758,7 +758,35 @@ public class StudentService extends AbstractSPARQLEndpointService {
         alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
         alreadyAssignedTaskQuery.setIri("?student", studentUrl);
 
+        ParameterizedSparqlString isClosedTaskQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?closed
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:isClosed ?closed.
+            }
+            """);
+        isClosedTaskQry.setIri("?instance", courseInstanceId);
+        isClosedTaskQry.setIri("?sheet", sheetId);
+        isClosedTaskQry.setIri("?student", studentUrl);
+
         try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(isClosedTaskQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal closedLiteral = solution.getLiteral("?closed");
+                    if (closedLiteral != null && closedLiteral.getBoolean()) {
+                        return false;
+                    }
+                }
+            }
+
             try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
                 ResultSet set = execution.execSelect();
                 if (!set.hasNext()) {
@@ -1382,8 +1410,22 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
-    //region Private methods
+    /**
+     * Returns the reached goal ids of a student from a given course instance.
+     *
+     * @param courseInstanceUrl   the course instance URL
+     * @param matriculationNumber the student's matriculation number
+     * @return {@link List} containing the reached goals' ids
+     */
+    public @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String matriculationNumber) {
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
 
+        try (RDFConnection connection = getConnection()) {
+            return getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
+        }
+    }
+
+    //region Private methods
 
     /**
      * Assigns the next available task according to the student's current learning curve.

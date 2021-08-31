@@ -59,7 +59,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
   private _referencedFromCnt: number;
   private _owner: string;
   private _changeDate: Date;
-  private _needVerification: boolean;
+  private readonly _needVerification: boolean;
   private readonly _currentUser: string;
   private readonly _parent?: LearningGoalTreeviewItem;
   private readonly _rootId?: string;
@@ -86,7 +86,7 @@ export class LearningGoalTreeviewItem extends TreeviewItem {
 
     if (!isNil(item.children) && item.children.length > 0) {
       super.children = item.children.map(child => {
-        if (super.disabled === true) {
+        if (super.disabled) {
           child.disabled = true;
         }
         return new LearningGoalTreeviewItem(child, currentUser, this);

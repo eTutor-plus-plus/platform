@@ -1,15 +1,22 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+
+import java.net.URL;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility class for testing RDF related controllers.
+ *
+ * @author fne
  */
 public final class RDFTestUtil {
 
@@ -22,14 +29,14 @@ public final class RDFTestUtil {
     public static int getGoalCount(RDFConnectionFactory rdfConnectionFactory) {
         String query =
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT (COUNT(DISTINCT ?subject) as ?cnt)
-            WHERE
-            {
-              ?subject a etutor:Goal.
-            }
-            """;
+                SELECT (COUNT(DISTINCT ?subject) as ?cnt)
+                WHERE
+                {
+                  ?subject a etutor:Goal.
+                }
+                """;
         return getCount(query, rdfConnectionFactory);
     }
 
@@ -42,14 +49,14 @@ public final class RDFTestUtil {
     public static int getCourseCount(RDFConnectionFactory rdfConnectionFactory) {
         String query =
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT (COUNT(DISTINCT ?subject) as ?cnt)
-            WHERE
-            {
-              ?subject a etutor:Course.
-            }
-            """;
+                SELECT (COUNT(DISTINCT ?subject) as ?cnt)
+                WHERE
+                {
+                  ?subject a etutor:Course.
+                }
+                """;
         return getCount(query, rdfConnectionFactory);
     }
 
@@ -80,13 +87,13 @@ public final class RDFTestUtil {
     public static void checkThatSubjectExists(String subject, RDFConnectionFactory rdfConnectionFactory) {
         String query = String.format(
             """
-            prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            ASK {
-              ?subject ?predicate ?object.
-              FILTER (?subject = %s)
-            }
-            """,
+                ASK {
+                  ?subject ?predicate ?object.
+                  FILTER (?subject = %s)
+                }
+                """,
             subject
         );
 
@@ -96,5 +103,22 @@ public final class RDFTestUtil {
         }
     }
 
-    private RDFTestUtil() {}
+    /**
+     * Loads a given learning goal hierarchy into the RDF dataset.
+     *
+     * @param rdfConnectionFactory the dataset's RDF connection factory
+     * @param ttlFileUrl           the URL to the turtle file which contains the learning goal hierarchy
+     * @return the imported RDF model
+     */
+    public static Model uploadLearningGoalHierarchy(RDFConnectionFactory rdfConnectionFactory, URL ttlFileUrl) {
+        Model model = RDFDataMgr.loadModel(ttlFileUrl.toString(), Lang.TTL);
+
+        try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
+            connection.load(model);
+        }
+        return model;
+    }
+
+    private RDFTestUtil() {
+    }
 }

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { IDisplayableCourseInstanceDTO } from '../../../course-mangement.model';
+import { IDisplayableCourseInstanceDTO } from '../../course-management/course-mangement.model';
 import { FormBuilder } from '@angular/forms';
-import { IExerciseSheetDisplayDTO } from '../../../../exercise-sheets/exercise-sheets.model';
-import { ExerciseSheetsService } from '../../../../exercise-sheets/exercise-sheets.service';
-import { CourseManagementService } from '../../../course-management.service';
+import { IExerciseSheetDisplayDTO } from '../../exercise-sheets/exercise-sheets.model';
+import { ExerciseSheetsService } from '../../exercise-sheets/exercise-sheets.service';
+import { CourseManagementService } from '../../course-management/course-management.service';
 import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
