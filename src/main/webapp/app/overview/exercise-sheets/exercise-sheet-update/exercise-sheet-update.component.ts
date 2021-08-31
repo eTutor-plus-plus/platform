@@ -110,7 +110,15 @@ export class ExerciseSheetUpdateComponent implements OnInit {
       const newExerciseSheet: INewExerciseSheetDTO = {
         name: (this.updateForm.get(['name'])!.value as string).trim(),
         difficultyId,
-        learningGoals: this._selectedGoals,
+        learningGoals: this._selectedGoals.map(x => {
+          const val = this.selectedPriorities.find(y => y[0] === x.learningGoal.id);
+          const priority = val ? val[1] : x.priority;
+
+          return {
+            priority,
+            learningGoal: x.learningGoal,
+          };
+        }),
         taskCount: this.updateForm.get(['taskCount'])!.value,
         generateWholeExerciseSheet: this.updateForm.get(['generateWholeExerciseSheet'])!.value,
       };
@@ -123,7 +131,15 @@ export class ExerciseSheetUpdateComponent implements OnInit {
       const exerciseSheet: IExerciseSheetDTO = {
         name: (this.updateForm.get(['name'])!.value as string).trim(),
         difficultyId,
-        learningGoals: this._selectedGoals,
+        learningGoals: this._selectedGoals.map(x => {
+          const val = this.selectedPriorities.find(y => y[0] === x.learningGoal.id);
+          const priority = val ? val[1] : x.priority;
+
+          return {
+            priority,
+            learningGoal: x.learningGoal,
+          };
+        }),
         creationDate: this.exerciseSheet!.creationDate,
         internalCreator: this.exerciseSheet!.internalCreator,
         id: this.exerciseSheet!.id,
@@ -189,6 +205,8 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         taskCount: value.taskCount,
         generateWholeExerciseSheet: value.generateWholeExerciseSheet,
       });
+
+      this.selectedPriorities = value.learningGoals.map(x => [x.learningGoal.id, x.priority]);
 
       this._selectedGoals = value.learningGoals;
       this.selectedGoals = this._selectedGoals.map(x => x.learningGoal.id);
