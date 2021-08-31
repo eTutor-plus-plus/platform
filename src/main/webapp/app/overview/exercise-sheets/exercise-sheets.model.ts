@@ -15,7 +15,7 @@ export interface INewExerciseSheetDTO {
   /**
    * The learning goals.
    */
-  learningGoals: ILearningGaolAssignmentDTO[];
+  learningGoals: ILearningGoalAssignmentDTO[];
   /**
    * The exercise sheet's task count.
    */
@@ -29,7 +29,7 @@ export interface INewExerciseSheetDTO {
 /**
  * Interface which represents a learning goal assignment.
  */
-export interface ILearningGaolAssignmentDTO {
+export interface ILearningGoalAssignmentDTO {
   /**
    * The associated learning goal.
    */

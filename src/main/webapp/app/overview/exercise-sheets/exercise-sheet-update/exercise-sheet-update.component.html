@@ -25,11 +25,19 @@
       </svg>
     </i>
     <label
+      (contextmenu)="displayPriorityContextMenu($event, item); (false)"
       (click)="handleGoalClicked($event, item)"
       class="bi form-check-label"
       [ngClass]="{ private: item.markedAsPrivate, selected: selectedGoals.includes(item.value) }"
       >{{ item.text }}</label
     >
+    <jhi-exercise-sheet-context-menu
+      *ngIf="isContextMenuShown"
+      [ngStyle]="getContextMenuStyle()"
+      (selectionCancel)="prioritySelectionCancel()"
+      (selectionSaved)="prioritySelected($event)"
+    >
+    </jhi-exercise-sheet-context-menu>
   </div>
 </ng-template>
 <form name="updateForm" role="form" (ngSubmit)="save()" [formGroup]="updateForm">
