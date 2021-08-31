@@ -10,6 +10,7 @@ import {
   IStudentTaskListInfoDTO,
 } from './students.model';
 import { map } from 'rxjs/operators';
+import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
 
 /**
  * Service for managing students.
@@ -235,11 +236,16 @@ export class StudentService {
    * @param exerciseSheetUUID the exercise sheet
    * @param taskNo the task number
    */
-  public getAllSubmissionsForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<string> {
+  public getAllSubmissionsForAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: string,
+    matriculationNo: string
+  ): Observable<TaskSubmissionsModel[]> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
-    return this.http.get<string>(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submissions`,
+    return this.http.get<TaskSubmissionsModel[]>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/student/${matriculationNo}/submissions`,
       {
         responseType: 'text' as 'json',
       }

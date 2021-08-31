@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
+import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.*;
 import one.util.streamex.StreamEx;
@@ -1110,7 +1111,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo the task number
      * @return a list containing the submissions
      */
-    public Optional<Map<Instant, String>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<List<IndividualTaskSubmissionDTO>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1125,7 +1126,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         query.setIri("?courseInstance", courseInstanceId);
         query.setLiteral("?orderNo", taskNo);
 
-        Map<Instant, String> submissions = new HashMap<>();
+        List<IndividualTaskSubmissionDTO> submissions = new ArrayList<>();
 
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(query.asQuery())) {
@@ -1135,7 +1136,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     Literal submissionLiteral = solution.getLiteral("?submission");
                     Literal instantLiteral = solution.getLiteral("?instant");
 
-                    submissions.put(Instant.parse(instantLiteral.getString()), submissionLiteral.getString());
+                    submissions.add(new IndividualTaskSubmissionDTO(Instant.parse(instantLiteral.getString()), submissionLiteral.getString()));
                 }
             }
         }

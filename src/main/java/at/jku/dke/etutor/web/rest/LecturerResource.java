@@ -7,7 +7,6 @@ import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssign
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;

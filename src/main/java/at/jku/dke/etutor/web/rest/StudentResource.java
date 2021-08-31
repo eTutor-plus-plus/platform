@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
@@ -320,13 +321,13 @@ public class StudentResource {
      * @param taskNo the task number
      * @return the submissions
      */
-    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submissions/{matriculationNo}")
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/student/{matriculationNo}/submissions")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Map<Instant, String>> getAllSubmissionsOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                          @PathVariable int taskNo, @PathVariable String matriculationNo){
+    public ResponseEntity<List<IndividualTaskSubmissionDTO>> getAllSubmissionsOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                        @PathVariable int taskNo, @PathVariable String matriculationNo){
 
-        Optional<Map<Instant, String>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
-        Map<Instant, String> submissions = optionalSubmissions.orElse(null);
+        Optional<List<IndividualTaskSubmissionDTO>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        List<IndividualTaskSubmissionDTO> submissions = optionalSubmissions.orElse(null);
 
         return ResponseEntity.ok(submissions);
     }
