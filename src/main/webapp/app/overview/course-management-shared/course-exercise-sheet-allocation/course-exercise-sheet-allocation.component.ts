@@ -9,7 +9,7 @@ import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { LecturerTaskAssignmentService } from './lecturer-task-assignment-overview/lecturer-task-assignment.service';
-import { TaskPointEntryModel } from './task-point-entry.model';
+import { TaskPointEntryModel } from '../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/task-point-entry.model';
 
 /**
  * Modal window for displaying exercise sheet assignments.

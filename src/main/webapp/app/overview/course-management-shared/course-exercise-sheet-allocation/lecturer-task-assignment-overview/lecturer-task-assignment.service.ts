@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { Pagination } from 'app/core/request/request.model';
 import { createRequestOption } from 'app/core/request/request-util';
-import { TaskPointEntryModel } from '../task-point-entry.model';
+import { TaskPointEntryModel } from '../../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/task-point-entry.model';
 
 /**
  * Service for lecturer task assignment related operations.
