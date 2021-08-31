@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { Pagination } from 'app/core/request/request.model';
 import { createRequestOption } from 'app/core/request/request-util';
+import { TaskPointEntryModel } from '../task-point-entry.model';
 
 /**
  * Service for lecturer task assignment related operations.
@@ -105,9 +106,14 @@ export class LecturerTaskAssignmentService {
     );
   }
 
-  public getExerciseSheetPointOverview(courseInstanceId: string, exerciseSheetUUID: string): Observable<string> {
+  /**
+   * Returns an overview about all the assigned tasks and the achieved points/ max points for an exercise sheet and course instance
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   */
+  public getExerciseSheetPointOverview(courseInstanceId: string, exerciseSheetUUID: string): Observable<TaskPointEntryModel[]> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-    return this.http.get<string>(
+    return this.http.get<TaskPointEntryModel[]>(
       `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/points-overview`,
       { responseType: 'text' as 'json' }
     );

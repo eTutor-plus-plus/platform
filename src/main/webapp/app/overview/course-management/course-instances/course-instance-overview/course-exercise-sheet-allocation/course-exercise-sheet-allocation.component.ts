@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { LecturerTaskAssignmentService } from './lecturer-task-assignment-overview/lecturer-task-assignment.service';
+import { TaskPointEntryModel } from './task-point-entry.model';
 
 /**
  * Modal window for displaying exercise sheet assignments.
@@ -30,6 +31,7 @@ export class CourseExerciseSheetAllocationComponent {
 
   private _courseInstance?: IDisplayableCourseInstanceDTO;
   private _selectedSheetIdsToSave: string[] = [];
+  private _exerciseSheetPointOverview: TaskPointEntryModel[] = [];
 
   /**
    * Constructor.
@@ -137,10 +139,16 @@ export class CourseExerciseSheetAllocationComponent {
     this.loadExerciseSheetsPageAsync();
   }
 
+  /**
+   * Requests the overview of the achieved points for a specific exercise-sheet
+   * @param item the exercise sheet
+   */
   public exportPointsForExerciseSheet(item: IExerciseSheetDisplayDTO): void {
     const exerciseSheetUUID = item.internalId.substr(item.internalId.lastIndexOf('#') + 1);
     const courseInstanceUUID = this._courseInstance?.id.substr(this._courseInstance.id.lastIndexOf('#') + 1);
-    this.lecturerAssignmentService.getExerciseSheetPointOverview(courseInstanceUUID!, exerciseSheetUUID).subscribe();
+    this.lecturerAssignmentService.getExerciseSheetPointOverview(courseInstanceUUID!, exerciseSheetUUID).subscribe(response => {
+      this._exerciseSheetPointOverview = response;
+    });
   }
   /**
    * Asynchronously saves the form.

@@ -109,17 +109,18 @@ public class LecturerResource {
     }
 
     /**
-     * Returns the achieved points vs. the maximum points for a given course instance and exercise sheet grouped by the students
+     * Returns the achieved points and the maximum points for a given course instance and exercise sheet
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
      * @return the ResponseEntity containing the overview of points
      */
     @GetMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Map<String, List<TaskPointEntryDTO>>> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
-        Optional<Map<String, List<TaskPointEntryDTO>>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
-        Map<String, List<TaskPointEntryDTO>> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+    public ResponseEntity<TaskPointEntryDTO[]> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
 
-        return ResponseEntity.ok(pointsOverviewInfo);
+        if(pointsOverviewInfo != null) return ResponseEntity.ok(pointsOverviewInfo.toArray(TaskPointEntryDTO[]::new));
+        else return ResponseEntity.ok(null);
     }
 }

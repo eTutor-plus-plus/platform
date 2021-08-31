@@ -554,7 +554,13 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         }
     }
 
-    public Optional<Map<String, List<TaskPointEntryDTO>>> getPointsOverviewForExerciseSheet(String exerciseSheetUUID, String courseInstanceUUID){
+    /**
+     * Returns an overview about all the assigned tasks for a given exercise sheet and course instance with the achieved points and maximum points
+     * @param exerciseSheetUUID the exercise sheet
+     * @param courseInstanceUUID the course instance
+     * @return an Optional containing the information
+     */
+    public Optional<List<TaskPointEntryDTO>> getPointsOverviewForExerciseSheet(String exerciseSheetUUID, String courseInstanceUUID){
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(courseInstanceUUID);
 
@@ -565,7 +571,7 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
         query.setIri("?courseInstanceId", courseInstanceId);
         query.setIri("?exerciseSheetId", exerciseSheetId);
 
-        Map<String, List<TaskPointEntryDTO>> overviewInfo = new HashMap<>();
+        List<TaskPointEntryDTO> overviewInfo = new ArrayList<>();
 
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(query.asQuery())) {
@@ -583,14 +589,12 @@ public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService
                     Resource taskAssignmentResource = solution.getResource("?taskAssignment");
                     String taskAssignment = taskAssignmentResource.getURI();
 
-                    if(!overviewInfo.containsKey(student)){
-                        overviewInfo.put(student, new ArrayList<>());
-                    }
-                    overviewInfo.get(student).add(new TaskPointEntryDTO(
+                    overviewInfo.add(new TaskPointEntryDTO(
+                        student.substring(student.lastIndexOf("#")+1),
                         maxPointsLiteral.getDouble(),
                         points,
                         taskAssignmentHeaderLiteral.getString(),
-                        taskAssignment));
+                        taskAssignment.substring(taskAssignment.lastIndexOf("#")+1)));
                 }
                 if (overviewInfo.isEmpty()) return Optional.empty();
             }
