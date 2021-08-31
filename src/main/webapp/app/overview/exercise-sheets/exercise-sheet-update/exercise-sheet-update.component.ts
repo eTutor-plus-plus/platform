@@ -24,15 +24,15 @@ export class ExerciseSheetUpdateComponent implements OnInit {
   public isNew = true;
   public readonly difficulties = TaskDifficulty.Values;
 
-  @ViewChild(ExerciseSheetContextMenuComponent, { static: false })
-  public contextMenuComponent?: ExerciseSheetContextMenuComponent;
-
   public isContextMenuShown = false;
   public contextMenuPositionX = -1;
   public contextMenuPositionY = -1;
 
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedGoals: string[] = [];
+  public selectedPriorities: [string, number][] = [];
+
+  public currentPriority = -1;
 
   public updateForm = this.fb.group({
     name: ['', [CustomValidators.required]],
@@ -44,6 +44,8 @@ export class ExerciseSheetUpdateComponent implements OnInit {
   private _exerciseSheet?: IExerciseSheetDTO;
   private _selectedGoals: ILearningGoalAssignmentDTO[] = [];
   private _loginName: string;
+  private _currentContextMenuGoalId = '';
+  private _contextMenuComponent?: ExerciseSheetContextMenuComponent;
 
   /**
    * Constructor.
@@ -64,6 +66,23 @@ export class ExerciseSheetUpdateComponent implements OnInit {
     private accountService: AccountService
   ) {
     this._loginName = this.accountService.getLoginName()!;
+  }
+
+  /**
+   * Ses the current context menu component.
+   *
+   * @param value the component to set
+   */
+  @ViewChild(ExerciseSheetContextMenuComponent, { static: false })
+  public set contextMenuComponent(value: ExerciseSheetContextMenuComponent | undefined) {
+    this._contextMenuComponent = value;
+  }
+
+  /**
+   * Returns the current context menu component.
+   */
+  public get contextMenuComponent(): ExerciseSheetContextMenuComponent | undefined {
+    return this._contextMenuComponent;
   }
 
   /**
@@ -220,6 +239,13 @@ export class ExerciseSheetUpdateComponent implements OnInit {
       return;
     }
 
+    const element = this.selectedPriorities.find(x => this._currentContextMenuGoalId === x[0]);
+    if (element) {
+      element[1] = priority;
+    } else {
+      this.selectedPriorities.push([this._currentContextMenuGoalId, priority]);
+    }
+
     this.isContextMenuShown = false;
   }
 
@@ -237,12 +263,20 @@ export class ExerciseSheetUpdateComponent implements OnInit {
    * @param item the current tree view item
    */
   public displayPriorityContextMenu(event: MouseEvent, item: LearningGoalTreeviewItem): void {
-    this.contextMenuPositionX = event.clientX;
-    this.contextMenuPositionY = event.clientY;
-    this.isContextMenuShown = true;
+    if (this.selectedGoals.indexOf(item.value) >= 0) {
+      this._currentContextMenuGoalId = item.value;
+      this.contextMenuPositionX = event.clientX;
+      this.contextMenuPositionY = event.clientY;
 
-    if (this.contextMenuComponent) {
-      this.contextMenuComponent.priority = -1;
+      const element = this.selectedPriorities.find(x => x[0] === item.value);
+
+      if (element) {
+        this.currentPriority = element[1];
+      } else {
+        this.currentPriority = 1;
+      }
+
+      this.isContextMenuShown = true;
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
 
 /**
  * Component which is used for displaying a context menu panel that allows
@@ -65,5 +65,11 @@ export class ExerciseSheetContextMenuComponent {
    */
   public get clientRect(): ClientRect | undefined {
     return this.mainRef?.nativeElement?.getBoundingClientRect() as ClientRect | undefined;
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  public onKeydownHandler(event: KeyboardEvent): void {
+    event.preventDefault();
+    this.cancel();
   }
 }

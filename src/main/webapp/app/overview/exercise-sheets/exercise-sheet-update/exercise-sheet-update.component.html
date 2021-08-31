@@ -36,6 +36,7 @@
       [ngStyle]="getContextMenuStyle()"
       (selectionCancel)="prioritySelectionCancel()"
       (selectionSaved)="prioritySelected($event)"
+      [priority]="currentPriority"
     >
     </jhi-exercise-sheet-context-menu>
   </div>
