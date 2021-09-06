@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
-import java.io.File;
 import java.text.ParseException;
 import java.util.Optional;
 
@@ -161,8 +160,6 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         exerciseSheetDTO.setLearningGoals(StreamEx.of(exerciseSheetDTO.getLearningGoals())
             .map(x -> new LearningGoalAssignmentDTO(x.getLearningGoal(), 2))
             .toList());
-
-        ((LocalRDFConnectionFactory) rdfConnectionFactory).writeDefaultGraph(new File("testfile.ttl"));
 
         exerciseSheetSPARQLEndpointService.updateExerciseSheet(exerciseSheetDTO);
 
