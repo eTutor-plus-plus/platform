@@ -6,7 +6,10 @@
       "matriculationNumber": "Matriculation number",
       "submitted": "Fully submitted",
       "fullyGraded": "Fully graded",
-      "btnGrade": "Grade"
+      "btnGrade": "Grade",
+      "submission": "Submission",
+      "submissionTime": "Submission-Time",
+      "btnExport": "Export"
     },
     "footerClose": "Close",
     "gradingWindow": {
@@ -18,6 +21,10 @@
         "taskGraded": "Has this task already been graded?",
         "saveEvaluation": "Save evaluation"
       }
+    },
+    "submissionWindow": {
+      "modalHeader": "Submissions of '{{matriculationNo}}'",
+      "windowHeader": "See submissions of '{{matriculationNo}}'"
     },
     "overviewComponent": {
       "header": "Own courses",

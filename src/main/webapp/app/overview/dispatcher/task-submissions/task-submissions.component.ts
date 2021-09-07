@@ -24,4 +24,11 @@ export class TaskSubmissionsComponent implements OnInit {
   ngOnInit(): void {
     const x = 1;
   }
+
+  /**
+   * Closes the modal window.
+   */
+  public close(): void {
+    this.activeModal.close();
+  }
 }
