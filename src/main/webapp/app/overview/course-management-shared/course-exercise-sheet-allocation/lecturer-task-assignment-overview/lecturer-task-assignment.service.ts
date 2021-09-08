@@ -118,4 +118,15 @@ export class LecturerTaskAssignmentService {
       { responseType: 'text' as 'json' }
     );
   }
+
+  public getExerciseSheetPointOverviewAsCSV(courseInstanceId: string, exerciseSheetUUID: string): Observable<ArrayBuffer> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get(
+      `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/points-overview-CSV`,
+      {
+        headers: {},
+        responseType: 'arraybuffer',
+      }
+    );
+  }
 }

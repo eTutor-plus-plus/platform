@@ -6,9 +6,19 @@ import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradi
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -121,5 +131,62 @@ public class LecturerResource {
 
         if(pointsOverviewInfo != null) return ResponseEntity.ok(pointsOverviewInfo.toArray(TaskPointEntryDTO[]::new));
         else return ResponseEntity.ok(null);
+    }
+
+    @GetMapping(value = "\"course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview-CSV", produces = "text/csv")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        String[] csvHeader = {
+            "matriculationNo", "taskHeader", "maxPoints", "points"
+        };
+        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+
+        ByteArrayInputStream byteArrayOutputStream;
+
+        // closing resources by using a try with resources
+        try (
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            // defining the CSV printer
+            CSVPrinter csvPrinter = new CSVPrinter(
+                new PrintWriter(out),
+                // withHeader is optional
+                CSVFormat.DEFAULT.withHeader(csvHeader)
+            );
+        ) {
+            // populating the CSV content
+            List<String> printableRecord;
+            for (TaskPointEntryDTO record : pointsOverviewInfo){
+                printableRecord = new ArrayList<String>();
+                printableRecord.add(record.getMatriculationNo());
+                printableRecord.add(record.getTaskHeader());
+                printableRecord.add(Double.toString(record.getMaxPoints()));
+                printableRecord.add(Double.toString(record.getPoints()));
+                csvPrinter.printRecord(printableRecord);
+            }
+
+            // writing the underlying stream
+            csvPrinter.flush();
+
+            byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        InputStreamResource fileInputStream = new InputStreamResource(byteArrayOutputStream);
+
+        String csvFileName = "pointOverview.csv";
+
+        // setting HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + csvFileName);
+        // defining the custom Content-Type
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+        return new ResponseEntity<>(
+            fileInputStream,
+            headers,
+            HttpStatus.OK
+        );
     }
 }
