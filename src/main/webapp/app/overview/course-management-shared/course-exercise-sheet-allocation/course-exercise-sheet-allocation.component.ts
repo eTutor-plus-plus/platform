@@ -146,9 +146,7 @@ export class CourseExerciseSheetAllocationComponent {
   public exportPointsForExerciseSheet(item: IExerciseSheetDisplayDTO): void {
     const exerciseSheetUUID = item.internalId.substr(item.internalId.lastIndexOf('#') + 1);
     const courseInstanceUUID = this._courseInstance?.id.substr(this._courseInstance.id.lastIndexOf('#') + 1);
-    this.lecturerAssignmentService.getExerciseSheetPointOverview(courseInstanceUUID!, exerciseSheetUUID).subscribe(response => {
-      this._exerciseSheetPointOverview = response;
-    });
+    this.lecturerAssignmentService.getExerciseSheetPointOverviewAsCSV(courseInstanceUUID!, exerciseSheetUUID);
   }
   /**
    * Asynchronously saves the form.

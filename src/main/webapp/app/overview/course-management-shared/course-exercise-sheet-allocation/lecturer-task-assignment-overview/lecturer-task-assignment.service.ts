@@ -119,14 +119,30 @@ export class LecturerTaskAssignmentService {
     );
   }
 
-  public getExerciseSheetPointOverviewAsCSV(courseInstanceId: string, exerciseSheetUUID: string): Observable<ArrayBuffer> {
+  /**
+   * Fetches the points overview as csv and starts a download
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   */
+  public getExerciseSheetPointOverviewAsCSV(courseInstanceId: string, exerciseSheetUUID: string): void {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-    return this.http.get(
-      `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/points-overview-CSV`,
-      {
-        headers: {},
-        responseType: 'arraybuffer',
-      }
-    );
+    this.http
+      .get(`${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/csv/points-overview`, {
+        responseType: 'blob',
+      })
+      .subscribe(res => {
+        const blob = new Blob([res], { type: 'application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const fileName = 'test.csv';
+        const objectURL = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = objectURL;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+
+        document.body.removeChild(a);
+        URL.revokeObjectURL(objectURL);
+      });
   }
 }

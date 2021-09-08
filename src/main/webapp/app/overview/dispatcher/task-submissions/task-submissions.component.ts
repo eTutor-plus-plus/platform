@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { OnInit } from '@angular/core';
 import { StudentService } from '../../shared/students/student-service';
 import { TaskSubmissionsModel } from './task-submissions.model';
 
@@ -12,7 +11,7 @@ import { TaskSubmissionsModel } from './task-submissions.model';
   selector: 'jhi-task-submissions',
   templateUrl: './task-submissions.component.html',
 })
-export class TaskSubmissionsComponent implements OnInit {
+export class TaskSubmissionsComponent {
   public submissions: TaskSubmissionsModel[] = [];
   public exerciseSheetUUID: string | undefined = '';
   public orderNo: string | undefined = '';
@@ -20,10 +19,6 @@ export class TaskSubmissionsComponent implements OnInit {
   public matriculationNo: string | undefined = '';
 
   constructor(private activeModal: NgbActiveModal, private modalService: NgbModal, private studentService: StudentService) {}
-
-  ngOnInit(): void {
-    const x = 1;
-  }
 
   /**
    * Closes the modal window.

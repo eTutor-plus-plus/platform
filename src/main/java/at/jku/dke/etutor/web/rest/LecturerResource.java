@@ -133,7 +133,13 @@ public class LecturerResource {
         else return ResponseEntity.ok(null);
     }
 
-    @GetMapping(value = "\"course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview-CSV", produces = "text/csv")
+    /**
+     * Returns the points overview for a specific exercise sheet and course instance as csv
+     * @param courseInstanceUUID the cours instance
+     * @param exerciseSheetUUID the csv
+     * @return a ResponseEntity containing the csv
+     */
+    @GetMapping(value = "course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/csv/points-overview", produces = "text/csv")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
         String[] csvHeader = {
@@ -144,20 +150,16 @@ public class LecturerResource {
 
         ByteArrayInputStream byteArrayOutputStream;
 
-        // closing resources by using a try with resources
         try (
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            // defining the CSV printer
             CSVPrinter csvPrinter = new CSVPrinter(
                 new PrintWriter(out),
-                // withHeader is optional
                 CSVFormat.DEFAULT.withHeader(csvHeader)
             );
         ) {
-            // populating the CSV content
             List<String> printableRecord;
             for (TaskPointEntryDTO record : pointsOverviewInfo){
-                printableRecord = new ArrayList<String>();
+                printableRecord = new ArrayList<>();
                 printableRecord.add(record.getMatriculationNo());
                 printableRecord.add(record.getTaskHeader());
                 printableRecord.add(Double.toString(record.getMaxPoints()));
@@ -165,7 +167,6 @@ public class LecturerResource {
                 csvPrinter.printRecord(printableRecord);
             }
 
-            // writing the underlying stream
             csvPrinter.flush();
 
             byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
@@ -177,11 +178,10 @@ public class LecturerResource {
 
         String csvFileName = "pointOverview.csv";
 
-        // setting HTTP headers
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + csvFileName);
-        // defining the custom Content-Type
         headers.set(HttpHeaders.CONTENT_TYPE, "text/csv");
+
 
         return new ResponseEntity<>(
             fileInputStream,

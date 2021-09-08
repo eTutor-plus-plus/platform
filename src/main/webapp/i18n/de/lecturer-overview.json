@@ -23,8 +23,8 @@
       }
     },
     "submissionWindow": {
-      "modalHeader": "Abgaben von '{{matriculationNo}}'",
-      "windowHeader": "Abgaben von '{{matriculationNo}}' einsehen"
+      "modalHeader": "Abgaben von '{{student}}'",
+      "windowHeader": "Abgaben von '{{student}}' einsehen"
     },
     "overviewComponent": {
       "header": "Eigene LVAs",
