@@ -294,6 +294,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
             a etutor:IndividualTaskSubmission;
             etutor:hasSubmission ?submission;
             etutor:hasInstant ?instant;
+            etutor:isSubmitted ?isSubmitted;
+            etutor:isSolved ?isSolved;
           ].
         }
         WHERE {
@@ -309,7 +311,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?instant ?submission ?taskInstruction
+        SELECT ?instant ?submission ?taskInstruction ?isSubmitted ?isSolved
         WHERE{
         	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           	?individualAssignment a etutor:IndividualTaskAssignment.
@@ -322,6 +324,10 @@ public class StudentService extends AbstractSPARQLEndpointService {
                            etutor:hasIndividualTaskSubmission ?taskSubmission.
           	?taskSubmission etutor:hasSubmission ?submission;
                            etutor:hasInstant ?instant.
+            OPTIONAL{
+                ?taskSubmission etutor:isSubmitted ?isSubmitted.
+                ?taskSubmission etutor:isSolved ?isSolved.
+            }
           	OPTIONAL{
             	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
           	}
@@ -1036,7 +1042,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo the task number
      * @param submission the submission
      */
-    public void setSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
+    public void setSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission, boolean isSubmitted, boolean isSolved){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1052,6 +1058,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
         insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", Instant.now().toString());
         insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", isSubmitted);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", isSolved);
 
         try (RDFConnection connection = getConnection()) {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
@@ -1135,8 +1143,19 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     QuerySolution solution = set.nextSolution();
                     Literal submissionLiteral = solution.getLiteral("?submission");
                     Literal instantLiteral = solution.getLiteral("?instant");
+                    Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
+                    Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
 
-                    submissions.add(new IndividualTaskSubmissionDTO(Instant.parse(instantLiteral.getString()), submissionLiteral.getString()));
+                    boolean hasBeenSubmitted = false;
+                    boolean hasBeenSolved = false;
+
+                    if(hasBeenSubmittedLiteral != null) hasBeenSubmitted = hasBeenSubmittedLiteral.getBoolean();
+                    if(hasBeenSolvedLiteral != null) hasBeenSolved = hasBeenSolvedLiteral.getBoolean();
+                    submissions.add(new IndividualTaskSubmissionDTO(Instant.parse(instantLiteral.getString()),
+                        submissionLiteral.getString(),
+                        hasBeenSubmitted,
+                        hasBeenSolved
+                    ));
                 }
             }
         }

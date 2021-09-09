@@ -9,6 +9,7 @@
       "btnGrade": "Grade",
       "submission": "Submission",
       "submissionTime": "Submission-Time",
+      "solved": "Solved",
       "btnExport": "Export"
     },
     "footerClose": "Close",

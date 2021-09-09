@@ -9,7 +9,8 @@
       "btnGrade": "Beurteilen",
       "btnExport": "Export",
       "submission": "Abgabe",
-      "submissionTime": "Abgabe-Zeitpunkt"
+      "submissionTime": "Abgabe-Zeitpunkt",
+      "solved": "Gelöst"
     },
     "footerClose": "Schließen",
     "gradingWindow": {

@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
+import { SubmissionEvent } from '../../../dispatcher/entities/SubmissionEvent';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -221,7 +222,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * Asynchronously adds a submission
    * @param submission the submission
    */
-  public async handleSubmissionAddedAsync(submission: string): Promise<void> {
+  public async handleSubmissionAddedAsync(submission: SubmissionEvent): Promise<void> {
     await this.studentService
       .setSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, submission)
       .toPromise();

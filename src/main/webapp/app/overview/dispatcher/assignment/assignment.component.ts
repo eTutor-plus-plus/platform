@@ -3,6 +3,7 @@ import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
+import { SubmissionEvent } from '../entities/SubmissionEvent';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -29,7 +30,7 @@ export class AssignmentComponent implements AfterContentChecked {
   @Input() public diagnoseLevelWeighting = '';
 
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
-  @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
+  @Output() public submissionAdded: EventEmitter<SubmissionEvent> = new EventEmitter<SubmissionEvent>();
   @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
 
   public diagnoseLevelText = '';
@@ -122,8 +123,6 @@ export class AssignmentComponent implements AfterContentChecked {
    *
    */
   private processSubmission(): void {
-    this.emitSubmissionEvents();
-
     const submissionDto = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
@@ -144,6 +143,7 @@ export class AssignmentComponent implements AfterContentChecked {
       this.gradingReceived = true;
 
       this.hasError();
+      this.emitSubmissionEvents();
       this.emitGrading();
     });
   }
@@ -165,13 +165,15 @@ export class AssignmentComponent implements AfterContentChecked {
    * @private
    */
   private emitSubmissionEvents(): void {
+    const hasBeenSubmitted = this.action === 'submit';
     const diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
     this.diagnoseLevel = diagnoseLevel;
-    if (diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
+    if (diagnoseLevel > this.highestDiagnoseLevel && !hasBeenSubmitted && this.points === 0) {
       this.diagnoseLevelIncreased.emit(diagnoseLevel);
       this.highestDiagnoseLevel = diagnoseLevel;
     }
-    this.submissionAdded.emit(this.submission);
+
+    this.submissionAdded.emit({ submission: this.submission ?? '', isSubmitted: hasBeenSubmitted, hasBeenSolved: !this.hasErrors });
   }
 
   /**
@@ -180,7 +182,7 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   private emitGrading(): void {
     if (!this.isSolved() && !this.hasErrors && this.action === 'submit') {
-      const grading = this.caluclatePoints();
+      const grading = this.calculatePoints();
       this.solutionCorrect.emit(grading);
       this.points = grading;
     }
@@ -191,7 +193,7 @@ export class AssignmentComponent implements AfterContentChecked {
    * the highest chosen diagnose level and the weighting of the diagnose level.
    * @private
    */
-  private caluclatePoints(): number {
+  private calculatePoints(): number {
     const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * parseInt(this.diagnoseLevelWeighting, 10);
     if (points > 1) {
       return points;

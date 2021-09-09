@@ -12,13 +12,18 @@
       <thead>
         <tr>
           <th jhiTranslate="lecturerOverview.overviewTable.submissionTime">Time</th>
+          <th jhiTranslate="lecturerOverview.overviewTable.solved">Solved</th>
           <th jhiTranslate="lecturerOverview.overviewTable.submission">Submission</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let entry of submissions">
+        <tr *ngFor="let entry of submittedSubmissions">
           <td>{{ entry.instant }}</td>
+          <td [ngSwitch]="entry.hasBeenSolved">
+            <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+            <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+          </td>
           <td>{{ entry.submission }}</td>
         </tr>
       </tbody>

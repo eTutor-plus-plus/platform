@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentService } from '../../shared/students/student-service';
 import { TaskSubmissionsModel } from './task-submissions.model';
@@ -11,8 +11,9 @@ import { TaskSubmissionsModel } from './task-submissions.model';
   selector: 'jhi-task-submissions',
   templateUrl: './task-submissions.component.html',
 })
-export class TaskSubmissionsComponent {
+export class TaskSubmissionsComponent implements OnInit {
   public submissions: TaskSubmissionsModel[] = [];
+  public submittedSubmissions: TaskSubmissionsModel[] = [];
   public exerciseSheetUUID: string | undefined = '';
   public orderNo: string | undefined = '';
   public courseInstanceUUID: string | undefined = '';
@@ -25,5 +26,9 @@ export class TaskSubmissionsComponent {
    */
   public close(): void {
     this.activeModal.close();
+  }
+
+  ngOnInit(): void {
+    this.submittedSubmissions = this.submissions.filter(x => x.hasBeenSubmitted);
   }
 }

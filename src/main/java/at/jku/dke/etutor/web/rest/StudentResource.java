@@ -307,10 +307,10 @@ public class StudentResource {
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @RequestBody String submission) {
+                                              @PathVariable int taskNo, @RequestParam boolean isSubmitted, @RequestParam boolean hasBeenSolved, @RequestBody String submission) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        studentService.setSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission);
+        studentService.setSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, isSubmitted, hasBeenSolved);
         return ResponseEntity.noContent().build();
     }
 

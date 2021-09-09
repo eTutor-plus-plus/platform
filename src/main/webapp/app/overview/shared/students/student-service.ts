@@ -11,6 +11,7 @@ import {
 } from './students.model';
 import { map } from 'rxjs/operators';
 import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
+import { SubmissionEvent } from '../../dispatcher/entities/SubmissionEvent';
 
 /**
  * Service for managing students.
@@ -206,13 +207,15 @@ export class StudentService {
     courseInstanceId: string,
     exerciseSheetUUID: string,
     taskNo: number,
-    submission: string
+    submission: SubmissionEvent
   ): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`,
-      submission
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission?isSubmitted=${String(
+        submission.isSubmitted
+      )}&&hasBeenSolved=${String(submission.hasBeenSolved)}`,
+      submission.submission
     );
   }
 
