@@ -296,6 +296,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
             etutor:hasInstant ?instant;
             etutor:isSubmitted ?isSubmitted;
             etutor:isSolved ?isSolved;
+            etutor:hasDispatcherId ?dispatcherId;
+            etutor:hasTaskType ?taskType;
           ].
         }
         WHERE {
@@ -311,7 +313,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-        SELECT ?instant ?submission ?taskInstruction ?isSubmitted ?isSolved
+        SELECT ?instant ?submission ?taskInstruction ?isSubmitted ?isSolved ?dispatcherId ?taskType
         WHERE{
         	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           	?individualAssignment a etutor:IndividualTaskAssignment.
@@ -323,11 +325,12 @@ public class StudentService extends AbstractSPARQLEndpointService {
                            etutor:refersToTask ?taskAssignment;
                            etutor:hasIndividualTaskSubmission ?taskSubmission.
           	?taskSubmission etutor:hasSubmission ?submission;
-                           etutor:hasInstant ?instant.
-            OPTIONAL{
-                ?taskSubmission etutor:isSubmitted ?isSubmitted.
-                ?taskSubmission etutor:isSolved ?isSolved.
-            }
+                            etutor:hasInstant ?instant;
+                            etutor:isSubmitted ?isSubmitted;
+                            etutor:isSolved ?isSolved;
+                            etutor:hasDispatcherId ?dispatcherId;
+                            etutor:hasTaskType ?taskType.
+
           	OPTIONAL{
             	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
           	}
@@ -1042,7 +1045,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo the task number
      * @param submission the submission
      */
-    public void setSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission, boolean isSubmitted, boolean isSolved){
+    public void setSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, IndividualTaskSubmissionDTO submission){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1053,19 +1056,21 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
         insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getSubmission());
         insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
         insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", Instant.now().toString());
         insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", isSubmitted);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", isSolved);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.isIsSubmitted());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", submission.isHasBeenSolved());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?dispatcherId", submission.getDispatcherId());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?taskType", submission.getTaskType());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
         }
 
-        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission);
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getSubmission());
     }
 
     /**
@@ -1145,16 +1150,16 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     Literal instantLiteral = solution.getLiteral("?instant");
                     Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
                     Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+                    Literal taskTypeLiteral = solution.getLiteral("?taskType");
 
-                    boolean hasBeenSubmitted = false;
-                    boolean hasBeenSolved = false;
-
-                    if(hasBeenSubmittedLiteral != null) hasBeenSubmitted = hasBeenSubmittedLiteral.getBoolean();
-                    if(hasBeenSolvedLiteral != null) hasBeenSolved = hasBeenSolvedLiteral.getBoolean();
-                    submissions.add(new IndividualTaskSubmissionDTO(Instant.parse(instantLiteral.getString()),
+                    submissions.add(new IndividualTaskSubmissionDTO(
+                        Instant.parse(instantLiteral.getString()),
                         submissionLiteral.getString(),
-                        hasBeenSubmitted,
-                        hasBeenSolved
+                        hasBeenSubmittedLiteral.getBoolean(),
+                        hasBeenSolvedLiteral.getBoolean(),
+                        dispatcherIdLiteral.getInt(),
+                        taskTypeLiteral.getString()
                     ));
                 }
             }

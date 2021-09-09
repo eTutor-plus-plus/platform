@@ -5,16 +5,20 @@ import java.time.Instant;
 public class IndividualTaskSubmissionDTO {
     private Instant instant;
     private String submission;
-    private boolean hasBeenSubmitted;
+    private boolean isSubmitted;
     private boolean hasBeenSolved;
+    private int dispatcherId;
+    private String taskType;
 
     public IndividualTaskSubmissionDTO(){}
 
-    public IndividualTaskSubmissionDTO(Instant instant, String submission, boolean hasBeenSubmitted, boolean hasBeenSolved){
+    public IndividualTaskSubmissionDTO(Instant instant, String submission, boolean isSubmitted, boolean hasBeenSolved, int dispatcherId, String taskType){
         this.instant=instant;
         this.submission=submission;
         this.hasBeenSolved=hasBeenSolved;
-        this.hasBeenSubmitted=hasBeenSubmitted;
+        this.isSubmitted=isSubmitted;
+        this.dispatcherId=dispatcherId;
+        this.taskType=taskType;
     }
 
     public Instant getInstant() {
@@ -33,12 +37,12 @@ public class IndividualTaskSubmissionDTO {
         this.submission = submission;
     }
 
-    public boolean isHasBeenSubmitted() {
-        return hasBeenSubmitted;
+    public boolean isIsSubmitted() {
+        return isSubmitted;
     }
 
     public void setHasBeenSubmitted(boolean hasBeenSubmitted) {
-        this.hasBeenSubmitted = hasBeenSubmitted;
+        this.isSubmitted = hasBeenSubmitted;
     }
 
     public boolean isHasBeenSolved() {
@@ -47,5 +51,21 @@ public class IndividualTaskSubmissionDTO {
 
     public void setHasBeenSolved(boolean hasBeenSolved) {
         this.hasBeenSolved = hasBeenSolved;
+    }
+
+    public int getDispatcherId() {
+        return dispatcherId;
+    }
+
+    public void setDispatcherId(int dispatcherId) {
+        this.dispatcherId = dispatcherId;
+    }
+
+    public String getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(String taskType) {
+        this.taskType = taskType;
     }
 }

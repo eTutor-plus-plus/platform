@@ -1,0 +1,16 @@
+<div>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+  <div class="assignment">
+    <jhi-assignment
+      [exercise_id]="submissionEntry.dispatcherId.toString()"
+      diagnoseLevelWeighting="0"
+      [task_type]="submissionEntry.taskType"
+      [submission]="submissionEntry.submission"
+      [points]="0"
+      maxPoints="0"
+      [highestDiagnoseLevel]="0"
+    ></jhi-assignment>
+  </div>
+</div>

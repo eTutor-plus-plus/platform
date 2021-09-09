@@ -1,6 +1,8 @@
 export interface TaskSubmissionsModel {
   hasBeenSolved: boolean;
-  hasBeenSubmitted: boolean;
+  isSubmitted: boolean;
+  dispatcherId: number;
   instant: string;
   submission: string;
+  taskType: string;
 }

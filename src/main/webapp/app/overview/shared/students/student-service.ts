@@ -212,10 +212,8 @@ export class StudentService {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission?isSubmitted=${String(
-        submission.isSubmitted
-      )}&&hasBeenSolved=${String(submission.hasBeenSolved)}`,
-      submission.submission
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`,
+      submission
     );
   }
 

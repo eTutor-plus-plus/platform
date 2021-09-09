@@ -25,6 +25,9 @@
             <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
           </td>
           <td>{{ entry.submission }}</td>
+          <td>
+            <button class="btn btn-secondary" (click)="openEditor(entry)">Run</button>
+          </td>
         </tr>
       </tbody>
     </table>

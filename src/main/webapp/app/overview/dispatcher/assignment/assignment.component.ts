@@ -172,8 +172,14 @@ export class AssignmentComponent implements AfterContentChecked {
       this.diagnoseLevelIncreased.emit(diagnoseLevel);
       this.highestDiagnoseLevel = diagnoseLevel;
     }
-
-    this.submissionAdded.emit({ submission: this.submission ?? '', isSubmitted: hasBeenSubmitted, hasBeenSolved: !this.hasErrors });
+    const taskId = parseInt(this.exercise_id!, 10);
+    this.submissionAdded.emit({
+      submission: this.submission!,
+      isSubmitted: hasBeenSubmitted,
+      hasBeenSolved: !this.hasErrors,
+      dispatcherId: taskId,
+      taskType: this.task_type!,
+    });
   }
 
   /**

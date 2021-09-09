@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentService } from '../../shared/students/student-service';
 import { TaskSubmissionsModel } from './task-submissions.model';
+import { LecturerRunSubmissionComponent } from '../lecturer-run-submission/lecturer-run-submission.component';
 
 /**
  * Modal window component for displaying submissions made by a student for an individual task
@@ -29,6 +30,11 @@ export class TaskSubmissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.submittedSubmissions = this.submissions.filter(x => x.hasBeenSubmitted);
+    this.submittedSubmissions = this.submissions.filter(x => x.isSubmitted);
+  }
+
+  openEditor(entry: TaskSubmissionsModel): void {
+    const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as LecturerRunSubmissionComponent).submissionEntry = entry;
   }
 }

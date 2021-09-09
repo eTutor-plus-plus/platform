@@ -47,20 +47,24 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
-    <jhi-assignment
-      *ngIf="isDispatcherTask"
-      (diagnoseLevelIncreased)="handleDiagnoseLevelIncreasedAsync($event)"
-      (submissionAdded)="handleSubmissionAddedAsync($event)"
-      (solutionCorrect)="handleSolutionCorrectAsync($event)"
-      [exercise_id]="exercise_id"
-      [diagnoseLevelWeighting]="diagnoseLevelWeighting"
-      [task_type]="task_type"
-      [submission]="submission"
-      [points]="dispatcherPoints"
-      [maxPoints]="maxPoints"
-      [highestDiagnoseLevel]="diagnoseLevel"
-    >
-    </jhi-assignment>
+
+    <p></p>
+    <div class="assignment-component">
+      <jhi-assignment
+        *ngIf="isDispatcherTask"
+        (diagnoseLevelIncreased)="handleDiagnoseLevelIncreasedAsync($event)"
+        (submissionAdded)="handleSubmissionAddedAsync($event)"
+        (solutionCorrect)="handleSolutionCorrectAsync($event)"
+        [exercise_id]="exercise_id"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [task_type]="task_type"
+        [submission]="submission"
+        [points]="dispatcherPoints"
+        [maxPoints]="maxPoints"
+        [highestDiagnoseLevel]="diagnoseLevel"
+      >
+      </jhi-assignment>
+    </div>
 
     <button
       *ngIf="!isDispatcherTask"
