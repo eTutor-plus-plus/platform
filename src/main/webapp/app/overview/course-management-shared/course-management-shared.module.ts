@@ -7,6 +7,7 @@ import { LecturerGradeAssignmentComponent } from './course-exercise-sheet-alloca
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { OverviewSharedModule } from '../shared/overview-shared.module';
+import { TaskSubmissionsComponent } from '../dispatcher/task-submissions/task-submissions.component';
 
 /**
  * Module for shared course management components.
@@ -18,6 +19,7 @@ import { OverviewSharedModule } from '../shared/overview-shared.module';
     CourseExerciseSheetAllocationComponent,
     LecturerTaskAssignmentOverviewComponent,
     LecturerGradeAssignmentComponent,
+    TaskSubmissionsComponent,
   ],
   exports: [
     StudentAssignmentModalComponent,

@@ -47,6 +47,22 @@ export interface INewTaskModel {
    */
   taskDifficultyId: string;
   /**
+   * The optional  task id for the dispatcher.
+   */
+  taskIdForDispatcher?: string;
+  /**
+   * The optional weighting with regards to the diagnose level
+   */
+  diagnoseLevelWeighting?: string;
+  /**
+   * Optional solution for an SQL-Exercise
+   */
+  sqlSolution?: string;
+  /**
+   * Optional max points
+   */
+  maxPoints?: string;
+  /**
    * The optional free text processing time.
    */
   processingTime?: string;
@@ -113,8 +129,12 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UploadTask',
     'taskManagement.taskTypes.uploadTask'
   );
+  public static readonly SQLTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask',
+    'taskManagement.taskTypes.sqlTask'
+  );
 
-  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask];
+  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask, TaskAssignmentType.SQLTask];
 
   private readonly _value: string;
   private readonly _text: string;

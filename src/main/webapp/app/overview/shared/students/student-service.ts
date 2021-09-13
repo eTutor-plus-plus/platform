@@ -10,6 +10,8 @@ import {
   IStudentTaskListInfoDTO,
 } from './students.model';
 import { map } from 'rxjs/operators';
+import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
+import { SubmissionEvent } from '../../dispatcher/entities/SubmissionEvent';
 
 /**
  * Service for managing students.
@@ -191,6 +193,124 @@ export class StudentService {
 
     return this.http.get<number>(
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment`
+    );
+  }
+
+  /**
+   * Sets the submitted solution for the task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   * @param submission the submission to be set
+   */
+  public setSubmissionForAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    submission: SubmissionEvent
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`,
+      submission
+    );
+  }
+
+  /**
+   * Returns the latest submission for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
+  public getSubmissionForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<any>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  /**
+   * Returns all submissions for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
+  public getAllSubmissionsForAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: string,
+    matriculationNo: string
+  ): Observable<TaskSubmissionsModel[]> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<TaskSubmissionsModel[]>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/student/${matriculationNo}/submissions`
+    );
+  }
+
+  /**
+   * Sets the points assigned by the dispatcher.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param points the points
+   */
+  public setDispatcherPoints(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, points: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${points}`,
+      undefined
+    );
+  }
+
+  /**
+   * Returns points assigned by the dispatcher.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getDispatcherPoints(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherpoints`
+    );
+  }
+
+  /**
+   * Sets the diagnose level.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   * @param diagnoseLevel the diagnose level
+   */
+  public setDiagnoseLevel(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, diagnoseLevel: number): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/diagnose-level/${diagnoseLevel}`,
+      undefined
+    );
+  }
+
+  /**
+   * Returns diagnose level.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getDiagnoseLevel(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/diagnose-level`
     );
   }
 }

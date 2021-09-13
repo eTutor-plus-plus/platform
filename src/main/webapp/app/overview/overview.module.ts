@@ -9,6 +9,7 @@ import { StudentSelfEvaluationComponent } from './student-overview/student-self-
 import { StudentExerciseSheetTasksComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-tasks.component';
 import { StudentTaskComponent } from './student-overview/course-task-overview/student-task/student-task.component';
 import { OverviewSharedModule } from 'app/overview/shared/overview-shared.module';
+import { DispatcherModule } from 'app/overview/dispatcher/dispatcher.module';
 import { LecturerOverviewComponent } from './lecturer-overview/lecturer-overview.component';
 import { CourseManagementSharedModule } from './course-management-shared/course-management-shared.module';
 import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/course-instance-statistics-overview/course-instance-statistics-overview.component';
@@ -18,7 +19,14 @@ import { NgxSpinnerModule } from 'ngx-spinner';
  * Module for the overview component.
  */
 @NgModule({
-  imports: [SharedModule, RouterModule.forChild(overviewRoute), OverviewSharedModule, CourseManagementSharedModule, NgxSpinnerModule],
+  imports: [
+    SharedModule,
+    RouterModule.forChild(overviewRoute),
+    OverviewSharedModule,
+    DispatcherModule,
+    CourseManagementSharedModule,
+    NgxSpinnerModule,
+  ],
   declarations: [
     OverviewComponent,
     StudentOverviewComponent,

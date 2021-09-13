@@ -90,7 +90,6 @@ export class LecturerTaskAssignmentOverviewComponent {
       courseInstanceId: this.assignedSheetInfo.courseInstanceId,
     };
   }
-
   /**
    * Asynchronously loads the page.
    */

@@ -6,7 +6,11 @@
       "matriculationNumber": "Matrikelnummer",
       "submitted": "Vollständig abgegeben",
       "fullyGraded": "Vollständig beurteilt",
-      "btnGrade": "Beurteilen"
+      "btnGrade": "Beurteilen",
+      "btnExport": "Export",
+      "submission": "Abgabe",
+      "submissionTime": "Abgabe-Zeitpunkt",
+      "solved": "Gelöst"
     },
     "footerClose": "Schließen",
     "gradingWindow": {
@@ -18,6 +22,10 @@
         "taskGraded": "Aufgabe bereits beurteilt?",
         "saveEvaluation": "Beurteilung speichern"
       }
+    },
+    "submissionWindow": {
+      "modalHeader": "Abgaben von '{{student}}'",
+      "windowHeader": "Abgaben von '{{student}}' einsehen"
     },
     "overviewComponent": {
       "header": "Eigene LVAs",

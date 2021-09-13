@@ -14,7 +14,8 @@
     },
     "taskTypes": {
       "noType": "No type",
-      "uploadTask": "Upload task"
+      "uploadTask": "Upload task",
+      "sqlTask": "SQL Task"
     },
     "fields": {
       "header": "Header:",
@@ -22,6 +23,14 @@
       "organisationUnit": "Organisation unit:",
       "privateTask": "Private task",
       "taskDifficulty": "Task difficulty:",
+      "taskIdForDispatcher": "Dispatcher: Exercise ID Reference",
+      "sqlSchema": "SQL: schema:",
+      "sqlCreateStatements": "SQL: Create-Cable-Statements:",
+      "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
+      "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
+      "sqlSolution": "SQL: Solution:",
+      "maxPoints": "Maximum Points:",
+      "diagnoseLevelWeighting": "Weighting of the diagnose-level:",
       "processingTime": "Processing time:",
       "url": "Url:",
       "instruction": "Task instruction:",
@@ -60,11 +69,20 @@
       "createNewTaskGroup": "Create new task group",
       "close": "Close",
       "manage": "Manage task groups",
+      "groupTypePlaceholder": "Typ auswählen",
       "update": {
         "newHeader": "Create new task group",
         "editHeader": "Edit task group '{{name}}'",
         "nameField": "Name:",
-        "descriptionField": "Description:"
+        "sqlCreateStatements": "SQL: Create-Table-Statements",
+        "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
+        "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "descriptionField": "Description:",
+        "taskGroupType": "Type:",
+        "types": {
+          "noType": "No Type",
+          "sqlType": "SQL Group"
+        }
       }
     }
   }

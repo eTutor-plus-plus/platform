@@ -4,8 +4,21 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.LecturerSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
+import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -102,5 +115,78 @@ public class LecturerResource {
             gradingInfoVM.isGoalCompleted()
         );
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Returns the achieved points and the maximum points for a given course instance and exercise sheet
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @return the ResponseEntity containing the overview of points
+     */
+    @GetMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<TaskPointEntryDTO[]> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+
+        if(pointsOverviewInfo != null) return ResponseEntity.ok(pointsOverviewInfo.toArray(TaskPointEntryDTO[]::new));
+        else return ResponseEntity.ok(null);
+    }
+
+    /**
+     * Returns the points overview for a specific exercise sheet and course instance as csv
+     * @param courseInstanceUUID the cours instance
+     * @param exerciseSheetUUID the csv
+     * @return a ResponseEntity containing the csv
+     */
+    @GetMapping(value = "course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/csv/points-overview", produces = "text/csv")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+        String[] csvHeader = {
+            "matriculationNo", "taskHeader", "maxPoints", "points"
+        };
+        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+
+        ByteArrayInputStream byteArrayOutputStream;
+
+        try (
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVPrinter csvPrinter = new CSVPrinter(
+                new PrintWriter(out),
+                CSVFormat.DEFAULT.withHeader(csvHeader)
+            );
+        ) {
+            List<String> printableRecord;
+            for (TaskPointEntryDTO record : pointsOverviewInfo){
+                printableRecord = new ArrayList<>();
+                printableRecord.add(record.getMatriculationNo());
+                printableRecord.add(record.getTaskHeader());
+                printableRecord.add(Double.toString(record.getMaxPoints()));
+                printableRecord.add(Double.toString(record.getPoints()));
+                csvPrinter.printRecord(printableRecord);
+            }
+
+            csvPrinter.flush();
+
+            byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        InputStreamResource fileInputStream = new InputStreamResource(byteArrayOutputStream);
+
+        String csvFileName = "pointOverview.csv";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + csvFileName);
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+
+        return new ResponseEntity<>(
+            fileInputStream,
+            headers,
+            HttpStatus.OK
+        );
     }
 }

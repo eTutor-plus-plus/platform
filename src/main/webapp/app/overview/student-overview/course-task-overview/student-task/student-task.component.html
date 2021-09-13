@@ -39,7 +39,7 @@
     </dl>
 
     <jhi-file-upload
-      *ngIf="isUploadTask"
+      *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
@@ -48,7 +48,26 @@
     >
     </jhi-file-upload>
 
+    <p></p>
+    <div class="assignment-component">
+      <jhi-assignment
+        *ngIf="isDispatcherTask"
+        (diagnoseLevelIncreased)="handleDiagnoseLevelIncreasedAsync($event)"
+        (submissionAdded)="handleSubmissionAddedAsync($event)"
+        (solutionCorrect)="handleSolutionCorrectAsync($event)"
+        [exercise_id]="exercise_id"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [task_type]="task_type"
+        [submission]="submission"
+        [points]="dispatcherPoints"
+        [maxPoints]="maxPoints"
+        [highestDiagnoseLevel]="diagnoseLevel"
+      >
+      </jhi-assignment>
+    </div>
+
     <button
+      *ngIf="!isDispatcherTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
