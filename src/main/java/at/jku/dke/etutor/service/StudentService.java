@@ -618,7 +618,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUri);
 
         try (RDFConnection connection = getConnection()) {
-            connection.load(courseInstanceUri.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceUri), model);
 
             connection.update(qry.asUpdate());
         }
