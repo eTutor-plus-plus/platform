@@ -7,7 +7,6 @@ import at.jku.dke.etutor.service.MailService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.PasswordChangeDTO;
-import at.jku.dke.etutor.service.dto.UserDTO;
 import at.jku.dke.etutor.web.rest.errors.*;
 import at.jku.dke.etutor.web.rest.vm.KeyAndPasswordVM;
 import at.jku.dke.etutor.web.rest.vm.ManagedUserVM;
