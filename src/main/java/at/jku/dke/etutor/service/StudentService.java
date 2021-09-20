@@ -38,7 +38,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class StudentService extends AbstractSPARQLEndpointService {
+public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_STUDENTS_COURSES =
         """

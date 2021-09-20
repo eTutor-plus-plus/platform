@@ -39,7 +39,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL =
         """

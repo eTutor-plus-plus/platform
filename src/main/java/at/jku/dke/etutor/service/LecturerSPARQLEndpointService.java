@@ -30,7 +30,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class LecturerSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_SELECT_LECTURER_OVERVIEW = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>

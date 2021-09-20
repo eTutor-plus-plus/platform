@@ -32,7 +32,7 @@ import java.util.*;
  * SPARQL endpoint service for managing course instances.
  */
 @Service
-public class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_ASK_COURSE_INSTANCE_EXISTS =
         """
