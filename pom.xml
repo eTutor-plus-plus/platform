@@ -24,7 +24,7 @@
     <properties>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
-        <java.version>16
+        <java.version>17
         </java.version>
         <node.version>v14.17.6
         </node.version>
@@ -405,8 +405,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
 
             </plugin>
@@ -883,9 +883,9 @@
                             </requireMavenVersion>
                             <requireJavaVersion>
                                 <message>You are running an incompatible version of Java. JHipster supports JDK 8 to
-                                    16.
+                                    17.
                                 </message>
-                                <version>[1.8,17)</version>
+                                <version>[1.8,18)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
