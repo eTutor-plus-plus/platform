@@ -98,10 +98,10 @@ class UserResourceIT {
      */
     public static User createEntity(EntityManager em) {
         User user = new User();
-        user.setLogin(DEFAULT_LOGIN + RandomStringUtils.randomNumeric(5));
+        user.setLogin(DEFAULT_LOGIN + RandomStringUtils.randomAlphabetic(5));
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
-        user.setEmail(RandomStringUtils.randomNumeric(5) + DEFAULT_EMAIL);
+        user.setEmail(RandomStringUtils.randomAlphabetic(5) + DEFAULT_EMAIL);
         user.setFirstName(DEFAULT_FIRSTNAME);
         user.setLastName(DEFAULT_LASTNAME);
         user.setImageUrl(DEFAULT_IMAGEURL);
@@ -162,6 +162,13 @@ class UserResourceIT {
         assertPersistedUsers(
             users -> {
                 assertThat(users).hasSize(databaseSizeBeforeCreate + 1);
+                User testUser = users.get(users.size() - 1);
+                assertThat(testUser.getLogin()).isEqualTo(DEFAULT_LOGIN);
+                assertThat(testUser.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
+                assertThat(testUser.getLastName()).isEqualTo(DEFAULT_LASTNAME);
+                assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
+                assertThat(testUser.getImageUrl()).isEqualTo(DEFAULT_IMAGEURL);
+                assertThat(testUser.getLangKey()).isEqualTo(DEFAULT_LANGKEY);
             }
         );
     }
@@ -172,7 +179,7 @@ class UserResourceIT {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         ManagedUserVM managedUserVM = new ManagedUserVM();
-        managedUserVM.setId(1L);
+        managedUserVM.setId(DEFAULT_ID);
         managedUserVM.setLogin(DEFAULT_LOGIN);
         managedUserVM.setPassword(DEFAULT_PASSWORD);
         managedUserVM.setFirstName(DEFAULT_FIRSTNAME);
