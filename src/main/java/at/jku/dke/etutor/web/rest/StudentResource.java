@@ -8,17 +8,24 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherGradingDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.Instant;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -310,7 +317,7 @@ public class StudentResource {
                                               @PathVariable int taskNo, @RequestBody IndividualTaskSubmissionDTO submission) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        studentService.setSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission);
+        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, null, false);
         return ResponseEntity.noContent().build();
     }
 
@@ -354,26 +361,6 @@ public class StudentResource {
         return ResponseEntity.ok(submission);
     }
 
-    /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/:points}
-     * Sets the points for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param points the points
-     * @return a ResponseEntity
-     */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{points}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setDispatcherPoints(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @PathVariable int points) {
-        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-
-        studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
-        return ResponseEntity.noContent().build();
-    }
-
 
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/dispatcherpoints} : Returns
@@ -398,23 +385,77 @@ public class StudentResource {
     }
 
     /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level/:diagnoseLevel}
-     * Sets the diagnose level for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param diagnoseLevel the diagnose level
+     * Processes a submission and grading provided by the dispatcher in the course of an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param dispatcherUUID the UUID identifying the submission
+     * @param token the JWT-Token needed to call the proxy to the dispatcher
      * @return
      */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/diagnose-level/{diagnoseLevel}")
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setHighestDiagnoseLevel(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                    @PathVariable int taskNo, @PathVariable int diagnoseLevel) {
+    public ResponseEntity<Void> handleDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        token = token.substring(7);
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
 
-        studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, diagnoseLevel);
-        return ResponseEntity.noContent().build();
+        // Fetching submission and grading from dispatcher
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>("body", headers);
+
+        url = baseUrl + "submission/" + dispatcherUUID;
+        var submission = restTemplate.exchange(url, HttpMethod.GET, entity, DispatcherSubmissionDTO.class).getBody();
+        Objects.requireNonNull(submission);
+
+        url = baseUrl + "grading/" + dispatcherUUID;
+        var grading = restTemplate.exchange(url, HttpMethod.GET, entity, DispatcherGradingDTO.class).getBody();
+
+        // comparing excercise-id and task-type
+
+
+        // persisting the submission
+        boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
+        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+
+        // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
+        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+
+        // calculating and setting the points if submission has been solved but not previously solved
+        if(grading == null) return ResponseEntity.ok().build();
+
+        int points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        if(points == 0
+            && submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() == grading.getPoints()
+            && grading.getMaxPoints() != 0
+        ){
+            var diagnoseLevelWeighting = 1;
+            var maxPoints = 25;
+
+            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+
+
+        return ResponseEntity.ok().build();
     }
 
     /**

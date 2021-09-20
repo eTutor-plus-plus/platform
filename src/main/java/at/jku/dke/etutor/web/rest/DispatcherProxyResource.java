@@ -65,6 +65,20 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Sends the submission UUID to the dispatcher and returns the submission
+     * @param submissionUUID the UUID identifying the submission
+     * @return the submission
+     */
+    @GetMapping(value="/submission/{submissionUUID}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getSubmission(@PathVariable String submissionUUID){
+        var client = getHttpClient();
+        var request = getGetRequest(dispatcherURL+"/submission/"+submissionUUID);
+
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
      * Sends the DDL-Statements for creating an SQL-schema for an SQL-task-group to the dispatcher
      * @param ddl the statements
      * @return an response entity

@@ -216,8 +216,16 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    */
   public async handleSolutionCorrectAsync($event: number): Promise<void> {
     await this.markTaskAsSubmittedAsync();
-    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
   }
+
+  /**
+   * Redirects the UUID from the dispatcher to the server
+   * @param $event the UUID
+   */
+  public handleDispatcherUUID($event: string): void {
+    this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
+  }
+
   /**
    * Asynchronously adds a submission
    * @param submission the submission

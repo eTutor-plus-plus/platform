@@ -267,6 +267,20 @@ export class StudentService {
     );
   }
 
+  public handleDispatcherUUID(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    dispatcherUUID: string
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`,
+      undefined
+    );
+  }
+
   /**
    * Returns points assigned by the dispatcher.
    *

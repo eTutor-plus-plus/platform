@@ -1,6 +1,6 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
   <div class="assignment-points">
-    <fa-icon *ngIf="isSolved()" icon="check"></fa-icon>
+    <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
   <div>

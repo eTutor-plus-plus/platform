@@ -30,8 +30,7 @@ export class AssignmentComponent implements AfterContentChecked {
   @Input() public diagnoseLevelWeighting = '';
 
   @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
-  @Output() public submissionAdded: EventEmitter<SubmissionEvent> = new EventEmitter<SubmissionEvent>();
-  @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
+  @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
   public diagnoseLevelText = '';
 
@@ -83,7 +82,7 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Lyfecycle method that sets the language for the editor in accordance to the task type
+   * Lifecycle method that sets the language for the editor in accordance to the task type
    * and the diagnose-level in the dropdown according to the highest chosen diagnose level
    */
   public ngAfterContentChecked(): void {
@@ -112,17 +111,11 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Returns whether this assignment has already been solved by the student
-   */
-  public isSolved(): boolean {
-    return this.points !== 0;
-  }
-
-  /**
    * Creates a SubmissionDTO and uses the assignment service to send it to the dispatcher
    *
    */
   private processSubmission(): void {
+    this.diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
     const submissionDto = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
@@ -142,9 +135,8 @@ export class AssignmentComponent implements AfterContentChecked {
       this.gradingDto = grading;
       this.gradingReceived = true;
 
-      this.hasError();
+      this.setHasErrors();
       this.emitSubmissionEvents();
-      this.emitGrading();
     });
   }
 
@@ -153,7 +145,7 @@ export class AssignmentComponent implements AfterContentChecked {
    * and sets this.hasErrors accordingly
    * @private
    */
-  private hasError(): void {
+  private setHasErrors(): void {
     this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
       ? (this.hasErrors = true)
       : (this.hasErrors = false);
@@ -161,33 +153,19 @@ export class AssignmentComponent implements AfterContentChecked {
 
   /**
    * Emits the events in the course of a submission,
-   * namely adjusting the highest diagnose level if needed and updating the latest submission
+   * namely adjusting the highest diagnose level if needed and emitting the submission UUID
    * @private
    */
   private emitSubmissionEvents(): void {
-    const hasBeenSubmitted = this.action === 'submit';
-    const diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
-    this.diagnoseLevel = diagnoseLevel;
-    if (diagnoseLevel > this.highestDiagnoseLevel && !hasBeenSubmitted && this.points === 0) {
-      this.diagnoseLevelIncreased.emit(diagnoseLevel);
-      this.highestDiagnoseLevel = diagnoseLevel;
+    if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
+      this.highestDiagnoseLevel = this.diagnoseLevel;
     }
-    const taskId = parseInt(this.exercise_id!, 10);
-    this.submissionAdded.emit({
-      submission: this.submission!,
-      isSubmitted: hasBeenSubmitted,
-      hasBeenSolved: !this.hasErrors,
-      dispatcherId: taskId,
-      taskType: this.task_type!,
-    });
-  }
 
-  /**
-   * Emits the points if the assignment has been submitted and solved but not previously solved
-   * @private
-   */
-  private emitGrading(): void {
-    if (!this.isSolved() && !this.hasErrors && this.action === 'submit') {
+    if (this.submissionIdDto.submissionId) {
+      this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId);
+    }
+
+    if (this.points === 0 && !this.hasErrors && this.action === 'submit') {
       const grading = this.calculatePoints();
       this.solutionCorrect.emit(grading);
       this.points = grading;
