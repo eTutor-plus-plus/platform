@@ -113,12 +113,7 @@ export class TaskGroupUpdateComponent {
         this.activeModal.close(taskFromService);
       }
 
-      if (
-        taskGroupTypeId === TaskGroupType.SQLType.value &&
-        sqlCreateStatements &&
-        sqlInsertStatementsDiagnose &&
-        sqlInsertStatementsSubmission
-      ) {
+      if (sqlCreateStatements && sqlInsertStatementsDiagnose && sqlInsertStatementsSubmission) {
         this.sqlExerciseService
           .executeDDL(name, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose)
           .subscribe();

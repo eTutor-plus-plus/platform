@@ -24,11 +24,11 @@
       }
     },
     "submissionWindow": {
-      "modalHeader": "Submissions of '{{matriculationNo}}'",
-      "windowHeader": "See submissions of '{{matriculationNo}}'"
+      "modalHeader": "Submissions of '{{student}}'",
+      "windowHeader": "See submissions of '{{student}}'"
     },
     "runSubmissionWindow": {
-      "modalHeader": "Analyze submission of '{{matriculationNo}}'"
+      "modalHeader": "Analyze submission of '{{student}}'"
     },
     "overviewComponent": {
       "header": "Own courses",
