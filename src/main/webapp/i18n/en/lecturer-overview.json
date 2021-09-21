@@ -27,6 +27,9 @@
       "modalHeader": "Submissions of '{{matriculationNo}}'",
       "windowHeader": "See submissions of '{{matriculationNo}}'"
     },
+    "runSubmissionWindow": {
+      "modalHeader": "Analyze submission of '{{matriculationNo}}'"
+    },
     "overviewComponent": {
       "header": "Own courses",
       "table": {

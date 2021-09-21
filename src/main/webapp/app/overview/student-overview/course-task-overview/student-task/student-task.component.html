@@ -52,7 +52,6 @@
     <div class="assignment-component">
       <jhi-assignment
         *ngIf="isDispatcherTask"
-        (solutionCorrect)="handleSolutionCorrectAsync($event)"
         (submissionUUIDReceived)="handleDispatcherUUID($event)"
         [exercise_id]="exercise_id"
         [diagnoseLevelWeighting]="diagnoseLevelWeighting"

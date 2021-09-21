@@ -3,7 +3,6 @@ import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
-import { SubmissionEvent } from '../entities/SubmissionEvent';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -28,8 +27,9 @@ export class AssignmentComponent implements AfterContentChecked {
   @Input() public points!: number;
   @Input() public maxPoints = '';
   @Input() public diagnoseLevelWeighting = '';
+  @Input() public showPoints = true;
+  @Input() public showDiagnoseBar = true;
 
-  @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
   @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
   public diagnoseLevelText = '';
@@ -167,7 +167,6 @@ export class AssignmentComponent implements AfterContentChecked {
 
     if (this.points === 0 && !this.hasErrors && this.action === 'submit') {
       const grading = this.calculatePoints();
-      this.solutionCorrect.emit(grading);
       this.points = grading;
     }
   }

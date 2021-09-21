@@ -1,9 +1,9 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
-  <div class="assignment-points">
+  <div class="assignment-points" *ngIf="showPoints">
     <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
-  <div>
+  <div *ngIf="showDiagnoseBar">
     <select class="form-control" [(ngModel)]="diagnoseLevelText">
       <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
       <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">

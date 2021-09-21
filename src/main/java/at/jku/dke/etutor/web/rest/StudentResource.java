@@ -16,10 +16,7 @@ import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -302,26 +299,6 @@ public class StudentResource {
     }
 
     /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
-     * Sets a submission for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param submission the submission
-     * @return a ResponseEntity
-     */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @RequestBody IndividualTaskSubmissionDTO submission) {
-        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-
-        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, null, false);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
      * Returns all submissions mady by a student for a specific individual task
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
@@ -385,7 +362,8 @@ public class StudentResource {
     }
 
     /**
-     * Processes a submission and grading provided by the dispatcher in the course of an individual task assignment
+     * Processes a submission and grading provided by the dispatcher in the course
+     * of an individual task assignment's submission by the student
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
      * @param taskNo the task number
@@ -405,7 +383,6 @@ public class StudentResource {
             .toUriString();
         baseUrl += "/api/dispatcher/";
 
-        // Fetching submission and grading from dispatcher
         String url = "";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -419,8 +396,15 @@ public class StudentResource {
         url = baseUrl + "grading/" + dispatcherUUID;
         var grading = restTemplate.exchange(url, HttpMethod.GET, entity, DispatcherGradingDTO.class).getBody();
 
-        // comparing excercise-id and task-type
+        // comparing excercise-id of assignment and submission
+        var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
 
+        if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
+
+        if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         // persisting the submission
         boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
@@ -439,22 +423,20 @@ public class StudentResource {
         // calculating and setting the points if submission has been solved but not previously solved
         if(grading == null) return ResponseEntity.ok().build();
 
-        int points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         if(points == 0
             && submission.getPassedAttributes().get("action").equals("submit")
             && grading.getMaxPoints() == grading.getPoints()
             && grading.getMaxPoints() != 0
         ){
-            var diagnoseLevelWeighting = 1;
-            var maxPoints = 25;
+            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+            var maxPoints = weightingAndMaxPointsIdArr[1];
 
             points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
 
             studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
-
-
         return ResponseEntity.ok().build();
     }
 

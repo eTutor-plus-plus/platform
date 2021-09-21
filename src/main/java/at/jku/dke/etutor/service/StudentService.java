@@ -1226,14 +1226,14 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Sets the points for an individual task that are assigned by the dispatcher
+     * Sets the points for an individual task
      * @param courseInstanceUUID the course instance UUID
      *      * @param exerciseSheetUUID  the exercise sheet UUID
      *      * @param matriculationNo    the matriculation no
      *      * @param taskNo             the task no
      *      * @param points             the points
      */
-    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int points){
+    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points){
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1437,6 +1437,73 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
+
+    /**
+     * Returns the weighting of the diagnose level and the max points of a task assignment to which an individual task refers to
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation no
+     * @param taskNo the task no
+     * @return an Optional Double[] containing both values
+     */
+    public Optional<Double[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+                    SELECT ?diagnoseLevelWeighting ?maxPoints ?dispatcherId
+                    WHERE{
+                         ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+
+                         ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
+                                               etutor:fromCourseInstance ?courseInstanceId;
+                                               etutor:hasIndividualTask ?individualTask.
+
+                         ?individualTask etutor:hasOrderNo ?orderNo;
+                                         etutor:refersToTask ?taskAssignment.
+
+                         ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
+                                         etutor:hasMaxPoints ?maxPoints;
+                                         etutor:hasTaskIdForDispatcher ?dispatcherId.
+                    }
+            """);
+
+        query.setIri("?courseInstanceId", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheetId", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal diagnoseLevelWeightingLiteral = solution.getLiteral("?diagnoseLevelWeighting");
+                    Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+
+                    var result = new Double[3];
+                    result[0] = diagnoseLevelWeightingLiteral.getDouble();
+                    result[1] = maxPointsLiteral.getDouble();
+                    result[2] = dispatcherIdLiteral.getDouble();
+                    return Optional.of(result);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
     /**
      * Returns the reached goal ids of a student from a given course instance.
      *
