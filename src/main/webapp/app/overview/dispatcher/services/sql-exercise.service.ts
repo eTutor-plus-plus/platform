@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DISPATCHER_URL } from 'app/overview/dispatcher/constants';
 import { Observable } from 'rxjs';
+import { SERVER_API_URL } from '../../../app.constants';
 
 /**
  * Used to manage SQL-Exercises in the backend (dispatcher)
@@ -21,7 +21,6 @@ const httpOptionsTextResponse = {
   providedIn: 'root',
 })
 export class SqlExerciseService {
-  private API_URL: string = DISPATCHER_URL + '/sql';
   constructor(private http: HttpClient) {}
 
   /**
@@ -32,7 +31,7 @@ export class SqlExerciseService {
    * @param insertDiagnose the insert-into-statements for the diagnose version of the schema
    */
   public executeDDL(schema: string, createStatements: string, insertSubmission: string, insertDiagnose: string): Observable<any> {
-    const url = 'api/dispatcher/sql/schema';
+    const url = `${SERVER_API_URL}api/dispatcher/sql/schema`;
     return this.http.post<string>(
       url,
       {
@@ -53,7 +52,7 @@ export class SqlExerciseService {
    */
   public async createExercise(schemaName: string, exerciseID: string, solution: string): Promise<void> {
     await this.deleteExercise(exerciseID).toPromise();
-    const url = 'api/dispatcher/sql/exercise/' + schemaName + '/' + exerciseID;
+    const url = `${SERVER_API_URL}api/dispatcher/sql/exercise/${schemaName}/${exerciseID}`;
     await this.http.put<string>(url, solution, httpOptionsWithContent).toPromise();
   }
 
@@ -62,7 +61,7 @@ export class SqlExerciseService {
    * @param id the id of the exercise
    */
   public getSolution(id: string): Observable<string> {
-    const url = 'api/dispatcher/sql/exercise/' + id + '/solution';
+    const url = `${SERVER_API_URL}api/dispatcher/sql/exercise/${id}/solution`;
     return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
@@ -72,7 +71,7 @@ export class SqlExerciseService {
    * @param newSolution the solution
    */
   public updateExerciseSolution(exerciseID: string, newSolution: string): Observable<string> {
-    const url = 'api/dispatcher/sql/exercise/' + exerciseID + '/solution';
+    const url = `${SERVER_API_URL}api/dispatcher/sql/exercise/${exerciseID}/solution`;
     return this.http.post<string>(url, newSolution, httpOptionsTextResponse);
   }
 
@@ -81,7 +80,7 @@ export class SqlExerciseService {
    * @param schemaName the name of the schema
    */
   public deleteSchema(schemaName: string): Observable<string> {
-    const url = 'api/dispatcher/sql/schema/' + schemaName;
+    const url = `${SERVER_API_URL}api/dispatcher/sql/schema/${schemaName}`;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 
@@ -89,7 +88,7 @@ export class SqlExerciseService {
    * Returns an available exercise id
    */
   public getExerciseId(): Observable<string> {
-    const url = 'api/dispatcher/sql/exercise/reservation';
+    const url = `${SERVER_API_URL}api/dispatcher/sql/exercise/reservation`;
     return this.http.get<string>(url, httpOptionsTextResponse);
   }
 
@@ -98,7 +97,7 @@ export class SqlExerciseService {
    * @param schemaName the schema name
    */
   public deleteConnection(schemaName: string): Observable<any> {
-    const url = 'api/dispatcher/sql/schema/' + schemaName + '/connection';
+    const url = `${SERVER_API_URL}api/dispatcher/sql/schema/${schemaName}/connection`;
     return this.http.delete(url, httpOptionsTextResponse);
   }
 
@@ -108,7 +107,7 @@ export class SqlExerciseService {
    * @private
    */
   public deleteExercise(exerciseId: string): Observable<string> {
-    const url = 'api/dispatcher/sql/exercise/' + exerciseId;
+    const url = `${SERVER_API_URL}api/dispatcher/sql/exercise/${exerciseId}`;
     return this.http.delete<string>(url, httpOptionsTextResponse);
   }
 
@@ -123,11 +122,11 @@ export class SqlExerciseService {
     exerciseId?: string | null | undefined,
     taskGroup?: string | null | undefined
   ): Observable<string> {
-    let url = 'api/dispatcher/sql/table/' + tableName;
+    let url = `api/dispatcher/sql/table/${tableName}`;
     if (exerciseId) {
       url += '?exerciseId=' + exerciseId;
       if (taskGroup) {
-        url += '&&taskGroup=' + taskGroup;
+        url += '&taskGroup=' + taskGroup;
       }
     } else if (taskGroup) {
       url += '?taskGroup=' + taskGroup;

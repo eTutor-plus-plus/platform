@@ -5,6 +5,7 @@ import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { TranslateService } from '@ngx-translate/core';
+import { SERVER_API_URL } from '../../../app.constants';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -19,7 +20,7 @@ export class AssignmentService {
   constructor(private http: HttpClient, private translateService: TranslateService) {}
 
   postSubmission(submission: SubmissionDTO): Observable<SubmissionIdDTO> {
-    const url = 'api/dispatcher/submission';
+    const url = `${SERVER_API_URL}api/dispatcher/submission`;
     const headers = httpOptions.headers.append('Accept-Language', this.translateService.currentLang);
     const options = {
       headers,
@@ -28,7 +29,7 @@ export class AssignmentService {
   }
 
   getGrading(submissionId: SubmissionIdDTO): Observable<GradingDTO> {
-    const url = 'api/dispatcher/grading/' + submissionId.submissionId;
+    const url = `${SERVER_API_URL}api/dispatcher/grading/${submissionId.submissionId}`;
     return this.http.get<GradingDTO>(url);
   }
 }
