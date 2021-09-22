@@ -134,7 +134,16 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.sqlTask'
   );
 
-  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask, TaskAssignmentType.SQLTask];
+  public static readonly RATask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask',
+    'taskManagement.taskTypes.raTask'
+  );
+  public static readonly Values = [
+    TaskAssignmentType.NoType,
+    TaskAssignmentType.UploadTask,
+    TaskAssignmentType.SQLTask,
+    TaskAssignmentType.RATask,
+  ];
 
   private readonly _value: string;
   private readonly _text: string;

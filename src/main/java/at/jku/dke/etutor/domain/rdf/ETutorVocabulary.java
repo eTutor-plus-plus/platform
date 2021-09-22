@@ -112,6 +112,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_RA_TASK = "RATask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -512,6 +513,10 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
+    /***
+     * The relational algebra type instance
+     */
+    public static final Resource RATask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_RA_TASK);
     /**
      * The no type task group type
      */

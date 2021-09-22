@@ -15,7 +15,8 @@
     "taskTypes": {
       "noType": "No type",
       "uploadTask": "Upload task",
-      "sqlTask": "SQL Task"
+      "sqlTask": "SQL Task",
+      "raTask": "Relational algebra task"
     },
     "fields": {
       "header": "Header:",

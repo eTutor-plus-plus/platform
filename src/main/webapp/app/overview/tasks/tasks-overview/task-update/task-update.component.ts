@@ -24,6 +24,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptions = { theme: 'vs-light', language: 'sql' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
   public isSQLTask = false;
+  public isRATask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -115,7 +116,7 @@ export class TaskUpdateComponent implements OnInit {
     const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
       newTask.taskIdForDispatcher = taskIdForDispatcher;
-    } else if (newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+    } else if (this.isSqlOrRaTask(newTask.taskAssignmentTypeId)) {
       await this.sqlExerciseService
         .getExerciseId()
         .toPromise()
@@ -152,12 +153,7 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
-      if (
-        newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
-        newTask.sqlSolution &&
-        newTask.taskGroupId &&
-        newTask.taskIdForDispatcher
-      ) {
+      if (this.isSqlOrRaTask(newTask.taskAssignmentTypeId) && newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
         const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
         await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
       }
@@ -192,11 +188,7 @@ export class TaskUpdateComponent implements OnInit {
         () => (this.isSaving = false)
       );
 
-      if (
-        editedTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
-        editedTask.taskIdForDispatcher &&
-        editedTask.sqlSolution
-      ) {
+      if (this.isSqlOrRaTask(editedTask.taskAssignmentTypeId) && editedTask.taskIdForDispatcher && editedTask.sqlSolution) {
         this.sqlExerciseService.updateExerciseSolution(editedTask.taskIdForDispatcher, editedTask.sqlSolution).subscribe();
       }
     }
@@ -276,8 +268,13 @@ export class TaskUpdateComponent implements OnInit {
    * @private
    */
   public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
-    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-      this.isSQLTask = true;
+    if (this.isSqlOrRaTask(taskAssignmentTypeId)) {
+      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+        this.isSQLTask = true;
+      } else {
+        this.isRATask = true;
+      }
+
       this.patchSQLValues(taskGroupId);
     }
   }
@@ -294,13 +291,18 @@ export class TaskUpdateComponent implements OnInit {
    */
   public taskTypeChanged(): void {
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-      this.isSQLTask = true;
+    if (this.isSqlOrRaTask(taskAssignmentTypeId)) {
+      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+        this.isSQLTask = true;
+      } else {
+        this.isRATask = true;
+      }
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
       this.updateForm.updateValueAndValidity();
     } else {
       this.isSQLTask = false;
+      this.isRATask = false;
       this.updateForm.get('maxPoints')!.clearValidators();
       this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
       this.updateForm.updateValueAndValidity();
@@ -340,5 +342,9 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.patchValue({
       sqlSolution: solution,
     });
+  }
+
+  private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
+    return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }
 }
