@@ -172,9 +172,9 @@
       ></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isSQLTask">
-      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label>
+      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label><br />
+      <button class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
-      <button class="btn btn-secondary" (click)="openSolutionRunnerWindow()">Try</button>
     </div>
     <div class="form-group">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
