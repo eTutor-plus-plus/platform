@@ -58,6 +58,8 @@ export class AssignmentComponent implements AfterContentChecked {
     switch (taskType) {
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
         return 'sql';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+        return 'relationalAlgebra';
       default:
         return 'sql';
     }
@@ -87,7 +89,12 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   public ngAfterContentChecked(): void {
     if (!this.editorOptions.language && this.task_type) {
-      this.editorOptions = { theme: 'vs-dark', language: AssignmentComponent.mapEditorLanguage(this.task_type) };
+      const lang = AssignmentComponent.mapEditorLanguage(this.task_type);
+      let the = 'vs-dark';
+      if (lang === 'relationalAlgebra') {
+        the = 'relationalAlgebra-light';
+      }
+      this.editorOptions = { theme: the, language: lang };
     }
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
       this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);

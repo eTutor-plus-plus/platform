@@ -15,28 +15,8 @@ import { FormatMediumDatePipe } from './date/format-medium-date.pipe';
 import { SortByDirective } from './sort/sort-by.directive';
 import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
-import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { TreeviewModule } from './ngx-treeview/treeview.module';
-
-declare const monaco: any;
-
-const monacoConfig: NgxMonacoEditorConfig = {
-  onMonacoLoad() {
-    // Register DeJoule language
-    monaco.languages.register({ id: 'relationalAlgebra' });
-
-    // Register a tokens provider for the language
-    monaco.languages.setMonarchTokensProvider('relationalAlgebra', {
-      tokenizer: {
-        root: [
-          [/(?!and|or)[a-zA-Z ]+[A-Za-z]\((.*?)\)/, 'variables'],
-          [/[0-9]+/, 'digits'],
-          [/\b(and|or)\b/, 'logical-op'],
-        ],
-      },
-    });
-  },
-};
 
 @NgModule({
   imports: [
