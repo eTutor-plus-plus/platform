@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
@@ -9,6 +9,7 @@ import { EventManager } from 'app/core/util/event-manager.service';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
+import { LecturerRunSubmissionComponent } from '../../../dispatcher/lecturer-run-submission/lecturer-run-submission.component';
 
 /**
  * Component for creating / updating tasks.
@@ -54,6 +55,7 @@ export class TaskUpdateComponent implements OnInit {
    *
    * @param fb the injected form builder service
    * @param activeModal the injected active modal service
+   * @param modalService the injected modal service
    * @param tasksService the injected tasks service
    * @param eventManager the injected event manager service
    * @param taskGroupService the task group service
@@ -62,6 +64,7 @@ export class TaskUpdateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private activeModal: NgbActiveModal,
+    private modalService: NgbModal,
     private tasksService: TasksService,
     private eventManager: EventManager,
     private sqlExerciseService: SqlExerciseService,
@@ -316,6 +319,23 @@ export class TaskUpdateComponent implements OnInit {
     this.patchSQLValues(taskGroupId);
   }
 
+  /**
+   * Opens a lecturer-run-submission modal window to test a solution
+   */
+  public openSolutionRunnerWindow(): void {
+    const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
+    const subm = this.updateForm.get(['sqlSolution'])!.value;
+    const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    const id = this.updateForm.get(['taskIdForDispatcher'])!.value;
+    (modalRef.componentInstance as LecturerRunSubmissionComponent).submissionEntry = {
+      hasBeenSolved: false,
+      isSubmitted: false,
+      instant: '',
+      submission: subm,
+      dispatcherId: id,
+      taskType: taskT,
+    };
+  }
   /**
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id
