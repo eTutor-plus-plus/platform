@@ -172,9 +172,7 @@
       ></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isSQLTask || isRATask">
-      <label *ngIf="isSQLTask" class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution"
-        >SQL solution:</label
-      >
+      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group">

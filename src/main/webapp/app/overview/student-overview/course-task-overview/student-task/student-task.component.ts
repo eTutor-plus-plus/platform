@@ -79,7 +79,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
-        this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+        this.isDispatcherTask =
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.RATask.value;
 
         if (this.isDispatcherTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
