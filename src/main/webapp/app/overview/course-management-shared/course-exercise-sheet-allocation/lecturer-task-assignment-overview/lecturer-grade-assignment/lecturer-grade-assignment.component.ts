@@ -178,8 +178,11 @@ export class LecturerGradeAssignmentComponent {
     (modalRef.componentInstance as TaskSubmissionsComponent).orderNo = this._selectedGradingInfo?.orderNo.toString();
   }
 
-  public isSQLTask(): boolean {
-    return this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.SQLTask.value;
+  public isDispatcherTask(): boolean {
+    return (
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.SQLTask.value ||
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.RATask.value
+    );
   }
   /**
    * Asynchronously loads the grading info.
