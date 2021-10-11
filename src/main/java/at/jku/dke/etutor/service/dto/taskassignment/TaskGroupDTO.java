@@ -27,8 +27,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String id, String creator, Instant changeDate) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -55,6 +55,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement sqlCreateStatement = resource.getProperty(ETutorVocabulary.hasSQLCreateStatements);
         Statement sqlInsertSubmissionStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission);
         Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
+        Statement diagnoseXMLFileStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseXMLFile);
+        Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -67,6 +69,12 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         }
         if (sqlInsertDiagnoseStatement!= null) {
            setSqlInsertStatementsDiagnose(sqlInsertDiagnoseStatement.getString());
+        }
+        if(diagnoseXMLFileStatement != null){
+            setxQueryDiagnoseXML(diagnoseXMLFileStatement.getString());
+        }
+        if(submissionXMLFileStatement != null){
+            setxQuerySubmissionXML(submissionXMLFileStatement.getString());
         }
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {

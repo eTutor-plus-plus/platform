@@ -79,6 +79,8 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE = "hasSQLInsertStatementsDiagnose";
+    private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
+    private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
@@ -116,6 +118,7 @@ public final class ETutorVocabulary {
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
+    private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -294,6 +297,14 @@ public final class ETutorVocabulary {
      * The hasSQLInsertStatementsDiagnose property.
      */
     public static final Property hasSQLInsertStatementsDiagnose = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE);
+    /**
+     * The hasDiagnoseXMLFile property
+     */
+    public static final Property hasDiagnoseXMLFile = m.createProperty(URI+PROP_HAS_DIAGNOSE_XML_FILE);
+    /**
+     * The hasSubmissionXMLFile property
+     */
+    public static final Property hasSubmissionXMLFile = m.createProperty(URI+PROP_HAS_SUBMISSION_XML_FILE);
     /**
      * The hasSQLSolution property.
      */
@@ -522,9 +533,13 @@ public final class ETutorVocabulary {
      */
     public static final Resource NoTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_NO_TYPE_TASK_GROUP);
     /**
-     * The SQL type task group type
+     * The SQL task group type
      */
     public static final Resource SQLTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_SQL_TYPE_TASK_GROUP);
+    /**
+     * The XQuery task group type
+     */
+    public static final Resource XQueryTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_XQUERY_TASK_GROUP);
     /**
      * The easy difficulty instance.
      */

@@ -78,11 +78,14 @@
         "sqlCreateStatements": "SQL: Create-Table-Statements",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "diagnoseXML": "XQuery: XML for diagnose- evaluation",
+        "submissionXML": "XQuery: XML for submit- evaluation",
         "descriptionField": "Description:",
         "taskGroupType": "Type:",
         "types": {
           "noType": "No Type",
-          "sqlType": "SQL Group"
+          "sqlType": "SQL Group",
+          "xQueryType": "XQuery Group"
         }
       }
     }

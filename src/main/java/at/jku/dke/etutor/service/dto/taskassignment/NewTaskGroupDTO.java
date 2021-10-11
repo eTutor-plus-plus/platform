@@ -20,6 +20,8 @@ public class NewTaskGroupDTO {
     private String sqlCreateStatements;
     private String sqlInsertStatementsSubmission;
     private String sqlInsertStatementsDiagnose;
+    private String xQueryDiagnoseXML;
+    private String xQuerySubmissionXML;
 
     /**
      * Constructor.
@@ -31,13 +33,17 @@ public class NewTaskGroupDTO {
                            String taskGroupTypeId,
                            String sqlCreateStatements,
                            String sqlInsertStatementsSubmission,
-                           String sqlInsertStatementsDiagnose) {
+                           String sqlInsertStatementsDiagnose,
+                           String xQueryDiagnoseXML,
+                           String xQuerySubmissionXML) {
         this.name = name;
         this.description = description;
         this.taskGroupTypeId = taskGroupTypeId;
         this.sqlCreateStatements =sqlCreateStatements;
         this.sqlInsertStatementsSubmission=sqlInsertStatementsSubmission;
         this.sqlInsertStatementsDiagnose=sqlInsertStatementsDiagnose;
+        this.xQueryDiagnoseXML=xQueryDiagnoseXML;
+        this.xQuerySubmissionXML=xQuerySubmissionXML;
     }
 
     /**
@@ -129,6 +135,38 @@ public class NewTaskGroupDTO {
      */
     public void setSqlInsertStatementsDiagnose(String sqlInsertStatementsDiagnose) {
         this.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
+    }
+
+    /**
+     * Returns the XML for diagnose xquery submissions
+     * @return the XML-String
+     */
+    public String getxQueryDiagnoseXML() {
+        return xQueryDiagnoseXML;
+    }
+
+    /**
+     * Sets the XML for diagnose xquery submissions
+     * @param xQueryDiagnoseXML the XML-String
+     */
+    public void setxQueryDiagnoseXML(String xQueryDiagnoseXML) {
+        this.xQueryDiagnoseXML = xQueryDiagnoseXML;
+    }
+
+    /**
+     * Returns the XML for submitted xquery submissions
+     * @return the XML-String
+     */
+    public String getxQuerySubmissionXML() {
+        return xQuerySubmissionXML;
+    }
+
+    /**
+     * Sets the XML for submitted xquery submissions
+     * @param xQuerySubmissionXML the XML-String
+     */
+    public void setxQuerySubmissionXML(String xQuerySubmissionXML) {
+        this.xQuerySubmissionXML = xQuerySubmissionXML;
     }
 
     /**
