@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -94,23 +95,25 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
             }
             """;
 
-    private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE =
-        """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    private static final String QRY_SELECT_EXERCISE_SHEETS_OF_INSTANCE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT (STR(?sheet) as ?sheetId) ?lbl (COUNT(?individualAssignment) AS ?cnt)
-            WHERE {
-              ?courseInstance a etutor:CourseInstance.
-              ?courseInstance etutor:hasExerciseSheet ?sheet.
-              ?sheet rdfs:label ?lbl
-              OPTIONAL {
-                ?individualAssignment etutor:fromExerciseSheet ?sheet.
-              }
-            }
-            GROUP BY ?sheet ?lbl
-            ORDER BY (LCASE(?lbl))
-            """;
+        SELECT (STR(?sheet) as ?sheetId) ?lbl ?closed (COUNT(?individualAssignment) AS ?cnt)
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?courseInstance etutor:hasExerciseSheetAssignment [
+            etutor:hasExerciseSheet ?sheet;
+            etutor:isExerciseSheetClosed ?closed
+          ].
+          ?sheet rdfs:label ?lbl
+          OPTIONAL {
+            ?individualAssignment etutor:fromExerciseSheet ?sheet.
+          }
+        }
+        GROUP BY ?sheet ?lbl ?closed
+        ORDER BY (LCASE(?lbl))
+        """;
 
     private static final String QRY_DROP_NAMED_GRAPH = """
         DROP SILENT GRAPH ?graph
@@ -473,9 +476,19 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
 
         for (String exerciseSheetUri : exerciseSheets) {
             qry.appendIri(courseInstanceUri);
-            qry.append(" etutor:hasExerciseSheet ");
+            qry.append("""
+                etutor:hasExerciseSheetAssignment [
+                    a etutor:ExerciseSheetAssignment ;
+                    etutor:hasExerciseSheet
+                """);
             qry.appendIri(exerciseSheetUri);
-            qry.append(".\n");
+            qry.append("""
+                ;
+                etutor:isExerciseSheetClosed false ;
+                etutor:hasExerciseSheetOpenDateTime
+                """);
+            qry.appendLiteral(instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
+            qry.append(" ].\n");
         }
 
         qry.append("}");
@@ -528,8 +541,9 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
                     String id = solution.getLiteral("?sheetId").getString();
                     String name = solution.getLiteral("?lbl").getString();
                     int count = solution.getLiteral("?cnt").getInt();
+                    boolean closed = solution.getLiteral("?closed").getBoolean();
 
-                    list.add(new ExerciseSheetDisplayDTO(id, name, count));
+                    list.add(new ExerciseSheetDisplayDTO(id, name, count, closed));
                 }
                 return list;
             }

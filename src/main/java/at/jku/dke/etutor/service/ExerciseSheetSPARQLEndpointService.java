@@ -286,7 +286,7 @@ public non-sealed class ExerciseSheetSPARQLEndpointService extends AbstractSPARQ
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
                     int count = querySolution.getLiteral("?cnt").getInt();
-                    resultList.add(new ExerciseSheetDisplayDTO(id, name, count));
+                    resultList.add(new ExerciseSheetDisplayDTO(id, name, count, false));
                 }
 
                 boolean hasNext = page.isPaged() && resultList.size() > page.getPageSize();
@@ -373,7 +373,7 @@ public non-sealed class ExerciseSheetSPARQLEndpointService extends AbstractSPARQ
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
                     int cnt = querySolution.getLiteral("?cnt").getInt();
-                    list.add(new ExerciseSheetDisplayDTO(id, name, cnt));
+                    list.add(new ExerciseSheetDisplayDTO(id, name, cnt, false));
                 }
             }
             try (QueryExecution execution = connection.query(countQry.asQuery())) {

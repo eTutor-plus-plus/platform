@@ -75,4 +75,8 @@ export interface IExerciseSheetDisplayDTO {
    * The individual assignment count.
    */
   individualAssignmentCnt: number;
+  /**
+   * Indicates whether or not the exercise sheet has already been closed.
+   */
+  closed: boolean;
 }

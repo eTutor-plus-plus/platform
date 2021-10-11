@@ -140,7 +140,8 @@ export class CourseExerciseSheetAllocationComponent {
   }
 
   /**
-   * Requests the overview of the achieved points for a specific exercise-sheet
+   * Requests the overview of the achieved points for a specific exercise-sheet.
+   *
    * @param item the exercise sheet
    */
   public exportPointsForExerciseSheet(item: IExerciseSheetDisplayDTO): void {
@@ -148,6 +149,16 @@ export class CourseExerciseSheetAllocationComponent {
     const courseInstanceUUID = this._courseInstance?.id.substr(this._courseInstance.id.lastIndexOf('#') + 1);
     this.lecturerAssignmentService.getExerciseSheetPointOverviewAsCSV(courseInstanceUUID!, exerciseSheetUUID);
   }
+
+  /**
+   * Closes the requested exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public closeExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    // TODO!
+  }
+
   /**
    * Asynchronously saves the form.
    */

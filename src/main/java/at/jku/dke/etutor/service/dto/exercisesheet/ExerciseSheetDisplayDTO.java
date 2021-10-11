@@ -10,6 +10,7 @@ public class ExerciseSheetDisplayDTO {
     private String internalId;
     private String name;
     private int individualAssignmentCnt;
+    private boolean closed;
 
     /**
      * Constructor.
@@ -25,11 +26,13 @@ public class ExerciseSheetDisplayDTO {
      * @param internalId              the internal id
      * @param name                    the name
      * @param individualAssignmentCnt the individual assignment count
+     * @param closed                  indicates whether the exercise sheet has already been closed
      */
-    public ExerciseSheetDisplayDTO(String internalId, String name, int individualAssignmentCnt) {
+    public ExerciseSheetDisplayDTO(String internalId, String name, int individualAssignmentCnt, boolean closed) {
         this.internalId = internalId;
         this.name = name;
         this.individualAssignmentCnt = individualAssignmentCnt;
+        this.closed = false;
     }
 
     /**
@@ -84,5 +87,23 @@ public class ExerciseSheetDisplayDTO {
      */
     public void setIndividualAssignmentCnt(int individualAssignmentCnt) {
         this.individualAssignmentCnt = individualAssignmentCnt;
+    }
+
+    /**
+     * Returns whether the exercise sheet has already been closed.
+     *
+     * @return {@code true} if the exercise sheet has already been closed, otherwise {@code false}
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+
+    /**
+     * Sets whether the exercise sheet has already been closed.
+     *
+     * @param closed the value to set
+     */
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 }

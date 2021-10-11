@@ -125,10 +125,10 @@ etutor:hasStudent
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Student .
 
-etutor:hasExerciseSheet
+etutor:hasExerciseSheetAssignment
     rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
-    rdfs:range  etutor:ExerciseSheet .
+    rdfs:range  etutor:ExerciseSheetAssignment .
 
 # Instances
 etutor-term:Winter
@@ -138,6 +138,32 @@ etutor-term:Winter
 etutor-term:Summer
     a          etutor:Term ;
     rdfs:label "Sommersemester" .
+
+## ExerciseSheetAssignment
+# Classes
+etutor:ExerciseSheetAssignment
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:isExerciseSheetClosed
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:boolean .
+
+etutor:hasExerciseSheet
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  etutor:ExerciseSheet .
+
+etutor:hasExerciseSheetOpenDateTime
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:dateTime .
+
+etutor:hasExerciseSheetCloseDateTime
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:dateTime .
 
 ## Students
 # Classes

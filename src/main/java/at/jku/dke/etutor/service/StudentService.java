@@ -66,12 +66,15 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed ?wholeSheetClosed
         WHERE {
           {
             ?instance a etutor:CourseInstance.
             ?instance etutor:hasStudent ?student.
-            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?instance etutor:hasExerciseSheetAssignment [
+            	etutor:hasExerciseSheet ?exerciseSheet;
+             	etutor:isExerciseSheetClosed ?wholeSheetClosed
+            ].
             ?exerciseSheet rdfs:label ?exerciseSheetName.
             ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
             ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
@@ -125,16 +128,19 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
           } UNION {
             ?instance a etutor:CourseInstance.
             ?instance etutor:hasStudent ?student.
-            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?instance etutor:hasExerciseSheetAssignment [
+            	etutor:hasExerciseSheet ?exerciseSheet;
+             	etutor:isExerciseSheetClosed ?wholeSheetClosed
+            ].
             ?exerciseSheet rdfs:label ?exerciseSheetName.
             ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
             ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
             FILTER(NOT EXISTS{
-              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-              ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
-                                    etutor:fromCourseInstance ?instance;
-                                    etutor:hasIndividualTask ?individualTask.
-            }).
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                      etutor:fromCourseInstance ?instance;
+                                      etutor:hasIndividualTask ?individualTask.
+              }).
             BIND(false AS ?completed).
             BIND(0 AS ?actualCount).
             BIND(0 AS ?submissionCount).
