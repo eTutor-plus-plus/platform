@@ -4,22 +4,28 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -50,14 +56,54 @@ public class TaskGroupResource {
      */
     @PostMapping()
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO) {
+    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
+            if(newTaskGroupDTO.getTaskGroupTypeId().contains("XQueryType"));{
+                proxyXMLtoDispatcher(taskGroupDTO, request, token);
+            }
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
         }
+    }
+
+    private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
+        Objects.requireNonNull(taskGroupDTO.getId());
+        Objects.requireNonNull(taskGroupDTO.getxQueryDiagnoseXML());
+        Objects.requireNonNull(taskGroupDTO.getxQuerySubmissionXML());
+
+        String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
+        String submisisonXML = taskGroupDTO.getxQuerySubmissionXML();
+        DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML,submisisonXML);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+        try {
+            jsonBody = mapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        //TODO: change from task group name to task group UUID
+        url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
+        var fileId = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+        int i = 1;
     }
 
     /**

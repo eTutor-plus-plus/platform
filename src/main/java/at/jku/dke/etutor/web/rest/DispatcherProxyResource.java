@@ -2,6 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -204,6 +205,24 @@ public class DispatcherProxyResource {
 
 
         return getStringResponseEntity(client, request);
+    }
+
+    /**
+     * Sends the POST-request for adding XML-files for a task group to the dispatcher
+     * @param taskGroupUUID the UUID for the task group
+     * @param dto the dto containing the xml's
+     * @return the file id of the created xml file from the dispatcher for retrieving
+     */
+    @PostMapping("xquery/xml/taskGroup/{taskGroupUUID}")
+    public ResponseEntity<Integer> addXMLForTaskGroup(@PathVariable String taskGroupUUID, @RequestBody String dto){
+        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroupUUID;
+        var client = getHttpClient();
+        var request = getPostRequestWithBody(url, dto).build();
+        ResponseEntity<String> responseEntity= getStringResponseEntity(client, request);
+
+        int id = Integer.parseInt(responseEntity.getBody());
+
+        return ResponseEntity.ok(id);
     }
 
     /**
