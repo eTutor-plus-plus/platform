@@ -27,12 +27,14 @@
               <div class="btn-group">
                 <button [disabled]="isSelected(item)" (click)="markAsSelected(item)" class="btn btn-secondary">Zuordnen</button>
                 <button [disabled]="!isSelected(item)" (click)="openLecturerAssignmentOverview(item)" class="btn btn-info">
-                  LVA-Leiter Übersicht öffnen
+                  Open the course instructor's view
                 </button>
                 <button [disabled]="!isSelected(item)" (click)="exportPointsForExerciseSheet(item)" class="btn btn-info">
-                  Punkte-Export
+                  Export points
                 </button>
-                <button>A</button>
+                <button [disabled]="isClosed(item) || !isSelected(item)" (click)="closeExerciseSheet(item)" class="btn btn-danger">
+                  Close exercise sheet
+                </button>
               </div>
             </td>
           </tr>

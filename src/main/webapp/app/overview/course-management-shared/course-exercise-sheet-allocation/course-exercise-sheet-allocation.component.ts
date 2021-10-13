@@ -31,6 +31,7 @@ export class CourseExerciseSheetAllocationComponent {
 
   private _courseInstance?: IDisplayableCourseInstanceDTO;
   private _selectedSheetIdsToSave: string[] = [];
+  private _closedExerciseSheets: string[] = [];
   private _exerciseSheetPointOverview: TaskPointEntryModel[] = [];
 
   /**
@@ -41,6 +42,7 @@ export class CourseExerciseSheetAllocationComponent {
    * @param exerciseSheetService the injected exercise sheet service
    * @param courseService the injected course service
    * @param modalService the injected modal service
+   * @param lecturerAssignmentService the injected lecturer assignment service
    */
   constructor(
     private activeModal: NgbActiveModal,
@@ -64,6 +66,7 @@ export class CourseExerciseSheetAllocationComponent {
     forkJoin([this.loadExerciseSheetsPageAsync(), this.courseService.getExerciseSheetsOfCourseInstance(value.id)]).subscribe(
       ([, second]) => {
         this.selectedSheetsId = second.map(x => x.internalId);
+        this._closedExerciseSheets = second.filter(x => x.closed).map(x => x.internalId);
       }
     );
   }
@@ -106,6 +109,15 @@ export class CourseExerciseSheetAllocationComponent {
    */
   public isSelected(item: IExerciseSheetDisplayDTO): boolean {
     return this.selectedSheetsId.includes(item.internalId);
+  }
+
+  /**
+   * Returns whether the given exercise sheet is already closed or not.
+   *
+   * @param item the exercise sheet to check
+   */
+  public isClosed(item: IExerciseSheetDisplayDTO): boolean {
+    return this._closedExerciseSheets.includes(item.internalId);
   }
 
   /**
@@ -156,7 +168,10 @@ export class CourseExerciseSheetAllocationComponent {
    * @param item the exercise sheet
    */
   public closeExerciseSheet(item: IExerciseSheetDisplayDTO): void {
-    // TODO!
+    this.lecturerAssignmentService.closeExerciseSheet(this._courseInstance!.id, item.internalId).subscribe(() => {
+      item.closed = true;
+      this._closedExerciseSheets.push(item.internalId);
+    });
   }
 
   /**

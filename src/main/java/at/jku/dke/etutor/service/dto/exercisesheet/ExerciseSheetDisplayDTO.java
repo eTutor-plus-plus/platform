@@ -32,7 +32,7 @@ public class ExerciseSheetDisplayDTO {
         this.internalId = internalId;
         this.name = name;
         this.individualAssignmentCnt = individualAssignmentCnt;
-        this.closed = false;
+        this.closed = closed;
     }
 
     /**

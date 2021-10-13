@@ -145,4 +145,20 @@ export class LecturerTaskAssignmentService {
         URL.revokeObjectURL(objectURL);
       });
   }
+
+  /**
+   * Closes an exercise sheet from a given course instance.
+   *
+   * @param courseInstanceId the course instance's ID
+   * @param exerciseSheetId the exercise sheet's ID
+   */
+  public closeExerciseSheet(courseInstanceId: string, exerciseSheetId: string): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    const exerciseSheetUUID = exerciseSheetId.substr(exerciseSheetId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/close`,
+      undefined
+    );
+  }
 }

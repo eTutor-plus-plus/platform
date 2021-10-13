@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradi
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import one.util.streamex.StreamEx;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -19,10 +20,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Service endpoint for managing lecturer related data.
@@ -596,11 +600,12 @@ public non-sealed class LecturerSPARQLEndpointService extends AbstractSPARQLEndp
 
     /**
      * Returns an overview about all the assigned tasks for a given exercise sheet and course instance with the achieved points and maximum points
-     * @param exerciseSheetUUID the exercise sheet
+     *
+     * @param exerciseSheetUUID  the exercise sheet
      * @param courseInstanceUUID the course instance
      * @return an Optional containing the information
      */
-    public Optional<List<TaskPointEntryDTO>> getPointsOverviewForExerciseSheet(String exerciseSheetUUID, String courseInstanceUUID){
+    public Optional<List<TaskPointEntryDTO>> getPointsOverviewForExerciseSheet(String exerciseSheetUUID, String courseInstanceUUID) {
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(courseInstanceUUID);
 
@@ -623,22 +628,69 @@ public non-sealed class LecturerSPARQLEndpointService extends AbstractSPARQLEndp
                     String student = studentResource.getURI();
                     Literal pointsLiteral = solution.getLiteral("?points");
                     double points = 0;
-                    if(pointsLiteral != null) points = pointsLiteral.getDouble();
+                    if (pointsLiteral != null) points = pointsLiteral.getDouble();
                     Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
                     Literal taskAssignmentHeaderLiteral = solution.getLiteral("?taskAssignmentHeader");
                     Resource taskAssignmentResource = solution.getResource("?taskAssignment");
                     String taskAssignment = taskAssignmentResource.getURI();
 
                     overviewInfo.add(new TaskPointEntryDTO(
-                        student.substring(student.lastIndexOf("#")+1),
+                        student.substring(student.lastIndexOf("#") + 1),
                         maxPointsLiteral.getDouble(),
                         points,
                         taskAssignmentHeaderLiteral.getString(),
-                        taskAssignment.substring(taskAssignment.lastIndexOf("#")+1)));
+                        taskAssignment.substring(taskAssignment.lastIndexOf("#") + 1)));
                 }
                 if (overviewInfo.isEmpty()) return Optional.empty();
             }
         }
-            return Optional.of(overviewInfo);
+        return Optional.of(overviewInfo);
+    }
+
+    /**
+     * Closes an exercise sheet from a given course instance.
+     *
+     * @param courseInstanceUUID the course instance's UUID - must not be null
+     * @param exerciseSheetUUID  the exercise sheet's UUID - must not be null
+     */
+    public void closeExerciseSheetOfCourseInstance(String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+
+        ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?eAssignment etutor:isExerciseSheetClosed ?oldIsClosed.
+              ?eAssignment etutor:hasExerciseSheetCloseDateTime ?oldCloseTime.
+            }
+            INSERT {
+              ?eAssignment etutor:isExerciseSheetClosed true.
+              ?eAssignment etutor:hasExerciseSheetCloseDateTime ?newCloseTime.
+            }
+            WHERE {
+              ?instance etutor:hasExerciseSheetAssignment ?eAssignment.
+              ?eAssignment a etutor:ExerciseSheetAssignment.
+              ?eAssignment etutor:hasExerciseSheet ?sheet.
+              OPTIONAL {
+                ?eAssignment etutor:isExerciseSheetClosed ?oldIsClosed.
+              }
+              OPTIONAL {
+                ?eAssignment etutor:hasExerciseSheetCloseDateTime ?oldCloseTime.
+              }
+            }
+            """);
+
+        updateQry.setIri("?instance", courseInstanceURL);
+        updateQry.setIri("?sheet", exerciseSheetURL);
+        String nowStr = instantToRDFString(Instant.now());
+        updateQry.setLiteral("?newCloseTime", nowStr, XSDDatatype.XSDdateTime);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(updateQry.asUpdate());
+        }
     }
 }

@@ -6,14 +6,6 @@ import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradi
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -28,6 +20,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing lecturer related operations.
@@ -119,29 +118,31 @@ public class LecturerResource {
 
     /**
      * Returns the achieved points and the maximum points for a given course instance and exercise sheet
+     *
      * @param courseInstanceUUID the course instance
-     * @param exerciseSheetUUID the exercise sheet
+     * @param exerciseSheetUUID  the exercise sheet
      * @return the ResponseEntity containing the overview of points
      */
     @GetMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/points-overview")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskPointEntryDTO[]> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+    public ResponseEntity<TaskPointEntryDTO[]> getDispatcherPointsForExercsiseSheet(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
         Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
         List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
 
-        if(pointsOverviewInfo != null) return ResponseEntity.ok(pointsOverviewInfo.toArray(TaskPointEntryDTO[]::new));
+        if (pointsOverviewInfo != null) return ResponseEntity.ok(pointsOverviewInfo.toArray(TaskPointEntryDTO[]::new));
         else return ResponseEntity.ok(null);
     }
 
     /**
      * Returns the points overview for a specific exercise sheet and course instance as csv
-     * @param courseInstanceUUID the cours instance
-     * @param exerciseSheetUUID the csv
+     *
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID  the csv
      * @return a ResponseEntity containing the csv
      */
     @GetMapping(value = "course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/csv/points-overview", produces = "text/csv")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID){
+    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
         String[] csvHeader = {
             "matriculationNo", "taskHeader", "maxPoints", "points"
         };
@@ -158,7 +159,7 @@ public class LecturerResource {
             );
         ) {
             List<String> printableRecord;
-            for (TaskPointEntryDTO record : pointsOverviewInfo){
+            for (TaskPointEntryDTO record : pointsOverviewInfo) {
                 printableRecord = new ArrayList<>();
                 printableRecord.add(record.getMatriculationNo());
                 printableRecord.add(record.getTaskHeader());
@@ -188,5 +189,19 @@ public class LecturerResource {
             headers,
             HttpStatus.OK
         );
+    }
+
+    /**
+     * Closes an exercise sheet of a given course instance.
+     *
+     * @param courseInstanceUUID the course instance's UUID
+     * @param exerciseSheetUUID  the exercise sheet's UUID
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/close")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> closeExerciseSheetOfCourseInstance(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        lecturerSPARQLEndpointService.closeExerciseSheetOfCourseInstance(courseInstanceUUID, exerciseSheetUUID);
+        return ResponseEntity.noContent().build();
     }
 }
