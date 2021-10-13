@@ -162,6 +162,14 @@ export class CourseExerciseSheetAllocationComponent {
     this.lecturerAssignmentService.getExerciseSheetPointOverviewAsCSV(courseInstanceUUID!, exerciseSheetUUID);
   }
 
+  public openOrCloseExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    if (this.isClosed(item)) {
+      this.openExerciseSheet(item);
+    } else {
+      this.closeExerciseSheet(item);
+    }
+  }
+
   /**
    * Closes the requested exercise sheet.
    *
@@ -171,6 +179,18 @@ export class CourseExerciseSheetAllocationComponent {
     this.lecturerAssignmentService.closeExerciseSheet(this._courseInstance!.id, item.internalId).subscribe(() => {
       item.closed = true;
       this._closedExerciseSheets.push(item.internalId);
+    });
+  }
+
+  /**
+   * Re-opens an already closed exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public openExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    this.lecturerAssignmentService.openExerciseSheet(this._courseInstance!.id, item.internalId).subscribe(() => {
+      item.closed = false;
+      this._closedExerciseSheets.splice(this._closedExerciseSheets.indexOf(item.internalId));
     });
   }
 
