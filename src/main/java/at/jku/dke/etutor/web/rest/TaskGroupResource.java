@@ -60,7 +60,7 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            if(newTaskGroupDTO.getTaskGroupTypeId().contains("XQueryType"));{
+            if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()));{
                 proxyXMLtoDispatcher(taskGroupDTO, request, token);
             }
             return ResponseEntity.ok(taskGroupDTO);
@@ -69,6 +69,73 @@ public class TaskGroupResource {
         }
     }
 
+
+    /**
+     * REST endpoint for deleting task groups.
+     *
+     * @param name the task group's name from the request path
+     * @return empty {@link ResponseEntity}
+     */
+    @DeleteMapping("{name}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
+        assignmentSPARQLEndpointService.deleteTaskGroup(name);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * REST endpoint for retrieving a single task group.
+     *
+     * @param name the task group's name from the request path
+     * @return the {@link ResponseEntity} containing the single task group
+     */
+    @GetMapping("{name}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<TaskGroupDTO> getTaskGroup(@PathVariable String name) {
+        Optional<TaskGroupDTO> taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name);
+        return ResponseEntity.of(taskGroup);
+    }
+
+    /**
+     * REST endpoint for manipulation task groups.
+     *
+     * @param taskGroupDTO the task group from teh request body
+     * @return the {@link ResponseEntity} containing the modified task group
+     */
+    @PutMapping
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO, HttpServletRequest request, @RequestHeader(name = "Authorization") String token) {
+        TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
+        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
+            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
+            proxyXMLtoDispatcher(taskGroupDTO, request, token);
+        }
+        return ResponseEntity.ok(taskGroupDTOFromService);
+    }
+
+    /**
+     * REST endpoint for retrieving a paged task group list.
+     *
+     * @param filter   the optional filter
+     * @param pageable the pagination object
+     * @return the {@link ResponseEntity} containing the list of paged task groups
+     */
+    @GetMapping("displayable/list")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<TaskGroupDisplayDTO>> getPagedTaskGroups(@RequestParam(required = false, defaultValue = "") String filter, Pageable pageable) {
+        Page<TaskGroupDisplayDTO> page = assignmentSPARQLEndpointService.getFilteredTaskGroupPaged(filter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * Utility-method: Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
+     * @param taskGroupDTO the task group
+     * @param request the http request to retrieve the base url
+     * @param token the authorization token
+     */
     private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
         Objects.requireNonNull(taskGroupDTO.getId());
         Objects.requireNonNull(taskGroupDTO.getxQueryDiagnoseXML());
@@ -106,62 +173,4 @@ public class TaskGroupResource {
         int i = 1;
     }
 
-    /**
-     * REST endpoint for deleting task groups.
-     *
-     * @param name the task group's name from the request path
-     * @return empty {@link ResponseEntity}
-     */
-    @DeleteMapping("{name}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
-        assignmentSPARQLEndpointService.deleteTaskGroup(name);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * REST endpoint for retrieving a single task group.
-     *
-     * @param name the task group's name from the request path
-     * @return the {@link ResponseEntity} containing the single task group
-     */
-    @GetMapping("{name}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> getTaskGroup(@PathVariable String name) {
-        Optional<TaskGroupDTO> taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name);
-        return ResponseEntity.of(taskGroup);
-    }
-
-    /**
-     * REST endpoint for manipulation task groups.
-     *
-     * @param taskGroupDTO the task group from teh request body
-     * @return the {@link ResponseEntity} containing the modified task group
-     */
-    @PutMapping
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
-        TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
-        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
-            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
-            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-        }
-        return ResponseEntity.ok(taskGroupDTOFromService);
-    }
-
-    /**
-     * REST endpoint for retrieving a paged task group list.
-     *
-     * @param filter   the optional filter
-     * @param pageable the pagination object
-     * @return the {@link ResponseEntity} containing the list of paged task groups
-     */
-    @GetMapping("displayable/list")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<List<TaskGroupDisplayDTO>> getPagedTaskGroups(@RequestParam(required = false, defaultValue = "") String filter, Pageable pageable) {
-        Page<TaskGroupDisplayDTO> page = assignmentSPARQLEndpointService.getFilteredTaskGroupPaged(filter, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-    }
 }
