@@ -188,8 +188,8 @@ public class DispatcherProxyResource {
         var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);
         return getStringResponseEntity(client, request);
     }
-
     @GetMapping(value="sql/table/{tableName}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getHTMLTable(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
         String url = dispatcherURL+"/sql/table/"+tableName;
         if(exerciseId != -1){
@@ -214,6 +214,7 @@ public class DispatcherProxyResource {
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
     @PostMapping("xquery/xml/taskGroup/{taskGroup}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Integer> addXMLForTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
         String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
         var client = getHttpClient();
@@ -224,7 +225,21 @@ public class DispatcherProxyResource {
 
         return ResponseEntity.ok(id);
     }
+    /**
+     * Sends the DELETE-request for xml resources for a specific task group to the dispatcher
+     * @param taskGroup the UUID for the task group
+     * @return the file id of the created xml file from the dispatcher for retrieving
+     */
+    @DeleteMapping("xquery/xml/taskGroup/{taskGroup}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> deleteXMLofTaskGroup(@PathVariable String taskGroup){
+        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
+        var client = getHttpClient();
+        var request = getDeleteRequest(url);
+        ResponseEntity<String> responseEntity= getStringResponseEntity(client, request);
 
+        return ResponseEntity.ok(responseEntity.getBody());
+    }
     /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>
      * @param client the HttpClient

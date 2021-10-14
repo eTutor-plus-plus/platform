@@ -80,7 +80,20 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
+        deleteDispatcherResourcesForTaskGroup(name);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Utility method that triggers deletion of task-group related resources by the dispatcher
+     * @param name the name of the task group
+     */
+    private void deleteDispatcherResourcesForTaskGroup(String name) {
+        TaskGroupDTO taskGroupDTO = getTaskGroup(name).getBody();
+
+        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup)){
+            //TODO: complete
+        }
     }
 
     /**
@@ -168,8 +181,7 @@ public class TaskGroupResource {
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-        var fileId = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-        int i = 1;
+        var fileId = restTemplate.exchange(url, HttpMethod.POST, entity, Integer.class).getBody();
     }
 
 }
