@@ -167,7 +167,6 @@ public class TaskGroupResource {
         headers.setBearerAuth(token);
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
-        //TODO: change from task group name to task group UUID
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
         var fileId = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
         int i = 1;

@@ -209,13 +209,13 @@ public class DispatcherProxyResource {
 
     /**
      * Sends the POST-request for adding XML-files for a task group to the dispatcher
-     * @param taskGroupUUID the UUID for the task group
+     * @param taskGroup the UUID for the task group
      * @param dto the dto containing the xml's
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
-    @PostMapping("xquery/xml/taskGroup/{taskGroupUUID}")
-    public ResponseEntity<Integer> addXMLForTaskGroup(@PathVariable String taskGroupUUID, @RequestBody String dto){
-        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroupUUID;
+    @PostMapping("xquery/xml/taskGroup/{taskGroup}")
+    public ResponseEntity<Integer> addXMLForTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
+        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
         var client = getHttpClient();
         var request = getPostRequestWithBody(url, dto).build();
         ResponseEntity<String> responseEntity= getStringResponseEntity(client, request);
