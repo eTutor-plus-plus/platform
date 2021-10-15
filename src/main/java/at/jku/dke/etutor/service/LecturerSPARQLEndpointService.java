@@ -693,4 +693,55 @@ public non-sealed class LecturerSPARQLEndpointService extends AbstractSPARQLEndp
             connection.update(updateQry.asUpdate());
         }
     }
+
+    /**
+     * Re-opens an already closed exercise sheet.
+     *
+     * @param courseInstanceUUID the course instance's UUID
+     * @param exerciseSheetUUID  the exercise sheet's UUID
+     */
+    public void openExerciseSheetOfCourseInstance(String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+
+        ParameterizedSparqlString updateQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?eAssignment etutor:isExerciseSheetClosed ?oldIsClosed.
+              ?eAssignment etutor:hasExerciseSheetCloseDateTime ?oldCloseTime.
+              ?eAssignment etutor:hasExerciseSheetOpenDateTime ?oldOpenTime.
+            }
+            INSERT {
+              ?eAssignment etutor:isExerciseSheetClosed false.
+              ?eAssignment etutor:hasExerciseSheetOpenDateTime ?newOpenTime.
+            }
+            WHERE {
+              ?instance etutor:hasExerciseSheetAssignment ?eAssignment.
+              ?eAssignment a etutor:ExerciseSheetAssignment.
+              ?eAssignment etutor:hasExerciseSheet ?sheet.
+              OPTIONAL {
+                ?eAssignment etutor:isExerciseSheetClosed ?oldIsClosed.
+              }
+              OPTIONAL {
+                ?eAssignment etutor:hasExerciseSheetCloseDateTime ?oldCloseTime.
+              }
+              OPTIONAL {
+               ?eAssignment etutor:hasExerciseSheetOpenDateTime ?oldOpenTime.\s
+              }
+            }
+            """);
+
+        updateQry.setIri("?instance", courseInstanceURL);
+        updateQry.setIri("?sheet", exerciseSheetURL);
+        String nowStr = instantToRDFString(Instant.now());
+        updateQry.setLiteral("?newOpenTime", nowStr, XSDDatatype.XSDdateTime);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(updateQry.asUpdate());
+        }
+    }
 }

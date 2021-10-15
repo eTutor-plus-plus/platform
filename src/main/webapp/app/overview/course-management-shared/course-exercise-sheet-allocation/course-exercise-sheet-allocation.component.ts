@@ -162,6 +162,11 @@ export class CourseExerciseSheetAllocationComponent {
     this.lecturerAssignmentService.getExerciseSheetPointOverviewAsCSV(courseInstanceUUID!, exerciseSheetUUID);
   }
 
+  /**
+   * Opens or closes the requested exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
   public openOrCloseExerciseSheet(item: IExerciseSheetDisplayDTO): void {
     if (this.isClosed(item)) {
       this.openExerciseSheet(item);

@@ -156,7 +156,7 @@ public class LecturerResource {
             CSVPrinter csvPrinter = new CSVPrinter(
                 new PrintWriter(out),
                 CSVFormat.DEFAULT.withHeader(csvHeader)
-            );
+            )
         ) {
             List<String> printableRecord;
             for (TaskPointEntryDTO record : pointsOverviewInfo) {
@@ -202,6 +202,20 @@ public class LecturerResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> closeExerciseSheetOfCourseInstance(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
         lecturerSPARQLEndpointService.closeExerciseSheetOfCourseInstance(courseInstanceUUID, exerciseSheetUUID);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Re-opens an already closed exercise sheet of a given course instance.
+     *
+     * @param courseInstanceUUID the course instance's UUID
+     * @param exerciseSheetUUID  the exercise sheet's UUID
+     * @return empty {@link ResponseEntity}
+     */
+    @PutMapping("course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/open")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> openExerciseSheetOfCourseInstance(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        lecturerSPARQLEndpointService.openExerciseSheetOfCourseInstance(courseInstanceUUID, exerciseSheetUUID);
         return ResponseEntity.noContent().build();
     }
 }

@@ -32,8 +32,8 @@
                 <button [disabled]="!isSelected(item)" (click)="exportPointsForExerciseSheet(item)" class="btn btn-info">
                   Export points
                 </button>
-                <button [disabled]="isClosed(item) || !isSelected(item)" (click)="closeExerciseSheet(item)" class="btn btn-danger">
-                  Close exercise sheet
+                <button [disabled]="!isSelected(item)" (click)="openOrCloseExerciseSheet(item)" class="btn btn-danger">
+                  {{ isClosed(item) ? 'Open exercise sheet' : 'Close exercise sheet' }}
                 </button>
               </div>
             </td>
