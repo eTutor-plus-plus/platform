@@ -27,7 +27,7 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String id, String creator, Instant changeDate) {
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML,  String id, String creator, Instant changeDate) {
         super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML);
         this.id = id;
         this.creator = creator;
@@ -57,6 +57,7 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
         Statement diagnoseXMLFileStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseXMLFile);
         Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
+        Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -75,6 +76,9 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         }
         if(submissionXMLFileStatement != null){
             setxQuerySubmissionXML(submissionXMLFileStatement.getString());
+        }
+        if(fileUrlStatement != null){
+            setFileUrl(fileUrlStatement.getString());
         }
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {

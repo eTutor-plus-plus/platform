@@ -110,6 +110,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
+    private static final String PROP_HAS_FILE_URL = "hasFileURL";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
@@ -442,6 +443,10 @@ public final class ETutorVocabulary {
      * The hasTaskGroupType property.
      */
     public static final Property hasTaskGroupType = m.createProperty(URI+PROP_HAS_TASK_GROUP_TYPE);
+    /**
+     * The hasFileUrl property
+     */
+    public static final Property hasFileUrl = m.createProperty(URI+PROP_HAS_FILE_URL);
     /**
      * The hasTask property.
      */

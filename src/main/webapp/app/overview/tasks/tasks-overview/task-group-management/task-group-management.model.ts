@@ -34,6 +34,10 @@ export interface INewTaskGroupDTO {
    * Optional XML document for an XQuery task group(submit-version)
    */
   xQuerySubmissionXML?: string;
+  /**
+   * Optional file url for a task group
+   */
+  fileUrl?: string;
 }
 
 /**

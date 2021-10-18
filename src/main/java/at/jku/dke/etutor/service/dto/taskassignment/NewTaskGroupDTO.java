@@ -22,6 +22,7 @@ public class NewTaskGroupDTO {
     private String sqlInsertStatementsDiagnose;
     private String xQueryDiagnoseXML;
     private String xQuerySubmissionXML;
+    private String fileUrl;
 
     /**
      * Constructor.
@@ -183,5 +184,13 @@ public class NewTaskGroupDTO {
      */
     public void setTaskGroupTypeId(String taskGroupTypeId) {
         this.taskGroupTypeId = taskGroupTypeId;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 }

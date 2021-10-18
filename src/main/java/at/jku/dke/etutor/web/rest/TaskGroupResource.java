@@ -198,7 +198,5 @@ public class TaskGroupResource {
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
         var fileURL = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
-        //TODO: add file URL to task-group
     }
-
 }
