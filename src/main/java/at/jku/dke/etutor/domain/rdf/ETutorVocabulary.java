@@ -84,6 +84,8 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
+    private static final String PROP_HAS_XQUERY_SOLUTION = "hasXQuerySolution";
+    private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -116,6 +118,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
     private static final String INSTANCE_RA_TASK = "RATask";
+    private static final String INSTANCE_XQ_TASK = "XQueryTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -309,7 +312,10 @@ public final class ETutorVocabulary {
     /**
      * The hasSQLSolution property.
      */
-    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);    /**
+    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
+
+    public static final Property hasXQuerySolution = m.createProperty(URI+PROP_HAS_XQUERY_SOLUTION);
+    public static final Property hasXQueryXPathSorting = m.createProperty(URI+PROP_HAS_XPATH_SORTING);
      /* *
      *The hasMaxPoints property
      */
@@ -533,6 +539,10 @@ public final class ETutorVocabulary {
      * The relational algebra type instance
      */
     public static final Resource RATask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_RA_TASK);
+    /**
+     * The XQuery type instance
+     */
+    public static final Resource XQueryTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_XQ_TASK);
     /**
      * The no type task group type
      */

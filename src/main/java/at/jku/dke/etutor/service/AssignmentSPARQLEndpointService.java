@@ -335,6 +335,17 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 query.append(".\n");
             }
 
+            if(StringUtils.isNotBlank(taskAssignment.getxQuerySolution())){
+                query.append("?assignment etutor:hasXQuerySolution ");
+                query.appendLiteral(taskAssignment.getxQuerySolution().trim());
+                query.append(".\n");
+            }
+
+            if(StringUtils.isNotBlank(taskAssignment.getxQueryXPathSorting())){
+                query.append("?assignment etutor:hasXPathSorting ");
+                query.appendLiteral(taskAssignment.getxQueryXPathSorting().trim());
+                query.append(".\n");
+            }
             if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
                 query.appendIri(taskAssignment.getTaskGroupId());
                 query.append(" etutor:hasTask ?assignment.\n");
@@ -1158,6 +1169,14 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())){
+            resource.addProperty(ETutorVocabulary.hasXQuerySolution, newTaskAssignmentDTO.getxQuerySolution().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQueryXPathSorting())){
+            resource.addProperty(ETutorVocabulary.hasXQueryXPathSorting, newTaskAssignmentDTO.getxQueryXPathSorting().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){

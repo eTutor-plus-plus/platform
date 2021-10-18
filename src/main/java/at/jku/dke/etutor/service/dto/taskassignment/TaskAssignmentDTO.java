@@ -64,6 +64,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setPrivateTask(newTaskAssignmentDTO.isPrivateTask());
         setTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         setTaskGroupId(newTaskAssignmentDTO.getTaskGroupId());
+        setxQuerySolution(newTaskAssignmentDTO.getxQuerySolution());
+        setxQueryXPathSorting(newTaskAssignmentDTO.getxQueryXPathSorting());
 
         setId(id);
         setCreationDate(creationDate);
@@ -120,6 +122,15 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (processingTimeStatement != null) {
             setProcessingTime(processingTimeStatement.getString());
         }
+        Statement xQuerySolutionStatement = resource.getProperty(ETutorVocabulary.hasXQuerySolution);
+        if(xQuerySolutionStatement != null){
+            setxQuerySolution(xQuerySolutionStatement.getString());
+        }
+        Statement xPathSortingStatement = resource.getProperty(ETutorVocabulary.hasXQueryXPathSorting);
+        if(xPathSortingStatement != null){
+            setxQueryXPathSorting(xPathSortingStatement.getString());
+        }
+
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());

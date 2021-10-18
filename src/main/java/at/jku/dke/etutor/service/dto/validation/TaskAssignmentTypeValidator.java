@@ -25,6 +25,7 @@ public class TaskAssignmentTypeValidator implements ConstraintValidator<TaskAssi
         availableIds[1] = ETutorVocabulary.UploadTask.getURI();
         availableIds[2] = ETutorVocabulary.SQLTask.getURI();
         availableIds[3] = ETutorVocabulary.RATask.getURI();
+        availableIds[4] = ETutorVocabulary.XQueryTask.getURI();
     }
 
     /**
