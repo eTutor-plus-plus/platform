@@ -78,9 +78,9 @@ public class TaskGroupResource {
      */
     @DeleteMapping("{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
+    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
+        deleteDispatcherResourcesForTaskGroup(name, request, token);
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
-        deleteDispatcherResourcesForTaskGroup(name);
         return ResponseEntity.noContent().build();
     }
 
@@ -88,11 +88,26 @@ public class TaskGroupResource {
      * Utility method that triggers deletion of task-group related resources by the dispatcher
      * @param name the name of the task group
      */
-    private void deleteDispatcherResourcesForTaskGroup(String name) {
+    private void deleteDispatcherResourcesForTaskGroup(String name, HttpServletRequest request, String token) {
         TaskGroupDTO taskGroupDTO = getTaskGroup(name).getBody();
 
-        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup)){
-            //TODO: complete
+        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+            token = token.substring(7);
+
+            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+            baseUrl += "/api/dispatcher/";
+
+            String url = "";
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
+            HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+            url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
+            var response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
         }
     }
 
