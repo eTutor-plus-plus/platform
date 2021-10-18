@@ -4,15 +4,11 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
@@ -25,7 +21,6 @@ import tech.jhipster.web.util.PaginationUtil;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -38,14 +33,17 @@ import java.util.Optional;
 public class TaskGroupResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment SPARQL endpoint service
+     * @param dispatcherProxyService the injected dispatcher proxy service
      */
-    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
+    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyService dispatcherProxyService) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -61,7 +59,7 @@ public class TaskGroupResource {
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
             if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()));{
-                proxyXMLtoDispatcher(taskGroupDTO, request, token);
+                dispatcherProxyService.proxyXMLtoDispatcher(taskGroupDTO, request, token);
             }
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
@@ -79,36 +77,9 @@ public class TaskGroupResource {
     @DeleteMapping("{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
-        deleteDispatcherResourcesForTaskGroup(name, request, token);
+        dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody(), request, token);
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Utility method that triggers deletion of task-group related resources by the dispatcher
-     * @param name the name of the task group
-     */
-    private void deleteDispatcherResourcesForTaskGroup(String name, HttpServletRequest request, String token) {
-        TaskGroupDTO taskGroupDTO = getTaskGroup(name).getBody();
-
-        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
-            token = token.substring(7);
-
-            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-                .replacePath(null)
-                .build()
-                .toUriString();
-            baseUrl += "/api/dispatcher/";
-
-            String url = "";
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-            HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-            url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-            var response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
-        }
     }
 
     /**
@@ -138,7 +109,7 @@ public class TaskGroupResource {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
         }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            proxyXMLtoDispatcher(taskGroupDTO, request, token);
+            dispatcherProxyService.proxyXMLtoDispatcher(taskGroupDTO, request, token);
         }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }
@@ -156,47 +127,5 @@ public class TaskGroupResource {
         Page<TaskGroupDisplayDTO> page = assignmentSPARQLEndpointService.getFilteredTaskGroupPaged(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-    }
-
-    /**
-     * Utility-method: Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
-     * @param taskGroupDTO the task group
-     * @param request the http request to retrieve the base url
-     * @param token the authorization token
-     */
-    private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
-        Objects.requireNonNull(taskGroupDTO.getId());
-        Objects.requireNonNull(taskGroupDTO.getxQueryDiagnoseXML());
-        Objects.requireNonNull(taskGroupDTO.getxQuerySubmissionXML());
-
-        String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
-        String submisisonXML = taskGroupDTO.getxQuerySubmissionXML();
-        DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML,submisisonXML);
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonBody = "";
-        try {
-            jsonBody = mapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-        url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-        var fileURL = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-        assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
     }
 }

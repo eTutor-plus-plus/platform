@@ -3,6 +3,7 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -331,4 +333,5 @@ public class DispatcherProxyResource {
             .executor(getExecutorService())
             .build();
     }
+
 }

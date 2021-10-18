@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 
@@ -1061,7 +1062,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getPassedAttributes().get("submission"));
         insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
         insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", Instant.now().toString());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.getPassedAttributes().get("action").equals("submit"));
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", hasBeenSolved);
@@ -1156,7 +1157,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     Literal taskTypeLiteral = solution.getLiteral("?taskType");
 
                     submissions.add(new IndividualTaskSubmissionDTO(
-                        Instant.parse(instantLiteral.getString()),
+                        instantFromRDFString(instantLiteral.getString()),
                         submissionLiteral.getString(),
                         hasBeenSubmittedLiteral.getBoolean(),
                         hasBeenSolvedLiteral.getBoolean(),
@@ -1164,6 +1165,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
                         taskTypeLiteral.getString()
                     ));
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         }
         if(submissions.isEmpty()) return Optional.empty();

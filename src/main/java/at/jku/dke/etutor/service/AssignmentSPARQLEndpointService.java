@@ -890,9 +890,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Adds the URL referencing a file to the taskg group
-     * @param taskGroupDTO
-     * @return
+     * Adds the URL referencing a file to the task group
+     * @param taskGroupDTO the task group
+     * @return the task group
      */
     public TaskGroupDTO addXMLFileURL(TaskGroupDTO taskGroupDTO, String URL){
         Objects.requireNonNull(taskGroupDTO);
@@ -1010,7 +1010,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 return Optional.empty();
             }
 
-            TaskGroupDTO taskGroupDTO = new TaskGroupDTO(resource);
             return Optional.of(new TaskGroupDTO(resource));
         }
     }
