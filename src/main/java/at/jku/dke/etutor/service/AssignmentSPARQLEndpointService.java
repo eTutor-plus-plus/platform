@@ -888,6 +888,46 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         return taskGroupDTO;
     }
+
+    /**
+     * Adds the URL referencing a file to the taskg group
+     * @param taskGroupDTO
+     * @return
+     */
+    public TaskGroupDTO addXMLFileURL(TaskGroupDTO taskGroupDTO, String URL){
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasFileURL ?oldURL.
+            } INSERT {
+            """);
+
+        if (StringUtils.isNotBlank(URL)) {
+            query.append("  ?group etutor:hasFileURL ?newURL.");
+            query.append("\n");
+        }
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              OPTIONAL {
+                ?group etutor:hasFileURL ?oldURL.
+              }
+            }
+            """);
+        query.setIri("?group", taskGroupDTO.getId());
+
+        if (StringUtils.isNotBlank(URL)) {
+            query.setLiteral("?newURL", URL.trim());
+        }
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+
+        return taskGroupDTO;
+    }
     /**
      * Persists the modified taskGroup of type "XQuery"
      * @param taskGroupDTO the taskGroupDTO

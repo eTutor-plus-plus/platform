@@ -215,15 +215,13 @@ public class DispatcherProxyResource {
      */
     @PostMapping("xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Integer> addXMLForTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
+    public ResponseEntity<String> addXMLForTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
         String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
         var client = getHttpClient();
         var request = getPostRequestWithBody(url, dto).build();
         ResponseEntity<String> responseEntity= getStringResponseEntity(client, request);
 
-        int id = Integer.parseInt(responseEntity.getBody());
-
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok(responseEntity.getBody());
     }
     /**
      * Sends the DELETE-request for xml resources for a specific task group to the dispatcher

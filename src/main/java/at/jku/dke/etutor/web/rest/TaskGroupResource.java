@@ -196,7 +196,9 @@ public class TaskGroupResource {
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-        var fileId = restTemplate.exchange(url, HttpMethod.POST, entity, Integer.class).getBody();
+        var fileURL = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+        assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
+        //TODO: add file URL to task-group
     }
 
 }
