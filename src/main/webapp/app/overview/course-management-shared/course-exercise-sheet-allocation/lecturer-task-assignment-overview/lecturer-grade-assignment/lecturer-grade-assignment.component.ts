@@ -181,7 +181,8 @@ export class LecturerGradeAssignmentComponent {
   public isDispatcherTask(): boolean {
     return (
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.SQLTask.value ||
-      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.RATask.value
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.RATask.value ||
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.XQueryTask.value
     );
   }
   /**

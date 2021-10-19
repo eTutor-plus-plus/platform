@@ -16,7 +16,8 @@
       "noType": "No type",
       "uploadTask": "Upload task",
       "sqlTask": "SQL Task",
-      "raTask": "Relational algebra task"
+      "raTask": "Relational algebra task",
+      "xqTask": "XQuery task"
     },
     "fields": {
       "header": "Header:",
@@ -37,7 +38,12 @@
       "instruction": "Task instruction:",
       "taskType": "Task type:",
       "taskGroup": "Task group:",
-      "taskGroupPlaceHolder": "--No group selected--"
+      "taskGroupPlaceHolder": "--No group selected--",
+      "xQueryDiagnoseXML": "XQuery- XML (diagnose)",
+      "xQuerySubmissionXML": "XQuery- XML (submit)",
+      "xQuerySorting": "XQuery- XPath (sorting):",
+      "xQuerySolution": "XQuery solution",
+      "xQueryFileURL": "XQuery- file url:"
     },
     "error": {
       "required": "This field is required!",

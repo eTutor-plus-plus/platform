@@ -38,6 +38,7 @@ export class AssignmentComponent implements AfterContentChecked {
   public hasErrors = true;
   public gradingDto!: GradingDTO;
   public editorOptions = { theme: 'vs-dark', language: '' };
+  public isXQueryTask = false;
 
   private diagnoseLevel = 0;
   private submissionDto!: SubmissionDTO;
@@ -60,6 +61,8 @@ export class AssignmentComponent implements AfterContentChecked {
         return 'sql';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
         return 'relationalAlgebra';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+        return 'xquery';
       default:
         return 'sql';
     }
@@ -95,6 +98,9 @@ export class AssignmentComponent implements AfterContentChecked {
         the = 'relationalAlgebra-light';
       }
       this.editorOptions = { theme: the, language: lang };
+      if (lang === 'xquery') {
+        this.isXQueryTask = true;
+      }
     }
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
       this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);

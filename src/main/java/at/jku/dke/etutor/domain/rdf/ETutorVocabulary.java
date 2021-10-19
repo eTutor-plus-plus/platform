@@ -118,7 +118,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
     private static final String INSTANCE_RA_TASK = "RATask";
-    private static final String INSTANCE_XQ_TASK = "XQueryTask";
+    private static final String INSTANCE_XQ_TASK = "XQTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";

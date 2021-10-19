@@ -1,7 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -20,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.MalformedURLException;
 import java.text.ParseException;
@@ -37,14 +40,18 @@ import java.util.SortedSet;
 public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment sparql endoinpoint service
+     * @param dispatcherProxyService  the injected dispatcher proxy service
      */
-    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
+    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
+                                  DispatcherProxyService dispatcherProxyService) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -55,8 +62,15 @@ public class TaskAssignmentResource {
      */
     @PostMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO,
+                                                                     @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString()) &&
+        newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+            int id = dispatcherProxyService.createXQueryTask(newTaskAssignmentDTO, token, request);
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
+        }
 
         TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
         return ResponseEntity.ok(assignment);

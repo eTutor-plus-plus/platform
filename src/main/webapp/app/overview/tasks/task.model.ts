@@ -55,9 +55,17 @@ export interface INewTaskModel {
    */
   diagnoseLevelWeighting?: string;
   /**
-   * Optional solution for an SQL-Exercise
+   * Optional solution for a SQL-assignment
    */
   sqlSolution?: string;
+  /**
+   * Optional solution for a XQuery-assignment
+   */
+  xQuerySolution?: string;
+  /**
+   * Optional XPath-expression defining the sorting of an XQuery-assignment
+   */
+  xQueryXPathSorting?: string;
   /**
    * Optional max points
    */
@@ -138,11 +146,17 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask',
     'taskManagement.taskTypes.raTask'
   );
+
+  public static readonly XQueryTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
+    'taskManagement.taskTypes.xqTask'
+  );
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
     TaskAssignmentType.SQLTask,
     TaskAssignmentType.RATask,
+    TaskAssignmentType.XQueryTask,
   ];
 
   private readonly _value: string;

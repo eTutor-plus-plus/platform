@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ITaskDisplayModel } from '../task.model';
+import { ITaskDisplayModel, TaskAssignmentType } from '../task.model';
 import { TasksService } from '../tasks.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskUpdateComponent } from './task-update/task-update.component';
@@ -238,7 +238,8 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
 
     this.tasksService.getTaskAssignmentById(currentModel.taskId).subscribe(response => {
       const id = response.body?.taskIdForDispatcher;
-      if (id) {
+      const taskAssignmentType = response.body?.taskAssignmentTypeId;
+      if (taskAssignmentType === TaskAssignmentType.SQLTask.value && id) {
         this.sqlExerciseService.deleteExercise(id).subscribe();
       }
     });

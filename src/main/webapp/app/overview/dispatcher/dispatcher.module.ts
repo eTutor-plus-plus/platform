@@ -6,6 +6,7 @@ import { NgModule } from '@angular/core';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 import { AssignmentComponent } from 'app/overview/dispatcher/assignment/assignment.component';
 import { LecturerRunSubmissionComponent } from './lecturer-run-submission/lecturer-run-submission.component';
+import { SafeHtmlPipe } from './assignment/safe-html-pipe';
 
 export function myMonacoLoad(): void {
   (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
@@ -87,7 +88,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
 
 @NgModule({
   imports: [SharedModule, MonacoEditorModule.forRoot(monacoConfig)],
-  declarations: [AssignmentComponent, LecturerRunSubmissionComponent],
+  declarations: [AssignmentComponent, LecturerRunSubmissionComponent, SafeHtmlPipe],
   exports: [AssignmentComponent],
 })
 export class DispatcherModule {}

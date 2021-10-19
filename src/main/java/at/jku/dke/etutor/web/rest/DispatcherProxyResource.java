@@ -3,7 +3,9 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
+import io.swagger.models.Response;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.config.JHipsterDefaults;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -239,6 +242,24 @@ public class DispatcherProxyResource {
         ResponseEntity<String> responseEntity= getStringResponseEntity(client, request);
 
         return ResponseEntity.ok(responseEntity.getBody());
+    }
+
+    @PostMapping("xquery/exercise/taskGroup/{taskGroup}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Integer> createXQueryExercise(@PathVariable String taskGroup, @RequestBody String exercise){
+        String url = dispatcherURL+"/xquery/exercise/taskGroup/"+taskGroup;
+        var client = getHttpClient();
+        var request = getPostRequestWithBody(url, exercise);
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.ok(Integer.parseInt(response.body()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.status(500).body(-1);
     }
     /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>

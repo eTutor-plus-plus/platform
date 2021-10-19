@@ -37,17 +37,6 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-
-    <jhi-file-upload
-      *ngIf="isUploadTask || isDispatcherTask"
-      [fileId]="uploadTaskFileId"
-      (fileAdded)="handleFileAddedAsync($event)"
-      (fileRemoved)="handleFileRemovedAsync($event)"
-      (fileModified)="handleFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted"
-    >
-    </jhi-file-upload>
-
     <p></p>
     <div class="assignment-component">
       <jhi-assignment
@@ -63,7 +52,15 @@
       >
       </jhi-assignment>
     </div>
-
+    <jhi-file-upload
+      *ngIf="isUploadTask || isDispatcherTask"
+      [fileId]="uploadTaskFileId"
+      (fileAdded)="handleFileAddedAsync($event)"
+      (fileRemoved)="handleFileRemovedAsync($event)"
+      (fileModified)="handleFileMovedAsync($event[0], $event[1])"
+      [disabled]="isSubmitted"
+    >
+    </jhi-file-upload>
     <button
       *ngIf="!isDispatcherTask"
       type="button"
