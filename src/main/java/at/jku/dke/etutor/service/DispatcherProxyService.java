@@ -133,4 +133,30 @@ public class DispatcherProxyService {
         var id = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
         return Integer.parseInt(id);
     }
+
+    /**
+     * Returns exercise information for a given id
+     * @param taskIdForDispatcher the task id
+     * @param token the auth token
+     * @param request the HttpServletRequest
+     * @return an XQueryExerciseDTO
+     */
+    public XQueryExerciseDTO getExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) {
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        url = baseUrl + "xquery/exercise/solution/id/" + taskIdForDispatcher;
+        return restTemplate.exchange(url, HttpMethod.GET, entity, XQueryExerciseDTO.class).getBody();
+    }
 }

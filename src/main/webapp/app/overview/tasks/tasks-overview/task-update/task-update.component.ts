@@ -258,6 +258,10 @@ export class TaskUpdateComponent implements OnInit {
         });
       }
 
+      if (this.isXQueryTask && !xQuerySolution && taskIdForDispatcher) {
+        const x = -1; //TODO: fetch and patch solution and sorting
+      }
+
       this.updateForm.patchValue({
         header: value.header,
         creator: value.creator,
@@ -323,10 +327,16 @@ export class TaskUpdateComponent implements OnInit {
     if (this.isSqlOrRaTask(taskAssignmentTypeId) || taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
         this.isSQLTask = true;
+        this.isXQueryTask = false;
+        this.isRATask = false;
       } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
         this.isXQueryTask = true;
+        this.isSQLTask = false;
+        this.isRATask = false;
       } else {
         this.isRATask = true;
+        this.isSQLTask = false;
+        this.isXQueryTask = false;
       }
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);

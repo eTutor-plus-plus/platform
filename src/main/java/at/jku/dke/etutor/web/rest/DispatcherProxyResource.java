@@ -261,6 +261,18 @@ public class DispatcherProxyResource {
         }
         return ResponseEntity.status(500).body(-1);
     }
+
+
+    @GetMapping("xquery/exercise/solution/id/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getExerciseInfo(@PathVariable int id){
+        var url = dispatcherURL + "/xquery/exercise/solution/id/"+id;
+        var client = getHttpClient();
+        var request = getGetRequest(url);
+        return getStringResponseEntity(client, request);
+    }
+
+
     /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>
      * @param client the HttpClient

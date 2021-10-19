@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
@@ -66,10 +67,15 @@ public class TaskAssignmentResource {
                                                                      @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString()) &&
-        newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
-            int id = dispatcherProxyService.createXQueryTask(newTaskAssignmentDTO, token, request);
-            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
+        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
+            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+                int id = dispatcherProxyService.createXQueryTask(newTaskAssignmentDTO, token, request);
+                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
+            }else{
+                XQueryExerciseDTO e = dispatcherProxyService.getExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
+                if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
+            }
         }
 
         TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
