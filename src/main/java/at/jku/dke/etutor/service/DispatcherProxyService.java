@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 //TODO: logging
+//TODO: documentation
 @Service
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
@@ -202,6 +203,7 @@ public class DispatcherProxyService {
         return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 
+    //TODO: auch für SQL anwenden
     public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
@@ -227,5 +229,45 @@ public class DispatcherProxyService {
         }
 
         return "";
+    }
+
+    public String getXMLForXQ(String taskGroup, String token, HttpServletRequest request){
+       Objects.requireNonNull(taskGroup);
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        url = baseUrl + "xquery/xml/taskGroup/" + taskGroup;
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+    }
+
+    public String getXMLForXQ(int fileId, String token, HttpServletRequest request){
+        Objects.requireNonNull(fileId);
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        url = baseUrl + "xquery/xml/fileid/" + fileId;
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     }
 }

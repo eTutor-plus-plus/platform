@@ -315,6 +315,35 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Returns the xml datasource for an xquery taskgroup
+     * @param taskGroup the naem of the taskgroup
+     * @return a ResponseEntity
+     */
+    @GetMapping("xquery/xml/taskGroup/{taskGroup}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getXMLForXQByTaskGroup(@PathVariable String taskGroup){
+       String url = dispatcherURL+"xquery/xml/taskGroup/"+taskGroup;
+        var client = getHttpClient();
+       var request = getGetRequest(url);
+
+       return getStringResponseEntity(client, request);
+    }
+    /**
+     * Returns the xml datasource for an xquery taskgroup
+     * @param id the file id of the xml
+     * @return a ResponseEntity
+     */
+    @GetMapping("xquery/xml/fileid/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getXMLForXQByFileId(@PathVariable int id){
+        String url = dispatcherURL+"xquery/xml/taskGroup/"+id;
+        var client = getHttpClient();
+        var request = getGetRequest(url);
+
+        return getStringResponseEntity(client, request);
+    }
+
+    /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>
      * @param client the HttpClient
      * @param request the HttpRequest
