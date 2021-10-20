@@ -76,6 +76,10 @@ public class DispatcherProxyService {
      * @param token the auth token
      */
     public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
+        Objects.requireNonNull(taskGroupDTO);
+        Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
+        Objects.requireNonNull(taskGroupDTO.getName());
+
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
             token = token.substring(7);
 
@@ -196,5 +200,32 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
         return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+    }
+
+    public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+        Objects.requireNonNull(taskAssignmentDTO);
+        Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
+        Objects.requireNonNull(taskAssignmentDTO.getTaskIdForDispatcher());
+
+        if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
+            token = token.substring(7);
+
+            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+            baseUrl += "/api/dispatcher/";
+
+            String url = "";
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
+            HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+            url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
+            return restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
+        }
+
+        return "";
     }
 }

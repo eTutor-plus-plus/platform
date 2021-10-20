@@ -112,9 +112,12 @@ public class TaskAssignmentResource {
      */
     @DeleteMapping("tasks/assignments/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
+    public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+        var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
+        taskAssignmentDTOOptional.ifPresent(taskAssignmentDTO -> dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTO, token, request));
+
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
-        //TODO: delet x query task in backend
+
         return ResponseEntity.noContent().build();
     }
 
