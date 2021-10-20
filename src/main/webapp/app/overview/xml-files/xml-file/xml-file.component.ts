@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { XQueryService } from '../../dispatcher/services/xquery.service';
 
 /**
  * Component that displays an sql-table
@@ -14,6 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class XmlFileComponent implements OnInit, OnDestroy {
   public xml?: string;
+  public editorOptions = { theme: 'vs-light', language: 'xml', readOnly: 'true' };
 
   private id!: string | null;
   private taskGroup?: string | null;
@@ -25,7 +27,7 @@ export class XmlFileComponent implements OnInit, OnDestroy {
    * @param router the injected routing service
    * @param activatedRoute the injected activated route
    */
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private service: XQueryService) {}
 
   /**
    * Implements the init method. See {@link OnInit}.
@@ -35,7 +37,10 @@ export class XmlFileComponent implements OnInit, OnDestroy {
       this._queryParamSubscription = this.activatedRoute.queryParamMap.subscribe(queryParams => {
         this.taskGroup = queryParams.get('taskGroup');
         this.id = queryParams.get('id');
-        this.xml = '' + this.id! + ' ' + this.taskGroup!;
+        this.xml = 'not fetched';
+        (async () => {
+          this.xml = await this.service.getXML(this.id!).toPromise();
+        })();
       });
     });
   }

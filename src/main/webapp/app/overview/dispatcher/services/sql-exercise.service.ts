@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DISPATCHER_URL } from 'app/overview/dispatcher/constants';
 import { Observable } from 'rxjs';
 
 /**
@@ -21,7 +20,6 @@ const httpOptionsTextResponse = {
   providedIn: 'root',
 })
 export class SqlExerciseService {
-  private API_URL: string = DISPATCHER_URL + '/sql';
   constructor(private http: HttpClient) {}
 
   /**

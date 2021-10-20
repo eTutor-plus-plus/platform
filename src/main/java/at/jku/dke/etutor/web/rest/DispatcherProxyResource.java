@@ -336,7 +336,7 @@ public class DispatcherProxyResource {
     @GetMapping("xquery/xml/fileid/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getXMLForXQByFileId(@PathVariable int id){
-        String url = dispatcherURL+"xquery/xml/taskGroup/"+id;
+        String url = dispatcherURL+"/xquery/xml/fileid/"+id;
         var client = getHttpClient();
         var request = getGetRequest(url);
 
