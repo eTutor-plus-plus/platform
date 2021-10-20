@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+//TODO: logging
 @Service
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
@@ -141,7 +142,7 @@ public class DispatcherProxyService {
      * @param request the HttpServletRequest
      * @return an XQueryExerciseDTO
      */
-    public XQueryExerciseDTO getExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) {
+    public XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) {
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -158,5 +159,42 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/exercise/solution/id/" + taskIdForDispatcher;
         return restTemplate.exchange(url, HttpMethod.GET, entity, XQueryExerciseDTO.class).getBody();
+    }
+
+    public String updateXQExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request)  {
+        List<String> sortings = new ArrayList<>();
+        String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
+        if(dtoSorting != null) sortings.add(dtoSorting);
+
+        XQueryExerciseDTO body = new XQueryExerciseDTO();
+        body.setQuery(taskAssignmentDTO.getxQuerySolution());
+        body.setSortedNodes(sortings);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+
+        try {
+            jsonBody = mapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
+        return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 }

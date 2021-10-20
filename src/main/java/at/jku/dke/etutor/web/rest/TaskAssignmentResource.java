@@ -72,7 +72,7 @@ public class TaskAssignmentResource {
                 int id = dispatcherProxyService.createXQueryTask(newTaskAssignmentDTO, token, request);
                 if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
             }else{
-                XQueryExerciseDTO e = dispatcherProxyService.getExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                XQueryExerciseDTO e = dispatcherProxyService.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
                 newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
                 if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
             }
@@ -114,6 +114,7 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
+        //TODO: delet x query task in backend
         return ResponseEntity.noContent().build();
     }
 
@@ -125,7 +126,7 @@ public class TaskAssignmentResource {
      */
     @PutMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
+    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
@@ -134,6 +135,12 @@ public class TaskAssignmentResource {
 
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
+                if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
+                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
+                    dispatcherProxyService.updateXQExercise(taskAssignmentDTO, token, request);
+                }
+            }
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();

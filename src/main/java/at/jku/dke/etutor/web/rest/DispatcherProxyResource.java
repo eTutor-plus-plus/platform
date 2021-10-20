@@ -262,6 +262,20 @@ public class DispatcherProxyResource {
         return ResponseEntity.status(500).body(-1);
     }
 
+    /**
+     * Updates an xquery exercise
+     * @param id the id of the exercise
+     * @return
+     */
+    @PostMapping("xquery/exercise/id/{id}")
+    public ResponseEntity<String> updateXQueryExercise(@PathVariable int id, @RequestBody String dto){
+        String url = dispatcherURL+"/xquery/exercise/id/"+id;
+        var client = getHttpClient();
+        var request = getPostRequestWithBody(url, dto);
+
+        return getStringResponseEntity(client, request.build());
+    }
+
 
     @GetMapping("xquery/exercise/solution/id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
