@@ -13,19 +13,19 @@
   </div>
   <br />
   <div>
+    <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
+  </div>
+  <div class="editor" style="height: 500px">
+    <ngx-monaco-editor
+      style="height: 100%"
+      [options]="editorOptions"
+      name="submission"
+      id="submission"
+      [(ngModel)]="submission"
+    ></ngx-monaco-editor>
+  </div>
+  <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="onSubmit()">
-      <div>
-        <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
-      </div>
-      <div class="editor" style="height: 500px">
-        <ngx-monaco-editor
-          style="height: 100%"
-          [options]="editorOptions"
-          name="submission"
-          id="submission"
-          [(ngModel)]="submission"
-        ></ngx-monaco-editor>
-      </div>
       <input type="submit" value="Submit" class="btn btn-block" />
     </form>
   </div>

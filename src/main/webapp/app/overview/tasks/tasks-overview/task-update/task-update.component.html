@@ -152,14 +152,18 @@
       <label class="form-control-label" for="xQueryDiagnoseXML" jhiTranslate="taskManagement.fields.xQueryDiagnoseXML"
         >XQuery: XML (Diagnose)</label
       >
-      <ngx-monaco-editor [options]="editorOptionsReadOnly" id="xQueryDiagnoseXML" formControlName="xQueryDiagnoseXML"></ngx-monaco-editor>
+      <ngx-monaco-editor
+        [options]="editorOptionsXMLReadOnly"
+        id="xQueryDiagnoseXML"
+        formControlName="xQueryDiagnoseXML"
+      ></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQuerySubmissionXML" jhiTranslate="taskManagement.fields.xQuerySubmissionXML"
         >XQuery: XML (Submit)</label
       >
       <ngx-monaco-editor
-        [options]="editorOptionsReadOnly"
+        [options]="editorOptionsXMLReadOnly"
         id="xQuerySubmissionXML"
         formControlName="xQuerySubmissionXML"
       ></ngx-monaco-editor>

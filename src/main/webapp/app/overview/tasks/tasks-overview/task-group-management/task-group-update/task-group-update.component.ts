@@ -20,6 +20,7 @@ export class TaskGroupUpdateComponent {
   public readonly taskGroupTypes = TaskGroupType.Values;
   public taskGroupToEdit?: ITaskGroupDTO;
   public editorOptions = { theme: 'vs-light', language: 'sql' };
+  public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
 
   public taskGroup = this.fb.group({
     name: ['', [Validators.required]],

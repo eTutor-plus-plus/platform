@@ -29,6 +29,7 @@ export class AssignmentComponent implements AfterContentChecked {
   @Input() public diagnoseLevelWeighting = '';
   @Input() public showPoints = true;
   @Input() public showDiagnoseBar = true;
+  @Input() public showSubmitButton = true;
 
   @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
@@ -58,13 +59,13 @@ export class AssignmentComponent implements AfterContentChecked {
   public static mapEditorLanguage(taskType: string): string {
     switch (taskType) {
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
-        return 'sql';
+        return 'pgsql';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
         return 'relationalAlgebra';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
         return 'xquery';
       default:
-        return 'sql';
+        return 'pgsql';
     }
   }
   /**

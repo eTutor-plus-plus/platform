@@ -22,8 +22,9 @@ export class TaskUpdateComponent implements OnInit {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
-  public editorOptions = { theme: 'vs-light', language: 'sql' };
-  public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
+  public editorOptions = { theme: 'vs-light', language: 'pgsql' };
+  public editorOptionsReadOnly = { theme: 'vs-light', language: 'pgsql', readOnly: true };
+  public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public isSQLTask = false;
   public isRATask = false;
   public isXQueryTask = false;
@@ -256,10 +257,6 @@ export class TaskUpdateComponent implements OnInit {
         this.sqlExerciseService.getSolution(taskIdForDispatcher).subscribe(response => {
           this.patchSQLSolution(response);
         });
-      }
-
-      if (this.isXQueryTask && !xQuerySolution && taskIdForDispatcher) {
-        const x = -1; //TODO: fetch and patch solution and sorting
       }
 
       this.updateForm.patchValue({

@@ -80,13 +80,13 @@
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.diagnoseXML"
         >XQuery: XML for diagnose</label
       >
-      <ngx-monaco-editor [options]="editorOptions" id="diagnoseXML" formControlName="diagnoseXML"></ngx-monaco-editor>
+      <ngx-monaco-editor [options]="editorOptionsXML" id="diagnoseXML" formControlName="diagnoseXML"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryGroup">
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.submissionXML"
         >XQuery: XML for submit</label
       >
-      <ngx-monaco-editor [options]="editorOptions" id="submissionXML" formControlName="submissionXML"></ngx-monaco-editor>
+      <ngx-monaco-editor [options]="editorOptionsXML" id="submissionXML" formControlName="submissionXML"></ngx-monaco-editor>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="close()">
