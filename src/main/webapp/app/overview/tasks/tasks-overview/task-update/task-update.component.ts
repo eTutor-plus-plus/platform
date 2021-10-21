@@ -381,6 +381,7 @@ export class TaskUpdateComponent implements OnInit {
       dispatcherId: id,
       taskType: taskT,
     };
+    (modalRef.componentInstance as LecturerRunSubmissionComponent).showHeader = false;
   }
   /**
    * Patches the values from an SQL-Task group in the update form
