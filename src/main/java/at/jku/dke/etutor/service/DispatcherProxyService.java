@@ -203,28 +203,31 @@ public class DispatcherProxyService {
         return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 
-    //TODO: auch für SQL anwenden
     public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
         Objects.requireNonNull(taskAssignmentDTO.getTaskIdForDispatcher());
+        String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
 
-        if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
-            token = token.substring(7);
+        if(taskType.equals(ETutorVocabulary.NoType) || taskType.equals(ETutorVocabulary.UploadTask)) return "";
 
-            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-                .replacePath(null)
-                .build()
-                .toUriString();
-            baseUrl += "/api/dispatcher/";
+        token = token.substring(7);
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
 
-            String url = "";
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-            HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        if(taskType.equals(ETutorVocabulary.XQueryTask.toString())){
             url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
+            return restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
+        }else if(taskType.equals(ETutorVocabulary.SQLTask.toString())){
+            url = baseUrl + "sql/exercise/" + taskAssignmentDTO.getTaskIdForDispatcher();
             return restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
         }
 

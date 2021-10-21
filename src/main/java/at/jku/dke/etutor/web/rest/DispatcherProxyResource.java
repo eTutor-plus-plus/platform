@@ -194,7 +194,7 @@ public class DispatcherProxyResource {
         var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);
         return getStringResponseEntity(client, request);
     }
-    @GetMapping(value="sql/table/{tableName}")
+    @GetMapping(value="/sql/table/{tableName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
         String url = dispatcherURL+"/sql/table/"+tableName;
@@ -219,7 +219,7 @@ public class DispatcherProxyResource {
      * @param dto the dto containing the xml's
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
-    @PostMapping("xquery/xml/taskGroup/{taskGroup}")
+    @PostMapping("/xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> addXMLForXQTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
         String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
@@ -234,7 +234,7 @@ public class DispatcherProxyResource {
      * @param taskGroup the UUID for the task group
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
-    @DeleteMapping("xquery/xml/taskGroup/{taskGroup}")
+    @DeleteMapping("/xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteXMLofXQTaskGroup(@PathVariable String taskGroup){
         String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
@@ -251,7 +251,7 @@ public class DispatcherProxyResource {
      * @param exercise the exercise
      * @return a ResponseEntity
      */
-    @PostMapping("xquery/exercise/taskGroup/{taskGroup}")
+    @PostMapping("/xquery/exercise/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Integer> createXQExercise(@PathVariable String taskGroup, @RequestBody String exercise){
         String url = dispatcherURL+"/xquery/exercise/taskGroup/"+taskGroup;
@@ -274,7 +274,7 @@ public class DispatcherProxyResource {
      * @param id the id of the exercise
      * @return a ResponseEntity
      */
-    @PostMapping("xquery/exercise/id/{id}")
+    @PostMapping("/xquery/exercise/id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> updateXQExercise(@PathVariable int id, @RequestBody String dto){
         String url = dispatcherURL+"/xquery/exercise/id/"+id;
@@ -289,7 +289,7 @@ public class DispatcherProxyResource {
      * @param id the task id (dispatcher)
      * @return a ResponseEntity
      */
-    @GetMapping("xquery/exercise/solution/id/{id}")
+    @GetMapping("/xquery/exercise/solution/id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getXQExerciseInfo(@PathVariable int id){
         var url = dispatcherURL + "/xquery/exercise/solution/id/"+id;
@@ -303,7 +303,7 @@ public class DispatcherProxyResource {
      * @param id the exercise id
      * @return a ResponseEntity
      */
-    @DeleteMapping("xquery/exercise/id/{id}")
+    @DeleteMapping("/xquery/exercise/id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
    public ResponseEntity<String> deleteXQExercise(@PathVariable int id){
         String url = dispatcherURL+"/xquery/exercise/id/"+id;
@@ -319,7 +319,7 @@ public class DispatcherProxyResource {
      * @param taskGroup the naem of the taskgroup
      * @return a ResponseEntity
      */
-    @GetMapping("xquery/xml/taskGroup/{taskGroup}")
+    @GetMapping("/xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getXMLForXQByTaskGroup(@PathVariable String taskGroup){
        String url = dispatcherURL+"xquery/xml/taskGroup/"+taskGroup;
@@ -333,7 +333,7 @@ public class DispatcherProxyResource {
      * @param id the file id of the xml
      * @return a ResponseEntity
      */
-    @GetMapping("xquery/xml/fileid/{id}")
+    @GetMapping("/xquery/xml/fileid/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getXMLForXQByFileId(@PathVariable int id){
         String url = dispatcherURL+"/xquery/xml/fileid/"+id;
