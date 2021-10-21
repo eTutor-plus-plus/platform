@@ -103,14 +103,13 @@ public class DispatcherProxyResource {
      * Sends the PUT-request for creating an SQL-exercise to the dispatcher
      * @param solution the solution for the exercise
      * @param schemaName the schema/task-group
-     * @param id the exercise-id
-     * @return an ResponseEntity
+     * @return a ResponseEntity
      */
-    @PutMapping(value="/sql/exercise/{schemaName}/{id}")
+    @PutMapping(value="/sql/exercise/{schemaName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> createSQLExercise(@RequestBody String solution, @PathVariable String schemaName, @PathVariable int id){
+    public ResponseEntity<String> createSQLExercise(@RequestBody String solution, @PathVariable String schemaName){
         var client = getHttpClient();
-        var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName+"/"+id, solution);
+        var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName, solution);
 
         return getStringResponseEntity(client, request);
     }

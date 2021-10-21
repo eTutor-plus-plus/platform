@@ -273,4 +273,68 @@ public class DispatcherProxyService {
         url = baseUrl + "xquery/xml/fileid/" + fileId;
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     }
+
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+        Objects.requireNonNull(newTaskAssignmentDTO);
+        Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
+
+        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
+            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+                int id = this.createXQueryTask(newTaskAssignmentDTO, token, request);
+                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
+            }else{
+                XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
+                if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
+            }
+        }else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
+            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+                int id = this.createSQLTask(newTaskAssignmentDTO, token, request);
+                if(id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
+            }else{
+               //TODO: fetch and set solution
+                String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                newTaskAssignmentDTO.setSqlSolution(solution);
+            }
+        }
+    }
+
+    private String fetchSQLSolution(String taskIdForDispatcher, String token, HttpServletRequest request) {
+        return "";
+    }
+
+    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+        Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
+        Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
+
+        String solution = newTaskAssignmentDTO.getSqlSolution();
+        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+        try {
+            jsonBody = mapper.writeValueAsString(solution);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        url = baseUrl + "sql/exercise/"+taskGroup;
+        var id = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class).getBody();
+        return Integer.parseInt(id);
+    }
 }

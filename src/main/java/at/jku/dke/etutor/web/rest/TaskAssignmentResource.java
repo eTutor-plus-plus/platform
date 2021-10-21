@@ -67,17 +67,8 @@ public class TaskAssignmentResource {
                                                                      @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        //TODO: generalisieren und auch für SQL anwenden
-        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
-            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
-                int id = dispatcherProxyService.createXQueryTask(newTaskAssignmentDTO, token, request);
-                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
-            }else{
-                XQueryExerciseDTO e = dispatcherProxyService.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
-                newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
-                if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
-            }
-        }
+        dispatcherProxyService.createTask(newTaskAssignmentDTO, token, request);
+
 
         TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
         return ResponseEntity.ok(assignment);

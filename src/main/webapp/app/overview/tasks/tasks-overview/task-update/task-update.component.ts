@@ -96,7 +96,7 @@ export class TaskUpdateComponent implements OnInit {
   /**
    * Saves the task.
    */
-  public async save(): Promise<void> {
+  public save(): void {
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
@@ -126,13 +126,6 @@ export class TaskUpdateComponent implements OnInit {
     const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
       newTask.taskIdForDispatcher = taskIdForDispatcher;
-    } else if (this.isSqlOrRaTask(newTask.taskAssignmentTypeId)) {
-      await this.sqlExerciseService
-        .getExerciseId()
-        .toPromise()
-        .then(response => {
-          newTask.taskIdForDispatcher = response;
-        });
     }
 
     const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
@@ -173,10 +166,6 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
-      if (this.isSqlOrRaTask(newTask.taskAssignmentTypeId) && newTask.sqlSolution && newTask.taskGroupId && newTask.taskIdForDispatcher) {
-        const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
-        await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
-      }
     } else {
       const editedTask: ITaskModel = {
         header: newTask.header,
