@@ -2,8 +2,10 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 //TODO: logging
@@ -381,6 +384,54 @@ public class DispatcherProxyService {
         HttpEntity<String> entity = new HttpEntity<>(solution, headers);
 
         url = baseUrl + "sql/exercise/"+id+"/solution";
+        restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+    }
+
+    public void createTaskGroup(TaskGroupDTO newTaskGroupDTO, String token, HttpServletRequest request) {
+
+        if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+           proxyXMLtoDispatcher(newTaskGroupDTO, request, token);
+        }else if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
+            createSQLTaskGroup(newTaskGroupDTO, request, token);
+        }
+    }
+
+    private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, HttpServletRequest request, String token) {
+        Objects.requireNonNull(newTaskGroupDTO.getSqlCreateStatements());
+        Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsDiagnose());
+        Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsSubmission());
+
+        SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
+        body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
+        body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
+        body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
+        body.setSchemaName(newTaskGroupDTO.getName());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+
+        try {
+            jsonBody = mapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        url = baseUrl + "sql/schema";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 }

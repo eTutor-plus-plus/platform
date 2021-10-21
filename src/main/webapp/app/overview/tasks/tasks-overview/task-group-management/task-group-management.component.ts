@@ -99,6 +99,7 @@ export class TaskGroupManagementComponent implements OnInit {
     const taskGroupName = selectedGroup.id.substring(selectedGroup.id.indexOf('#') + 1);
     this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroup => {
       if (taskGroup.sqlCreateStatements) {
+        //TODO: auf backend umstellen
         this.sqlExerciseService.deleteSchema(taskGroupName).subscribe();
         this.sqlExerciseService.deleteConnection(taskGroupName).subscribe();
       }

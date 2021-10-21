@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
@@ -58,9 +57,7 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()));{
-                dispatcherProxyService.proxyXMLtoDispatcher(taskGroupDTO, request, token);
-            }
+            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
@@ -107,9 +104,10 @@ public class TaskGroupResource {
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
         }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            dispatcherProxyService.proxyXMLtoDispatcher(taskGroupDTO, request, token);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
         }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }
