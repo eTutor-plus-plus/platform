@@ -130,13 +130,9 @@ public class TaskAssignmentResource {
 
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
-            //TODO: generalisieren und auch für SQL anwenden
-            if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
-                if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
-                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
-                    dispatcherProxyService.updateXQExercise(taskAssignmentDTO, token, request);
-                }
-            }
+            dispatcherProxyService.updateTask(taskAssignmentDTO, token, request);
+
+
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();

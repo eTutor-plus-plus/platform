@@ -198,10 +198,6 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
-
-      if (this.isSqlOrRaTask(editedTask.taskAssignmentTypeId) && editedTask.taskIdForDispatcher && editedTask.sqlSolution) {
-        this.sqlExerciseService.updateExerciseSolution(editedTask.taskIdForDispatcher, editedTask.sqlSolution).subscribe();
-      }
     }
   }
 
@@ -241,12 +237,6 @@ export class TaskUpdateComponent implements OnInit {
       this.updateForm.get('xQueryFileURL')!.disable();
 
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
-
-      if (this.isSqlOrRaTask(taskAssignmentTypeId) && !sqlSolution && taskIdForDispatcher) {
-        this.sqlExerciseService.getSolution(taskIdForDispatcher).subscribe(response => {
-          this.patchSQLSolution(response);
-        });
-      }
 
       this.updateForm.patchValue({
         header: value.header,

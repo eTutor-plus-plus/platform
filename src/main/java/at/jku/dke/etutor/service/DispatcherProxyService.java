@@ -8,6 +8,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -292,7 +293,6 @@ public class DispatcherProxyService {
                 int id = this.createSQLTask(newTaskAssignmentDTO, token, request);
                 if(id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
             }else{
-               //TODO: fetch and set solution
                 String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
                 newTaskAssignmentDTO.setSqlSolution(solution);
             }
@@ -300,24 +300,7 @@ public class DispatcherProxyService {
     }
 
     private String fetchSQLSolution(String taskIdForDispatcher, String token, HttpServletRequest request) {
-        return "";
-    }
-
-    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
-        Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
-        Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
-
-        String solution = newTaskAssignmentDTO.getSqlSolution();
-        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonBody = "";
-        try {
-            jsonBody = mapper.writeValueAsString(solution);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return -1;
-        }
+        Objects.requireNonNull(taskIdForDispatcher);
 
         token = token.substring(7);
 
@@ -331,10 +314,73 @@ public class DispatcherProxyService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        url = baseUrl + "sql/exercise/"+taskIdForDispatcher+"/solution";
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+    }
+
+    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+        Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
+        Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
+
+        String solution = newTaskAssignmentDTO.getSqlSolution();
+        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(solution, headers);
 
         url = baseUrl + "sql/exercise/"+taskGroup;
         var id = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class).getBody();
         return Integer.parseInt(id);
+    }
+
+    public void updateTask(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+        Objects.requireNonNull(taskAssignmentDTO);
+        Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
+
+        if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
+            if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
+                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
+                updateXQExercise(taskAssignmentDTO, token, request);
+            }
+        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
+            if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
+                updateSQLExercise(taskAssignmentDTO, token, request);
+            }
+        }
+    }
+
+    private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+        String solution = taskAssignmentDTO.getSqlSolution();
+        String id = taskAssignmentDTO.getTaskIdForDispatcher();
+
+        token = token.substring(7);
+
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+            .replacePath(null)
+            .build()
+            .toUriString();
+        baseUrl += "/api/dispatcher/";
+
+        String url = "";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(solution, headers);
+
+        url = baseUrl + "sql/exercise/"+id+"/solution";
+        restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 }
