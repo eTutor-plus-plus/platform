@@ -1,7 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
@@ -16,6 +18,7 @@ import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +39,7 @@ public class StudentResource {
 
     private final UserService userService;
     private final StudentService studentService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
@@ -43,9 +47,10 @@ public class StudentResource {
      * @param userService    the injected user service
      * @param studentService the injected student service
      */
-    public StudentResource(UserService userService, StudentService studentService) {
+    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService) {
         this.userService = userService;
         this.studentService = studentService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -376,25 +381,15 @@ public class StudentResource {
     public ResponseEntity<Void> handleDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                      @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-        token = token.substring(7);
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>("body", headers);
-
-        url = baseUrl + "submission/" + dispatcherUUID;
-        var submission = restTemplate.exchange(url, HttpMethod.GET, entity, DispatcherSubmissionDTO.class).getBody();
+        DispatcherSubmissionDTO submission = null;
+        DispatcherGradingDTO grading = null;
+        try {
+            submission = dispatcherProxyService.getSubmission(dispatcherUUID);
+            grading = dispatcherProxyService.getGrading(dispatcherUUID);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         Objects.requireNonNull(submission);
-
-        url = baseUrl + "grading/" + dispatcherUUID;
-        var grading = restTemplate.exchange(url, HttpMethod.GET, entity, DispatcherGradingDTO.class).getBody();
 
         // comparing excercise-id of assignment and submission
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);

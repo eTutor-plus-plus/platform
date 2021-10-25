@@ -1,5 +1,8 @@
 package at.jku.dke.etutor.service.dto.dispatcher;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DispatcherGradingDTO {
     /**
      * The id identifying the submission
@@ -20,6 +23,7 @@ public class DispatcherGradingDTO {
      * The result
      */
     private String result;
+
 
     public DispatcherGradingDTO() {
     }
@@ -61,4 +65,5 @@ public class DispatcherGradingDTO {
     public void setResult(String result) {
         this.result = result;
     }
+
 }

@@ -1,22 +1,17 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.SqlDataDefinitionDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
+import at.jku.dke.etutor.web.rest.DispatcherProxyResource;
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -28,9 +23,35 @@ import java.util.Objects;
 @Service
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final DispatcherProxyResource proxyResource;
+    private final ObjectMapper mapper;
+    private final Logger LOGGER;
 
-    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService){
+    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource){
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.proxyResource = proxyResource;
+        this.mapper = new ObjectMapper();
+        LOGGER = (Logger) LoggerFactory.getLogger(DispatcherProxyService.class);
+    }
+
+    /**
+     * Returns the DispatcherSubmission for a given id
+     * @param UUID the UUID
+     * @return the submission
+     * @throws JsonProcessingException if the returned value cannot be deserialized
+     */
+    public DispatcherSubmissionDTO getSubmission(String UUID) throws JsonProcessingException {
+        return  mapper.readValue(proxyResource.getSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+    }
+
+    /**
+     * Returns the grading for a given id
+     * @param UUID the UUID
+     * @return the grading
+     * @throws JsonProcessingException if the returned value cannot be parsed
+     */
+    public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException {
+        return mapper.readValue(proxyResource.getGrading(UUID).getBody(), DispatcherGradingDTO.class);
     }
     /**
      * Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
@@ -54,7 +75,8 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return;
         }
-
+        var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName(), jsonBody);
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -71,6 +93,8 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
         var fileURL = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+         */
+        var fileURL = response.getBody();
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
     }
 
@@ -86,6 +110,8 @@ public class DispatcherProxyService {
         Objects.requireNonNull(taskGroupDTO.getName());
 
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+            proxyResource.deleteXMLofXQTaskGroup(taskGroupDTO.getName());
+            /*
             token = token.substring(7);
 
             String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -102,6 +128,7 @@ public class DispatcherProxyService {
 
             url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
             var response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
+             */
         }
     }
 
@@ -124,7 +151,9 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return -1;
         }
-
+        var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1), jsonBody);
+        return response.getBody();
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -142,6 +171,8 @@ public class DispatcherProxyService {
         url = baseUrl + "xquery/exercise/taskGroup/" + newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
         var id = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
         return Integer.parseInt(id);
+         */
+
     }
 
     /**
@@ -151,7 +182,9 @@ public class DispatcherProxyService {
      * @param request the HttpServletRequest
      * @return an XQueryExerciseDTO
      */
-    public XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) {
+    public XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) throws JsonProcessingException {
+        return mapper.readValue(proxyResource.getXQExerciseInfo(Integer.parseInt(taskIdForDispatcher)).getBody(), XQueryExerciseDTO.class);
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -168,9 +201,10 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/exercise/solution/id/" + taskIdForDispatcher;
         return restTemplate.exchange(url, HttpMethod.GET, entity, XQueryExerciseDTO.class).getBody();
+         */
     }
 
-    public String updateXQExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request)  {
+    private String updateXQExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request)  {
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
         if(dtoSorting != null) sortings.add(dtoSorting);
@@ -187,8 +221,9 @@ public class DispatcherProxyService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        return proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody).getBody();
 
-
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -205,16 +240,15 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
         return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+         */
     }
 
     public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
-        Objects.requireNonNull(taskAssignmentDTO);
-        Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
-        Objects.requireNonNull(taskAssignmentDTO.getTaskIdForDispatcher());
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
+        int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
 
         if(taskType.equals(ETutorVocabulary.NoType) || taskType.equals(ETutorVocabulary.UploadTask)) return "";
-
+        /*
         token = token.substring(7);
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
             .replacePath(null)
@@ -227,19 +261,18 @@ public class DispatcherProxyService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
+         */
         if(taskType.equals(ETutorVocabulary.XQueryTask.toString())){
-            url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
-            return restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
+            return proxyResource.deleteXQExercise(id).getBody();
         }else if(taskType.equals(ETutorVocabulary.SQLTask.toString())){
-            url = baseUrl + "sql/exercise/" + taskAssignmentDTO.getTaskIdForDispatcher();
-            return restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
+           return proxyResource.deleteSQLExercise(id).getBody();
         }
 
         return "";
     }
 
     public String getXMLForXQ(String taskGroup, String token, HttpServletRequest request){
-       Objects.requireNonNull(taskGroup);
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -256,9 +289,12 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/xml/taskGroup/" + taskGroup;
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+         */
+        return proxyResource.getXMLForXQByTaskGroup(taskGroup).getBody();
     }
 
     public String getXMLForXQ(int fileId, String token, HttpServletRequest request){
+        /*
         Objects.requireNonNull(fileId);
         token = token.substring(7);
 
@@ -276,9 +312,11 @@ public class DispatcherProxyService {
 
         url = baseUrl + "xquery/xml/fileid/" + fileId;
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+         */
+        return proxyResource.getXMLForXQByFileId(fileId).getBody();
     }
 
-    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) throws JsonProcessingException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
 
@@ -303,8 +341,8 @@ public class DispatcherProxyService {
     }
 
     private String fetchSQLSolution(String taskIdForDispatcher, String token, HttpServletRequest request) {
+        /*
         Objects.requireNonNull(taskIdForDispatcher);
-
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -321,6 +359,9 @@ public class DispatcherProxyService {
 
         url = baseUrl + "sql/exercise/"+taskIdForDispatcher+"/solution";
         return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+         */
+        return proxyResource.getSQLSolution(Integer.parseInt(taskIdForDispatcher)).getBody();
+
     }
 
     private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
@@ -329,7 +370,7 @@ public class DispatcherProxyService {
 
         String solution = newTaskAssignmentDTO.getSqlSolution();
         String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
-
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -347,6 +388,8 @@ public class DispatcherProxyService {
         url = baseUrl + "sql/exercise/"+taskGroup;
         var id = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class).getBody();
         return Integer.parseInt(id);
+         */
+        return Integer.parseInt(proxyResource.createSQLExercise(solution, taskGroup).getBody());
     }
 
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
@@ -367,8 +410,8 @@ public class DispatcherProxyService {
 
     private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
         String solution = taskAssignmentDTO.getSqlSolution();
-        String id = taskAssignmentDTO.getTaskIdForDispatcher();
-
+        int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -385,10 +428,11 @@ public class DispatcherProxyService {
 
         url = baseUrl + "sql/exercise/"+id+"/solution";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+         */
+        proxyResource.updateSQLExerciseSolution(id, solution);
     }
 
     public void createTaskGroup(TaskGroupDTO newTaskGroupDTO, String token, HttpServletRequest request) {
-
         if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
            proxyXMLtoDispatcher(newTaskGroupDTO, request, token);
         }else if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
@@ -415,8 +459,8 @@ public class DispatcherProxyService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
-
+        proxyResource.executeDDLForSQL(jsonBody);
+        /*
         token = token.substring(7);
 
         String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
@@ -433,5 +477,7 @@ public class DispatcherProxyService {
 
         url = baseUrl + "sql/schema";
         restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+         */
+
     }
 }

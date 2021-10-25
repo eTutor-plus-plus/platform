@@ -13,6 +13,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -67,7 +68,11 @@ public class TaskAssignmentResource {
                                                                      @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        dispatcherProxyService.createTask(newTaskAssignmentDTO, token, request);
+        try {
+            dispatcherProxyService.createTask(newTaskAssignmentDTO, token, request);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
 
         TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
