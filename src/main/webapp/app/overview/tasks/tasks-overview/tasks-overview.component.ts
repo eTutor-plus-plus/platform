@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ITaskDisplayModel, TaskAssignmentType } from '../task.model';
+import { ITaskDisplayModel } from '../task.model';
 import { TasksService } from '../tasks.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskUpdateComponent } from './task-update/task-update.component';

@@ -30,10 +30,13 @@ export function myMonacoLoad(): void {
         [/MINUS/, 'minus'],
         [/THETA/, 'theta'],
         [/UNION/, 'union'],
+        [/LEFTARROW/, 'leftarrow'],
         [/\]/, 'right-bracket'],
         [/\[/, 'left-bracket'],
-        [/\(/, 'right-parantheses'],
+        [/\(/, 'left-parantheses'],
         [/\)/, 'right-parantheses'],
+        [/\}/, 'right-curly'],
+        [/\{/, 'left-curly'],
       ],
     },
   });
@@ -58,10 +61,13 @@ export function myMonacoLoad(): void {
       { token: 'theta', foreground: keyWordColor },
       { token: 'union', foreground: keyWordColor },
       { token: 'outer', foreground: keyWordColor },
+      { token: 'leftarrow', foreground: keyWordColor },
       { token: 'left-bracket', foreground: 'f15530' },
       { token: 'right-bracket', foreground: 'f15530' },
       { token: 'left-parantheses', foreground: '6d28b1' },
       { token: 'right-parantheses', foreground: '6d28b1' },
+      { token: 'right-curly', foreground: '2d7c02' },
+      { token: 'left-curly', foreground: '2d7c02' },
     ],
   });
 

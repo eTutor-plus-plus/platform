@@ -51,5 +51,6 @@
   <div *ngIf="gradingReceived && hasErrors && !isXQueryTask" [innerHTML]="gradingDto.report.description"></div>
   <br />
   <div *ngIf="gradingReceived && hasErrors && !isXQueryTask" [innerHTML]="gradingDto.report.hint"></div>
-  <div *ngIf="gradingReceived" [innerHTML]="gradingDto.result | safeHtml"></div>
+  <div *ngIf="gradingReceived && isXQueryTask" [innerHTML]="gradingDto.result | safeHtml"></div>
+  <div *ngIf="gradingReceived && !isXQueryTask" [innerHTML]="gradingDto.result"></div>
 </div>
