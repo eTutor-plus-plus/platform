@@ -73,8 +73,8 @@ public class TaskGroupResource {
      */
     @DeleteMapping("{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
-        dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody(), request, token);
+    public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
+        dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody());
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
         return ResponseEntity.noContent().build();
     }

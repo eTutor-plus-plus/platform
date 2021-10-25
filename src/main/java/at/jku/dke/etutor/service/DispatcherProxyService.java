@@ -56,10 +56,8 @@ public class DispatcherProxyService {
     /**
      * Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
      * @param taskGroupDTO the task group
-     * @param request the http request to retrieve the base url
-     * @param token the authorization token
      */
-    public void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
+    public void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
         Objects.requireNonNull(taskGroupDTO.getId());
         Objects.requireNonNull(taskGroupDTO.getxQueryDiagnoseXML());
         Objects.requireNonNull(taskGroupDTO.getxQuerySubmissionXML());
@@ -76,24 +74,6 @@ public class DispatcherProxyService {
             return;
         }
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName(), jsonBody);
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-        url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-        var fileURL = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-         */
         var fileURL = response.getBody();
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
     }
@@ -101,38 +81,21 @@ public class DispatcherProxyService {
     /**
      * Utility method that triggers deletion of task-group related resources by the dispatcher
      * @param taskGroupDTO  the task group
-     * @param request  the request
-     * @param token the auth token
      */
-    public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO, HttpServletRequest request, String token) {
+    public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO) {
         Objects.requireNonNull(taskGroupDTO);
         Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
         Objects.requireNonNull(taskGroupDTO.getName());
 
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
             proxyResource.deleteXMLofXQTaskGroup(taskGroupDTO.getName());
-            /*
-            token = token.substring(7);
-
-            String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-                .replacePath(null)
-                .build()
-                .toUriString();
-            baseUrl += "/api/dispatcher/";
-
-            String url = "";
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-            HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-            url = baseUrl + "xquery/xml/taskGroup/" + taskGroupDTO.getName();
-            var response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class).getBody();
-             */
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
+            proxyResource.deleteSQLSchema(taskGroupDTO.getName());
+            proxyResource.deleteSQLConnection(taskGroupDTO.getName());
         }
     }
 
-    public int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+    public int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         Objects.requireNonNull(newTaskAssignmentDTO.getxQuerySolution());
 
         List<String> sortings = new ArrayList<>();
@@ -153,58 +116,19 @@ public class DispatcherProxyService {
         }
         var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1), jsonBody);
         return response.getBody();
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-        url = baseUrl + "xquery/exercise/taskGroup/" + newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
-        var id = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-        return Integer.parseInt(id);
-         */
 
     }
 
     /**
      * Returns exercise information for a given id
      * @param taskIdForDispatcher the task id
-     * @param token the auth token
-     * @param request the HttpServletRequest
      * @return an XQueryExerciseDTO
      */
-    public XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher, String token, HttpServletRequest request) throws JsonProcessingException {
+    public XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher) throws JsonProcessingException {
         return mapper.readValue(proxyResource.getXQExerciseInfo(Integer.parseInt(taskIdForDispatcher)).getBody(), XQueryExerciseDTO.class);
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        url = baseUrl + "xquery/exercise/solution/id/" + taskIdForDispatcher;
-        return restTemplate.exchange(url, HttpMethod.GET, entity, XQueryExerciseDTO.class).getBody();
-         */
     }
 
-    private String updateXQExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request)  {
+    private String updateXQExercise(TaskAssignmentDTO taskAssignmentDTO)  {
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
         if(dtoSorting != null) sortings.add(dtoSorting);
@@ -223,45 +147,13 @@ public class DispatcherProxyService {
         }
         return proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody).getBody();
 
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-        url = baseUrl + "xquery/exercise/id/" + taskAssignmentDTO.getTaskIdForDispatcher();
-        return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-         */
     }
 
-    public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+    public String deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
 
         if(taskType.equals(ETutorVocabulary.NoType) || taskType.equals(ETutorVocabulary.UploadTask)) return "";
-        /*
-        token = token.substring(7);
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-         */
         if(taskType.equals(ETutorVocabulary.XQueryTask.toString())){
             return proxyResource.deleteXQExercise(id).getBody();
         }else if(taskType.equals(ETutorVocabulary.SQLTask.toString())){
@@ -271,176 +163,83 @@ public class DispatcherProxyService {
         return "";
     }
 
-    public String getXMLForXQ(String taskGroup, String token, HttpServletRequest request){
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        url = baseUrl + "xquery/xml/taskGroup/" + taskGroup;
-        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
-         */
+    public String getXMLForXQ(String taskGroup){
         return proxyResource.getXMLForXQByTaskGroup(taskGroup).getBody();
     }
 
-    public String getXMLForXQ(int fileId, String token, HttpServletRequest request){
-        /*
-        Objects.requireNonNull(fileId);
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        url = baseUrl + "xquery/xml/fileid/" + fileId;
-        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
-         */
+    public String getXMLForXQ(int fileId){
         return proxyResource.getXMLForXQByFileId(fileId).getBody();
     }
 
-    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) throws JsonProcessingException {
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
 
         if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
             if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
-                int id = this.createXQueryTask(newTaskAssignmentDTO, token, request);
+                int id = this.createXQueryTask(newTaskAssignmentDTO);
                 if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
             }else{
-                XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
                 if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
             }
         }else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
             if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
-                int id = this.createSQLTask(newTaskAssignmentDTO, token, request);
+                int id = this.createSQLTask(newTaskAssignmentDTO);
                 if(id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
             }else{
-                String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher(), token, request);
+                String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setSqlSolution(solution);
             }
         }
     }
 
-    private String fetchSQLSolution(String taskIdForDispatcher, String token, HttpServletRequest request) {
-        /*
-        Objects.requireNonNull(taskIdForDispatcher);
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-
-        url = baseUrl + "sql/exercise/"+taskIdForDispatcher+"/solution";
-        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
-         */
+    private String fetchSQLSolution(String taskIdForDispatcher) {
         return proxyResource.getSQLSolution(Integer.parseInt(taskIdForDispatcher)).getBody();
 
     }
 
-    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO, String token, HttpServletRequest request) {
+    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
         String solution = newTaskAssignmentDTO.getSqlSolution();
         String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(solution, headers);
-
-        url = baseUrl + "sql/exercise/"+taskGroup;
-        var id = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class).getBody();
-        return Integer.parseInt(id);
-         */
         return Integer.parseInt(proxyResource.createSQLExercise(solution, taskGroup).getBody());
     }
 
-    public void updateTask(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+    public void updateTask(TaskAssignmentDTO taskAssignmentDTO) {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
 
         if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
                 && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
-                updateXQExercise(taskAssignmentDTO, token, request);
+                updateXQExercise(taskAssignmentDTO);
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
-                updateSQLExercise(taskAssignmentDTO, token, request);
+                updateSQLExercise(taskAssignmentDTO);
             }
         }
     }
 
-    private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO, String token, HttpServletRequest request) {
+    private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO) {
         String solution = taskAssignmentDTO.getSqlSolution();
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(solution, headers);
-
-        url = baseUrl + "sql/exercise/"+id+"/solution";
-        restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-         */
         proxyResource.updateSQLExerciseSolution(id, solution);
     }
 
     public void createTaskGroup(TaskGroupDTO newTaskGroupDTO, String token, HttpServletRequest request) {
         if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
-           proxyXMLtoDispatcher(newTaskGroupDTO, request, token);
+           proxyXMLtoDispatcher(newTaskGroupDTO);
         }else if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
-            createSQLTaskGroup(newTaskGroupDTO, request, token);
+            createSQLTaskGroup(newTaskGroupDTO);
         }
     }
 
-    private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, HttpServletRequest request, String token) {
+    private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
         Objects.requireNonNull(newTaskGroupDTO.getSqlCreateStatements());
         Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsDiagnose());
         Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsSubmission());
@@ -460,24 +259,6 @@ public class DispatcherProxyService {
             e.printStackTrace();
         }
         proxyResource.executeDDLForSQL(jsonBody);
-        /*
-        token = token.substring(7);
-
-        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
-            .replacePath(null)
-            .build()
-            .toUriString();
-        baseUrl += "/api/dispatcher/";
-
-        String url = "";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-        url = baseUrl + "sql/schema";
-        restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-         */
 
     }
 }

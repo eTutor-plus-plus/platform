@@ -64,12 +64,11 @@ public class TaskAssignmentResource {
      */
     @PostMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO,
-                                                                     @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+    public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         try {
-            dispatcherProxyService.createTask(newTaskAssignmentDTO, token, request);
+            dispatcherProxyService.createTask(newTaskAssignmentDTO);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -109,9 +108,9 @@ public class TaskAssignmentResource {
      */
     @DeleteMapping("tasks/assignments/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+    public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
-        taskAssignmentDTOOptional.ifPresent(taskAssignmentDTO -> dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTO, token, request));
+        taskAssignmentDTOOptional.ifPresent(taskAssignmentDTO -> dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTO));
 
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
 
@@ -126,7 +125,7 @@ public class TaskAssignmentResource {
      */
     @PutMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
+    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
@@ -135,7 +134,7 @@ public class TaskAssignmentResource {
 
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
-            dispatcherProxyService.updateTask(taskAssignmentDTO, token, request);
+            dispatcherProxyService.updateTask(taskAssignmentDTO);
 
 
             return ResponseEntity.noContent().build();
