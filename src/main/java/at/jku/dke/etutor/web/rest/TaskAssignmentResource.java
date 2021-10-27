@@ -68,7 +68,7 @@ public class TaskAssignmentResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         try {
-            dispatcherProxyService.createTask(newTaskAssignmentDTO);
+            newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

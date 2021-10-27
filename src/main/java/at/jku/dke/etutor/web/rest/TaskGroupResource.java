@@ -57,7 +57,7 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
@@ -104,10 +104,10 @@ public class TaskGroupResource {
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO);
         }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO, token, request);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO);
         }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }
