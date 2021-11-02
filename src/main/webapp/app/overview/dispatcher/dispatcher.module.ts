@@ -72,19 +72,35 @@ export function myMonacoLoad(): void {
   });
 
   (window as any).monaco.languages.registerCompletionItemProvider('relationalAlgebra', {
-    provideCompletionItems: () => [
-      {
-        label: 'SELECTION',
-        kind: (window as any).monaco.languages.CompletionItemKind.Text,
-      },
-      {
-        label: 'PROJECTION',
-        kind: (window as any).monaco.languages.CompletionItemKind.Keyword,
-        insertText: {
-          value: 'PROJECTION(${1:condition})',
+    provideCompletionItems: () => ({
+      suggestions: [
+        {
+          label: 'PROJECTION',
+          kind: (window as any).monaco.languages.CompletionItemKind.Keyword,
+          insertText: 'PROJECTION[${1:columns}](${2:relation})',
+          insertTextRules: (window as any).monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         },
-      },
-    ],
+        {
+          label: 'SELECTION',
+          kind: (window as any).monaco.languages.CompletionItemKind.Keyword,
+          insertText: 'SELECTION[${1:columns}](${2:relation})',
+          insertTextRules: (window as any).monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        },
+        {
+          label: 'RENAMING',
+          kind: (window as any).monaco.languages.CompletionItemKind.Keyword,
+          insertText: 'RENAMING[${1:newName} LEFTARROW ${2:orignialName}](${3:relation})',
+          insertTextRules: (window as any).monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        },
+        {
+          label: 'ifelse',
+          kind: (window as any).monaco.languages.CompletionItemKind.Snippet,
+          insertText: ['if (${1:condition}) {', '\t$0', '} else {', '\t', '}'].join('\n'),
+          insertTextRules: (window as any).monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          documentation: 'If-Else Statement',
+        },
+      ],
+    }),
   });
 }
 
