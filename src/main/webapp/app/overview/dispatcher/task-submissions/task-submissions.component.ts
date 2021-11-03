@@ -36,5 +36,6 @@ export class TaskSubmissionsComponent implements OnInit {
   openEditor(entry: TaskSubmissionsModel): void {
     const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as LecturerRunSubmissionComponent).submissionEntry = entry;
+    (modalRef.componentInstance as LecturerRunSubmissionComponent).matriculationNo = this.matriculationNo!;
   }
 }

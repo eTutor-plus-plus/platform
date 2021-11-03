@@ -1,15 +1,19 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -20,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.MalformedURLException;
 import java.text.ParseException;
@@ -37,14 +42,18 @@ import java.util.SortedSet;
 public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment sparql endoinpoint service
+     * @param dispatcherProxyService  the injected dispatcher proxy service
      */
-    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
+    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
+                                  DispatcherProxyService dispatcherProxyService) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -57,6 +66,13 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        try {
+            newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
 
         TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
         return ResponseEntity.ok(assignment);
@@ -93,7 +109,11 @@ public class TaskAssignmentResource {
     @DeleteMapping("tasks/assignments/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
+        var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
+        taskAssignmentDTOOptional.ifPresent(taskAssignmentDTO -> dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTO));
+
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -114,6 +134,9 @@ public class TaskAssignmentResource {
 
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            dispatcherProxyService.updateTask(taskAssignmentDTO);
+
+
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();

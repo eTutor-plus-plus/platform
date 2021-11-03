@@ -28,6 +28,8 @@ public class NewTaskAssignmentDTO {
     private String sqlSolution;
     private String maxPoints;
     private String diagnoseLevelWeighting;
+    private String xQuerySolution;
+    private String xQueryXPathSorting;
 
     private String processingTime;
 
@@ -336,5 +338,21 @@ public class NewTaskAssignmentDTO {
      */
     public void setTaskGroupId(String taskGroupId) {
         this.taskGroupId = taskGroupId;
+    }
+
+    public String getxQuerySolution() {
+        return xQuerySolution;
+    }
+
+    public void setxQuerySolution(String xQuerySolution) {
+        this.xQuerySolution = xQuerySolution;
+    }
+
+    public String getxQueryXPathSorting() {
+        return xQueryXPathSorting;
+    }
+
+    public void setxQueryXPathSorting(String xQueryXPathSorting) {
+        this.xQueryXPathSorting = xQueryXPathSorting;
     }
 }

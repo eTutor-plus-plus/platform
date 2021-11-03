@@ -27,6 +27,9 @@
       "modalHeader": "Abgaben von '{{student}}'",
       "windowHeader": "Abgaben von '{{student}}' einsehen"
     },
+    "runSubmissionWindow": {
+      "modalHeader": "Abgabe von '{{student}}' analysieren"
+    },
     "overviewComponent": {
       "header": "Eigene LVAs",
       "table": {

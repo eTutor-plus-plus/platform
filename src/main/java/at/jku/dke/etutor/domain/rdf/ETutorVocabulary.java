@@ -80,9 +80,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE = "hasSQLInsertStatementsDiagnose";
+    private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
+    private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
+    private static final String PROP_HAS_XQUERY_SOLUTION = "hasXQuerySolution";
+    private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -113,13 +117,17 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
+    private static final String PROP_HAS_FILE_URL = "hasFileURL";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_RA_TASK = "RATask";
+    private static final String INSTANCE_XQ_TASK = "XQTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
+    private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -299,9 +307,20 @@ public final class ETutorVocabulary {
      */
     public static final Property hasSQLInsertStatementsDiagnose = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE);
     /**
+     * The hasDiagnoseXMLFile property
+     */
+    public static final Property hasDiagnoseXMLFile = m.createProperty(URI+PROP_HAS_DIAGNOSE_XML_FILE);
+    /**
+     * The hasSubmissionXMLFile property
+     */
+    public static final Property hasSubmissionXMLFile = m.createProperty(URI+PROP_HAS_SUBMISSION_XML_FILE);
+    /**
      * The hasSQLSolution property.
      */
-    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);    /**
+    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
+
+    public static final Property hasXQuerySolution = m.createProperty(URI+PROP_HAS_XQUERY_SOLUTION);
+    public static final Property hasXQueryXPathSorting = m.createProperty(URI+PROP_HAS_XPATH_SORTING);
      /* *
      *The hasMaxPoints property
      */
@@ -448,6 +467,10 @@ public final class ETutorVocabulary {
      */
     public static final Property hasTaskGroupType = m.createProperty(URI+PROP_HAS_TASK_GROUP_TYPE);
     /**
+     * The hasFileUrl property
+     */
+    public static final Property hasFileUrl = m.createProperty(URI+PROP_HAS_FILE_URL);
+    /**
      * The hasTask property.
      */
     public static final Property hasTask = m.createProperty(URI + PROP_HAS_TASK);
@@ -533,14 +556,26 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
+    /***
+     * The relational algebra type instance
+     */
+    public static final Resource RATask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_RA_TASK);
+    /**
+     * The XQuery type instance
+     */
+    public static final Resource XQueryTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_XQ_TASK);
     /**
      * The no type task group type
      */
     public static final Resource NoTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_NO_TYPE_TASK_GROUP);
     /**
-     * The SQL type task group type
+     * The SQL task group type
      */
     public static final Resource SQLTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_SQL_TYPE_TASK_GROUP);
+    /**
+     * The XQuery task group type
+     */
+    public static final Resource XQueryTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_XQUERY_TASK_GROUP);
     /**
      * The easy difficulty instance.
      */

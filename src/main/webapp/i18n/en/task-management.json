@@ -15,7 +15,9 @@
     "taskTypes": {
       "noType": "No type",
       "uploadTask": "Upload task",
-      "sqlTask": "SQL Task"
+      "sqlTask": "SQL Task",
+      "raTask": "Relational algebra task",
+      "xqTask": "XQuery task"
     },
     "fields": {
       "header": "Header:",
@@ -36,7 +38,12 @@
       "instruction": "Task instruction:",
       "taskType": "Task type:",
       "taskGroup": "Task group:",
-      "taskGroupPlaceHolder": "--No group selected--"
+      "taskGroupPlaceHolder": "--No group selected--",
+      "xQueryDiagnoseXML": "XQuery- XML (diagnose)",
+      "xQuerySubmissionXML": "XQuery- XML (submit)",
+      "xQuerySorting": "XQuery- XPath (sorting):",
+      "xQuerySolution": "XQuery solution",
+      "xQueryFileURL": "XQuery- file url:"
     },
     "error": {
       "required": "This field is required!",
@@ -77,11 +84,14 @@
         "sqlCreateStatements": "SQL: Create-Table-Statements",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "diagnoseXML": "XQuery: XML for diagnose- evaluation",
+        "submissionXML": "XQuery: XML for submit- evaluation",
         "descriptionField": "Description:",
         "taskGroupType": "Type:",
         "types": {
           "noType": "No Type",
-          "sqlType": "SQL Group"
+          "sqlType": "SQL Group",
+          "xQueryType": "XQuery Group"
         }
       }
     }

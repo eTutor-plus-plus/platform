@@ -235,13 +235,6 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
       this.entries.length = 0;
       this.loadPage(0);
     });
-
-    this.tasksService.getTaskAssignmentById(currentModel.taskId).subscribe(response => {
-      const id = response.body?.taskIdForDispatcher;
-      if (id) {
-        this.sqlExerciseService.deleteExercise(id).subscribe();
-      }
-    });
   }
 
   /**

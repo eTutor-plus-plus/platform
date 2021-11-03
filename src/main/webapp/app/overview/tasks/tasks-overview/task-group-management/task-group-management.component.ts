@@ -96,14 +96,6 @@ export class TaskGroupManagementComponent implements OnInit {
    * @param selectedGroup the task group to remove
    */
   public deleteTaskGroup(selectedGroup: ITaskGroupDisplayDTO): void {
-    const taskGroupName = selectedGroup.id.substring(selectedGroup.id.indexOf('#') + 1);
-    this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroup => {
-      if (taskGroup.sqlCreateStatements) {
-        this.sqlExerciseService.deleteSchema(taskGroupName).subscribe();
-        this.sqlExerciseService.deleteConnection(taskGroupName).subscribe();
-      }
-    });
-
     this.taskGroupService.deleteTaskGroup(selectedGroup.name).subscribe(() => {
       if ((this.totalItems - 1) % this.itemsPerPage < this.page) {
         this.page = (this.totalItems - 1) % this.itemsPerPage;

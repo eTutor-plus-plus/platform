@@ -12,6 +12,8 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class LecturerRunSubmissionComponent {
   public submissionEntry!: TaskSubmissionsModel;
+  public matriculationNo: string | undefined = '';
+  public showHeader = true;
 
   constructor(private activeModal: NgbActiveModal, private modalService: NgbModal) {}
 

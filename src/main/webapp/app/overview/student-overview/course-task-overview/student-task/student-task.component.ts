@@ -6,7 +6,6 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
-import { SubmissionEvent } from '../../../dispatcher/entities/SubmissionEvent';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -80,7 +79,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
-        this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+        this.isDispatcherTask =
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value;
 
         if (this.isDispatcherTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
@@ -211,28 +213,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Asynchronously marks the task as submitted and sets the points for an assignment as graded by the dispatcher
-   * @param $event the event
+   * Redirects the UUID from the dispatcher to the server
+   * @param $event the UUID
    */
-  public async handleSolutionCorrectAsync($event: number): Promise<void> {
-    await this.markTaskAsSubmittedAsync();
-    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
-  }
-  /**
-   * Asynchronously adds a submission
-   * @param submission the submission
-   */
-  public async handleSubmissionAddedAsync(submission: SubmissionEvent): Promise<void> {
-    await this.studentService
-      .setSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, submission)
-      .toPromise();
-  }
-
-  /**
-   * Asynchronously sets the highest chosen diagnose level
-   * @param $event the event
-   */
-  public async handleDiagnoseLevelIncreasedAsync($event: number): Promise<void> {
-    await this.studentService.setDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
+  public handleDispatcherUUID($event: string): void {
+    this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
   }
 }

@@ -15,7 +15,9 @@
     "taskTypes": {
       "noType": "Kein Typ",
       "uploadTask": "Upload Aufgabe",
-      "sqlTask": "SQL Aufgabe"
+      "sqlTask": "SQL Aufgabe",
+      "raTask": "Relationale Algebra Aufgabe",
+      "xqTask": "XQuery Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -26,7 +28,7 @@
       "taskIdForDispatcher": "Dispatcher: Exercise ID Referenz",
       "sqlSchema": "SQL: Schema:",
       "sqlCreateStatements": "SQL: Create-Table-Statements:",
-      "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
+      "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submit):",
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Lösung:",
       "maxPoints": "Erreichbare Punkteanzahl:",
@@ -36,7 +38,12 @@
       "instruction": "Aufgabenstellung:",
       "taskType": "Aufgabentyp:",
       "taskGroup": "Aufgabengruppe:",
-      "taskGroupPlaceHolder": "--Keine Gruppe ausgewählt--"
+      "taskGroupPlaceHolder": "--Keine Gruppe ausgewählt--",
+      "xQueryDiagnoseXML": "XQuery: XML (Diagnose)",
+      "xQuerySubmissionXML": "XQuery: XML (Submit)",
+      "xQuerySorting": "XQuery- Sortierung (XPath):",
+      "xQuerySolution": "XQuery Lösung",
+      "xQueryFileURL": "XQuery- XML-URL:"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
@@ -77,11 +84,14 @@
         "sqlCreateStatements": "SQL: Create-Table-Statements",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "diagnoseXML": "XQuery: XML für Diagnose-Auswertung",
+        "submissionXML": "XQuery: XML für Submit-Auswertung",
         "descriptionField": "Beschreibung:",
         "taskGroupType": "Typ:",
         "types": {
           "noType": "Kein Typ",
-          "sqlType": "SQL Gruppe"
+          "sqlType": "SQL Gruppe",
+          "xQueryType": "XQuery Gruppe"
         }
       }
     }

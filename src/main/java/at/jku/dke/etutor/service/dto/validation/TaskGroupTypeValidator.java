@@ -20,10 +20,11 @@ public class TaskGroupTypeValidator implements ConstraintValidator<TaskGroupType
      * Constructor.
      */
     public TaskGroupTypeValidator() {
-        availableIds = new String[2];
+        availableIds = new String[3];
 
         availableIds[0] = ETutorVocabulary.NoTypeTaskGroup.getURI();
         availableIds[1] = ETutorVocabulary.SQLTypeTaskGroup.getURI();
+        availableIds[2] = ETutorVocabulary.XQueryTypeTaskGroup.getURI();
     }
 
     /**
