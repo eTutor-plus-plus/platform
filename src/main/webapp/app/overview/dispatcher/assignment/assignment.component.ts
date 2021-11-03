@@ -98,10 +98,12 @@ export class AssignmentComponent implements AfterContentChecked {
       if (lang === 'relationalAlgebra') {
         the = 'relationalAlgebra-light';
       }
-      this.editorOptions = { theme: the, language: lang };
       if (lang === 'xquery') {
         this.isXQueryTask = true;
+        the = 'xquery-light';
       }
+
+      this.editorOptions = { theme: the, language: lang };
     }
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
       this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
