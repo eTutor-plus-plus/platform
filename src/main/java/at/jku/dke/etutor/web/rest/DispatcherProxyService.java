@@ -6,7 +6,6 @@ import at.jku.dke.etutor.service.dto.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
-import at.jku.dke.etutor.web.rest.DispatcherProxyResource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,7 @@ public class DispatcherProxyService {
     private final DispatcherProxyResource proxyResource;
     private final ObjectMapper mapper;
 
-    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource){
+    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.proxyResource = proxyResource;
         this.mapper = new ObjectMapper();
@@ -34,16 +33,18 @@ public class DispatcherProxyService {
 
     /**
      * Returns the DispatcherSubmissionDTO for a given id
+     *
      * @param UUID the UUID
      * @return the submission
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
     public DispatcherSubmissionDTO getSubmission(String UUID) throws JsonProcessingException {
-        return  mapper.readValue(proxyResource.getSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+        return mapper.readValue(proxyResource.getSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
     }
 
     /**
      * Returns the grading for a given id
+     *
      * @param UUID the UUID
      * @return the grading
      * @throws JsonProcessingException if the returned value cannot be parsed
@@ -54,18 +55,20 @@ public class DispatcherProxyService {
 
     /**
      * Adds task group related resources to the dispatcher
+     *
      * @param newTaskGroupDTO the new task group
      */
     public void createTaskGroup(TaskGroupDTO newTaskGroupDTO) {
-        if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+        if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             proxyXMLtoDispatcher(newTaskGroupDTO);
-        }else if(newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
+        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             createSQLTaskGroup(newTaskGroupDTO);
         }
     }
 
     /**
      * Adds task group related resources for an SQL task group
+     *
      * @param newTaskGroupDTO the task group
      */
     private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
@@ -90,8 +93,10 @@ public class DispatcherProxyService {
         proxyResource.executeDDLForSQL(jsonBody);
 
     }
+
     /**
      * Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
+     *
      * @param taskGroupDTO the task group
      */
     private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
@@ -101,7 +106,7 @@ public class DispatcherProxyService {
 
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
         String submisisonXML = taskGroupDTO.getxQuerySubmissionXML();
-        DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML,submisisonXML);
+        DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML, submisisonXML);
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
         try {
@@ -117,16 +122,17 @@ public class DispatcherProxyService {
 
     /**
      * Triggers the deletion of task-group related resources by the dispatcher
-     * @param taskGroupDTO  the task group
+     *
+     * @param taskGroupDTO the task group
      */
     public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO) {
         Objects.requireNonNull(taskGroupDTO);
         Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
         Objects.requireNonNull(taskGroupDTO.getName());
 
-        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+        if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             proxyResource.deleteXMLofXQTaskGroup(taskGroupDTO.getName());
-        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())){
+        } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             proxyResource.deleteSQLSchema(taskGroupDTO.getName());
             proxyResource.deleteSQLConnection(taskGroupDTO.getName());
         }
@@ -134,6 +140,7 @@ public class DispatcherProxyService {
 
     /**
      * Handles the Dispatcher-related tasks for the creation of a new task assignment
+     *
      * @param newTaskAssignmentDTO the task assignment
      * @throws JsonProcessingException if there is an error while serializing
      */
@@ -141,20 +148,21 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
 
-        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
-            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+        if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) {
+            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null) {
                 int id = this.createXQueryTask(newTaskAssignmentDTO);
-                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id +"");
-            }else{
+                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+            } else {
                 XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
-                if(!e.getSortedNodes().isEmpty())newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
+                if (!e.getSortedNodes().isEmpty())
+                    newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
             }
-        }else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
-            if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null){
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
+            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null) {
                 int id = this.createSQLTask(newTaskAssignmentDTO);
-                if(id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
-            }else{
+                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+            } else {
                 String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setSqlSolution(solution);
             }
@@ -164,6 +172,7 @@ public class DispatcherProxyService {
 
     /**
      * Creates an XQ-exercise
+     *
      * @param newTaskAssignmentDTO the task assignment
      * @return the id of the created task
      */
@@ -172,7 +181,7 @@ public class DispatcherProxyService {
 
         List<String> sortings = new ArrayList<>();
         String dtoSorting = newTaskAssignmentDTO.getxQueryXPathSorting();
-        if(dtoSorting != null) sortings.add(dtoSorting);
+        if (dtoSorting != null) sortings.add(dtoSorting);
 
         XQueryExerciseDTO body = new XQueryExerciseDTO();
         body.setQuery(newTaskAssignmentDTO.getxQuerySolution());
@@ -186,12 +195,13 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return -1;
         }
-        var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1), jsonBody);
+        var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1), jsonBody);
         return response.getBody();
     }
 
     /**
      * Returns XQ exercise information for a given id
+     *
      * @param taskIdForDispatcher the task id
      * @return an XQueryExerciseDTO
      */
@@ -201,6 +211,7 @@ public class DispatcherProxyService {
 
     /**
      * Creates an SQL exercise
+     *
      * @param newTaskAssignmentDTO the new task assignment
      * @return the id of the created exercise
      */
@@ -209,12 +220,13 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
         String solution = newTaskAssignmentDTO.getSqlSolution();
-        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1);
+        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1);
         return Integer.parseInt(proxyResource.createSQLExercise(solution, taskGroup).getBody());
     }
 
     /**
      * Returns the solution for a given SQL-exercise-id
+     *
      * @param taskIdForDispatcher the id
      * @return the solution
      */
@@ -225,19 +237,20 @@ public class DispatcherProxyService {
 
     /**
      * Updates an exercise
+     *
      * @param taskAssignmentDTO the task assignment to be updated
      */
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
 
-        if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
-            if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
-                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
+        if (taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) {
+            if (StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
+                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
                 updateXQExercise(taskAssignmentDTO);
             }
-        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
-            if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())){
+        } else if (taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
+            if (StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
                 updateSQLExercise(taskAssignmentDTO);
             }
         }
@@ -245,6 +258,7 @@ public class DispatcherProxyService {
 
     /**
      * Updates an SQL Exercise
+     *
      * @param taskAssignmentDTO the SQL task assignment to be updated
      */
     private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO) {
@@ -255,12 +269,13 @@ public class DispatcherProxyService {
 
     /**
      * Updates solution and sortings-XPath for an XQ-exercise
+     *
      * @param taskAssignmentDTO the task assignment
      */
-    private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO)  {
+    private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) {
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
-        if(dtoSorting != null) sortings.add(dtoSorting);
+        if (dtoSorting != null) sortings.add(dtoSorting);
 
         XQueryExerciseDTO body = new XQueryExerciseDTO();
         body.setQuery(taskAssignmentDTO.getxQuerySolution());
@@ -279,22 +294,24 @@ public class DispatcherProxyService {
 
     /**
      * Deletes a task assignment (exercise) in the dispatcher
+     *
      * @param taskAssignmentDTO the task assignment to be deleted
      * @return
      */
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
+
+        if (taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
+            return;
+
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
 
-        if(taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString())) return;
-
-        if(taskType.equals(ETutorVocabulary.XQueryTask.toString())){
+        if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
             proxyResource.deleteXQExercise(id).getBody();
-        }else if(taskType.equals(ETutorVocabulary.SQLTask.toString())){
-          proxyResource.deleteSQLExercise(id).getBody();
+        } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {
+            proxyResource.deleteSQLExercise(id).getBody();
         }
     }
-
 
 
 }
