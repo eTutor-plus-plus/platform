@@ -4,8 +4,8 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -25,6 +25,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -36,7 +37,7 @@ import java.util.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @Service
-public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_EXERCISE_BY_ID =
         """
@@ -44,14 +45,18 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
             CONSTRUCT { ?exerciseSheet ?p ?o.
-            			?exerciseSheet etutor:containsLearningGoal ?goal.
+            			?exerciseSheet etutor:containsLearningGoalAssignment ?assignment.
+                        ?assignment etutor:containsLearningGoal ?goal.
+                        ?assignment etutor:hasPriority ?priority.
             			?goal rdfs:label ?goalName.
             			?goal a etutor:Goal }
             WHERE {
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet ?p ?o.
               OPTIONAL {
-                ?exerciseSheet etutor:containsLearningGoal ?goal.
+                ?exerciseSheet etutor:containsLearningGoalAssignment ?assignment.
+                ?assignment etutor:containsLearningGoal ?goal.
+                ?assignment etutor:hasPriority ?priority.
                 ?goal rdfs:label ?goalName
               }
             }
@@ -61,10 +66,18 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            DELETE { ?exerciseSheet ?predicate ?object }
+            DELETE { ?exerciseSheet ?predicate ?object.
+                     ?exerciseSheet etutor:containsLearningGoalAssignment ?assignment.
+                     ?assignment etutor:containsLearningGoal ?goal.
+                     ?assignment etutor:hasPriority ?priority. }
             WHERE {
               ?exerciseSheet a etutor:ExerciseSheet.
               ?exerciseSheet ?predicate ?object.
+              OPTIONAL {
+                ?exerciseSheet etutor:containsLearningGoalAssignment ?assignment.
+                ?assignment etutor:containsLearningGoal ?goal.
+                ?assignment etutor:hasPriority ?priority.
+              }
             }
             """;
 
@@ -118,32 +131,30 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                 DELETE {
                     ?exerciseSheet rdfs:label ?lbl.
                     ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
-                    ?exerciseSheet etutor:containsLearningGoal ?goal.
+                    ?exerciseSheet etutor:containsLearningGoalAssignment ?goalAssignment.
+                    ?goalAssignment a etutor:LearningGoalAssignment.
+                    ?goalAssignment etutor:containsLearningGoal ?goal.
+                    ?goalAssignment etutor:hasPriority ?priority.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                    ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
                 }
                 INSERT {
                     ?exerciseSheet rdfs:label ?newLbl.
                     ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
-                """
-        );
-
-        for (LearningGoalDisplayDTO learningGoalDisplayDTO : exerciseSheetDTO.getLearningGoals()) {
-            query.append("?exerciseSheet etutor:containsLearningGoal ");
-            query.appendIri(learningGoalDisplayDTO.getId());
-            query.append(".\n");
-        }
-
-        query.append(
-            """
+                    ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?newGenerate.
                 }
                 WHERE {
                   ?exerciseSheet a etutor:ExerciseSheet.
                   ?exerciseSheet rdfs:label ?lbl.
                   ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
                   ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
+                  ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
                   OPTIONAL {
-                    ?exerciseSheet etutor:containsLearningGoal ?goal.
+                    ?exerciseSheet etutor:containsLearningGoalAssignment ?goalAssignment.
+                    ?goalAssignment a etutor:LearningGoalAssignment.
+                    ?goalAssignment etutor:containsLearningGoal ?goal.
+                    ?goalAssignment etutor:hasPriority ?priority.
                   }
                 }
                 """
@@ -153,9 +164,44 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
         query.setLiteral("?newLbl", exerciseSheetDTO.getName().trim());
         query.setIri("?newDifficulty", exerciseSheetDTO.getDifficultyId());
         query.setLiteral("?newTaskCount", exerciseSheetDTO.getTaskCount());
+        query.setLiteral("?newGenerate", exerciseSheetDTO.isGenerateWholeExerciseSheet());
+
+        ParameterizedSparqlString goalAssignmentInsertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            INSERT {
+            """);
+
+        int i = 0;
+        for (LearningGoalAssignmentDTO learningGoalAssignment : exerciseSheetDTO.getLearningGoals()) {
+            goalAssignmentInsertQry.append(MessageFormat.format("""
+                ?exerciseSheet etutor:containsLearningGoalAssignment _:b{0}.
+                _:b{0} a etutor:LearningGoalAssignment.
+                _:b{0} etutor:hasPriority\040""", i));
+            goalAssignmentInsertQry.appendLiteral(String.valueOf(learningGoalAssignment.getPriority()), XSDDatatype.XSDunsignedInt);
+            goalAssignmentInsertQry.append(MessageFormat.format("""
+                .
+                _:b{0} etutor:containsLearningGoal\040""", i));
+            goalAssignmentInsertQry.appendIri(learningGoalAssignment.getLearningGoal().getId());
+            goalAssignmentInsertQry.append(" .\n");
+
+            i++;
+        }
+
+        goalAssignmentInsertQry.append("""
+            } WHERE {
+                ?exerciseSheet a etutor:ExerciseSheet.
+            }
+            """);
+        goalAssignmentInsertQry.setIri("?exerciseSheet", exerciseSheetDTO.getId());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
+
+            if (i > 0) {
+                connection.update(goalAssignmentInsertQry.asUpdate());
+            }
         }
     }
 
@@ -240,7 +286,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
                     int count = querySolution.getLiteral("?cnt").getInt();
-                    resultList.add(new ExerciseSheetDisplayDTO(id, name, count));
+                    resultList.add(new ExerciseSheetDisplayDTO(id, name, count, false));
                 }
 
                 boolean hasNext = page.isPaged() && resultList.size() > page.getPageSize();
@@ -327,7 +373,7 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
                     String id = querySolution.getLiteral("?id").getString();
                     String name = querySolution.getLiteral("?name").getString();
                     int cnt = querySolution.getLiteral("?cnt").getInt();
-                    list.add(new ExerciseSheetDisplayDTO(id, name, cnt));
+                    list.add(new ExerciseSheetDisplayDTO(id, name, cnt, false));
                 }
             }
             try (QueryExecution execution = connection.query(countQry.asQuery())) {
@@ -387,9 +433,15 @@ public class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointSe
             String.valueOf(newExerciseSheetDTO.getTaskCount()),
             XSDDatatype.XSDint
         );
+        resource.addProperty(ETutorVocabulary.isGenerateWholeExerciseSheet, String.valueOf(newExerciseSheetDTO.isGenerateWholeExerciseSheet()), XSDDatatype.XSDboolean);
 
-        for (LearningGoalDisplayDTO entry : newExerciseSheetDTO.getLearningGoals()) {
-            resource.addProperty(ETutorVocabulary.containsLearningGoal, model.createResource(entry.getId()));
+        for (LearningGoalAssignmentDTO entry : newExerciseSheetDTO.getLearningGoals()) {
+            Resource assignmentResource = model.createResource();
+            assignmentResource.addProperty(RDF.type, ETutorVocabulary.LearningGoalAssignment);
+            assignmentResource.addProperty(ETutorVocabulary.hasPriority, String.valueOf(entry.getPriority()), XSDDatatype.XSDunsignedInt);
+            assignmentResource.addProperty(ETutorVocabulary.containsLearningGoal, model.createResource(entry.getLearningGoal().getId()));
+
+            resource.addProperty(ETutorVocabulary.containsLearningGoalAssignment, assignmentResource);
         }
 
         return resource;

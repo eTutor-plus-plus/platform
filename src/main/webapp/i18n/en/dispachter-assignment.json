@@ -1,0 +1,16 @@
+{
+  "dispatcherAssignment": {
+    "assignment": {
+      "congratulation": "Congratulation, your solution is correct!",
+      "notCorrect": "Sorry, your solution is not correct!",
+      "diagnoseLevelPlaceholder": "Choose the feedback-level:",
+      "yourSolution": "Your solution:",
+      "diagnoseLevel": {
+        "none": "No Feedback",
+        "little": "Little Feedback",
+        "some": "Some Feedback",
+        "much": "Much Feedback"
+      }
+    }
+  }
+}

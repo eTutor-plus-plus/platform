@@ -3,11 +3,12 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO class for a new exercise sheet.
@@ -24,10 +25,12 @@ public class NewExerciseSheetDTO {
     private String difficultyId;
 
     @NotNull
-    private List<LearningGoalDisplayDTO> learningGoals = new ArrayList<>();
+    private List<LearningGoalAssignmentDTO> learningGoals = new ArrayList<>();
 
     @Min(1)
     private int taskCount;
+
+    private boolean generateWholeExerciseSheet;
 
     /**
      * Returns the name.
@@ -66,20 +69,20 @@ public class NewExerciseSheetDTO {
     }
 
     /**
-     * Returns the list of associated learning goals.
+     * Returns the list of associated learning goal assignments.
      *
-     * @return the list of associated learning goals
+     * @return the list of associated learning goal assignments
      */
-    public List<LearningGoalDisplayDTO> getLearningGoals() {
+    public List<LearningGoalAssignmentDTO> getLearningGoals() {
         return learningGoals;
     }
 
     /**
-     * Sets the list of associated learning goals.
+     * Sets the list of associated learning goal assignments.
      *
-     * @param learningGoals the list to set
+     * @param learningGoals the learning goal assignments' list to set
      */
-    public void setLearningGoals(List<LearningGoalDisplayDTO> learningGoals) {
+    public void setLearningGoals(List<LearningGoalAssignmentDTO> learningGoals) {
         this.learningGoals = learningGoals;
     }
 
@@ -102,17 +105,17 @@ public class NewExerciseSheetDTO {
     }
 
     /**
-     * Adds a learning goal.
+     * Adds a learning goal assignment.
      *
-     * @param learningGoal the learning goal to add, not null
+     * @param learningGoalAssignment the learning goal assignment to add, not null
      */
     @JsonIgnore
-    public void addLearningGoal(LearningGoalDisplayDTO learningGoal) {
+    public void addLearningGoal(LearningGoalAssignmentDTO learningGoalAssignment) {
         if (learningGoals == null) {
             learningGoals = new ArrayList<>();
         }
-        if (learningGoal != null) {
-            learningGoals.add(learningGoal);
+        if (learningGoalAssignment != null) {
+            learningGoals.add(learningGoalAssignment);
         }
     }
 
@@ -126,5 +129,23 @@ public class NewExerciseSheetDTO {
         if (learningGoals != null && learningGoal != null) {
             learningGoals.remove(learningGoal);
         }
+    }
+
+    /**
+     * Returns whether or not a whole exercise sheet should be generated.
+     *
+     * @return {@code true} if the whole exercise sheet should be generated, otherwise {@code false}
+     */
+    public boolean isGenerateWholeExerciseSheet() {
+        return generateWholeExerciseSheet;
+    }
+
+    /**
+     * Sets whether or not a whole exercise sheet should be generated
+     *
+     * @param generateWholeExerciseSheet {@code true} if the whole exercise sheet should be generated, otherwise {@code false}
+     */
+    public void setGenerateWholeExerciseSheet(boolean generateWholeExerciseSheet) {
+        this.generateWholeExerciseSheet = generateWholeExerciseSheet;
     }
 }

@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
+import { SubmissionEvent } from '../../../dispatcher/entities/SubmissionEvent';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -21,7 +22,16 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
+  public isDispatcherTask = true;
   public uploadTaskFileId = -1;
+
+  public exercise_id = '';
+  public task_type = '';
+  public submission = '';
+  public diagnoseLevel = 0;
+  public dispatcherPoints = 0;
+  public maxPoints = '';
+  public diagnoseLevelWeighting = '';
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -70,6 +80,35 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         this._taskModel = result.body!;
 
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
+        this.isDispatcherTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value;
+
+        if (this.isDispatcherTask) {
+          this.task_type = this._taskModel.taskAssignmentTypeId;
+
+          if (this._taskModel.taskIdForDispatcher) {
+            this.exercise_id = this._taskModel.taskIdForDispatcher;
+          }
+
+          if (this._taskModel.maxPoints) {
+            this.maxPoints = this._taskModel.maxPoints;
+          }
+
+          if (this._taskModel.diagnoseLevelWeighting) {
+            this.diagnoseLevelWeighting = this._taskModel.diagnoseLevelWeighting;
+          }
+
+          this.submission = await this.studentService
+            .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+
+          this.dispatcherPoints = await this.studentService
+            .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+
+          this.diagnoseLevel = await this.studentService
+            .getDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+        }
 
         if (this.isUploadTask) {
           this.uploadTaskFileId = await this.studentService
@@ -169,5 +208,31 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       .setUploadTaskAttachment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, newFileId)
       .toPromise();
     this.uploadTaskFileId = newFileId;
+  }
+
+  /**
+   * Asynchronously marks the task as submitted and sets the points for an assignment as graded by the dispatcher
+   * @param $event the event
+   */
+  public async handleSolutionCorrectAsync($event: number): Promise<void> {
+    await this.markTaskAsSubmittedAsync();
+    await this.studentService.setDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
+  }
+  /**
+   * Asynchronously adds a submission
+   * @param submission the submission
+   */
+  public async handleSubmissionAddedAsync(submission: SubmissionEvent): Promise<void> {
+    await this.studentService
+      .setSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, submission)
+      .toPromise();
+  }
+
+  /**
+   * Asynchronously sets the highest chosen diagnose level
+   * @param $event the event
+   */
+  public async handleDiagnoseLevelIncreasedAsync($event: number): Promise<void> {
+    await this.studentService.setDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).toPromise();
   }
 }

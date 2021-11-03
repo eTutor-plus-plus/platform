@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.LearningGoalUpdateAssignmentDTO;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -415,7 +416,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -465,7 +466,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(2);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -516,7 +517,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -582,7 +583,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(2);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -639,7 +640,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -696,7 +697,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
@@ -753,7 +754,7 @@ public class StudentServiceIT {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO("http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join", "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);

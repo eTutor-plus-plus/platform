@@ -10,6 +10,22 @@ export interface INewTaskGroupDTO {
    * The optional description
    */
   description?: string;
+  /**
+   * The id of the task group's type
+   */
+  taskGroupTypeId: string;
+  /**
+   * Optional create-table-statements for an SQL-Task Group
+   */
+  sqlCreateStatements?: string;
+  /**
+   * Optional insert-into-statements for an SQL-Task Group for submissions
+   */
+  sqlInsertStatementsSubmission?: string;
+  /**
+   * Optional insert-into-statements for an SQL-Task Group for diagnose
+   */
+  sqlInsertStatementsDiagnose?: string;
 }
 
 /**
@@ -42,4 +58,53 @@ export interface ITaskGroupDisplayDTO {
    * The name.
    */
   name: string;
+}
+
+/**
+ * Represents a task group type
+ */
+export class TaskGroupType {
+  public static readonly NoType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#NoType',
+    'taskManagement.taskGroup.update.types.noType' // add translation!
+  );
+
+  public static readonly SQLType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#SQLType',
+    'taskManagement.taskGroup.update.types.sqlType'
+  );
+
+  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType];
+
+  private readonly _value: string;
+  private readonly _text: string;
+
+  /**
+   * Constructr
+   * @param value the value
+   * @param text the text
+   */
+  constructor(value: string, text: string) {
+    this._value = value;
+    this._text = text;
+  }
+
+  /**
+   * Returns the value.
+   */
+  public get value(): string {
+    return this._value;
+  }
+
+  /**
+   * Returns the text.
+   */
+  public get text(): string {
+    return this._text;
+  }
+
+  /**
+   * Overridden toString method.
+   */
+  public toString = (): string => this._text;
 }

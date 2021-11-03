@@ -8,6 +8,7 @@ import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
+import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 
 /**
  * Component for creating / updating tasks.
@@ -20,7 +21,9 @@ export class TaskUpdateComponent implements OnInit {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
-
+  public editorOptions = { theme: 'vs-light', language: 'sql' };
+  public editorOptionsReadOnly = { theme: 'vs-light', language: 'sql', readOnly: true };
+  public isSQLTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -30,6 +33,13 @@ export class TaskUpdateComponent implements OnInit {
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
+    taskIdForDispatcher: [''],
+    sqlCreateStatements: [''],
+    sqlInsertStatementsSubmission: [''],
+    sqlInsertStatementsDiagnose: [''],
+    sqlSolution: [''],
+    maxPoints: [''],
+    diagnoseLevelWeighting: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
@@ -46,12 +56,14 @@ export class TaskUpdateComponent implements OnInit {
    * @param tasksService the injected tasks service
    * @param eventManager the injected event manager service
    * @param taskGroupService the task group service
+   * @param sqlExerciseService the injected SQL exercise service
    */
   constructor(
     private fb: FormBuilder,
     private activeModal: NgbActiveModal,
     private tasksService: TasksService,
     private eventManager: EventManager,
+    private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService
   ) {}
 
@@ -73,7 +85,7 @@ export class TaskUpdateComponent implements OnInit {
   /**
    * Saves the task.
    */
-  public save(): void {
+  public async save(): Promise<void> {
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
@@ -100,6 +112,32 @@ export class TaskUpdateComponent implements OnInit {
       newTask.instruction = instructionStr.trim();
     }
 
+    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
+    if (taskIdForDispatcher) {
+      newTask.taskIdForDispatcher = taskIdForDispatcher;
+    } else if (newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      await this.sqlExerciseService
+        .getExerciseId()
+        .toPromise()
+        .then(response => {
+          newTask.taskIdForDispatcher = response;
+        });
+    }
+
+    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
+    if (sqlSolution.trim()) {
+      newTask.sqlSolution = sqlSolution.trim();
+    }
+
+    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
+    if (maxPoints) {
+      newTask.maxPoints = maxPoints;
+    }
+
+    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    if (diagnoseLevelWeighting) {
+      newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
+    }
     const processingTime: string = this.updateForm.get('processingTime')!.value;
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
@@ -114,12 +152,25 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
+      if (
+        newTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
+        newTask.sqlSolution &&
+        newTask.taskGroupId &&
+        newTask.taskIdForDispatcher
+      ) {
+        const schema = newTask.taskGroupId.substring(newTask.taskGroupId.indexOf('#') + 1);
+        await this.sqlExerciseService.createExercise(schema, newTask.taskIdForDispatcher, newTask.sqlSolution);
+      }
     } else {
       const editedTask: ITaskModel = {
         header: newTask.header,
         creator: newTask.creator,
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
+        taskIdForDispatcher: newTask.taskIdForDispatcher,
+        sqlSolution: newTask.sqlSolution,
+        maxPoints: newTask.maxPoints,
+        diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
         url: newTask.url,
         instruction: newTask.instruction,
@@ -140,6 +191,14 @@ export class TaskUpdateComponent implements OnInit {
         },
         () => (this.isSaving = false)
       );
+
+      if (
+        editedTask.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value &&
+        editedTask.taskIdForDispatcher &&
+        editedTask.sqlSolution
+      ) {
+        this.sqlExerciseService.updateExerciseSolution(editedTask.taskIdForDispatcher, editedTask.sqlSolution).subscribe();
+      }
     }
   }
 
@@ -160,9 +219,27 @@ export class TaskUpdateComponent implements OnInit {
 
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
+      const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
+      const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
+      const sqlSolution = value.sqlSolution;
+      const maxPoints = value.maxPoints ?? '';
+      const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
+      const taskGroupId = value.taskGroupId ?? '';
+      const taskAssignmentTypeId = value.taskAssignmentTypeId;
+
+      if (taskIdForDispatcher) {
+        this.updateForm.get('taskIdForDispatcher')!.disable();
+      }
+      this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
+
+      if (!sqlSolution && taskIdForDispatcher) {
+        this.sqlExerciseService.getSolution(taskIdForDispatcher).subscribe(response => {
+          this.patchSQLSolution(response);
+        });
+      }
 
       this.updateForm.patchValue({
         header: value.header,
@@ -170,11 +247,17 @@ export class TaskUpdateComponent implements OnInit {
         organisationUnit: value.organisationUnit,
         privateTask: value.privateTask,
         taskDifficulty,
+        taskAssignmentType,
+        taskIdForDispatcher,
+        sqlSolution,
+        maxPoints,
+        diagnoseLevelWeighting,
         processingTime,
         url,
         instruction,
         taskGroup: value.taskGroupId ?? '',
       });
+      this.taskTypeChanged();
     }
   }
 
@@ -186,10 +269,76 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
+   * Checks if the taskType requires additional form fields in the course of "set TaskModel".
+   * Fetches additional values from the taskGroup and patches it in the update form.
+   * @param taskAssignmentTypeId
+   * @param taskGroupId
+   * @private
+   */
+  public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
+    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.isSQLTask = true;
+      this.patchSQLValues(taskGroupId);
+    }
+  }
+  /**
    * Returns whether this modal window is in new mode.
    * {@code true} = new mode, {@code false} = edit mode
    */
   public get isNew(): boolean {
     return this._taskModel === undefined;
+  }
+
+  /**
+   * Reacts to a change of the taskType in the update form
+   */
+  public taskTypeChanged(): void {
+    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.isSQLTask = true;
+      this.updateForm.get('maxPoints')!.setValidators(Validators.required);
+      this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
+      this.updateForm.updateValueAndValidity();
+    } else {
+      this.isSQLTask = false;
+      this.updateForm.get('maxPoints')!.clearValidators();
+      this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
+      this.updateForm.updateValueAndValidity();
+    }
+  }
+  /**
+   * Reacts to a change of the taskGroup by patching the relevant data from the group in the update form
+   */
+  public taskGroupChanged(): void {
+    const taskGroupId = this.updateForm.get(['taskGroup'])!.value as string | undefined;
+    this.patchSQLValues(taskGroupId);
+  }
+
+  /**
+   * Patches the values from an SQL-Task group in the update form
+   * @param taskGroupId the task-group-id
+   */
+  private patchSQLValues(taskGroupId: string | undefined): void {
+    if (taskGroupId) {
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
+      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+        this.updateForm.patchValue({
+          sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+          sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+          sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+        });
+      });
+    }
+  }
+
+  /**
+   * Patches the solution for an sql exercise in the update form
+   * @param solution the solution to be patched
+   * @private
+   */
+  private patchSQLSolution(solution: string): void {
+    this.updateForm.patchValue({
+      sqlSolution: solution,
+    });
   }
 }

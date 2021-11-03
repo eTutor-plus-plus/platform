@@ -24,7 +24,7 @@ import java.util.Objects;
  * @author fne
  */
 @Service
-public class LecturerOverviewService extends AbstractSPARQLEndpointService {
+public non-sealed class LecturerOverviewService extends AbstractSPARQLEndpointService {
 
     /**
      * Constructor.

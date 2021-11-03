@@ -8,6 +8,8 @@ import { CourseManagementService } from '../../course-management/course-manageme
 import { forkJoin } from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import { LecturerTaskAssignmentService } from './lecturer-task-assignment-overview/lecturer-task-assignment.service';
+import { TaskPointEntryModel } from '../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/task-point-entry.model';
 
 /**
  * Modal window for displaying exercise sheet assignments.
@@ -29,6 +31,8 @@ export class CourseExerciseSheetAllocationComponent {
 
   private _courseInstance?: IDisplayableCourseInstanceDTO;
   private _selectedSheetIdsToSave: string[] = [];
+  private _closedExerciseSheets: string[] = [];
+  private _exerciseSheetPointOverview: TaskPointEntryModel[] = [];
 
   /**
    * Constructor.
@@ -38,13 +42,15 @@ export class CourseExerciseSheetAllocationComponent {
    * @param exerciseSheetService the injected exercise sheet service
    * @param courseService the injected course service
    * @param modalService the injected modal service
+   * @param lecturerAssignmentService the injected lecturer assignment service
    */
   constructor(
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private exerciseSheetService: ExerciseSheetsService,
     private courseService: CourseManagementService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private lecturerAssignmentService: LecturerTaskAssignmentService
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -60,6 +66,7 @@ export class CourseExerciseSheetAllocationComponent {
     forkJoin([this.loadExerciseSheetsPageAsync(), this.courseService.getExerciseSheetsOfCourseInstance(value.id)]).subscribe(
       ([, second]) => {
         this.selectedSheetsId = second.map(x => x.internalId);
+        this._closedExerciseSheets = second.filter(x => x.closed).map(x => x.internalId);
       }
     );
   }
@@ -105,6 +112,15 @@ export class CourseExerciseSheetAllocationComponent {
   }
 
   /**
+   * Returns whether the given exercise sheet is already closed or not.
+   *
+   * @param item the exercise sheet to check
+   */
+  public isClosed(item: IExerciseSheetDisplayDTO): boolean {
+    return this._closedExerciseSheets.includes(item.internalId);
+  }
+
+  /**
    * Marks the given exercise sheet display dto as selected.
    *
    * @param item the item to mark
@@ -133,6 +149,54 @@ export class CourseExerciseSheetAllocationComponent {
    */
   public transition(): void {
     this.loadExerciseSheetsPageAsync();
+  }
+
+  /**
+   * Requests the overview of the achieved points for a specific exercise-sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public exportPointsForExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    const exerciseSheetUUID = item.internalId.substr(item.internalId.lastIndexOf('#') + 1);
+    const courseInstanceUUID = this._courseInstance?.id.substr(this._courseInstance.id.lastIndexOf('#') + 1);
+    this.lecturerAssignmentService.getExerciseSheetPointOverviewAsCSV(courseInstanceUUID!, exerciseSheetUUID);
+  }
+
+  /**
+   * Opens or closes the requested exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public openOrCloseExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    if (this.isClosed(item)) {
+      this.openExerciseSheet(item);
+    } else {
+      this.closeExerciseSheet(item);
+    }
+  }
+
+  /**
+   * Closes the requested exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public closeExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    this.lecturerAssignmentService.closeExerciseSheet(this._courseInstance!.id, item.internalId).subscribe(() => {
+      item.closed = true;
+      this._closedExerciseSheets.push(item.internalId);
+    });
+  }
+
+  /**
+   * Re-opens an already closed exercise sheet.
+   *
+   * @param item the exercise sheet
+   */
+  public openExerciseSheet(item: IExerciseSheetDisplayDTO): void {
+    this.lecturerAssignmentService.openExerciseSheet(this._courseInstance!.id, item.internalId).subscribe(() => {
+      item.closed = false;
+      this._closedExerciseSheets.splice(this._closedExerciseSheets.indexOf(item.internalId));
+    });
   }
 
   /**

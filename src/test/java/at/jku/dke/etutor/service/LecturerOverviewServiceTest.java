@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.lectureroverview.LearningGoalProgressDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
@@ -146,7 +147,7 @@ public class LecturerOverviewServiceTest {
         NewExerciseSheetDTO newExerciseSheetDTO = new ExerciseSheetDTO();
         newExerciseSheetDTO.setName("Join exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
-        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalDisplayDTO(joinGoalUrl, "Join")));
+        newExerciseSheetDTO.setLearningGoals(Collections.singletonList(new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO(joinGoalUrl, "Join"), 1)));
         newExerciseSheetDTO.setTaskCount(1);
 
         ExerciseSheetDTO exerciseSheetDTO =

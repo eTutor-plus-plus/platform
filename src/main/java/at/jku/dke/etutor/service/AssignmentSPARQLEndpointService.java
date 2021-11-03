@@ -39,7 +39,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL =
         """
@@ -280,6 +280,30 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             query.append("?assignment etutor:hasTaskHeader ");
             query.appendLiteral(taskAssignment.getHeader());
             query.append(".\n");
+
+            if (StringUtils.isNotBlank(taskAssignment.getTaskIdForDispatcher())) {
+                query.append("?assignment etutor:hasTaskIdForDispatcher ");
+                query.appendLiteral(taskAssignment.getTaskIdForDispatcher().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getSqlSolution())) {
+                query.append("?assignment etutor:hasSQLSolution ");
+                query.appendLiteral(taskAssignment.getSqlSolution().trim());
+                query.append(".\n");
+            }
+
+            if(StringUtils.isNotBlank(taskAssignment.getMaxPoints())){
+                query.append("?assignment etutor:hasMaxPoints ");
+                query.appendLiteral(taskAssignment.getMaxPoints());
+                query.append(".\n");
+            }
+
+            if(StringUtils.isNotBlank(taskAssignment.getDiagnoseLevelWeighting())){
+                query.append("?assignment etutor:hasDiagnoseLevelWeighting ");
+                query.appendLiteral(taskAssignment.getDiagnoseLevelWeighting());
+                query.append(".\n");
+            }
 
             if (StringUtils.isNotBlank(taskAssignment.getProcessingTime())) {
                 query.append("?assignment etutor:hasTypicalProcessingTime ");
@@ -722,7 +746,9 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             connection.load(model);
         }
 
-        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), resource.getURI(), creator, now);
+        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
+            newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), resource.getURI(), creator, now);
     }
 
     /**
@@ -752,7 +778,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
     }
 
     /**
-     * Persists the modifications, currently only the description can be modified.
+     * Persists the modifications for task groups, currently only the description can be modified.
      *
      * @param taskGroupDTO the task group DTO
      * @return the modified task group
@@ -771,8 +797,10 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
 
         if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
-            query.append("  ?group etutor:hasTaskGroupDescription ?newDescription.");
+            query.append(" ?group etutor:hasTaskGroupDescription ?newDescription.");
+            query.append("\n");
         }
+
 
         query.append("""
             } WHERE {
@@ -791,6 +819,67 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         if (StringUtils.isNotBlank(taskGroupDTO.getDescription())) {
             query.setLiteral("?newDescription", taskGroupDTO.getDescription().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+        return taskGroupDTO;
+    }
+
+    /**
+     * Persists the modified taskGroup of type "SQL"
+     * @param taskGroupDTO the taskGroupDTO
+     * @return the modified taskGroup
+     */
+    public TaskGroupDTO modifySQLTaskGroup(TaskGroupDTO taskGroupDTO) {
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+              ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+              ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
+            } INSERT {
+            """);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
+            query.append("  ?group etutor:hasSQLCreateStatements ?newSQLCreateStatements.");
+            query.append("\n");
+        }
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsSubmission())) {
+            query.append("  ?group etutor:hasSQLInsertStatementsSubmission ?newSQLInsertStatementsSubmission.");
+            query.append("\n");
+        }
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            query.append("  ?group etutor:hasSQLInsertStatementsDiagnose ?newSQLInsertStatementsDiagnose.");
+            query.append("\n");
+        }
+        query.append("""
+            } WHERE {
+              ?group a etutor:TaskGroup.
+              OPTIONAL {
+                ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+                ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+                ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
+              }
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlCreateStatements())) {
+            query.setLiteral("?newSQLCreateStatements", taskGroupDTO.getSqlCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsSubmission())) {
+            query.setLiteral("?newSQLInsertStatementsSubmission", taskGroupDTO.getSqlInsertStatementsSubmission().trim());
+        }
+        if (StringUtils.isNotBlank(taskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            query.setLiteral("?newSQLInsertStatementsDiagnose", taskGroupDTO.getSqlInsertStatementsDiagnose().trim());
         }
 
         try (RDFConnection connection = getConnection()) {
@@ -829,6 +918,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
                 return Optional.empty();
             }
 
+            TaskGroupDTO taskGroupDTO = new TaskGroupDTO(resource);
             return Optional.of(new TaskGroupDTO(resource));
         }
     }
@@ -922,14 +1012,23 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         Resource taskGroupResource = model.createResource(ETutorVocabulary.getTaskGroupIdFromName(newTaskGroupDTO.getName()));
         taskGroupResource.addProperty(RDF.type, ETutorVocabulary.TaskGroup);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupName, newTaskGroupDTO.getName());
+        taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupType, newTaskGroupDTO.getTaskGroupTypeId());
 
         if (StringUtils.isNotBlank(newTaskGroupDTO.getDescription())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupDescription, newTaskGroupDTO.getDescription().trim());
         }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlCreateStatements())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLCreateStatements, newTaskGroupDTO.getSqlCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission, newTaskGroupDTO.getSqlInsertStatementsSubmission().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose, newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim());
+        }
 
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
-
         return taskGroupResource;
     }
 
@@ -955,6 +1054,22 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
+            resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+            resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){
+            resource.addProperty(ETutorVocabulary.hasMaxPoints, newTaskAssignmentDTO.getMaxPoints());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDiagnoseLevelWeighting())){
+            resource.addProperty(ETutorVocabulary.hasDiagnoseLevelWeighting, newTaskAssignmentDTO.getDiagnoseLevelWeighting());
+        }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {
             resource.addProperty(ETutorVocabulary.hasTypicalProcessingTime, newTaskAssignmentDTO.getProcessingTime().trim());
@@ -983,5 +1098,6 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
 
         return resource;
     }
+
     //endregion
 }

@@ -10,6 +10,7 @@ import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import one.util.streamex.StreamEx;
@@ -92,7 +93,7 @@ public class ExerciseSheetResourceIT {
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         newExerciseSheetDTO.setTaskCount(1);
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO(x.getId(), x.getName()), 1)).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 

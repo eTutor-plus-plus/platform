@@ -14,7 +14,8 @@
     },
     "taskTypes": {
       "noType": "Kein Typ",
-      "uploadTask": "Upload Aufgabe"
+      "uploadTask": "Upload Aufgabe",
+      "sqlTask": "SQL Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -22,6 +23,14 @@
       "organisationUnit": "Organisationseinheit:",
       "privateTask": "Private Aufgabe",
       "taskDifficulty": "Aufgabenschwierigkeit:",
+      "taskIdForDispatcher": "Dispatcher: Exercise ID Referenz",
+      "sqlSchema": "SQL: Schema:",
+      "sqlCreateStatements": "SQL: Create-Table-Statements:",
+      "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
+      "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
+      "sqlSolution": "SQL: Lösung:",
+      "maxPoints": "Erreichbare Punkteanzahl:",
+      "diagnoseLevelWeighting": "Gewichtung des Diagnose-Levels:",
       "processingTime": "Bearbeitungszeit:",
       "url": "Url:",
       "instruction": "Aufgabenstellung:",
@@ -60,11 +69,20 @@
       "createNewTaskGroup": "Neue Aufgabengruppe erstellen",
       "close": "Schließen",
       "manage": "Aufgabengruppen verwalten",
+      "groupTypePlaceholder": "Typ auswählen",
       "update": {
         "newHeader": "Neue Aufgabengruppe erstellen",
         "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
         "nameField": "Name:",
-        "descriptionField": "Beschreibung:"
+        "sqlCreateStatements": "SQL: Create-Table-Statements",
+        "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
+        "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "descriptionField": "Beschreibung:",
+        "taskGroupType": "Typ:",
+        "types": {
+          "noType": "Kein Typ",
+          "sqlType": "SQL Gruppe"
+        }
       }
     }
   }
