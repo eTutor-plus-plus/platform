@@ -1,9 +1,7 @@
 package at.jku.dke.etutor.web.rest;
 
-import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
-import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
@@ -22,8 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
