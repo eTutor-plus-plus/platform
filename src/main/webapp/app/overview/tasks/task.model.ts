@@ -47,6 +47,30 @@ export interface INewTaskModel {
    */
   taskDifficultyId: string;
   /**
+   * The optional  task id for the dispatcher.
+   */
+  taskIdForDispatcher?: string;
+  /**
+   * The optional weighting with regards to the diagnose level
+   */
+  diagnoseLevelWeighting?: string;
+  /**
+   * Optional solution for a SQL-assignment
+   */
+  sqlSolution?: string;
+  /**
+   * Optional solution for a XQuery-assignment
+   */
+  xQuerySolution?: string;
+  /**
+   * Optional XPath-expression defining the sorting of an XQuery-assignment
+   */
+  xQueryXPathSorting?: string;
+  /**
+   * Optional max points
+   */
+  maxPoints?: string;
+  /**
    * The optional free text processing time.
    */
   processingTime?: string;
@@ -113,8 +137,27 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UploadTask',
     'taskManagement.taskTypes.uploadTask'
   );
+  public static readonly SQLTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask',
+    'taskManagement.taskTypes.sqlTask'
+  );
 
-  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask];
+  public static readonly RATask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask',
+    'taskManagement.taskTypes.raTask'
+  );
+
+  public static readonly XQueryTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
+    'taskManagement.taskTypes.xqTask'
+  );
+  public static readonly Values = [
+    TaskAssignmentType.NoType,
+    TaskAssignmentType.UploadTask,
+    TaskAssignmentType.SQLTask,
+    TaskAssignmentType.RATask,
+    TaskAssignmentType.XQueryTask,
+  ];
 
   private readonly _value: string;
   private readonly _text: string;

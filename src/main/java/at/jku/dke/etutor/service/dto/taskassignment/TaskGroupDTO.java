@@ -27,8 +27,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String id, String creator, Instant changeDate) {
-        super(name, description);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML,  String id, String creator, Instant changeDate) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -49,11 +49,36 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
     public TaskGroupDTO(Resource resource) {
         setId(resource.getURI());
         setName(resource.getProperty(ETutorVocabulary.hasTaskGroupName).getString());
+        setTaskGroupTypeId(resource.getProperty(ETutorVocabulary.hasTaskGroupType).getString());
 
         Statement descriptionStatement = resource.getProperty(ETutorVocabulary.hasTaskGroupDescription);
+        Statement sqlCreateStatement = resource.getProperty(ETutorVocabulary.hasSQLCreateStatements);
+        Statement sqlInsertSubmissionStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission);
+        Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
+        Statement diagnoseXMLFileStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseXMLFile);
+        Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
+        Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
+        }
+        if (sqlCreateStatement != null) {
+            setSqlCreateStatements(sqlCreateStatement.getString());
+        }
+        if (sqlInsertSubmissionStatement!= null) {
+            setSqlInsertStatementsSubmission(sqlInsertSubmissionStatement.getString());
+        }
+        if (sqlInsertDiagnoseStatement!= null) {
+           setSqlInsertStatementsDiagnose(sqlInsertDiagnoseStatement.getString());
+        }
+        if(diagnoseXMLFileStatement != null){
+            setxQueryDiagnoseXML(diagnoseXMLFileStatement.getString());
+        }
+        if(submissionXMLFileStatement != null){
+            setxQuerySubmissionXML(submissionXMLFileStatement.getString());
+        }
+        if(fileUrlStatement != null){
+            setFileUrl(fileUrlStatement.getString());
         }
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {

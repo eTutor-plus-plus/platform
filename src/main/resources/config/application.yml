@@ -183,3 +183,5 @@ jhipster:
 # ===================================================================
 
 # application:
+dispatcher:
+  url: http://localhost:8081

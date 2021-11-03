@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { Pagination } from 'app/core/request/request.model';
 import { createRequestOption } from 'app/core/request/request-util';
+import { TaskPointEntryModel } from '../../../course-management/course-instances/course-instance-overview/course-exercise-sheet-allocation/task-point-entry.model';
 
 /**
  * Service for lecturer task assignment related operations.
@@ -103,5 +104,45 @@ export class LecturerTaskAssignmentService {
     return this.http.get<number>(
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/uploadTask/${taskNo}/file-attachment/of-student/${matriculationNo}`
     );
+  }
+
+  /**
+   * Returns an overview about all the assigned tasks and the achieved points/ max points for an exercise sheet and course instance
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   */
+  public getExerciseSheetPointOverview(courseInstanceId: string, exerciseSheetUUID: string): Observable<TaskPointEntryModel[]> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<TaskPointEntryModel[]>(
+      `${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/points-overview`,
+      { responseType: 'text' as 'json' }
+    );
+  }
+
+  /**
+   * Fetches the points overview as csv and starts a download
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   */
+  public getExerciseSheetPointOverviewAsCSV(courseInstanceId: string, exerciseSheetUUID: string): void {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    this.http
+      .get(`${SERVER_API_URL}api/lecturer/course-instance/${instanceUUID}/exercise-sheet/${exerciseSheetUUID}/csv/points-overview`, {
+        responseType: 'blob',
+      })
+      .subscribe(res => {
+        const blob = new Blob([res], { type: 'application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const fileName = 'test.csv';
+        const objectURL = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = objectURL;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+
+        document.body.removeChild(a);
+        URL.revokeObjectURL(objectURL);
+      });
   }
 }

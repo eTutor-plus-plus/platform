@@ -24,6 +24,13 @@ public class NewTaskAssignmentDTO {
     @NotBlank
     private String header;
 
+    private String taskIdForDispatcher;
+    private String sqlSolution;
+    private String maxPoints;
+    private String diagnoseLevelWeighting;
+    private String xQuerySolution;
+    private String xQueryXPathSorting;
+
     private String processingTime;
 
     @NotBlank
@@ -125,6 +132,70 @@ public class NewTaskAssignmentDTO {
     }
 
     /**
+     * Returns the task id for dispatcher.
+     *
+     * @return the task id for dispatcher
+     */
+    public String getTaskIdForDispatcher() {
+        return taskIdForDispatcher;
+    }
+
+    /**
+     * Sets the task id for dispatcher.
+     *
+     * @param taskIdForDispatcher task id for the dispatcher to set
+     */
+    public void setTaskIdForDispatcher(String taskIdForDispatcher) {
+        this.taskIdForDispatcher = taskIdForDispatcher;
+    }
+
+    /**
+     * Returns the solution for an SQL exercise
+     * @return
+     */
+    public String getSqlSolution() {
+        return sqlSolution;
+    }
+
+    /**
+     * Sets the solution for an SQL exercise
+     * @param sqlSolution
+     */
+    public void setSqlSolution(String sqlSolution) {
+        this.sqlSolution = sqlSolution;
+    }
+
+    /**
+     * Returns the maxPoints
+     * @return the maxPoints
+     */
+    public String getMaxPoints() {
+        return maxPoints;
+    }
+
+    /**
+     * Sets the maxPoints
+     * @param maxPoints the maxPoints
+     */
+    public void setMaxPoints(String maxPoints) {
+        this.maxPoints = maxPoints;
+    }
+    /**
+     * Returns the weighting for the diagnose level
+     * @return the weighting
+     */
+    public String getDiagnoseLevelWeighting() {
+        return diagnoseLevelWeighting;
+    }
+    /**
+     * Sets the weighting for the diagnose level
+     * @param diagnoseLevelWeighting
+     */
+    public void setDiagnoseLevelWeighting(String diagnoseLevelWeighting) {
+        this.diagnoseLevelWeighting = diagnoseLevelWeighting;
+    }
+
+    /**
      * Returns the processing time.
      *
      * @return the processing time
@@ -132,6 +203,7 @@ public class NewTaskAssignmentDTO {
     public String getProcessingTime() {
         return processingTime;
     }
+
 
     /**
      * Sets the processing time.
@@ -266,5 +338,21 @@ public class NewTaskAssignmentDTO {
      */
     public void setTaskGroupId(String taskGroupId) {
         this.taskGroupId = taskGroupId;
+    }
+
+    public String getxQuerySolution() {
+        return xQuerySolution;
+    }
+
+    public void setxQuerySolution(String xQuerySolution) {
+        this.xQuerySolution = xQuerySolution;
+    }
+
+    public String getxQueryXPathSorting() {
+        return xQueryXPathSorting;
+    }
+
+    public void setxQueryXPathSorting(String xQueryXPathSorting) {
+        this.xQueryXPathSorting = xQueryXPathSorting;
     }
 }

@@ -52,6 +52,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
         setHeader(newTaskAssignmentDTO.getHeader());
+        setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
+        setSqlSolution(newTaskAssignmentDTO.getSqlSolution());
+        setMaxPoints(newTaskAssignmentDTO.getMaxPoints());
+        setDiagnoseLevelWeighting(newTaskAssignmentDTO.getDiagnoseLevelWeighting());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
         setTaskDifficultyId(newTaskAssignmentDTO.getTaskDifficultyId());
         setOrganisationUnit(newTaskAssignmentDTO.getOrganisationUnit());
@@ -60,6 +64,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setPrivateTask(newTaskAssignmentDTO.isPrivateTask());
         setTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         setTaskGroupId(newTaskAssignmentDTO.getTaskGroupId());
+        setxQuerySolution(newTaskAssignmentDTO.getxQuerySolution());
+        setxQueryXPathSorting(newTaskAssignmentDTO.getxQueryXPathSorting());
 
         setId(id);
         setCreationDate(creationDate);
@@ -96,11 +102,35 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setLearningGoalIds(learningGoalIds);
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskCreator).getString());
         setHeader(resource.getProperty(ETutorVocabulary.hasTaskHeader).getString());
-
+        Statement taskIdForDispatcherStatement = resource.getProperty(ETutorVocabulary.hasTaskIdForDispatcher);
+        if (taskIdForDispatcherStatement != null) {
+            setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
+        }
+        Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
+        if(sqlSolutionStatement != null){
+            setSqlSolution(sqlSolutionStatement.getString());
+        }
+        Statement maxPointsStatement = resource.getProperty(ETutorVocabulary.hasMaxPoints);
+        if(maxPointsStatement != null){
+            setMaxPoints(maxPointsStatement.getString());
+        }
+        Statement diagnoseLevelWeightingStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseLevelWeighting);
+        if(diagnoseLevelWeightingStatement != null){
+            setDiagnoseLevelWeighting(diagnoseLevelWeightingStatement.getString());
+        }
         Statement processingTimeStatement = resource.getProperty(ETutorVocabulary.hasTypicalProcessingTime);
         if (processingTimeStatement != null) {
             setProcessingTime(processingTimeStatement.getString());
         }
+        Statement xQuerySolutionStatement = resource.getProperty(ETutorVocabulary.hasXQuerySolution);
+        if(xQuerySolutionStatement != null){
+            setxQuerySolution(xQuerySolutionStatement.getString());
+        }
+        Statement xPathSortingStatement = resource.getProperty(ETutorVocabulary.hasXQueryXPathSorting);
+        if(xPathSortingStatement != null){
+            setxQueryXPathSorting(xPathSortingStatement.getString());
+        }
+
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());

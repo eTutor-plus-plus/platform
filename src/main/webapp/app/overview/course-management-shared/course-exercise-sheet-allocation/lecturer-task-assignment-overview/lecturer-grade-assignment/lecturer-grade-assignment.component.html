@@ -49,6 +49,7 @@
     </div>
 
     <br />
+    <button *ngIf="isDispatcherTask()" class="btn btn-secondary" (click)="openSubmissions()">See submissions</button>
     <button
       class="btn btn-primary"
       (click)="saveCurrentAssessment()"

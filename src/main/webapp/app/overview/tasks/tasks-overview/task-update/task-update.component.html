@@ -76,7 +76,13 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="taskAssignmentType" jhiTranslate="taskManagement.fields.taskType">Task type:</label>
-      <select class="form-control" name="taskAssignmentType" id="taskAssignmentType" formControlName="taskAssignmentType">
+      <select
+        class="form-control"
+        name="taskAssignmentType"
+        id="taskAssignmentType"
+        formControlName="taskAssignmentType"
+        (change)="taskTypeChanged()"
+      >
         <option value="" disabled>{{ 'taskManagement.taskTypePlaceholder' | translate }}</option>
         <option *ngFor="let taskType of taskTypes" [ngValue]="taskType">{{ taskType.text | translate }}</option>
       </select>
@@ -90,6 +96,120 @@
           This field is required!
         </small>
       </div>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask">
+      <label class="form-control-label" for="taskIdForDispatcher" jhiTranslate="taskManagement.fields.taskIdForDispatcher"
+        >Task-ID for the Dispatcher:</label
+      >
+      <input type="number" class="form-control" name="taskIdForDispatcher" id="taskIdForDispatcher" formControlName="taskIdForDispatcher" />
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask">
+      <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
+      <input type="number" class="form-control" name="maxPoints" id="maxPoints" formControlName="maxPoints" />
+      <div *ngIf="updateForm.get('maxPoints')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('maxPoints')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask">
+      <label class="form-control-label" for="diagnoseLevelWeighting" jhiTranslate="taskManagement.fields.diagnoseLevelWeighting"
+        >Weighting for diagnose-level:</label
+      >
+      <input
+        type="number"
+        class="form-control"
+        name="diagnoseLevelWeighting"
+        id="diagnoseLevelWeighting"
+        formControlName="diagnoseLevelWeighting"
+      />
+
+      <div *ngIf="updateForm.get('diagnoseLevelWeighting')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('diagnoseLevelWeighting')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask">
+      <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
+        >SQL Create-Table-Statements:</label
+      >
+      <ngx-monaco-editor
+        [options]="editorOptionsReadOnly"
+        id="sqlCreateStatements"
+        formControlName="sqlCreateStatements"
+      ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryTask">
+      <label class="form-control-label" for="xQueryDiagnoseXML" jhiTranslate="taskManagement.fields.xQueryDiagnoseXML"
+        >XQuery: XML (Diagnose)</label
+      >
+      <ngx-monaco-editor
+        [options]="editorOptionsXMLReadOnly"
+        id="xQueryDiagnoseXML"
+        formControlName="xQueryDiagnoseXML"
+      ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryTask">
+      <label class="form-control-label" for="xQuerySubmissionXML" jhiTranslate="taskManagement.fields.xQuerySubmissionXML"
+        >XQuery: XML (Submit)</label
+      >
+      <ngx-monaco-editor
+        [options]="editorOptionsXMLReadOnly"
+        id="xQuerySubmissionXML"
+        formControlName="xQuerySubmissionXML"
+      ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask">
+      <label
+        class="form-control-label"
+        for="sqlInsertStatementsSubmission"
+        jhiTranslate="taskManagement.fields.sqlInsertStatementsSubmission"
+        >SQL Insert-Into-Statements (Submission):</label
+      >
+      <ngx-monaco-editor
+        [options]="editorOptionsReadOnly"
+        id="sqlInsertStatementsSubmission"
+        formControlName="sqlInsertStatementsSubmission"
+      ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask">
+      <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.fields.sqlInsertStatementsDiagnose"
+        >SQL Insert-Into-Statements (Diagnose):</label
+      >
+      <ngx-monaco-editor
+        [options]="editorOptionsReadOnly"
+        id="sqlInsertStatementsDiagnose"
+        formControlName="sqlInsertStatementsDiagnose"
+      ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isSQLTask || isRATask">
+      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label><br />
+      <button class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
+      <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryTask">
+      <label class="form-control-label" for="xQuerySolution" jhiTranslate="taskManagement.fields.xQuerySolution">XQuery Solution:</label>
+      <ngx-monaco-editor [options]="editorOptions" id="xQuerySolution" formControlName="xQuerySolution"></ngx-monaco-editor>
+      <button class="btn btn-secondary" (click)="openSolutionRunnerWindow()">Try</button>
+    </div>
+    <div class="form-group" *ngIf="isXQueryTask">
+      <label class="form-control-label" for="xQueryXPathSorting" jhiTranslate="taskManagement.fields.xQuerySorting"
+        >XQuery: XPath sorting</label
+      >
+      <ngx-monaco-editor [options]="editorOptions" id="xQueryXPathSorting" formControlName="xQueryXPathSorting"></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryTask">
+      <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.xQueryFileURL">XQuery- file url:</label>
+      <input type="text" [disabled]="true" class="form-control" name="xQueryFileURL" id="xQueryFileURL" formControlName="xQueryFileURL" />
     </div>
     <div class="form-group">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
@@ -111,7 +231,7 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="taskGroup" jhiTranslate="taskManagement.fields.taskGroup">Task group:</label>
-      <select class="form-control" name="taskGroup" id="taskGroup" formControlName="taskGroup">
+      <select class="form-control" name="taskGroup" (change)="taskGroupChanged()" id="taskGroup" formControlName="taskGroup">
         <option value="">{{ 'taskManagement.fields.taskGroupPlaceHolder' | translate }}</option>
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>

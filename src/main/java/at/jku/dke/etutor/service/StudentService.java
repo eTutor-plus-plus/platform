@@ -10,6 +10,8 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.*;
 import one.util.streamex.StreamEx;
@@ -28,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -281,6 +285,57 @@ public class StudentService extends AbstractSPARQLEndpointService {
           ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
           ?individualAssignment etutor:fromExerciseSheet ?sheet;
                                 etutor:fromCourseInstance ?courseInstance;
+        }
+        """;
+
+    private static final String QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+          ?individualTask etutor:hasIndividualTaskSubmission [
+            a etutor:IndividualTaskSubmission;
+            etutor:hasSubmission ?submission;
+            etutor:hasInstant ?instant;
+            etutor:isSubmitted ?isSubmitted;
+            etutor:isSolved ?isSolved;
+            etutor:hasDispatcherId ?dispatcherId;
+            etutor:hasTaskType ?taskType;
+          ].
+        }
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+    private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT ?instant ?submission ?taskInstruction ?isSubmitted ?isSolved ?dispatcherId ?taskType
+        WHERE{
+        	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          	?individualAssignment a etutor:IndividualTaskAssignment.
+          	?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                 etutor:fromCourseInstance ?courseInstance.
+          	?individualAssignment etutor:hasIndividualTask ?individualTask.
+          	?individualTask a etutor:IndividualTask;
+                           etutor:hasOrderNo ?orderNo;
+                           etutor:refersToTask ?taskAssignment;
+                           etutor:hasIndividualTaskSubmission ?taskSubmission.
+          	?taskSubmission etutor:hasSubmission ?submission;
+                            etutor:hasInstant ?instant;
+                            etutor:isSubmitted ?isSubmitted;
+                            etutor:isSolved ?isSolved;
+                            etutor:hasDispatcherId ?dispatcherId;
+                            etutor:hasTaskType ?taskType.
+
+          	OPTIONAL{
+            	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
+          	}
         }
         """;
 
@@ -565,7 +620,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUri);
 
         try (RDFConnection connection = getConnection()) {
-            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceUri), model);
+            connection.load(courseInstanceUri.replace("#", "%23"), model);
 
             connection.update(qry.asUpdate());
         }
@@ -977,6 +1032,474 @@ public class StudentService extends AbstractSPARQLEndpointService {
                         return Optional.empty();
                     }
                     return Optional.of(attachmentIdLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles a submission for an individual task
+      * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @param submission the submission
+     */
+    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, DispatcherSubmissionDTO submission, boolean hasBeenSolved){
+        Objects.requireNonNull(submission);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
+        insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getPassedAttributes().get("submission"));
+        insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
+        insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.getPassedAttributes().get("action").equals("submit"));
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", hasBeenSolved);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?dispatcherId", submission.getExerciseId());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?taskType", submission.getTaskType());
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
+        }
+
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getPassedAttributes().get("submission"));
+    }
+
+    /**
+     * Updates the latest submission for an individual task
+     * @param courseInstanceId the course instance
+     * @param exerciseSheetId the exercise sheet
+     * @param studentId the student id
+     * @param taskNo the task number
+     * @param submission the submission
+     */
+    public void setLatestSubmissionForIndividualTask(String courseInstanceId, String exerciseSheetId, String studentId, int taskNo, String submission){
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasSubmission ?oldSubmission.
+            } INSERT {
+              ?individualTask etutor:hasSubmission ?newSubmission.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasSubmission ?oldSubmission.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newSubmission", submission);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns all submissions for an individual task
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return a list containing the submissions
+     */
+    public Optional<List<IndividualTaskSubmissionDTO>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheet", sheetId);
+        query.setIri("?courseInstance", courseInstanceId);
+        query.setLiteral("?orderNo", taskNo);
+
+        List<IndividualTaskSubmissionDTO> submissions = new ArrayList<>();
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal submissionLiteral = solution.getLiteral("?submission");
+                    Literal instantLiteral = solution.getLiteral("?instant");
+                    Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
+                    Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+                    Literal taskTypeLiteral = solution.getLiteral("?taskType");
+
+                    submissions.add(new IndividualTaskSubmissionDTO(
+                        instantFromRDFString(instantLiteral.getString()),
+                        submissionLiteral.getString(),
+                        hasBeenSubmittedLiteral.getBoolean(),
+                        hasBeenSolvedLiteral.getBoolean(),
+                        dispatcherIdLiteral.getInt(),
+                        taskTypeLiteral.getString()
+                    ));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if(submissions.isEmpty()) return Optional.empty();
+        return Optional.of(submissions);
+    }
+
+    /**
+     * Returns the latest/current submission for an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the submission
+     */
+    public Optional<String> getLatestSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?submission
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasSubmission ?submission.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal submissionLiteral = solution.getLiteral("?submission");
+
+                    if (submissionLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(submissionLiteral.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the points for an individual task
+     * @param courseInstanceUUID the course instance UUID
+     *      * @param exerciseSheetUUID  the exercise sheet UUID
+     *      * @param matriculationNo    the matriculation no
+     *      * @param taskNo             the task no
+     *      * @param points             the points
+     */
+    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasDispatcherPoints ?oldDispatcherPoints.
+            } INSERT {
+              ?individualTask etutor:hasDispatcherPoints ?newDispatcherPoints.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasDispatcherPoints ?oldDispatcherPoints.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newDispatcherPoints", points);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+
+    /**
+     * Returns the points for an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the points
+     */
+    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?dispatcherPoints
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasDispatcherPoints ?dispatcherPoints.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal pointsLiteral = solution.getLiteral("?dispatcherPoints");
+
+                    if (pointsLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(pointsLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+    /**
+     * Sets the (highest) chosen diagnose level for an individual task
+     * @param courseInstanceUUID the course instance UUID
+     *      * @param exerciseSheetUUID  the exercise sheet UUID
+     *      * @param matriculationNo    the matriculation no
+     *      * @param taskNo             the task no
+     *      * @param points             the diagnose level
+     */
+
+    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualTask etutor:hasDiagnoseLevel ?oldDiagnoseLevel.
+            } INSERT {
+              ?individualTask etutor:hasDiagnoseLevel ?newDiagnoseLevel.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+
+              OPTIONAL {
+                ?individualTask etutor:hasDiagnoseLevel ?oldDiagnoseLevel.
+              }
+            }
+            """);
+
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", exerciseSheetId);
+        insertQry.setIri("?student", studentId);
+        insertQry.setLiteral("?orderNo", taskNo);
+        insertQry.setLiteral("?newDiagnoseLevel", diagnoseLevel);
+
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the highest chosen diagnose level of an individual task assignment
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation number
+     * @param taskNo the task number
+     * @return {@link Optional} containing the points
+     */
+    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?diagnoseLevel
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo;
+                              etutor:hasDiagnoseLevel ?diagnoseLevel.
+            }
+            """);
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal diagnoseLevelLiteral = solution.getLiteral("?diagnoseLevel");
+
+                    if (diagnoseLevelLiteral== null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(diagnoseLevelLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the weighting of the diagnose level and the max points of a task assignment to which an individual task refers to
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param matriculationNo the matriculation no
+     * @param taskNo the task no
+     * @return an Optional Double[] containing both values
+     */
+    public Optional<Double[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+                    SELECT ?diagnoseLevelWeighting ?maxPoints ?dispatcherId
+                    WHERE{
+                         ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+
+                         ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
+                                               etutor:fromCourseInstance ?courseInstanceId;
+                                               etutor:hasIndividualTask ?individualTask.
+
+                         ?individualTask etutor:hasOrderNo ?orderNo;
+                                         etutor:refersToTask ?taskAssignment.
+
+                         ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
+                                         etutor:hasMaxPoints ?maxPoints;
+                                         etutor:hasTaskIdForDispatcher ?dispatcherId.
+                    }
+            """);
+
+        query.setIri("?courseInstanceId", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheetId", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal diagnoseLevelWeightingLiteral = solution.getLiteral("?diagnoseLevelWeighting");
+                    Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+
+                    var result = new Double[3];
+                    result[0] = diagnoseLevelWeightingLiteral.getDouble();
+                    result[1] = maxPointsLiteral.getDouble();
+                    result[2] = dispatcherIdLiteral.getDouble();
+                    return Optional.of(result);
                 } else {
                     return Optional.empty();
                 }

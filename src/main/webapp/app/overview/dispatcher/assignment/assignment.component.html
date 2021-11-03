@@ -1,0 +1,56 @@
+<div class="container" xmlns="http://www.w3.org/1999/html">
+  <div class="assignment-points" *ngIf="showPoints">
+    <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
+    <label>{{ points }}/{{ maxPoints }}</label>
+  </div>
+  <div *ngIf="showDiagnoseBar">
+    <select class="form-control" [(ngModel)]="diagnoseLevelText">
+      <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
+      <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">
+        {{ chosenDiagnoseLevel | translate }}
+      </option>
+    </select>
+  </div>
+  <br />
+  <div>
+    <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
+  </div>
+  <div class="editor" style="height: 500px">
+    <ngx-monaco-editor
+      style="height: 100%"
+      [options]="editorOptions"
+      name="submission"
+      id="submission"
+      [(ngModel)]="submission"
+    ></ngx-monaco-editor>
+  </div>
+  <div *ngIf="showSubmitButton">
+    <form class="add-form" (ngSubmit)="onSubmit()">
+      <input type="submit" value="Submit" class="btn btn-block" />
+    </form>
+  </div>
+
+  <div>
+    <form class="add-form" (ngSubmit)="onDiagnose()">
+      <input type="submit" value="Diagnose" class="btn btn-block" />
+    </form>
+  </div>
+
+  <div>
+    <strong>
+      <label *ngIf="gradingReceived && !hasErrors" jhiTranslate="dispatcherAssignment.assignment.congratulation"
+        >Congratulation, your solution is correct!</label
+      >
+      <label *ngIf="gradingReceived && hasErrors" jhiTranslate="dispatcherAssignment.assignment.notCorrect"
+        >Your solution is not correct!</label
+      >
+    </strong>
+  </div>
+
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask" [innerHTML]="gradingDto.report.error"></div>
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask" [innerHTML]="gradingDto.report.description"></div>
+  <br />
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask" [innerHTML]="gradingDto.report.hint"></div>
+  <div *ngIf="gradingReceived && isXQueryTask" [innerHTML]="gradingDto.result | safeHtml"></div>
+  <div *ngIf="gradingReceived && !isXQueryTask" [innerHTML]="gradingDto.result"></div>
+</div>

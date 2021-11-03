@@ -37,9 +37,23 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-
+    <p></p>
+    <div class="assignment-component">
+      <jhi-assignment
+        *ngIf="isDispatcherTask"
+        (submissionUUIDReceived)="handleDispatcherUUID($event)"
+        [exercise_id]="exercise_id"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [task_type]="task_type"
+        [submission]="submission"
+        [points]="dispatcherPoints"
+        [maxPoints]="maxPoints"
+        [highestDiagnoseLevel]="diagnoseLevel"
+      >
+      </jhi-assignment>
+    </div>
     <jhi-file-upload
-      *ngIf="isUploadTask"
+      *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
@@ -47,8 +61,8 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
-
     <button
+      *ngIf="!isDispatcherTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
