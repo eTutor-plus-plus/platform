@@ -23,6 +23,7 @@ export class TaskUpdateComponent implements OnInit {
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
+  public editorOptionsXQ = { theme: 'xquery-light', language: 'xquery' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'pgsql', readOnly: true };
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public isSQLTask = false;
