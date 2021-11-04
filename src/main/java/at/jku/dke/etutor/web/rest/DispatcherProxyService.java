@@ -245,22 +245,12 @@ public class DispatcherProxyService {
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
         if(StringUtils.isEmpty(taskAssignmentDTO.getTaskIdForDispatcher())) return;
 
-<<<<<<< HEAD:src/main/java/at/jku/dke/etutor/web/rest/DispatcherProxyService.java
-        if (taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) {
-            if (StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())
-                && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
-                updateXQExercise(taskAssignmentDTO);
-            }
-        } else if (taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
-            if (StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
-=======
         if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())){
                 updateXQExercise(taskAssignmentDTO);
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
->>>>>>> feature/dispatcher:src/main/java/at/jku/dke/etutor/service/DispatcherProxyService.java
                 updateSQLExercise(taskAssignmentDTO);
             }
         }
@@ -325,3 +315,4 @@ public class DispatcherProxyService {
 
 
 }
+
