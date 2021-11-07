@@ -449,48 +449,87 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
         } else {
             queryStr =
                 """
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-                    CONSTRUCT {
-                      ?subject ?predicate ?object.
-                      ?subject etutor:hasReferenceCnt ?cnt.
-                      ?subject etutor:hasRoot ?root
-                    } WHERE {
-                      {
-                        ?subject ?predicate ?object.
-                        ?subject a etutor:Goal.
-                        ?subject rdfs:label ?lbl
-                        {
-                          ?subject etutor:isPrivate false.
-                        }
-                        UNION
-                        {
-                          ?subject etutor:isPrivate true.
-                          ?subject etutor:hasOwner ?currentUser.
-                        }
-                      } UNION {
-                        BIND(rdf:type AS ?predicate)
-                        BIND(etutor:SubGoal AS ?object)
-                        ?goal etutor:hasSubGoal ?subject .
-                      } {
-                        SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                          ?subject a etutor:Goal.
-                          OPTIONAL { ?course etutor:hasGoal ?subject }
-                        }
-                        GROUP BY ?subject
-                      } {
-                        SELECT ?subject ?root WHERE {
-                          ?root etutor:hasSubGoal* ?subject.
-                          FILTER (
-                            !EXISTS {
-                              ?otherGoal etutor:hasSubGoal ?root.
+                        CONSTRUCT {
+                          ?subject ?predicate ?object.
+                          ?subject etutor:hasReferenceCnt ?cnt.
+                          ?subject etutor:hasRoot ?root.
+                          ?subject etutor:hasSubgoal ?subGoalFromSubject.
+                        } WHERE {
+                          {
+                            ?subject a etutor:Goal.
+                            ?subject ?predicate ?object.
+                            ?subject !etutor:hasSubGoal ?object.
+                            ?subject rdfs:label ?lbl
+                            {
+                              ?subject etutor:isPrivate false.
                             }
-                          )
+                            UNION
+                            {
+                              ?subject etutor:isPrivate true.
+                              ?subject etutor:hasOwner ?currentUser.
+                            }
+                            OPTIONAL {
+                              ?subject etutor:hasSubGoal ?subGoalFromSubject.
+                              {
+                                ?subGoalFromSubject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subGoalFromSubject etutor:isPrivate true.
+                                ?subGoalFromSubject etutor:hasOwner ?currentUser.
+                              }
+                            }
+                          } UNION {
+                            BIND(rdf:type AS ?predicate)
+                            BIND(etutor:SubGoal AS ?object)
+                            ?goal etutor:hasSubGoal ?subject .
+                            {
+                              ?subject etutor:isPrivate false.
+                            }
+                            UNION
+                            {
+                              ?subject etutor:isPrivate true.
+                              ?subject etutor:hasOwner "admin".
+                            }
+                          } {
+                            SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                              ?subject a etutor:Goal.
+                              {
+                              	?subject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subject etutor:isPrivate true.
+                                ?subject etutor:hasOwner ?currentUser.
+                              }
+                              OPTIONAL { ?course etutor:hasGoal ?subject }
+                            }
+                            GROUP BY ?subject
+                          } {
+                            SELECT ?subject ?root WHERE {
+                              ?root etutor:hasSubGoal* ?subject.
+                              {
+                                ?subject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subject etutor:isPrivate true.
+                                ?subject etutor:hasOwner ?currentUser.
+                              }
+                              FILTER (
+                                !EXISTS {
+                                  ?otherGoal etutor:hasSubGoal ?root.
+                                }
+                              )
+                            }
+                          }
                         }
-                      }
-                    }
+
+
                     """;
         }
 
