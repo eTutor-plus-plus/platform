@@ -5,12 +5,21 @@ import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import liquibase.pro.packaged.O;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,8 +51,8 @@ public class CmdRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Class.forName("com.mysql.jdbc.Driver").getDeclaredConstructor().newInstance();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/moodle", "<user>",
-            "<pwd>")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/moodle", "moodle",
+            "passfmoodle")) {
             // Select task groups
             StopWatch stopWatch = StopWatch.createStarted();
             List<TaskGroupDTO> taskGroups = new ArrayList<>();
@@ -68,7 +77,7 @@ public class CmdRunner implements CommandLineRunner {
                     newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.SQLTypeTaskGroup.getURI());
 
                     taskGroups.add(new TaskGroupDTO(id, groupDescription, text,
-                        assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin")));
+                        createNewTaskGroup(newTaskGroupDTO, "admin")));
                 }
             }
 
@@ -106,12 +115,13 @@ public class CmdRunner implements CommandLineRunner {
                     newTaskAssignmentDTO.setOrganisationUnit("DKE");
                     newTaskAssignmentDTO.setHeader(questionName);
                     newTaskAssignmentDTO.setInstruction(text);
+                    newTaskAssignmentDTO.setMaxPoints("10");
                     newTaskAssignmentDTO.setDiagnoseLevelWeighting("1");
                     newTaskAssignmentDTO.setTaskAssignmentTypeId(ETutorVocabulary.SQLTask.getURI());
                     newTaskAssignmentDTO.setTaskIdForDispatcher(String.valueOf(remoteId));
                     newTaskAssignmentDTO.setTaskGroupId(taskGroup.getRdfTaskGroup().getId());
 
-                    assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, "admin");
+                    insertNewTaskAssignment(newTaskAssignmentDTO, "admin");
                 }
             }
 
@@ -121,6 +131,60 @@ public class CmdRunner implements CommandLineRunner {
             log.info("Import time: {}", time);
         }
     }
+
+    private at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO, String admin) {
+        ObjectMapper mapper = new ObjectMapper();
+        String body = "";
+        try {
+            body = mapper.writeValueAsString(newTaskGroupDTO);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY1MzQzMDB9.F8qoQYEOtn2kASwEujV7tj8uOc4xCkVQoVx3fkqhUjVrjPhEkwv6zIE91HKfV9vB4Hi69NEVWl2A7Whb7YL5eA";
+        String url = "https://etutor.dke.uni-linz.ac.at/etutorpp/api/task-group";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cookie", "MOODLEID_=%25E8%259CO%2518%25E6%252B%25E1%255D%25B3");
+        headers.set("Origin", "https://etutor.dke.uni-linz.ac.at");
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        String response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+        try {
+            return mapper.readValue(response, at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void insertNewTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO, String admin) {
+        ObjectMapper mapper = new ObjectMapper();
+        String body = "";
+        try {
+            body = mapper.writeValueAsString(newTaskAssignmentDTO);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
+
+
+        String token = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY1MzQzMDB9.F8qoQYEOtn2kASwEujV7tj8uOc4xCkVQoVx3fkqhUjVrjPhEkwv6zIE91HKfV9vB4Hi69NEVWl2A7Whb7YL5eA";
+        String url = "https://etutor.dke.uni-linz.ac.at/etutorpp/api/tasks/assignments";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cookie", "MOODLEID_=%25E8%259CO%2518%25E6%252B%25E1%255D%25B3");
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        String response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+    }
+
 
     public static class TaskGroupDTO {
         private int id;
