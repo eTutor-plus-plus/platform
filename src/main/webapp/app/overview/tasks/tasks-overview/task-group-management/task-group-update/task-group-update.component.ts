@@ -3,7 +3,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
-import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 
 /**
  * Component for adding / manipulation task groups.
@@ -19,7 +18,7 @@ export class TaskGroupUpdateComponent {
   public isXQueryGroup = false;
   public readonly taskGroupTypes = TaskGroupType.Values;
   public taskGroupToEdit?: ITaskGroupDTO;
-  public editorOptions = { theme: 'vs-light', language: 'sql' };
+  public editorOptions = { theme: 'vs-light', language: 'pgsql' };
   public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
 
   public taskGroup = this.fb.group({
@@ -44,7 +43,6 @@ export class TaskGroupUpdateComponent {
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private taskGroupService: TaskGroupManagementService,
-    private sqlExerciseService: SqlExerciseService
   ) {}
 
   /**
