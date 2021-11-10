@@ -33,7 +33,7 @@ export class XmlFileComponent implements OnInit, OnDestroy {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
-    this._paramMapSubscription = this.activatedRoute.paramMap.subscribe(paramMap => {
+    this._paramMapSubscription = this.activatedRoute.paramMap.subscribe(() => {
       this._queryParamSubscription = this.activatedRoute.queryParamMap.subscribe(queryParams => {
         this.taskGroup = queryParams.get('taskGroup');
         this.id = queryParams.get('id');

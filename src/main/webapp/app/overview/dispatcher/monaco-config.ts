@@ -79,7 +79,7 @@ export function myMonacoLoad(): void {
         [/\)/, 'right-parantheses'],
         [/\}/, 'right-curly'],
         [/\{/, 'left-curly'],
-        [/<|<\//, 'opening-tag'],
+        [/<\/|</, 'opening-tag'],
         [/>/, 'closing-tag'],
       ],
     },

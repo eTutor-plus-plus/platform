@@ -193,13 +193,13 @@
     </div>
     <div class="form-group" *ngIf="isSQLTask || isRATask">
       <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label><br />
-      <button class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
+      <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQuerySolution" jhiTranslate="taskManagement.fields.xQuerySolution">XQuery Solution:</label>
       <ngx-monaco-editor [options]="editorOptionsXQ" id="xQuerySolution" formControlName="xQuerySolution"></ngx-monaco-editor>
-      <button class="btn btn-secondary" (click)="openSolutionRunnerWindow()">Try</button>
+      <button type="button" class="btn btn-secondary" (click)="openSolutionRunnerWindow()">Try</button>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQueryXPathSorting" jhiTranslate="taskManagement.fields.xQuerySorting"
