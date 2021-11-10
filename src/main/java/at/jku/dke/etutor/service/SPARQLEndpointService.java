@@ -457,7 +457,7 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
                           ?subject ?predicate ?object.
                           ?subject etutor:hasReferenceCnt ?cnt.
                           ?subject etutor:hasRoot ?root.
-                          ?subject etutor:hasSubgoal ?subGoalFromSubject.
+                          ?subject etutor:hasSubGoal ?subGoalFromSubject.
                         } WHERE {
                           {
                             ?subject a etutor:Goal.
