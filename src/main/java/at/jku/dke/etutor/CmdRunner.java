@@ -51,8 +51,8 @@ public class CmdRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Class.forName("com.mysql.jdbc.Driver").getDeclaredConstructor().newInstance();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/moodle", "moodle",
-            "passfmoodle")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/moodle", "<user>",
+            "pwd")) {
             // Select task groups
             StopWatch stopWatch = StopWatch.createStarted();
             List<TaskGroupDTO> taskGroups = new ArrayList<>();
@@ -143,13 +143,13 @@ public class CmdRunner implements CommandLineRunner {
         }
 
 
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY2MzM0ODR9.BT0ZqHVrK-KXA4j9josorlJXrFD16tVVgNl5O3TjJZ2RIRABhzqSI5HVtv68AB13LfBSbENH01VeoHyTxbbRdQ";
+        String token = "<insert-token>";
         String url = "https://etutor.dke.uni-linz.ac.at/etutorpp/api/task-group";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cookie", "MOODLEID_=%25E8%259CO%2518%25E6%252B%25E1%255D%25B3");
+        headers.set("Cookie", "MOODLEID_=<insert-id>");
         headers.set("Origin", "https://etutor.dke.uni-linz.ac.at");
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
@@ -173,13 +173,13 @@ public class CmdRunner implements CommandLineRunner {
         }
 
 
-        String token = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY1MzQzMDB9.F8qoQYEOtn2kASwEujV7tj8uOc4xCkVQoVx3fkqhUjVrjPhEkwv6zIE91HKfV9vB4Hi69NEVWl2A7Whb7YL5eA";
+        String token = "<insert-token>";
         String url = "https://etutor.dke.uni-linz.ac.at/etutorpp/api/tasks/assignments";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Cookie", "MOODLEID_=%25E8%259CO%2518%25E6%252B%25E1%255D%25B3");
+        headers.set("Cookie", "MOODLEID_=<insert-id>");
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
         String response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();

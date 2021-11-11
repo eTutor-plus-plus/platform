@@ -1,6 +1,7 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -13,6 +14,7 @@ import java.time.Instant;
  *
  * @author fne
  */
+@JsonIgnoreProperties(value = {"changeDate"}, ignoreUnknown = true)
 public class TaskGroupDTO extends NewTaskGroupDTO {
     private String id;
     private String creator;
