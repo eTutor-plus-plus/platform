@@ -29,7 +29,7 @@ export class ExerciseSheetsService {
    * @param newExerciseSheet the exercise sheet to insert
    */
   public insertExerciseSheet(newExerciseSheet: INewExerciseSheetDTO): Observable<ExerciseSheetResult> {
-    return this.http.post<IExerciseSheetDTO>(`${SERVER_API_URL}/api/exercise-sheet`, newExerciseSheet, { observe: 'response' });
+    return this.http.post<IExerciseSheetDTO>(`${SERVER_API_URL}api/exercise-sheet`, newExerciseSheet, { observe: 'response' });
   }
 
   /**
