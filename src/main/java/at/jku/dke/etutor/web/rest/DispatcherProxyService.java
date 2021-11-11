@@ -72,9 +72,7 @@ public class DispatcherProxyService {
      * @param newTaskGroupDTO the task group
      */
     private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
-        Objects.requireNonNull(newTaskGroupDTO.getSqlCreateStatements());
-        Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsDiagnose());
-        Objects.requireNonNull(newTaskGroupDTO.getSqlInsertStatementsSubmission());
+        if (newTaskGroupDTO.getSqlCreateStatements() == null) return;
 
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
         body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
@@ -91,7 +89,6 @@ public class DispatcherProxyService {
             e.printStackTrace();
         }
         proxyResource.executeDDLForSQL(jsonBody);
-
     }
 
     /**
@@ -100,9 +97,7 @@ public class DispatcherProxyService {
      * @param taskGroupDTO the task group
      */
     private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
-        Objects.requireNonNull(taskGroupDTO.getId());
-        Objects.requireNonNull(taskGroupDTO.getxQueryDiagnoseXML());
-        Objects.requireNonNull(taskGroupDTO.getxQuerySubmissionXML());
+        if (taskGroupDTO.getxQueryDiagnoseXML() == null || taskGroupDTO.getxQuerySubmissionXML() == null) return;
 
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
         String submissionXML = taskGroupDTO.getxQuerySubmissionXML();
