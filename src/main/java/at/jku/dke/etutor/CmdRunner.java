@@ -143,7 +143,7 @@ public class CmdRunner implements CommandLineRunner {
         }
 
 
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY1MzQzMDB9.F8qoQYEOtn2kASwEujV7tj8uOc4xCkVQoVx3fkqhUjVrjPhEkwv6zIE91HKfV9vB4Hi69NEVWl2A7Whb7YL5eA";
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhazEyNDAzOCIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfSU5TVFJVQ1RPUixST0xFX1NUVURFTlQiLCJleHAiOjE2MzY2MzM0ODR9.BT0ZqHVrK-KXA4j9josorlJXrFD16tVVgNl5O3TjJZ2RIRABhzqSI5HVtv68AB13LfBSbENH01VeoHyTxbbRdQ";
         String url = "https://etutor.dke.uni-linz.ac.at/etutorpp/api/task-group";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

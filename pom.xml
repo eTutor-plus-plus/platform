@@ -21,6 +21,7 @@
 
     <!-- jhipster-needle-distribution-management -->
 
+
     <properties>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
