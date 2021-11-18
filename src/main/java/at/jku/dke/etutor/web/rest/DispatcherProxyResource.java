@@ -2,21 +2,14 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherXMLDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.XQueryExerciseDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
-import io.swagger.models.Response;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.config.JHipsterDefaults;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Proxy that connects the frontend with the dispatcher
+ * Proxy that connects the etutor++ with the dispatcher
  */
 @Configuration
 @RestController
@@ -193,8 +186,8 @@ public class DispatcherProxyResource {
         var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);
         return getStringResponseEntity(client, request);
     }
+
     @GetMapping(value="/sql/table/{tableName}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
         String url = dispatcherURL+"/sql/table/"+tableName;
         if(exerciseId != -1){
@@ -319,7 +312,6 @@ public class DispatcherProxyResource {
      * @return a ResponseEntity
      */
     @GetMapping("/xquery/xml/taskGroup/{taskGroup}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getXMLForXQByTaskGroup(@PathVariable String taskGroup){
        String url = dispatcherURL+"xquery/xml/taskGroup/"+taskGroup;
         var client = getHttpClient();
@@ -333,7 +325,6 @@ public class DispatcherProxyResource {
      * @return a ResponseEntity
      */
     @GetMapping("/xquery/xml/fileid/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getXMLForXQByFileId(@PathVariable int id){
         String url = dispatcherURL+"/xquery/xml/fileid/"+id;
         var client = getHttpClient();
