@@ -19,6 +19,9 @@
       <dt *ngIf="taskModel?.url"><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
       <dd *ngIf="taskModel?.url">{{ taskModel?.url?.toString() }}</dd>
 
+      <dt *ngIf="taskGroup?.description"><span jhiTranslate="overview.student.tasks.groupInstruction">Group-Instructions</span></dt>
+      <dd *ngIf="taskGroup?.description"><span [innerHTML]="taskGroup?.description"></span></dd>
+
       <dt *ngIf="taskModel?.instruction"><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
       <dd *ngIf="taskModel?.instruction"><span [innerHTML]="taskModel?.instruction"></span></dd>
 
@@ -75,5 +78,6 @@
       >
       <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
     </button>
+    <br />
   </div>
 </div>

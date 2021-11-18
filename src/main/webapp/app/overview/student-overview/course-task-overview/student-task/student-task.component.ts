@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
+import { TaskGroupManagementService } from '../../../tasks/tasks-overview/task-group-management/task-group-management.service';
+import { ITaskGroupDTO } from '../../../tasks/tasks-overview/task-group-management/task-group-management.model';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -31,6 +33,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public dispatcherPoints = 0;
   public maxPoints = '';
   public diagnoseLevelWeighting = '';
+  public taskGroup: ITaskGroupDTO | undefined;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -47,13 +50,15 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * @param activatedRoute the injected activated route
    * @param taskService the injected task service
    * @param studentService the injected student service
+   * @param taskGroupService the injected task group service
    */
   constructor(
     private router: Router,
     private location: Location,
     private activatedRoute: ActivatedRoute,
     private taskService: TasksService,
-    private studentService: StudentService
+    private studentService: StudentService,
+    private taskGroupService: TaskGroupManagementService
   ) {
     const nav = this.router.getCurrentNavigation();
 
@@ -99,6 +104,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
             this.diagnoseLevelWeighting = this._taskModel.diagnoseLevelWeighting;
           }
 
+          this._taskModel.taskGroupId;
+
           this.submission = await this.studentService
             .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
@@ -116,6 +123,12 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this.uploadTaskFileId = await this.studentService
             .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
+        }
+        const taskGroupId = this._taskModel.taskGroupId;
+        if (taskGroupId) {
+          this.taskGroupService
+            .getTaskGroup(taskGroupId.substr(taskGroupId.indexOf('#') + 1))
+            .subscribe(taskGroup => (this.taskGroup = taskGroup));
         }
       })();
 
