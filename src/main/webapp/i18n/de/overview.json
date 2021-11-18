@@ -41,6 +41,7 @@
         "header": "Überschrift",
         "link": "Link",
         "instructions": "Aufgabenstellung",
+        "groupInstruction": "Gruppen-Beschreibung",
         "difficulty": "Schwierigkeit",
         "processingTime": "Geschätzte Bearbeitungszeit",
         "creator": "Ersteller",

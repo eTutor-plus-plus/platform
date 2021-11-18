@@ -34,6 +34,14 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           canActivate: [UserRouteAccessService],
           loadChildren: () => import('./overview/overview.module').then(m => m.OverviewModule),
         },
+        {
+          path: 'sql-tables',
+          loadChildren: () => import('./overview/sql-tables/sql-tables.module').then(m => m.SqlTablesModule),
+        },
+        {
+          path: 'XML',
+          loadChildren: () => import('./overview/xml-files/xml-files.module').then(m => m.XmlFilesModule),
+        },
         ...LAYOUT_ROUTES,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }
