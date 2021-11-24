@@ -150,6 +150,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             BIND(false as ?closed).
           }
         }
+        GROUP BY ?exerciseSheet ?exerciseSheetName ?difficulty ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed ?wholeSheetClosed
         ORDER BY (LCASE(?exerciseSheetName))
         """;
 
