@@ -27,10 +27,8 @@ import java.util.concurrent.Executors;
 @RequestMapping("/api/dispatcher")
 public class DispatcherProxyResource {
     private final String dispatcherURL;
-    private final ApplicationProperties properties;
 
     public DispatcherProxyResource(ApplicationProperties properties){
-        this.properties = properties;
         this.dispatcherURL = properties.getDispatcher().getUrl();
     }
 
@@ -40,7 +38,7 @@ public class DispatcherProxyResource {
      * @return the response from the dispatcher
      */
     @GetMapping(value="/grading/{submissionId}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId){
         var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/grading/"+submissionId);
@@ -54,7 +52,7 @@ public class DispatcherProxyResource {
      * @return the submission-id
      */
     @PostMapping(value="/submission")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language){
         var client = getHttpClient();
         var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto)
@@ -70,7 +68,7 @@ public class DispatcherProxyResource {
      * @return the submission
      */
     @GetMapping(value="/submission/{submissionUUID}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getSubmission(@PathVariable String submissionUUID){
         var client = getHttpClient();
         var request = getGetRequest(dispatcherURL+"/submission/"+submissionUUID);

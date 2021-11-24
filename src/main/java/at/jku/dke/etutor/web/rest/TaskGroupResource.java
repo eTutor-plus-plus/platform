@@ -85,7 +85,7 @@ public class TaskGroupResource {
      * @return the {@link ResponseEntity} containing the single task group
      */
     @GetMapping("{name}")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\", \"" + AuthoritiesConstants.STUDENT + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> getTaskGroup(@PathVariable String name) {
         Optional<TaskGroupDTO> taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name);
         return ResponseEntity.of(taskGroup);
