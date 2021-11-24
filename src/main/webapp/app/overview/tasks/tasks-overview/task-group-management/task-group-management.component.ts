@@ -42,7 +42,7 @@ export class TaskGroupManagementComponent implements OnInit {
     private taskGroupService: TaskGroupManagementService,
     private activeModal: NgbActiveModal,
     private modalService: NgbModal,
-    private translatePipe: TranslatePipe,
+    private translatePipe: TranslatePipe
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }

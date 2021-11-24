@@ -39,11 +39,7 @@ export class TaskGroupUpdateComponent {
    * @param fb the injected form builder service
    * @param taskGroupService the injected task group service
    */
-  constructor(
-    private activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private taskGroupService: TaskGroupManagementService,
-  ) {}
+  constructor(private activeModal: NgbActiveModal, private fb: FormBuilder, private taskGroupService: TaskGroupManagementService) {}
 
   /**
    * Sets the task id => edit mode.
