@@ -71,7 +71,7 @@ public class TaskGroupResource {
      * @return empty {@link ResponseEntity}
      */
     @DeleteMapping("{name}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody());
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
