@@ -282,10 +282,10 @@ export class TaskUpdateComponent implements OnInit {
       } else {
         this.isRATask = true;
       }
-      this.patchSQLValues(taskGroupId);
+      this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       this.isXQueryTask = true;
-      this.patchXQueryValues(taskGroupId);
+      this.patchXQueryTaskGroupValues(taskGroupId);
     }
   }
   /**
@@ -334,9 +334,9 @@ export class TaskUpdateComponent implements OnInit {
     const taskGroupId = this.updateForm.get(['taskGroup'])!.value as string | undefined;
     const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (this.isSqlOrRaTask(taskT)) {
-      this.patchSQLValues(taskGroupId);
+      this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
-      this.patchXQueryValues(taskGroupId);
+      this.patchXQueryTaskGroupValues(taskGroupId);
     }
   }
 
@@ -367,7 +367,7 @@ export class TaskUpdateComponent implements OnInit {
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id
    */
-  private patchSQLValues(taskGroupId: string | undefined): void {
+  private patchSqlTaskGroupValues(taskGroupId: string | undefined): void {
     if (taskGroupId) {
       const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
       this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
@@ -381,21 +381,11 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Patches the solution for an sql exercise in the update form
-   * @param solution the solution to be patched
+   * Patches the values from an XQ-Task group in the update form
+   * @param taskGroupId the task-group-id
    * @private
    */
-  private patchSQLSolution(solution: string): void {
-    this.updateForm.patchValue({
-      sqlSolution: solution,
-    });
-  }
-
-  private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
-    return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
-  }
-
-  private patchXQueryValues(taskGroupId: string | undefined): void {
+  private patchXQueryTaskGroupValues(taskGroupId: string | undefined): void {
     this.updateForm.get('xQueryFileURL')?.disable();
     if (taskGroupId) {
       const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
@@ -407,5 +397,9 @@ export class TaskUpdateComponent implements OnInit {
         });
       });
     }
+  }
+
+  private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
+    return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }
 }
