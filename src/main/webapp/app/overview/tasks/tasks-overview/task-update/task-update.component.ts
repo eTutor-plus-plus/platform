@@ -317,11 +317,15 @@ export class TaskUpdateComponent implements OnInit {
       }
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
+      this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+      this.updateForm.get('taskGroup')!.updateValueAndValidity();
       this.updateForm.updateValueAndValidity();
     } else {
       this.isSQLTask = false;
       this.isRATask = false;
       this.isXQueryTask = false;
+      this.updateForm.get('taskGroup')!.clearValidators();
+      this.updateForm.get('taskGroup')!.updateValueAndValidity();
       this.updateForm.get('maxPoints')!.clearValidators();
       this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
       this.updateForm.updateValueAndValidity();
@@ -337,6 +341,21 @@ export class TaskUpdateComponent implements OnInit {
       this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
       this.patchXQueryTaskGroupValues(taskGroupId);
+    }
+  }
+
+  /**
+   * Reacts to the input of a task-id for the dispatcher
+   */
+  public taskIdForDispatcherEntered(): void {
+    if (this.updateForm.get('taskIdForDispatcher')) {
+      this.updateForm.get('taskGroup')?.clearValidators();
+      this.updateForm.get('taskGroup')?.updateValueAndValidity();
+      this.updateForm.updateValueAndValidity();
+    } else {
+      this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+      this.updateForm.get('taskGroup')!.updateValueAndValidity();
+      this.updateForm.updateValueAndValidity();
     }
   }
 
