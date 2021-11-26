@@ -145,17 +145,17 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
 
         if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) {
-            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null) {
+            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && newTaskAssignmentDTO.getTaskGroupId() != null) {
                 int id = this.createXQueryTask(newTaskAssignmentDTO);
                 if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-            } else {
+            } else  {
                 XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
                 if (!e.getSortedNodes().isEmpty())
                     newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
             }
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
-            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null) {
+            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && newTaskAssignmentDTO.getTaskGroupId() != null) {
                 int id = this.createSQLTask(newTaskAssignmentDTO);
                 if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
             } else {
