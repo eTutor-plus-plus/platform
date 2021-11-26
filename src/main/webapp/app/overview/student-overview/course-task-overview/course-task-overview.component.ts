@@ -91,7 +91,7 @@ export class CourseTaskOverviewComponent implements OnInit {
         this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
       });
     } else {
-      if (item.submissionCount === item.gradedCount && item.submissionCount > 0) {
+      if (item.submissionCount === item.gradedCount && item.submissionCount > 0 && item.actualCount === item.submissionCount) {
         (async () => {
           const result = await this.studentService.canAssignNextTask(this.instance!.instanceId, exerciseSheetUUID).toPromise();
 
