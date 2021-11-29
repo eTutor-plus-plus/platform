@@ -56,7 +56,10 @@ export class TaskGroupManagementService {
    * @param name the task group's name
    */
   public getTaskGroup(name: string): Observable<ITaskGroupDTO> {
-    const encodedName = encodeURIComponent(name);
+    let encodedName = name;
+    if (!name.includes('%')) {
+      encodedName = encodeURIComponent(name);
+    }
 
     return this.http.get<ITaskGroupDTO>(`${SERVER_API_URL}api/task-group/${encodedName}`).pipe(
       map(x => {

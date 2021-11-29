@@ -1786,6 +1786,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
+
+            SELECT ?task
+            WHERE{
             SELECT ?goalOfCourse ?task ?distance
             WHERE {
               SELECT ?goalOfCourse ?task (COUNT(DISTINCT ?mid) AS ?distance)
@@ -1818,6 +1821,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             }
             ORDER BY ?distance
             LIMIT ?taskCount
+            }
+            GROUP BY ?task
             """);
         getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
