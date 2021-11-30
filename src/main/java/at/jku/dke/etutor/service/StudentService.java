@@ -1666,7 +1666,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
                     i++;
 
-                    if (i==taskCount) allAssigned = true;
+                    if (i==taskCount) {allAssigned = true;}
                 }
             } else {
                 throw new NoFurtherTasksAvailableException();
@@ -1820,9 +1820,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
               GROUP BY ?goalOfCourse ?task
             }
             ORDER BY ?distance
-            LIMIT ?taskCount
             }
             GROUP BY ?task
+            LIMIT ?taskCount
             """);
         getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
         getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
