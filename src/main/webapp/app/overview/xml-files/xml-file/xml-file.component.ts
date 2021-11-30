@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { XQueryService } from '../../dispatcher/services/xquery.service';
 
 /**
- * Component that displays an sql-table
+ * Component that displays an XML-File inside a Monaco-Editor instance
  */
 @Component({
   selector: 'jhi-tasks-overview',
@@ -51,5 +51,14 @@ export class XmlFileComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._queryParamSubscription?.unsubscribe();
     this._paramMapSubscription?.unsubscribe();
+  }
+
+  /**
+   * Downloads the XML-File
+   */
+  public download(): void {
+    if (this.id) {
+      this.service.downloadXML(this.id);
+    }
   }
 }

@@ -78,7 +78,7 @@ public class DispatcherProxyService {
         body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
         body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
         body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
-        body.setSchemaName(newTaskGroupDTO.getName().replace(" ", "_"));
+        body.setSchemaName(newTaskGroupDTO.getName().trim().replace(" ", "_"));
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
@@ -110,7 +110,7 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return;
         }
-        var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().replace(" ", "_"), jsonBody);
+        var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
     }
@@ -124,7 +124,7 @@ public class DispatcherProxyService {
         Objects.requireNonNull(taskGroupDTO);
         Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
         Objects.requireNonNull(taskGroupDTO.getName());
-        String taskGroupName = taskGroupDTO.getName().replace(" ", "_");
+        String taskGroupName = taskGroupDTO.getName().trim().replace(" ", "_");
 
         if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             proxyResource.deleteXMLofXQTaskGroup(taskGroupName);
@@ -191,7 +191,7 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return -1;
         }
-        var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).replace(" ", "_"), jsonBody);
+        var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_"), jsonBody);
         return response.getBody();
     }
 
@@ -216,7 +216,7 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
         String solution = newTaskAssignmentDTO.getSqlSolution();
-        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).replace(" ", "_");
+        String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_");
         return Integer.parseInt(proxyResource.createSQLExercise(solution, taskGroup).getBody());
     }
 

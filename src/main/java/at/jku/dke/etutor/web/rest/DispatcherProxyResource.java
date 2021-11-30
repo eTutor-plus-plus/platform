@@ -4,12 +4,15 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -318,7 +321,7 @@ public class DispatcherProxyResource {
        return getStringResponseEntity(client, request);
     }
     /**
-     * Returns the xml datasource for an xquery taskgroup
+     * Returns the xml  for an xquery taskgroup
      * @param id the file id of the xml
      * @return a ResponseEntity
      */
@@ -330,6 +333,31 @@ public class DispatcherProxyResource {
 
         return getStringResponseEntity(client, request);
     }
+
+    /**
+     * Returns the xml  for an xquery taskgroup as inputstream
+     * @param id the file id of the xml
+     * @return a ResponseEntity containing the InputStreamResource
+     */
+    @GetMapping("/xquery/xml/fileid/{id}/asinputstream")
+    public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(@PathVariable int id){
+        String xml = this.getXMLForXQByFileId(id).getBody();
+        ByteArrayInputStream ssInput = new ByteArrayInputStream(xml.getBytes());
+        InputStreamResource fileInputStream = new InputStreamResource(ssInput);
+        String fileName = id+".xml";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/xml");
+
+
+        return new ResponseEntity<>(
+            fileInputStream,
+            headers,
+            HttpStatus.OK
+        );
+    }
+
 
     /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<String>
