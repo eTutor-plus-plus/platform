@@ -45,18 +45,25 @@
       </div>
     </div>
     <div class="form-group" *ngIf="isSQLGroup">
-      <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.taskGroup.update.sqlCreateStatements"
-        >SQL: Create-Table-Statements</label
-      >
+      <label class="form-control-label" for="sqlCreateStatements">
+        {{ 'taskManagement.taskGroup.update.sqlCreateStatements' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlCreateStatementsInfo' | translate }}"
+          placement="right"
+        ></fa-icon>
+      </label>
       <ngx-monaco-editor [options]="editorOptions" id="sqlCreateStatements" formControlName="sqlCreateStatements"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isSQLGroup">
-      <label
-        class="form-control-label"
-        for="sqlInsertStatementsSubmission"
-        jhiTranslate="taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmission"
-        >SQL: Insert-Into-Statements (Submission)</label
-      >
+      <label class="form-control-label" for="sqlInsertStatementsSubmission">
+        {{ 'taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmission' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmissionInfo' | translate }}"
+          placement="right"
+        ></fa-icon>
+      </label>
       <ngx-monaco-editor
         [options]="editorOptions"
         id="sqlInsertStatementsSubmission"

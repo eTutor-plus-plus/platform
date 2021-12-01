@@ -4,6 +4,10 @@
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
   <div *ngIf="showDiagnoseBar">
+    <label class="form-control-label">
+      {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}" placement="right"></fa-icon>
+    </label>
     <select class="form-control" [(ngModel)]="diagnoseLevelText">
       <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
       <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">
@@ -13,7 +17,15 @@
   </div>
   <br />
   <div>
-    <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
+    <strong
+      ><label>
+        {{ 'dispatcherAssignment.assignment.yourSolution' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'dispatcherAssignment.assignment.editorInfo' | translate }}"
+          placement="right"
+        ></fa-icon> </label
+    ></strong>
   </div>
   <div class="editor" style="height: 500px">
     <ngx-monaco-editor

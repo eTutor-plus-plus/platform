@@ -5,6 +5,9 @@
       "notCorrect": "Sorry, your solution is not correct!",
       "diagnoseLevelPlaceholder": "Choose the feedback-level:",
       "yourSolution": "Your solution:",
+      "editorInfo": "Use ctrl+space to access some query-templates",
+      "feedbackLabel": "Feedback-Level: ",
+      "feedbackInfo": "You can adjust the feedback-level (default= no feedback). More feedback may lead to less points.",
       "diagnoseLevel": {
         "none": "No Feedback",
         "little": "Little Feedback",

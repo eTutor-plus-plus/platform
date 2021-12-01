@@ -9,6 +9,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'jhi-lecturer-run-submission',
   templateUrl: './lecturer-run-submission.component.html',
+  styleUrls: ['./lecturer-run-submission.component.scss'],
 })
 export class LecturerRunSubmissionComponent {
   public submissionEntry!: TaskSubmissionsModel;
