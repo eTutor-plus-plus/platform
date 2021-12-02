@@ -191,6 +191,7 @@ export class LecturerGradeAssignmentComponent {
   private async loadGradingInfosAsync(): Promise<any> {
     const response = await this.lecturerTaskService.getGradingInfo(this.lecturerStudentInfoModel).toPromise();
     this.availableGradingInfos = response.body ?? [];
+    this.availableGradingInfos = this.availableGradingInfos.filter(x => x.submitted);
 
     if (this.availableGradingInfos.length > 0) {
       this.selectedGradingInfo = this.availableGradingInfos[0];
