@@ -11,12 +11,15 @@ import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.*;
+import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
 import java.util.*;
+
+import at.jku.dke.etutor.service.exception.CourseNotFoundException;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
@@ -357,5 +360,53 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         var optional = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
 
         assertThat(optional).isEmpty();
+    }
+
+    /**
+     * Tests getting all course instances of a course
+     * @throws CourseNotFoundException
+     */
+    @Test
+    public void testGetInstancesOfCourse() throws CourseNotFoundException {
+        NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+        newCourseInstanceDTO.setCourseId(course.getId());
+        newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+        newCourseInstanceDTO.setYear(2021);
+
+        var instances = courseInstanceSPARQLEndpointService.getInstancesOfCourse(course.getName());
+        assertThat(instances.isEmpty());
+
+        courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+
+        NewCourseInstanceDTO newCourseInstanceDTO2 = new NewCourseInstanceDTO();
+        newCourseInstanceDTO2.setCourseId(course.getId());
+        newCourseInstanceDTO2.setTermId(ETutorVocabulary.Winter.getURI());
+        newCourseInstanceDTO2.setYear(2021);
+
+        courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO2);
+
+        instances = courseInstanceSPARQLEndpointService.getInstancesOfCourse(course.getName());
+        assertThat(instances.size() == 2);
+    }
+
+    @Test
+    public void testSetAndGetStudentsOfCourseInstance() throws CourseInstanceNotFoundException, CourseNotFoundException {
+        NewCourseInstanceDTO newCourseInstanceDTO = new NewCourseInstanceDTO();
+        newCourseInstanceDTO.setCourseId(course.getId());
+        newCourseInstanceDTO.setTermId(ETutorVocabulary.Summer.getURI());
+        newCourseInstanceDTO.setYear(2021);
+        String uri = courseInstanceSPARQLEndpointService.createNewCourseInstance(newCourseInstanceDTO);
+        String uuid = uri.substring(uri.lastIndexOf('#') + 1);
+
+        assertThat(courseInstanceSPARQLEndpointService.getStudentsOfCourseInstance(uuid).isEmpty());
+
+        String mat1 = "12345";
+        String mat2 = "11234";
+        var list = new ArrayList<String>();
+        list.add(mat1);
+        list.add(mat2);
+        courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(list, uri);
+
+        assertThat(courseInstanceSPARQLEndpointService.getStudentsOfCourseInstance(uuid).size() == 2);
     }
 }

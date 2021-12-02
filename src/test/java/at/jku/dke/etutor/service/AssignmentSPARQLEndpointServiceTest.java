@@ -555,6 +555,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(fetchedGroup.getSqlCreateStatements().equals(create));
         assertThat(fetchedGroup.getSqlInsertStatementsDiagnose().equals(insert1));
         assertThat(fetchedGroup.getSqlInsertStatementsSubmission().equals(insert2));
+        assertThat(fetchedGroup.getSqlInsertStatementsSubmission().equals(insert2));
     }
 
     @Test
