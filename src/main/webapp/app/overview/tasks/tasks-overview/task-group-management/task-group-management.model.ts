@@ -35,6 +35,11 @@ export interface INewTaskGroupDTO {
    */
   xQuerySubmissionXML?: string;
   /**
+   * Optional facts for a Datalog task group
+   */
+  datalogFacts?: string;
+
+  /**
    * Optional file url for a task group
    */
   fileUrl?: string;
@@ -91,7 +96,12 @@ export class TaskGroupType {
     'taskManagement.taskGroup.update.types.xQueryType'
   );
 
-  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType];
+  public static readonly DatalogType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#DatalogType',
+    'taskManagement.taskGroup.update.types.datalogType'
+  );
+
+  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType, TaskGroupType.DatalogType];
 
   private readonly _value: string;
   private readonly _text: string;

@@ -2,6 +2,9 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.dispatcher.DatalogTaskGroupDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.InputStreamResource;
@@ -308,6 +311,80 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Proxies the request to create a datalog task group to the dispatcher
+     * @param groupDTO the {@link DatalogTaskGroupDTO} containing the name and the facts
+     * @return a {@link ResponseEntity} wrapping the id of the newly created task group
+     */
+    @PostMapping("/datalog/taskgroup")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Integer> createDLGTaskGroup(@RequestBody String groupDTO) {
+        String url = dispatcherURL+"/datalog/taskgroup";
+        var client = getHttpClient();
+        try {
+            var request = getPostRequestWithBody(url, groupDTO).build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            var id = Integer.parseInt(response.body());
+            return ResponseEntity.status(response.statusCode()).body(id);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            client = null;
+            System.gc();
+        }
+
+
+        return null;
+    }
+
+    /**
+     * Proxies the request to update a datalog task group to the dispatcher
+     * @param id the dispatcher id of the task group
+     * @param newFacts the new facts to be updated
+     * @return an {@link ResponseEntity} indicating whether the update has been successful
+     */
+    @PostMapping("/datalog/taskgroup/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> updateDLGTaskGroup(@PathVariable int id, @RequestBody String newFacts) {
+        String url = dispatcherURL+"/datalog/taskgroup/"+id;
+        var client = getHttpClient();
+        var request = getPostRequestWithBody(url, newFacts).build();
+
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            client = null;
+            System.gc();
+        }
+        return ResponseEntity.status(500).build();
+    }
+
+    @DeleteMapping("/datalog/taskgroup/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> deleteDLGTaskGroup(@PathVariable int id){
+        String url = dispatcherURL+"/datalog/taskgroup/"+id;
+
+        var client = getHttpClient();
+        var request = getDeleteRequest(url);
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            client = null;
+            System.gc();
+        }
+        return ResponseEntity.status(500).build();
+    }
+
+    /**
      * Returns the xml datasource for an xquery taskgroup
      * @param taskGroup the naem of the taskgroup
      * @return a ResponseEntity
@@ -431,6 +508,7 @@ public class DispatcherProxyResource {
             .DELETE()
             .build();
     }
+
 
     /**
      * Utility method that returns an ExecutorService

@@ -19,7 +19,8 @@
       "uploadTask": "Upload Aufgabe",
       "sqlTask": "SQL Aufgabe",
       "raTask": "Relationale Algebra Aufgabe",
-      "xqTask": "XQuery Aufgabe"
+      "xqTask": "XQuery Aufgabe",
+      "dlgTask": "Datalog Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -90,12 +91,14 @@
         "sqlInsertIntoStatementsSubmissionInfo": "Queries welche vom Studenten submitted werden, werden gegen diese Daten ausgewertet.",
         "diagnoseXML": "XQuery: XML für Diagnose-Auswertung",
         "submissionXML": "XQuery: XML für Submit-Auswertung",
+        "datalogFacts": "Datalog: Fakten",
         "descriptionField": "Beschreibung:",
         "taskGroupType": "Typ:",
         "types": {
           "noType": "Kein Typ",
           "sqlType": "SQL Gruppe",
-          "xQueryType": "XQuery Gruppe"
+          "xQueryType": "XQuery Gruppe",
+          "datalogType": "Datalog Gruppe"
         }
       }
     }

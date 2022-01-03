@@ -118,16 +118,20 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
     private static final String PROP_HAS_FILE_URL = "hasFileURL";
+    private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
+    private static final String INSTANCE_DLG_TASK = "DLGTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
     private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
+    private static final String INSTANCE_DATALOG_TASK_GROUP = "DatalogType";
+
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -471,6 +475,11 @@ public final class ETutorVocabulary {
      */
     public static final Property hasFileUrl = m.createProperty(URI+PROP_HAS_FILE_URL);
     /**
+     * The hasDatalogFacts property
+     */
+    public static final Property hasDatalogFacts = m.createProperty(URI+PROP_HAS_DATALOG_FACTS);
+
+    /**
      * The hasTask property.
      */
     public static final Property hasTask = m.createProperty(URI + PROP_HAS_TASK);
@@ -565,6 +574,11 @@ public final class ETutorVocabulary {
      */
     public static final Resource XQueryTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_XQ_TASK);
     /**
+     * The Datalog type instance
+     */
+    public static final Resource DatalogTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DLG_TASK);
+
+    /**
      * The no type task group type
      */
     public static final Resource NoTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_NO_TYPE_TASK_GROUP);
@@ -576,6 +590,11 @@ public final class ETutorVocabulary {
      * The XQuery task group type
      */
     public static final Resource XQueryTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_XQUERY_TASK_GROUP);
+    /**
+     * The Datalog task group type
+     */
+    public static final Resource DatalogTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_DATALOG_TASK_GROUP);
+
     /**
      * The easy difficulty instance.
      */

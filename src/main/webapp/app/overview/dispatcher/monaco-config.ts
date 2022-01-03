@@ -2,6 +2,13 @@ export function myMonacoLoad(): void {
   (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
 
   // Register a tokens provider for the language
+  (window as any).monaco.languages.setMonarchTokensProvider('datalog', {
+    tokenizer: {
+      root: [[/\\./, 'dot']],
+    },
+  });
+
+  // Register a tokens provider for the language
   (window as any).monaco.languages.setMonarchTokensProvider('relationalAlgebra', {
     tokenizer: {
       root: [
@@ -86,6 +93,13 @@ export function myMonacoLoad(): void {
   });
 
   let keyWordColor = '3a92bb';
+  (window as any).monaco.editor.defineTheme('datalog-light', {
+    base: 'vs',
+    inherit: false,
+    rules: [{ token: 'dot', foreground: keyWordColor }],
+  });
+
+  keyWordColor = '3a92bb';
   (window as any).monaco.editor.defineTheme('relationalAlgebra-light', {
     base: 'vs',
     inherit: false,

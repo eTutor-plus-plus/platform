@@ -19,13 +19,14 @@ public class TaskAssignmentTypeValidator implements ConstraintValidator<TaskAssi
      * Constructor.
      */
     public TaskAssignmentTypeValidator() {
-        availableIds = new String[5];
+        availableIds = new String[6];
 
         availableIds[0] = ETutorVocabulary.NoType.getURI();
         availableIds[1] = ETutorVocabulary.UploadTask.getURI();
         availableIds[2] = ETutorVocabulary.SQLTask.getURI();
         availableIds[3] = ETutorVocabulary.RATask.getURI();
         availableIds[4] = ETutorVocabulary.XQueryTask.getURI();
+        availableIds[5] = ETutorVocabulary.DatalogTask.getURI();
     }
 
     /**

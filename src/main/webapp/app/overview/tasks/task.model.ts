@@ -151,12 +151,19 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
     'taskManagement.taskTypes.xqTask'
   );
+
+  public static readonly DatalogTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask',
+    'taskManagement.taskTypes.dlgTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
     TaskAssignmentType.SQLTask,
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
+    TaskAssignmentType.DatalogTask,
   ];
 
   private readonly _value: string;

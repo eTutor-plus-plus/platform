@@ -95,6 +95,12 @@
       >
       <ngx-monaco-editor [options]="editorOptionsXML" id="submissionXML" formControlName="submissionXML"></ngx-monaco-editor>
     </div>
+    <div class="form-group" *ngIf="isDLGGroup">
+      <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.datalogFacts"
+        >Datalog: Facts</label
+      >
+      <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
+    </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="close()">
         <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>

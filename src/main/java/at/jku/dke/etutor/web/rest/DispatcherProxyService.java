@@ -63,7 +63,36 @@ public class DispatcherProxyService {
             proxyXMLtoDispatcher(newTaskGroupDTO);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             createSQLTaskGroup(newTaskGroupDTO);
+        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            createDLGTaskGroup(newTaskGroupDTO);
         }
+    }
+
+    /**
+     * Creates/updates a datalog by sending the fact-base to the dispatcher
+     * @param newTaskGroupDTO the task group
+     */
+    private void createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+        Objects.requireNonNull(newTaskGroupDTO);
+        int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(newTaskGroupDTO);
+        if (id != -1) {
+            proxyResource.updateDLGTaskGroup(id, newTaskGroupDTO.getDatalogFacts());
+            return;
+        }
+
+        var group = new DatalogTaskGroupDTO();
+        group.setFacts(newTaskGroupDTO.getDatalogFacts());
+        group.setName(newTaskGroupDTO.getName());
+
+        Integer body = null;
+        try {
+            body = proxyResource.createDLGTaskGroup(new ObjectMapper().writeValueAsString(group)).getBody();
+        } catch (JsonProcessingException e) {
+            return;
+        }
+        id = body != null ? body : -1;
+        if(id == -1) return;
+        assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
     }
 
     /**
@@ -131,6 +160,9 @@ public class DispatcherProxyService {
         } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             proxyResource.deleteSQLSchema(taskGroupName);
             proxyResource.deleteSQLConnection(taskGroupName);
+        } else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(taskGroupDTO);
+            if(id != -1) proxyResource.deleteDLGTaskGroup(id);
         }
     }
 

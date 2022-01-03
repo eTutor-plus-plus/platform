@@ -99,14 +99,17 @@ public class TaskGroupResource {
      */
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO, HttpServletRequest request, @RequestHeader(name = "Authorization") String token) {
+    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
             dispatcherProxyService.createTaskGroup(taskGroupDTO);
-        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
             dispatcherProxyService.createTaskGroup(taskGroupDTO);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
         }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }

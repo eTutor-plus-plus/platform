@@ -19,7 +19,8 @@
       "uploadTask": "Upload task",
       "sqlTask": "SQL Task",
       "raTask": "Relational algebra task",
-      "xqTask": "XQuery task"
+      "xqTask": "XQuery task",
+      "dlgTask": "Datalog task"
     },
     "fields": {
       "header": "Header:",
@@ -90,12 +91,14 @@
         "sqlInsertIntoStatementsSubmissionInfo": "Queries that are submitted by the student will be evaluated against this data",
         "diagnoseXML": "XQuery: XML for diagnose- evaluation",
         "submissionXML": "XQuery: XML for submit- evaluation",
+        "datalogFacts": "Datalog: Facts",
         "descriptionField": "Description:",
         "taskGroupType": "Type:",
         "types": {
           "noType": "No Type",
           "sqlType": "SQL Group",
-          "xQueryType": "XQuery Group"
+          "xQueryType": "XQuery Group",
+          "datalogType": "Datalog Group"
         }
       }
     }
