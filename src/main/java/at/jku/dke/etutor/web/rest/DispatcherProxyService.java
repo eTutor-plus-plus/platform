@@ -58,26 +58,27 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the new task group
      */
-    public void createTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO) {
         if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
-            proxyXMLtoDispatcher(newTaskGroupDTO);
+            return proxyXMLtoDispatcher(newTaskGroupDTO);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
-            createSQLTaskGroup(newTaskGroupDTO);
+            return createSQLTaskGroup(newTaskGroupDTO);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-            createDLGTaskGroup(newTaskGroupDTO);
+            return createDLGTaskGroup(newTaskGroupDTO);
         }
+        return 200;
     }
 
     /**
      * Creates/updates a datalog by sending the fact-base to the dispatcher
      * @param newTaskGroupDTO the task group
      */
-    private void createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+    private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) {
         Objects.requireNonNull(newTaskGroupDTO);
         int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(newTaskGroupDTO);
+        int statusCode;
         if (id != -1) {
-            proxyResource.updateDLGTaskGroup(id, newTaskGroupDTO.getDatalogFacts());
-            return;
+            return proxyResource.updateDLGTaskGroup(id, newTaskGroupDTO.getDatalogFacts()).getStatusCodeValue();
         }
 
         var group = new DatalogTaskGroupDTO();
@@ -86,13 +87,17 @@ public class DispatcherProxyService {
 
         Integer body = null;
         try {
-            body = proxyResource.createDLGTaskGroup(new ObjectMapper().writeValueAsString(group)).getBody();
+            var response = proxyResource.createDLGTaskGroup(new ObjectMapper().writeValueAsString(group));
+            body = response.getBody();
+            statusCode = response.getStatusCodeValue();
         } catch (JsonProcessingException e) {
-            return;
+            return 500;
         }
         id = body != null ? body : -1;
-        if(id == -1) return;
+        if(id == -1) return statusCode;
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
+        return statusCode;
+
     }
 
     /**
@@ -100,8 +105,8 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the task group
      */
-    private void createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
-        if (newTaskGroupDTO.getSqlCreateStatements() == null) return;
+    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+        if (newTaskGroupDTO.getSqlCreateStatements() == null) return 500;
 
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
         body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
@@ -116,8 +121,9 @@ public class DispatcherProxyService {
             jsonBody = mapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return 500;
         }
-        proxyResource.executeDDLForSQL(jsonBody);
+        return proxyResource.executeDDLForSQL(jsonBody).getStatusCodeValue();
     }
 
     /**
@@ -125,8 +131,8 @@ public class DispatcherProxyService {
      *
      * @param taskGroupDTO the task group
      */
-    private void proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
-        if (taskGroupDTO.getxQueryDiagnoseXML() == null || taskGroupDTO.getxQuerySubmissionXML() == null) return;
+    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
+        if (taskGroupDTO.getxQueryDiagnoseXML() == null || taskGroupDTO.getxQuerySubmissionXML() == null) return 400;
 
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
         String submissionXML = taskGroupDTO.getxQuerySubmissionXML();
@@ -137,11 +143,12 @@ public class DispatcherProxyService {
             jsonBody = mapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return;
+            return 500;
         }
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
+        return response.getStatusCodeValue();
     }
 
     /**

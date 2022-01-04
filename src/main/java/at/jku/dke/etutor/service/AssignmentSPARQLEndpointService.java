@@ -832,10 +832,11 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         query.setIri("?group", taskGroupDTO.getId());
 
         try (RDFConnection connection = getConnection()) {
-            var exec = connection.query(query.asQuery());
-            var set = exec.execSelect();
-            if (set.hasNext()){
-                return set.next().get("?id").asLiteral().getInt();
+            try(var exec = connection.query(query.asQuery())){
+                var set = exec.execSelect();
+                if (set.hasNext()){
+                    return set.next().get("?id").asLiteral().getInt();
+                }
             }
         }
         return -1;
