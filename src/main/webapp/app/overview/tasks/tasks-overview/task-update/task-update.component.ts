@@ -53,6 +53,7 @@ export class TaskUpdateComponent implements OnInit {
     datalogFacts: [''],
     datalogSolution: [''],
     datalogQuery: [''],
+    datalogUncheckedTerms: [''],
     maxPoints: [''],
     diagnoseLevelWeighting: [''],
     processingTime: [''],
@@ -159,6 +160,11 @@ export class TaskUpdateComponent implements OnInit {
       newTask.datalogQuery = datalogQuery;
     }
 
+    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
+    if (datalogUncheckedTerms) {
+      newTask.datalogUncheckedTerms = datalogUncheckedTerms;
+    }
+
     const maxPoints: string = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
@@ -194,6 +200,7 @@ export class TaskUpdateComponent implements OnInit {
         xQueryXPathSorting: newTask.xQueryXPathSorting,
         datalogSolution: newTask.datalogSolution,
         datalogQuery: newTask.datalogQuery,
+        datalogUncheckedTerms: newTask.datalogUncheckedTerms,
         maxPoints: newTask.maxPoints,
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
@@ -243,6 +250,7 @@ export class TaskUpdateComponent implements OnInit {
       const xQueryXPathSorting = value.xQueryXPathSorting;
       const datalogSolution = value.datalogSolution;
       const datalogQuery = value.datalogQuery;
+      const datalogUncheckedTerms = value.datalogUncheckedTerms;
       const maxPoints = value.maxPoints ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
@@ -271,6 +279,7 @@ export class TaskUpdateComponent implements OnInit {
         xQueryXPathSorting,
         datalogSolution,
         datalogQuery,
+        datalogUncheckedTerms,
         maxPoints,
         diagnoseLevelWeighting,
         processingTime,

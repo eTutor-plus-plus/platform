@@ -52,6 +52,17 @@ public class DatalogTermDescriptionDTO {
         this.term = term;
     }
 
+    public String toString(){
+        StringBuilder s = new StringBuilder();
+        s.append(predicate);
+        s.append("(");
+        for(int i = 1; i < Integer.parseInt(position); i++){
+            s.append("_, ");
+        }
+        s.append(term).append(")");
+        return s.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

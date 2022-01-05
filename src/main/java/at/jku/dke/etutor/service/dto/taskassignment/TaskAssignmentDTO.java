@@ -68,6 +68,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setxQueryXPathSorting(newTaskAssignmentDTO.getxQueryXPathSorting());
         setDatalogSolution(newTaskAssignmentDTO.getDatalogSolution());
         setDatalogQuery(newTaskAssignmentDTO.getDatalogQuery());
+        setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
 
         setId(id);
         setCreationDate(creationDate);
@@ -142,6 +143,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if(datalogQueryStatment != null){
             setDatalogQuery(datalogQueryStatment.getString());
         }
+
+        Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
+        if(datalogUncheckedTermsStatement != null){
+            setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
+        }
+
 
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());

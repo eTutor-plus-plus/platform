@@ -32,6 +32,7 @@ public class NewTaskAssignmentDTO {
     private String xQueryXPathSorting;
     private String datalogSolution;
     private String datalogQuery;
+    private String datalogUncheckedTerms;
 
     private String processingTime;
 
@@ -372,5 +373,13 @@ public class NewTaskAssignmentDTO {
 
     public void setDatalogQuery(String datalogQuery) {
         this.datalogQuery = datalogQuery;
+    }
+
+    public String getDatalogUncheckedTerms() {
+        return datalogUncheckedTerms;
+    }
+
+    public void setDatalogUncheckedTerms(String datalogUncheckedTerms) {
+        this.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 }

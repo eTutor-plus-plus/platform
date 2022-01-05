@@ -75,6 +75,10 @@ export interface INewTaskModel {
    */
   datalogQuery?: string;
   /**
+   * Optional unchecked terms for a datalog task
+   */
+  datalogUncheckedTerms?: string;
+  /**
    * Optional max points
    */
   maxPoints?: string;

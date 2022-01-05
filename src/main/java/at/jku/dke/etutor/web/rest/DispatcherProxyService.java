@@ -209,7 +209,9 @@ public class DispatcherProxyService {
                 DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
                 newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
-                // TODO: set/add unchecked terms
+                String uncheckedTerms = exerciseDTO.getUncheckedTerms()
+                        .stream().map(DatalogTermDescriptionDTO::toString).reduce("", (x, y)->x+y+".\n");
+                newTaskAssignmentDTO.setDatalogUncheckedTerms(uncheckedTerms);
             }
         }
         return newTaskAssignmentDTO;
@@ -222,11 +224,11 @@ public class DispatcherProxyService {
     private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
         List<String> queries = new ArrayList<>();
+        // TODO: allow for multiple queries
         queries.add(newTaskAssignmentDTO.getDatalogQuery());
         exerciseDTO.setQueries(queries);
         exerciseDTO.setSolution(newTaskAssignmentDTO.getDatalogSolution());
-        // TODO: Unchecked terms
-        exerciseDTO.setUncheckedTerms(null);
+        exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
         var tempTaskGroup = new TaskGroupDTO();
         tempTaskGroup.setId(newTaskAssignmentDTO.getTaskGroupId());
         exerciseDTO.setFactsId(assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(tempTaskGroup));
@@ -236,6 +238,44 @@ public class DispatcherProxyService {
         else return -1;
     }
 
+    /**
+     * Parses the string of unchecked datalog terms into a list of {@link DatalogTermDescriptionDTO}
+     * @param datalogUncheckedTerms the string defining the unchecked terms
+     * @return the list
+     */
+    private List<DatalogTermDescriptionDTO> parseUncheckedTerms(String datalogUncheckedTerms) {
+        var termList = Arrays.stream(datalogUncheckedTerms.split("\\.")).toList();
+        List<DatalogTermDescriptionDTO> list = new ArrayList<>();
+        for(String s : termList){
+            if(!s.contains("(") || !s.contains(")")) continue;
+
+            var predicate = s
+                .substring(0, s.indexOf("("))
+                .replace("\n", "")
+                .replace("\r", "")
+                .replace(" ", "");
+
+            var terms = s.substring(s.indexOf("(")+1, s.indexOf(")"));
+            var splittedTerms = terms.split(",");
+
+            int i = 1;
+            for(String s1 : splittedTerms){
+                if(s1.equals("_")) {
+                    i++;
+                    continue;
+                }
+
+                var term = new DatalogTermDescriptionDTO();
+                term.setPredicate(predicate);
+                term.setPosition(i+"");
+                term.setTerm(s1);
+                list.add(term);
+
+                i++;
+            }
+        }
+        return list;
+    }
 
 
     /**

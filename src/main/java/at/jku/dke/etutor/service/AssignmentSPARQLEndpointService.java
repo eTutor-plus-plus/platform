@@ -359,6 +359,12 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
                 query.append(".\n");
             }
 
+            if(StringUtils.isNotBlank(taskAssignment.getDatalogUncheckedTerms())){
+                query.append("?assignment etutor:hasUncheckedDLGTerms ");
+                query.appendLiteral(taskAssignment.getDatalogUncheckedTerms().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
                 query.appendIri(taskAssignment.getTaskGroupId());
                 query.append(" etutor:hasTask ?assignment.\n");
@@ -1293,6 +1299,10 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())){
             resource.addProperty(ETutorVocabulary.hasDLGQuery, newTaskAssignmentDTO.getDatalogQuery().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogUncheckedTerms())){
+            resource.addProperty(ETutorVocabulary.hasUncheckedDLGTerm, newTaskAssignmentDTO.getDatalogUncheckedTerms().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){

@@ -90,7 +90,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
     private static final String PROP_HAS_DLG_SOLUTION = "hasDLGSolution";
     private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
-    private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerm";
+    private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
 
     private static final String PROP_HAS_DLG_PREDICATE = "hasDLGPredicate";
     private static final String PROP_HAS_DLG_TERM_POSITION = "hasDLGTermPosition";
