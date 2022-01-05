@@ -67,6 +67,14 @@ export interface INewTaskModel {
    */
   xQueryXPathSorting?: string;
   /**
+   * Optional solution for a datalog task
+   */
+  datalogSolution?: string;
+  /**
+   * Optional query for a datalog task
+   */
+  datalogQuery?: string;
+  /**
    * Optional max points
    */
   maxPoints?: string;

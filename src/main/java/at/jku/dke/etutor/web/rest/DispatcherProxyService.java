@@ -201,9 +201,42 @@ public class DispatcherProxyService {
                 String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
                 newTaskAssignmentDTO.setSqlSolution(solution);
             }
+        } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
+            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())) {
+                int id = this.createDLGTask(newTaskAssignmentDTO);
+                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+            } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) {
+                DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
+                newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
+                newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
+                // TODO: set/add unchecked terms
+            }
         }
         return newTaskAssignmentDTO;
     }
+
+    private DatalogExerciseDTO fetchDLGExerciseInfo(String taskIdForDispatcher) {
+        return proxyResource.getDLGExercise(Integer.parseInt(taskIdForDispatcher)).getBody();
+    }
+
+    private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
+        List<String> queries = new ArrayList<>();
+        queries.add(newTaskAssignmentDTO.getDatalogQuery());
+        exerciseDTO.setQueries(queries);
+        exerciseDTO.setSolution(newTaskAssignmentDTO.getDatalogSolution());
+        // TODO: Unchecked terms
+        exerciseDTO.setUncheckedTerms(null);
+        var tempTaskGroup = new TaskGroupDTO();
+        tempTaskGroup.setId(newTaskAssignmentDTO.getTaskGroupId());
+        exerciseDTO.setFactsId(assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(tempTaskGroup));
+
+        var response = proxyResource.createDLGExercise(exerciseDTO);
+        if(response.getBody() != null) return response.getBody();
+        else return -1;
+    }
+
+
 
     /**
      * Creates an XQ-exercise
@@ -336,7 +369,7 @@ public class DispatcherProxyService {
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
 
-        if (taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
+        if (taskAssignmentDTO.getTaskIdForDispatcher() == null || taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
             return;
 
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());

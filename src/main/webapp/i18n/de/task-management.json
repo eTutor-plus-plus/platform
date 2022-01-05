@@ -46,7 +46,10 @@
       "xQuerySubmissionXML": "XQuery: XML (Submit)",
       "xQuerySorting": "XQuery- Sortierung (XPath):",
       "xQuerySolution": "XQuery Lösung",
-      "xQueryFileURL": "XQuery- XML-URL:"
+      "xQueryFileURL": "XQuery- XML-URL:",
+      "datalogSolution": "Datalog Lösung:",
+      "datalogQuery": "Datalog Query:",
+      "datalogFacts": "Datalog Fakten:"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

@@ -2,7 +2,10 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.dispatcher.DatalogExerciseDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DatalogTaskGroupDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.InputStreamResource;
@@ -329,9 +332,40 @@ public class DispatcherProxyResource {
     public ResponseEntity<Void> deleteDLGTaskGroup(@PathVariable int id){
         String url = dispatcherURL+"/datalog/taskgroup/"+id;
 
-        var client = getHttpClient();
         var request = getDeleteRequest(url);
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+
+    @PostMapping("/datalog/exercise")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Integer> createDLGExercise(@RequestBody DatalogExerciseDTO exerciseDTO){
+       String url = dispatcherURL+"/datalog/exercise";
+
+        HttpRequest request = null;
+        try {
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseDTO)).build();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(-1);
+        }
+        var response = getResponseEntity(request, stringHandler);
+       var id = Integer.parseInt((String)response.getBody());
+       return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
+
+    @GetMapping("/datalog/exercise/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<DatalogExerciseDTO> getDLGExercise(@PathVariable int id){
+        var request = getGetRequest(dispatcherURL+"/datalog/exercise/"+id);
+        var response = getResponseEntity(request, stringHandler);
+        DatalogExerciseDTO exercise = null;
+        try {
+            exercise = new ObjectMapper().readValue((String)response.getBody(), DatalogExerciseDTO.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new DatalogExerciseDTO());
+        }
+        return ResponseEntity.status(response.getStatusCodeValue()).body(exercise);
     }
 
     /**

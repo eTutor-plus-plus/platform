@@ -29,6 +29,7 @@ public final class ETutorVocabulary {
     private static final String CLASS_INDIVIDUAL_TASK_SUBMISSION = "IndividualTaskSubmission";
     private static final String CLASS_TASK_GROUP = "TaskGroup";
     private static final String CLASS_LEARNING_GOAL_ASSIGNMENT = "LearningGoalAssignment";
+    private static final String CLASS_DLG_TERM = "DatalogTerm";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -87,6 +88,14 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
     private static final String PROP_HAS_XQUERY_SOLUTION = "hasXQuerySolution";
     private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
+    private static final String PROP_HAS_DLG_SOLUTION = "hasDLGSolution";
+    private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
+    private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerm";
+
+    private static final String PROP_HAS_DLG_PREDICATE = "hasDLGPredicate";
+    private static final String PROP_HAS_DLG_TERM_POSITION = "hasDLGTermPosition";
+    private static final String PROP_HAS_DLG_TERM_NAME = "hasDLGTermName";
+
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -322,9 +331,26 @@ public final class ETutorVocabulary {
      * The hasSQLSolution property.
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
-
+    /**
+     * The hasXQuerySolution property.
+     */
     public static final Property hasXQuerySolution = m.createProperty(URI+PROP_HAS_XQUERY_SOLUTION);
+    /**
+     * The hasXqueryXPathSorting property.
+     */
     public static final Property hasXQueryXPathSorting = m.createProperty(URI+PROP_HAS_XPATH_SORTING);
+    /**
+     * The hasDLGSolution property.
+     */
+    public static final Property hasDLGSolution = m.createProperty(URI+PROP_HAS_DLG_SOLUTION);
+    /**
+     * The hasDLGQuery property.
+     */
+    public static final Property hasDLGQuery = m.createProperty(URI+PROP_HAS_DLG_QUERY);
+    /**
+     * The hasUncheckedDLGTerm property.
+     */
+    public static final Property hasUncheckedDLGTerm = m.createProperty(URI+PROP_HAS_UNCHECKED_DLG_TERM);
      /* *
      *The hasMaxPoints property
      */
