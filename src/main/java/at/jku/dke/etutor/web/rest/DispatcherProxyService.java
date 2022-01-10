@@ -236,8 +236,7 @@ public class DispatcherProxyService {
     private DatalogExerciseDTO getDatalogExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO){
         DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
         List<String> queries = new ArrayList<>();
-        // TODO: allow for multiple queries
-        queries.add(newTaskAssignmentDTO.getDatalogQuery());
+        Arrays.stream(newTaskAssignmentDTO.getDatalogQuery().split(";")).forEach(x -> queries.add(x.trim().replace("\r", "").replace("\n", "").replace(" ", "")));
         exerciseDTO.setQueries(queries);
         exerciseDTO.setSolution(newTaskAssignmentDTO.getDatalogSolution());
         if(newTaskAssignmentDTO.getDatalogUncheckedTerms() != null) exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
@@ -441,6 +440,8 @@ public class DispatcherProxyService {
             proxyResource.deleteXQExercise(id).getBody();
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {
             proxyResource.deleteSQLExercise(id).getBody();
+        } else if (taskType.equals(ETutorVocabulary.DatalogTask.toString())){
+            //TODO: delete task
         }
     }
 
