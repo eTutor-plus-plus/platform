@@ -353,6 +353,23 @@ public class DispatcherProxyResource {
        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
 
+
+    @PostMapping("/datalog/exercise/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> modifyDLGExercise(@RequestBody DatalogExerciseDTO exerciseDTO, @PathVariable int id){
+        String url = dispatcherURL+"/datalog/exercise/"+id;
+
+        HttpRequest request = null;
+        try {
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseDTO)).build();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+
+
     @GetMapping("/datalog/exercise/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<DatalogExerciseDTO> getDLGExercise(@PathVariable int id){

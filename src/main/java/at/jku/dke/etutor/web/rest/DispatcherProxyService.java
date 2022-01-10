@@ -222,20 +222,29 @@ public class DispatcherProxyService {
     }
 
     private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        var exerciseDTO = getDatalogExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
+        var response = proxyResource.createDLGExercise(exerciseDTO);
+        if(response.getBody() != null) return response.getBody();
+        else return -1;
+    }
+
+    /**
+     * Takes a task assignment and initializes a Datalog exercise dto with it
+     * @param newTaskAssignmentDTO the {@link NewTaskAssignmentDTO}
+     * @return the {@link DatalogExerciseDTO}
+     */
+    private DatalogExerciseDTO getDatalogExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO){
         DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
         List<String> queries = new ArrayList<>();
         // TODO: allow for multiple queries
         queries.add(newTaskAssignmentDTO.getDatalogQuery());
         exerciseDTO.setQueries(queries);
         exerciseDTO.setSolution(newTaskAssignmentDTO.getDatalogSolution());
-        exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
+        if(newTaskAssignmentDTO.getDatalogUncheckedTerms() != null) exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
         var tempTaskGroup = new TaskGroupDTO();
         tempTaskGroup.setId(newTaskAssignmentDTO.getTaskGroupId());
         exerciseDTO.setFactsId(assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(tempTaskGroup));
-
-        var response = proxyResource.createDLGExercise(exerciseDTO);
-        if(response.getBody() != null) return response.getBody();
-        else return -1;
+        return exerciseDTO;
     }
 
     /**
@@ -351,7 +360,7 @@ public class DispatcherProxyService {
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
-        if(StringUtils.isEmpty(taskAssignmentDTO.getTaskIdForDispatcher())) return;
+        if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher())) return;
 
         if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())){
@@ -361,6 +370,20 @@ public class DispatcherProxyService {
             if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
                 updateSQLExercise(taskAssignmentDTO);
             }
+        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
+            updateDLGExercise(taskAssignmentDTO);
+        }
+    }
+
+
+    /**
+     * Updates the dispatcher resources for a datalog-type task-assignment
+     * @param taskAssignmentDTO the {@link TaskAssignmentDTO} to be updated
+     */
+    private void updateDLGExercise(TaskAssignmentDTO taskAssignmentDTO) {
+        var exercise = getDatalogExerciseDTOFromTaskAssignment(taskAssignmentDTO);
+        var response = proxyResource.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
+        if(response.getStatusCodeValue() != 200){
         }
     }
 
