@@ -386,6 +386,17 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Deletes resources associated with a given datalog exercise in the dispatcher
+     * @param id the id of the datalog exercise
+     * @return a {@link ResponseEntity} indicating if deletion has been successful
+     */
+    @DeleteMapping("/datalog/exercise/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> deleteDLGExercise(@PathVariable int id) {
+        var request = getDeleteRequest(dispatcherURL + "/datalog/exercise/" + id);
+        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+    /**
      * Returns the xml datasource for an xquery taskgroup
      * @param taskGroup the naem of the taskgroup
      * @return a ResponseEntity
@@ -393,7 +404,6 @@ public class DispatcherProxyResource {
     @GetMapping("/xquery/xml/taskGroup/{taskGroup}")
     public ResponseEntity<String> getXMLForXQByTaskGroup(@PathVariable String taskGroup){
        String url = dispatcherURL+"xquery/xml/taskGroup/"+taskGroup;
-       var client = getHttpClient();
        var request = getGetRequest(url);
 
        return getResponseEntity(request, stringHandler);

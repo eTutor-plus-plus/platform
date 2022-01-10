@@ -441,10 +441,8 @@ public class DispatcherProxyService {
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {
             proxyResource.deleteSQLExercise(id).getBody();
         } else if (taskType.equals(ETutorVocabulary.DatalogTask.toString())){
-            //TODO: delete task
+            proxyResource.deleteDLGExercise(id).getBody();
         }
     }
-
-
 }
 
