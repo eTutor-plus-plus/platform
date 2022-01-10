@@ -151,6 +151,7 @@
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
         >SQL Create-Table-Statements:</label
       >
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor
         [options]="editorOptionsReadOnly"
         id="sqlCreateStatements"
@@ -161,6 +162,7 @@
       <label class="form-control-label" for="xQueryDiagnoseXML" jhiTranslate="taskManagement.fields.xQueryDiagnoseXML"
         >XQuery: XML (Diagnose)</label
       >
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.xqueryXMLInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor
         [options]="editorOptionsXMLReadOnly"
         id="xQueryDiagnoseXML"
@@ -202,18 +204,23 @@
     </div>
     <div class="form-group" *ngIf="isDLQTask">
       <label class="form-control-label" for="datalogFacts" jhiTranslate="taskManagement.fields.datalogFacts">Datalog Facts</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogFactsInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsReadOnly" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
     </div>
 
     <div class="form-group" *ngIf="isSQLTask || isRATask">
-      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label><br />
+      <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
+      <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQuerySolution" jhiTranslate="taskManagement.fields.xQuerySolution">XQuery Solution:</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
+      <br />
+      <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptionsXQ" id="xQuerySolution" formControlName="xQuerySolution"></ngx-monaco-editor>
-      <button type="button" class="btn btn-secondary" (click)="openSolutionRunnerWindow()">Try</button>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQueryXPathSorting" jhiTranslate="taskManagement.fields.xQuerySorting"
@@ -223,16 +230,19 @@
     </div>
     <div class="form-group" *ngIf="isDLQTask">
       <label class="form-control-label" for="datalogSolution" jhiTranslate="taskManagement.fields.datalogSolution">Datalog: Solution</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogSolutionInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogSolution" formControlName="datalogSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isDLQTask">
-      <label class="form-control-label" for="datalogQuery" jhiTranslate="taskManagement.fields.datalogQuery">Datalog: Query</label>
+      <label class="form-control-label" for="datalogQuery" jhiTranslate="taskManagement.fields.datalogQuery"> Datalog: Query </label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogQueryInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogQuery" formControlName="datalogQuery"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isDLQTask">
       <label class="form-control-label" for="datalogUncheckedTerms" jhiTranslate="taskManagement.fields.datalogUncheckedTerms"
         >Datalog: Unchecked Terms</label
       >
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogUncheckedTermInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor
         [options]="editorOptionsDLG"
         id="datalogUncheckedTerms"
@@ -241,6 +251,7 @@
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.xQueryFileURL">XQuery- file url:</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.xqFileUrlInfo' | translate }}" placement="right"></fa-icon>
       <input type="text" [disabled]="true" class="form-control" name="xQueryFileURL" id="xQueryFileURL" formControlName="xQueryFileURL" />
     </div>
     <div class="form-group">

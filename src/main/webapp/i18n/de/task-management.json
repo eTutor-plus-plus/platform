@@ -8,6 +8,14 @@
     "taskTypePlaceholder": "Aufgabentyp auswählen",
     "diagnoseLevelWeightingInfo": "Die Gewichtung wird mit dem höchsten gewählten Diagnose-Levels des Studenten multipliziert und von den Maximalpunkten abgezogen, um die erreichten Punkte zu errechnen.",
     "dispatcherIdInfo": "Wenn Sie eine existierende Aufgabe refernzieren wollen, geben Sie hier die ID ein. Ansonsten wählen Sie eine Aufgabengruppe und lassen dieses Feld leer.",
+    "datalogQueryInfo": "Wenn Sie mehrere Queries bei der Beurteilung berücksichtigen wollen, trennen Sie diese mittels Semicolon. z.B: hatSohn(X,Y? ; hatTochter(X,Y)?",
+    "datalogUncheckedTermInfo": "Um bestimmte Terme, welche in den Fakten vorkommen, von der Manipulation auszuschließen, definiersen Sie diese hier erneut. z.B. hatKind(peter,_). (um den Term 'peter' von der Manipulation auszuschließen, sofern dieser auf Position 1 des Prädikats 'hatKind' vorkommt",
+    "datalogFactsInfo": "Fakten müssen für Aufgabengruppen definiert werden. Die Fakten werden bei Abgaben im Submit-Modus manipuliert, um eine Faktendeklaration durch die Studenten zu verhindern. Sie können bestimmte Terme im Feld \"Datalog Terme\" von der Manipulation ausschließen, falls diese in den Regeln benötigt werden.",
+    "datalogSolutionInfo": "Hier können die Regeln, welche die Lösung repräsentieren, definiert werden. Hier dürfen keine Query-Deklarationen erfolgen.",
+    "trySolutionInfo": "Die Lösung kann nach dem erstmaligen speichern der Aufgabe testweise ausgewertet werden. Klicken Sie dazu auf 'Try' unterhalb.",
+    "sqlStatementsInfo": "Statements können nur auf Ebene der Aufgabengruppen definiert und über die Auswahl am Ende des Formulars zugeordnet werden.",
+    "xqueryXMLInfo": "Die XMLs können nur auf Ebene der Aufgabengruppen definiert, und über die Auswahl am Ende des Formulars zugeordnet werden.",
+    "xqFileUrlInfo": "Die URL kann in der doc()-Funktion der Query verwendet werden, um die XML's der Aufgabengruppe zu referenzieren.",
     "difficulties": {
       "easy": "Leicht",
       "medium": "Mittel",
@@ -49,7 +57,8 @@
       "xQueryFileURL": "XQuery- XML-URL:",
       "datalogSolution": "Datalog Lösung:",
       "datalogQuery": "Datalog Query:",
-      "datalogFacts": "Datalog Fakten:"
+      "datalogFacts": "Datalog Fakten:",
+      "datalogUncheckedTerms": "Datalog Terms"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
