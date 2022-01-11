@@ -385,6 +385,13 @@ public class DispatcherProxyResource {
         return ResponseEntity.status(response.getStatusCodeValue()).body(exercise);
     }
 
+    @GetMapping("/datalog/facts/id/{id}")
+    public ResponseEntity<DatalogExerciseDTO> getDLGFacts(@PathVariable int id){
+        var request = getGetRequest(dispatcherURL+"/datalog/taskgroup/"+id);
+        return getResponseEntity(request, stringHandler);
+    }
+
+
     /**
      * Deletes resources associated with a given datalog exercise in the dispatcher
      * @param id the id of the datalog exercise

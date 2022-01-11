@@ -96,6 +96,9 @@ public class DispatcherProxyService {
         id = body != null ? body : -1;
         if(id == -1) return statusCode;
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
+        String link = "\n <a href='/datalog-facts/"+id+"'>Facts</a>";
+        newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
+        assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
         return statusCode;
 
     }
@@ -147,6 +150,13 @@ public class DispatcherProxyService {
         }
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
+        assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
+
+        if(fileURL != null) {
+            String link = "\n <a href='/XML?id="+fileURL.substring(fileURL.indexOf("") != -1 ? fileURL.indexOf("=") +1 : 0)+"'>XML</a>";
+            taskGroupDTO.setDescription(taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription()+link : link);
+            assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
+        }
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
         return response.getStatusCodeValue();
     }

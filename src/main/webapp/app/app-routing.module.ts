@@ -39,6 +39,10 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           loadChildren: () => import('./overview/sql-tables/sql-tables.module').then(m => m.SqlTablesModule),
         },
         {
+          path: 'datalog-facts',
+          loadChildren: () => import('./overview/datalog-facts/datalog-facts.module').then(m => m.DatalogFactsModule),
+        },
+        {
           path: 'XML',
           loadChildren: () => import('./overview/xml-files/xml-files.module').then(m => m.XmlFilesModule),
         },
