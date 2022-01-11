@@ -426,7 +426,6 @@ public class DispatcherProxyService {
      * Deletes a task assignment (exercise) in the dispatcher
      *
      * @param taskAssignmentDTO the task assignment to be deleted
-     * @return
      */
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
@@ -434,8 +433,13 @@ public class DispatcherProxyService {
         if (taskAssignmentDTO.getTaskIdForDispatcher() == null || taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
             return;
 
-        int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
 
+        int id = -1;
+        try{
+            id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
+        }catch(NumberFormatException e){
+            return;
+        }
         if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
             proxyResource.deleteXQExercise(id).getBody();
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {

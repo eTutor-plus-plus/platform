@@ -1,14 +1,19 @@
 export function myMonacoLoad(): void {
-  (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
-
   // Register a tokens provider for the language
+  (window as any).monaco.languages.register({ id: 'datalog' });
   (window as any).monaco.languages.setMonarchTokensProvider('datalog', {
     tokenizer: {
-      root: [[/\\./, 'dot']],
+      root: [
+        [/\./, 'dot'],
+        [/:-/, 'assignment'],
+        [/\(/, 'left-parantheses'],
+        [/\)/, 'right-parantheses'],
+      ],
     },
   });
 
   // Register a tokens provider for the language
+  (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
   (window as any).monaco.languages.setMonarchTokensProvider('relationalAlgebra', {
     tokenizer: {
       root: [
@@ -42,7 +47,6 @@ export function myMonacoLoad(): void {
 
   // Register a tokens provider for the language
   (window as any).monaco.languages.register({ id: 'xquery' });
-
   (window as any).monaco.languages.setMonarchTokensProvider('xquery', {
     tokenizer: {
       root: [
@@ -92,11 +96,16 @@ export function myMonacoLoad(): void {
     },
   });
 
-  let keyWordColor = '3a92bb';
+  let keyWordColor = 'EE4B2B';
   (window as any).monaco.editor.defineTheme('datalog-light', {
     base: 'vs',
     inherit: false,
-    rules: [{ token: 'dot', foreground: keyWordColor }],
+    rules: [
+      { token: 'dot', foreground: '00FF00', fontStyle: 'bold' },
+      { token: 'assignment', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'left-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'right-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+    ],
   });
 
   keyWordColor = '3a92bb';

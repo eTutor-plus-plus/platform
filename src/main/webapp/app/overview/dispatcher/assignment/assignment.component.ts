@@ -40,6 +40,7 @@ export class AssignmentComponent implements AfterContentChecked {
   public gradingDto!: GradingDTO;
   public editorOptions = { theme: 'vs-dark', language: '' };
   public isXQueryTask = false;
+  public isDatalogTask = false;
 
   private diagnoseLevel = 0;
   private submissionDto!: SubmissionDTO;
@@ -62,6 +63,8 @@ export class AssignmentComponent implements AfterContentChecked {
         return 'pgsql';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
         return 'relationalAlgebra';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+        return 'datalog';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
         return 'xquery';
       default:
@@ -97,10 +100,12 @@ export class AssignmentComponent implements AfterContentChecked {
       let the = 'vs-dark';
       if (lang === 'relationalAlgebra') {
         the = 'relationalAlgebra-light';
-      }
-      if (lang === 'xquery') {
+      } else if (lang === 'xquery') {
         this.isXQueryTask = true;
         the = 'xquery-light';
+      } else if (lang === 'datalog') {
+        this.isDatalogTask = true;
+        the = 'datalog-light';
       }
 
       this.editorOptions = { theme: the, language: lang };
