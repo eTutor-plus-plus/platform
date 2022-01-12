@@ -58,11 +58,11 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the new task group
      */
-    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) {
         if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             return proxyXMLtoDispatcher(newTaskGroupDTO);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
-            return createSQLTaskGroup(newTaskGroupDTO);
+            return createSQLTaskGroup(newTaskGroupDTO, isNew);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
             return createDLGTaskGroup(newTaskGroupDTO);
         }
@@ -70,7 +70,9 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Creates/updates a datalog by sending the fact-base to the dispatcher
+     * Creates/updates a datalog group by sending the fact-base to the dispatcher.
+     * Adds the returned id from the dispatcher of the task-group to the task-group (rdf) (only once).
+     * Adds the link to view the facts to the task-groups description (only once).
      * @param newTaskGroupDTO the task group
      */
     private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) {
@@ -96,7 +98,7 @@ public class DispatcherProxyService {
         id = body != null ? body : -1;
         if(id == -1) return statusCode;
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
-        String link = "\n <a href='/datalog-facts/"+id+"'>Facts</a>";
+        String link = "<br> <a href='/datalog-facts/"+id+"'>Facts</a>";
         newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
         return statusCode;
@@ -104,18 +106,20 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Adds task group related resources for an SQL task group
+     * Adds task group related resources for an SQL task group in the dispatcher.
+     * Appends links to the tables to the task group description
      *
      * @param newTaskGroupDTO the task group
      */
-    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) {
         if (newTaskGroupDTO.getSqlCreateStatements() == null) return 500;
+        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
 
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
         body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
         body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
         body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
-        body.setSchemaName(newTaskGroupDTO.getName().trim().replace(" ", "_"));
+        body.setSchemaName(schemaName);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
@@ -126,11 +130,62 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return 500;
         }
-        return proxyResource.executeDDLForSQL(jsonBody).getStatusCodeValue();
+        var statusCode = proxyResource.executeDDLForSQL(jsonBody).getStatusCodeValue();
+
+        if(statusCode == 200)updateSQLTaskGroupDescriptionWithLinks(schemaName, newTaskGroupDTO, isNew);
+
+        return statusCode;
     }
 
     /**
-     * Sends the request to add the xml-files for an xquery task group to the DispatcherProxyResource
+     * Updates the description of an SQL task group by appending links to the specified tables
+     * @param schemaName the name of the task group
+     * @param newTaskGroupDTO the {@link TaskGroupDTO}
+     */
+    private void updateSQLTaskGroupDescriptionWithLinks(String schemaName, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
+        var dummySQLTaskForReference = new NewTaskAssignmentDTO();
+        dummySQLTaskForReference.setSqlSolution("DUMMY FOR TASKGROUP "+schemaName);
+        dummySQLTaskForReference.setTaskGroupId("#"+schemaName);
+        int dummyReferenceId = createSQLTask(dummySQLTaskForReference);
+
+        List<String> tables = new ArrayList<>();
+        List<String> links = new ArrayList<>();
+        var statements = newTaskGroupDTO.getSqlCreateStatements().toLowerCase().split(";");
+        for(String statment : statements){
+            var begin = statment.indexOf("table");
+            var end = statment.indexOf("(");
+            if(begin != -1 && end != -1){
+                tables.add(statment.substring(begin+"table".length(), end).trim());
+            }
+        }
+        for(String table : tables){
+           links.add("<a href='/sql-tables/"+table+"?exerciseId="+dummyReferenceId +"'>"+table+"</a>");
+        }
+        String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
+        String startOfLinks = "<p id=table_links>";
+        if(!isNew){
+            int indexOfTableLinks=description.indexOf(startOfLinks);
+            if(indexOfTableLinks != -1) description=description.substring(0, indexOfTableLinks);
+        }
+        description += startOfLinks;
+        description += "<br>";
+        description += "<b>Tables:</b><br>";
+
+        StringBuilder sb = new StringBuilder();
+        for (String link : links){
+            sb.append(link).append("<br>");
+        }
+        description += sb.toString();
+        description += "</p>";
+
+        newTaskGroupDTO.setDescription(description);
+        assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
+    }
+
+    /**
+     * Sends the request to add the xml-files for a xquery task group to the DispatcherProxyResource.
+     * Adds the returned file-url to the task group, which is needed to reference the XML's from the task-queries.
+     * Adds the link to view the diagnose-XML file to the task group's description.
      *
      * @param taskGroupDTO the task group
      */
@@ -153,7 +208,7 @@ public class DispatcherProxyService {
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
         if(fileURL != null) {
-            String link = "\n <a href='/XML?id="+fileURL.substring(fileURL.indexOf("") != -1 ? fileURL.indexOf("=") +1 : 0)+"'>XML</a>";
+            String link = "<br> <a href='/XML?id="+fileURL.substring(fileURL.contains("") ? fileURL.indexOf("=") +1 : 0)+"'>XML</a>";
             taskGroupDTO.setDescription(taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription()+link : link);
             assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         }
@@ -227,10 +282,20 @@ public class DispatcherProxyService {
         return newTaskAssignmentDTO;
     }
 
+    /**
+     * Fetches the exercise information for a datalog exercise according to its id
+     * @param taskIdForDispatcher the id
+     * @return the {@link DatalogExerciseDTO} containing the information
+     */
     private DatalogExerciseDTO fetchDLGExerciseInfo(String taskIdForDispatcher) {
         return proxyResource.getDLGExercise(Integer.parseInt(taskIdForDispatcher)).getBody();
     }
 
+    /**
+     * Creates a datalog-task in the dispatcher
+     * @param newTaskAssignmentDTO the{@link NewTaskAssignmentDTO} to be created
+     * @return the dispatcher-id of the task
+     */
     private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         var exerciseDTO = getDatalogExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
         var response = proxyResource.createDLGExercise(exerciseDTO);
@@ -239,7 +304,7 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Takes a task assignment and initializes a Datalog exercise dto with it
+     * Utility method that takes a task assignment and initializes a {@link DatalogExerciseDTO} with the required information
      * @param newTaskAssignmentDTO the {@link NewTaskAssignmentDTO}
      * @return the {@link DatalogExerciseDTO}
      */
@@ -408,9 +473,9 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Updates solution and sortings-XPath for an XQ-exercise
+     * Updates an XQUery task in the dispatcher (the solution and the sortings-XPath)
      *
-     * @param taskAssignmentDTO the task assignment
+     * @param taskAssignmentDTO the task assignment to be updated
      */
     private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) {
         List<String> sortings = new ArrayList<>();
@@ -433,7 +498,7 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Deletes a task assignment (exercise) in the dispatcher
+     * Deletes a task assignment (exercise) in the dispatcher according to the task-type
      *
      * @param taskAssignmentDTO the task assignment to be deleted
      */
@@ -442,7 +507,6 @@ public class DispatcherProxyService {
 
         if (taskAssignmentDTO.getTaskIdForDispatcher() == null || taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
             return;
-
 
         int id = -1;
         try{

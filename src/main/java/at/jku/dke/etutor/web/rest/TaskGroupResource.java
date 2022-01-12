@@ -56,7 +56,7 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            var dispatcherStatus = dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            var dispatcherStatus = dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
             return ResponseEntity.status(dispatcherStatus).body(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
@@ -104,12 +104,12 @@ public class TaskGroupResource {
         int dispatcherStatusCode = 200;
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-            dispatcherStatusCode = dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            dispatcherStatusCode = dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
         }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
         }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
         }
         return ResponseEntity.status(dispatcherStatusCode).body(taskGroupDTOFromService);
