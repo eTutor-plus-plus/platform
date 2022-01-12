@@ -8,6 +8,7 @@ export function myMonacoLoad(): void {
         [/:-/, 'assignment'],
         [/\(/, 'left-parantheses'],
         [/\)/, 'right-parantheses'],
+        [/\?/, 'question-mark'],
       ],
     },
   });
@@ -105,6 +106,7 @@ export function myMonacoLoad(): void {
       { token: 'assignment', foreground: keyWordColor, fontStyle: 'bold' },
       { token: 'left-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
       { token: 'right-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'question-mark', foreground: '00FF00', fontStyle: 'bold' },
     ],
   });
 

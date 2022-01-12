@@ -27,6 +27,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'pgsql', readOnly: true };
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
+  public editorOptionsDLGReadOnly = { theme: 'datalog-light', language: 'datalog', readOnly: true };
   public isSQLTask = false;
   public isRATask = false;
   public isXQueryTask = false;
