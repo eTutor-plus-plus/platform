@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.dispatcher.*;
@@ -24,11 +25,13 @@ public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final DispatcherProxyResource proxyResource;
     private final ObjectMapper mapper;
+    private final ApplicationProperties properties;
 
-    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource) {
+    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource, ApplicationProperties properties) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.proxyResource = proxyResource;
         this.mapper = new ObjectMapper();
+        this.properties = properties;
     }
 
     /**
@@ -98,7 +101,7 @@ public class DispatcherProxyService {
         id = body != null ? body : -1;
         if(id == -1) return statusCode;
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
-        String link = "<br> <a href='/datalog-facts/"+id+"'>Facts</a>";
+        String link = "<br> <a href='"+properties.getDispatcher().getDatalogFactsUrlPrefix()+id+"'>Facts</a>";
         newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
         return statusCode;
@@ -159,7 +162,7 @@ public class DispatcherProxyService {
             }
         }
         for(String table : tables){
-           links.add("<a href='/sql-tables/"+table+"?exerciseId="+dummyReferenceId +"'>"+table+"</a>");
+           links.add("<a href='"+properties.getDispatcher().getSqlTableUrlPrefix()+table+"?exerciseId="+dummyReferenceId +"'>"+table+"</a>");
         }
         String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
         String startOfLinks = "<p id=table_links>";
@@ -208,7 +211,7 @@ public class DispatcherProxyService {
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
         if(fileURL != null) {
-            String link = "<br> <a href='/XML?id="+fileURL.substring(fileURL.contains("") ? fileURL.indexOf("=") +1 : 0)+"'>XML</a>";
+            String link = "<br> <a href='"+properties.getDispatcher().getXqueryXmlFileUrlPrefix()+fileURL.substring(fileURL.contains("") ? fileURL.indexOf("=") +1 : 0)+"'>XML</a>";
             taskGroupDTO.setDescription(taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription()+link : link);
             assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         }

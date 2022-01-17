@@ -121,4 +121,9 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  dispatcher:
+    url: http://localhost:8081
+    xqueryXmlFileUrlPrefix: /XML?id=
+    sqlTableUrlPrefix: /sql-tables/
+    datalogFactsUrlPrefix: /datalog-facts/
