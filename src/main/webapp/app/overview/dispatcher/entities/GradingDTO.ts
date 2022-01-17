@@ -1,5 +1,5 @@
 /**
- * The Grading-DTO to map grading responses from the dispatcher
+ * Maps information about a grading from the dispatcher
  */
 export interface GradingDTO {
   submissionId: string;

@@ -1,3 +1,9 @@
+/**
+ * Export Function that can be used as {@see onMonacoLoad()} function for the Monaco editor configuration and
+ * registers custom languages, themes and token-providers for the Monaco text editor,
+ * currently for Relational Algebra, XQuery and Datalog
+ */
+
 export function myMonacoLoad(): void {
   // Register a tokens provider for the language
   (window as any).monaco.languages.register({ id: 'datalog' });

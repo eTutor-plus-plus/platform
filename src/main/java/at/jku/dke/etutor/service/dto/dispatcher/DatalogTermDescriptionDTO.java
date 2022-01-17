@@ -2,9 +2,25 @@ package at.jku.dke.etutor.service.dto.dispatcher;
 
 import java.util.Objects;
 
+/**
+ * Represents a datalog term.
+ * Instances are used in {@link DatalogExerciseDTO} to exclude certain terms from manipulation.
+ * (Normally, if a student submits a datalog exercise, the facts are manipulated to avoid
+ * that students declare facts instead of deriving them using rules. If the rules that represent the
+ * solution contain certain terms, these terms have to be excluded from manipulation)
+ */
 public class DatalogTermDescriptionDTO {
+    /**
+     * The predicate of the term
+     */
     private String predicate;
+    /**
+     * The value of the term
+     */
     private String term;
+    /**
+     * The position in the predicate of the term
+     */
     private String position;
 
     /**

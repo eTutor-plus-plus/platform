@@ -14,36 +14,102 @@ import { AssignmentService } from 'app/overview/dispatcher/services/assignment.s
   styleUrls: ['./assignment.component.scss'],
 })
 export class AssignmentComponent implements AfterContentChecked {
+  /**
+   * The diagnose levels that can be chosen by the student
+   */
   public diagnoseLevels = [
     'dispatcherAssignment.assignment.diagnoseLevel.none',
     'dispatcherAssignment.assignment.diagnoseLevel.little',
     'dispatcherAssignment.assignment.diagnoseLevel.some',
     'dispatcherAssignment.assignment.diagnoseLevel.much',
   ];
+  /**
+   * The id of the exercise
+   */
   @Input() public exercise_id: string | undefined;
+  /**
+   * The task type {@see TaskAssignmentType}
+   */
   @Input() public task_type: string | undefined;
+  /**
+   * The optional, stored submission
+   */
   @Input() public submission: string | undefined;
+  /**
+   * The highest-diagnose level that has been chosen so far
+   */
   @Input() public highestDiagnoseLevel!: number;
+  /**
+   * The points that have been achieved
+   */
   @Input() public points!: number;
+  /**
+   * The maximum points for this exercise
+   */
   @Input() public maxPoints = '';
+  /**
+   * The weighting of the diagnose level used to calculate the achieved points
+   */
   @Input() public diagnoseLevelWeighting = '';
+  /**
+   * Flag indicating if the points should be displayed
+   */
   @Input() public showPoints = true;
+  /**
+   * Flag indicating if the diagnose-option should be displayed
+   */
   @Input() public showDiagnoseBar = true;
+  /**
+   * Flag indicating if the submit-option should be displayed
+   */
   @Input() public showSubmitButton = true;
-
+  /**
+   * Output that notifies components if the submission has been sent to the dispatcher and the UUID for the submission has been received
+   */
   @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
   public diagnoseLevelText = '';
-
+  /**
+   * Indicates if a {@link GradingDTO} grading has been received
+   */
   public gradingReceived = false;
+  /**
+   * Indicates if the submission contained errors according to the grading
+   */
   public hasErrors = true;
+  /**
+   * The {@link GradingDTO} wrapping information about the graded submission
+   */
   public gradingDto!: GradingDTO;
+  /**
+   * The default editor options
+   */
   public editorOptions = { theme: 'vs-dark', language: '' };
+
+  /**
+   * Indicates the task type
+   */
   public isXQueryTask = false;
   public isDatalogTask = false;
 
+  /**
+   *
+   * @private
+   */
+  /**
+   * The current diagnose level
+   * @private
+   */
   private diagnoseLevel = 0;
+  /**
+   * the {@link SubmissionDTO} wrapping all the information required by the dispatcher for evaluation
+   * @private
+   */
   private submissionDto!: SubmissionDTO;
+  /**
+   * Wraps the ID of the SubmissionDTO, needed to request the grading
+   * @private
+   */
   private submissionIdDto!: SubmissionIdDTO;
   private action!: string;
 
@@ -91,8 +157,8 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Lifecycle method that sets the language for the editor in accordance to the task type
-   * and the diagnose-level in the dropdown according to the highest chosen diagnose level
+   * Lifecycle method that sets the language for the editor in accordance to the {@link task_type},
+   * and the diagnose-level in the dropdown according to the {@link highestDiagnoseLevel}
    */
   public ngAfterContentChecked(): void {
     if (!this.editorOptions.language && this.task_type) {
@@ -132,7 +198,7 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Creates a SubmissionDTO and uses the assignment service to send it to the dispatcher
+   * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    *
    */
   private processSubmission(): void {
@@ -149,7 +215,7 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Requests the grading for the submission identified by this.submissionIdDto from the assignment service
+   * Requests the {@link GradingDTO} for the {@link submissionIdDto} using the {@link assignmentService}
    */
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
@@ -163,7 +229,7 @@ export class AssignmentComponent implements AfterContentChecked {
 
   /**
    * Verifies if the submission has been evaluated as correct by the dispatcher
-   * and sets this.hasErrors accordingly
+   * and sets {@link hasErrors} accordingly
    * @private
    */
   private setHasErrors(): void {
@@ -174,7 +240,7 @@ export class AssignmentComponent implements AfterContentChecked {
 
   /**
    * Emits the events in the course of a submission,
-   * namely adjusting the highest diagnose level if needed and emitting the submission UUID
+   * namely adjusting the {@link highestDiagnoseLevel} if needed and emitting the submission UUID {@see submissionUUIDReceived}
    * @private
    */
   private emitSubmissionEvents(): void {
@@ -205,7 +271,7 @@ export class AssignmentComponent implements AfterContentChecked {
     return 1;
   }
   /**
-   * Initializes the SubmissionDTO as required by the dispatcher
+   * Initializes the {@link SubmissionDTO} as required by the dispatcher
    * @private
    */
   private initializeSubmissionDTO(): SubmissionDTO {
@@ -232,7 +298,7 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Maps the diagnose level text to its number representation
+   * Maps the diagnose level text to its numeric representation
    * @param text
    * @private
    */

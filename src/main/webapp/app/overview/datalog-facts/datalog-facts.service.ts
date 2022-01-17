@@ -18,8 +18,8 @@ export class DatalogFactsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Requests an sql-table as html-table
-   * @param id the id of the task-group
+   * Requests the facts in html format
+   * @param id the id of the facts
    */
   public getFacts(id: string): Observable<string> {
     const url = 'api/dispatcher/datalog/facts/id/' + id;
@@ -27,7 +27,7 @@ export class DatalogFactsService {
   }
 
   /**
-   * Downloads the datalog facts
+   * Downloads the datalog facts as dlv file
    * @param id the id of the facts
    */
   public downloadFacts(id: string): void {

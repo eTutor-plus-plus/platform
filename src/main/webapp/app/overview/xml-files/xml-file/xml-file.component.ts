@@ -6,6 +6,7 @@ import { XQueryService } from '../../dispatcher/services/xquery.service';
 
 /**
  * Component that displays an XML-File inside a Monaco-Editor instance
+ * and provides a download function for the file
  */
 @Component({
   selector: 'jhi-tasks-overview',

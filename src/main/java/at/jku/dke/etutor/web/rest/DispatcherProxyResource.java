@@ -22,11 +22,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.concurrent.Executors;
 
 /**
- * Proxy that connects the etutor++ with the dispatcher
+ * Proxy that connects the application with the dispatcher that is used to evaluate sql, datalog, xquery and relational algebra exercises
  */
 @Configuration
 @RestController
@@ -327,6 +326,11 @@ public class DispatcherProxyResource {
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 
+    /**
+     * Requests the deletion of a datalog task group from the dispatcher
+     * @param id the id of the group
+     * @return a {@link ResponseEntity} indicating if deletion has been successful
+     */
     @DeleteMapping("/datalog/taskgroup/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteDLGTaskGroup(@PathVariable int id){
@@ -336,6 +340,11 @@ public class DispatcherProxyResource {
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 
+    /**
+     * Requests the creation of a datalog exercise
+     * @param exerciseDTO the {@link DatalogExerciseDTO} wrapping the exercise information
+     * @return an {@link ResponseEntity} wrapping the assigned exercise id
+     */
     @PostMapping("/datalog/exercise")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Integer> createDLGExercise(@RequestBody DatalogExerciseDTO exerciseDTO){
@@ -353,7 +362,12 @@ public class DispatcherProxyResource {
        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
 
-
+    /**
+     * Requests modification of a datalog exercise
+     * @param exerciseDTO the {@link DatalogExerciseDTO} with the new attributes
+     * @param id the id of the exercise
+     * @return a {@link ResponseEntity} indicating if the udpate has been successful
+     */
     @PostMapping("/datalog/exercise/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> modifyDLGExercise(@RequestBody DatalogExerciseDTO exerciseDTO, @PathVariable int id){
@@ -369,7 +383,11 @@ public class DispatcherProxyResource {
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 
-
+    /**
+     * Requests information about a datalog exercise from the dispatcher
+     * @param id the id of the exercise
+     * @return the {@link DatalogExerciseDTO} wrapping the information
+     */
     @GetMapping("/datalog/exercise/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<DatalogExerciseDTO> getDLGExercise(@PathVariable int id){

@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { DatalogFactsService } from './datalog-facts.service';
 
 /**
- * Component that displays an sql-table
+ * Component that displays datalog facts
  */
 @Component({
   selector: 'jhi-datalog-facts',

@@ -6,7 +6,7 @@ import { DatalogFactsComponent } from './datalog-facts.component';
 import { datalogFactsRoute } from './datalog-facts.route';
 
 /**
- * Module for displaying sql-tables
+ * Module for displaying datalog facts
  */
 @NgModule({
   imports: [SharedModule, OverviewSharedModule, RouterModule.forChild(datalogFactsRoute)],
