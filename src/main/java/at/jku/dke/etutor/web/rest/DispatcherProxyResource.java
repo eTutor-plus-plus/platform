@@ -385,10 +385,43 @@ public class DispatcherProxyResource {
         return ResponseEntity.status(response.getStatusCodeValue()).body(exercise);
     }
 
+    /**
+     * Requests the facts for a datalog task group in HTML format
+     * @param id the id of the facts
+     * @return the facts
+     */
     @GetMapping("/datalog/facts/id/{id}")
-    public ResponseEntity<DatalogExerciseDTO> getDLGFacts(@PathVariable int id){
+    public ResponseEntity<String> getDLGFacts(@PathVariable int id){
         var request = getGetRequest(dispatcherURL+"/datalog/taskgroup/"+id);
         return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Requests the facts for a datalog task group as raw string
+     * @param id the id of the facts
+     * @return the facts
+     */
+    @GetMapping("/datalog/facts/id/{id}/asinputstream")
+    public ResponseEntity<Resource> getDLGFactsAsInputStream(@PathVariable int id){
+        var request = getGetRequest(dispatcherURL+"/datalog/taskgroup/"+id+"/raw");
+        var response = getResponseEntity(request, stringHandler);
+
+        if(response.getBody() instanceof String facts && response.getStatusCodeValue() == 200){
+            ByteArrayInputStream ssInput = new ByteArrayInputStream(facts.getBytes());
+            InputStreamResource fileInputStream = new InputStreamResource(ssInput);
+            String fileName = id+".dlv";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+            headers.set(HttpHeaders.CONTENT_TYPE, "text/xml");
+
+            return new ResponseEntity<>(
+                fileInputStream,
+                headers,
+                HttpStatus.OK
+            );
+        }
+        return ResponseEntity.status(response.getStatusCodeValue()).body(new InputStreamResource(null));
     }
 
 

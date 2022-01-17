@@ -45,4 +45,11 @@ export class DatalogFactsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._paramMapSubscription?.unsubscribe();
   }
+
+  /**
+   * Downloads the facts as DLV file
+   */
+  public download(): void {
+    this.service.downloadFacts(this.id);
+  }
 }
