@@ -4,6 +4,7 @@
     "createSubGoal": "Teilziel erstellen",
     "createGoal": "Ziel erstellen",
     "editGoal": "Ziel bearbeiten",
+    "needVerificationInfo": "Wenn diese Option gewählt wird, reicht die Erreichung etwaiiger Teilziele nicht zur Erreichung dieses Lernziels. Stattdessen müssen explizite Aufgaben dieses Lernziels absolviert werden.",
     "entity": {
       "name": "Name:",
       "description": "Beschreibung:",

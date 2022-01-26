@@ -4,6 +4,7 @@
     "createSubGoal": "Create sub goal",
     "createGoal": "Create goal",
     "editGoal": "Edit goal",
+    "needVerificationInfo": "If chosen, achieving sub-goals is not sufficient to achieve this goal. Instead, designated tasks have to be absolved.",
     "entity": {
       "name": "Name:",
       "description": "Description:",
