@@ -126,8 +126,8 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    */
   public editCourse(course: CourseModel): void {
     const modalRef = this.modalService.open(UpdateCourseComponent, { size: 'lg', backdrop: 'static' });
-    (modalRef.componentInstance as UpdateCourseComponent).course = course;
     (modalRef.componentInstance as UpdateCourseComponent).courseTypes = this.courseTypes;
+    (modalRef.componentInstance as UpdateCourseComponent).course = course;
   }
 
   /**
