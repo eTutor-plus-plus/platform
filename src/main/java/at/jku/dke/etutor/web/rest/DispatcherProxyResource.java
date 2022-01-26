@@ -4,6 +4,7 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.dispatcher.DatalogExerciseDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DatalogTaskGroupDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.SQLExerciseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
@@ -18,10 +19,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
 /**
@@ -111,9 +115,15 @@ public class DispatcherProxyResource {
     @PutMapping(value="/sql/exercise/{schemaName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> createSQLExercise(@RequestBody String solution, @PathVariable String schemaName){
-        var request = getPutRequestWithBody(dispatcherURL+"/sql/exercise/"+schemaName, solution);
-
-        return getResponseEntity(request, stringHandler);
+        var exerciseDTO = new SQLExerciseDTO(schemaName, solution);
+        HttpRequest request = null;
+        try {
+            request = getPutRequestWithBody(dispatcherURL+"/sql/exercise", new ObjectMapper().writeValueAsString(exerciseDTO));
+            return getResponseEntity(request, stringHandler);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -151,20 +161,10 @@ public class DispatcherProxyResource {
     @DeleteMapping(value="/sql/schema/{schemaName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteSQLSchema(@PathVariable String schemaName){
-        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName);
+        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+encodeValue(schemaName));
         return getResponseEntity(request, stringHandler);
     }
 
-    /**
-     * Sends the request to get an available exercise-id to the dispatcher
-     * @return the id
-     */
-    @GetMapping(value="/sql/exercise/reservation")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> getExerciseIDForSQL(){
-        var request = getGetRequest(dispatcherURL+"/sql/exercise/reservation");
-        return getResponseEntity(request, stringHandler);
-    }
 
     /**
      * Sends the reuqest for deleting a connection associated with a given schema to the dispatcher
@@ -174,7 +174,7 @@ public class DispatcherProxyResource {
     @DeleteMapping(value="/sql/schema/{schemaName}/connection")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteSQLConnection(@PathVariable String schemaName){
-        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+schemaName+"/connection");
+        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+encodeValue(schemaName)+"/connection");
         return getResponseEntity(request, stringHandler);
     }
 
@@ -192,7 +192,7 @@ public class DispatcherProxyResource {
 
     @GetMapping(value="/sql/table/{tableName}")
     public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
-        String url = dispatcherURL+"/sql/table/"+tableName;
+        String url = dispatcherURL+"/sql/table/"+encodeValue(tableName);
         if(exerciseId != -1){
             url += "?exerciseId="+exerciseId;
             if(!taskGroup.equalsIgnoreCase("")){
@@ -216,7 +216,7 @@ public class DispatcherProxyResource {
     @PostMapping("/xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> addXMLForXQTaskGroup(@PathVariable String taskGroup, @RequestBody String dto){
-        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
+        String url = dispatcherURL+"/xquery/xml/taskGroup/"+encodeValue(taskGroup);
         var request = getPostRequestWithBody(url, dto).build();
         return getResponseEntity(request, stringHandler);
     }
@@ -228,7 +228,7 @@ public class DispatcherProxyResource {
     @DeleteMapping("/xquery/xml/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> deleteXMLofXQTaskGroup(@PathVariable String taskGroup){
-        String url = dispatcherURL+"/xquery/xml/taskGroup/"+taskGroup;
+        String url = dispatcherURL+"/xquery/xml/taskGroup/"+encodeValue(taskGroup);
         var request = getDeleteRequest(url);
         return getResponseEntity(request, stringHandler);
     }
@@ -242,7 +242,7 @@ public class DispatcherProxyResource {
     @PostMapping("/xquery/exercise/taskGroup/{taskGroup}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Integer> createXQExercise(@PathVariable String taskGroup, @RequestBody String exercise){
-        String url = dispatcherURL+"/xquery/exercise/taskGroup/"+taskGroup;
+        String url = dispatcherURL+"/xquery/exercise/taskGroup/"+encodeValue(taskGroup);
         var request = getPostRequestWithBody(url, exercise);
         HttpResponse<String> response = null;
         try {
@@ -455,18 +455,6 @@ public class DispatcherProxyResource {
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
     /**
-     * Returns the xml datasource for an xquery taskgroup
-     * @param taskGroup the naem of the taskgroup
-     * @return a ResponseEntity
-     */
-    @GetMapping("/xquery/xml/taskGroup/{taskGroup}")
-    public ResponseEntity<String> getXMLForXQByTaskGroup(@PathVariable String taskGroup){
-       String url = dispatcherURL+"xquery/xml/taskGroup/"+taskGroup;
-       var request = getGetRequest(url);
-
-       return getResponseEntity(request, stringHandler);
-    }
-    /**
      * Returns the xml  for an xquery taskgroup
      * @param id the file id of the xml
      * @return a ResponseEntity
@@ -579,6 +567,19 @@ public class DispatcherProxyResource {
      */
     public HttpClient getHttpClient(){
         return this.client;
+    }
+
+    /**
+     * Encodes a string for URL compatibility
+     * @param value the value to encode
+     * @return the encoded value
+     */
+    private String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            return value;
+        }
     }
 
 }

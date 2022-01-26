@@ -12,6 +12,12 @@
     <jhi-alert-error></jhi-alert-error>
     <div class="form-group">
       <label class="form-control-label" for="name" jhiTranslate="taskManagement.taskGroup.update.nameField">Name:</label>
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlNameInfo' | translate }}"
+        placement="right"
+        *ngIf="isSQLGroup"
+      ></fa-icon>
       <input [disabled]="!isNew" [readOnly]="!isNew" type="text" id="name" formControlName="name" class="form-control" />
 
       <div *ngIf="taskGroup.get('name')!.invalid">

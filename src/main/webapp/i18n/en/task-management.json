@@ -93,6 +93,7 @@
       "manage": "Manage task groups",
       "groupTypePlaceholder": "Typ auswählen",
       "update": {
+        "sqlNameInfo": "Name of SQL task group is used as schema-name and must begin with a letter (a-zA-Z), but also letters with diacritical marks and non-Latin letters) or an underscore (_). Subsequent characters in an identifier or key word can be letters, underscores, digits (0-9), or dollar signs ($). Spaces are allowed",
         "newHeader": "Create new task group",
         "editHeader": "Edit task group '{{name}}'",
         "nameField": "Name:",
