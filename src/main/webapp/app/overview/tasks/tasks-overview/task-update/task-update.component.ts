@@ -26,9 +26,12 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptionsXQ = { theme: 'xquery-light', language: 'xquery' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'pgsql', readOnly: true };
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
+  public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
+  public editorOptionsDLGReadOnly = { theme: 'datalog-light', language: 'datalog', readOnly: true };
   public isSQLTask = false;
   public isRATask = false;
   public isXQueryTask = false;
+  public isDLQTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
 
   public readonly updateForm = this.fb.group({
@@ -48,6 +51,10 @@ export class TaskUpdateComponent implements OnInit {
     sqlSolution: [''],
     xQuerySolution: [''],
     xQueryXPathSorting: [''],
+    datalogFacts: [''],
+    datalogSolution: [''],
+    datalogQuery: [''],
+    datalogUncheckedTerms: [''],
     maxPoints: [''],
     diagnoseLevelWeighting: [''],
     processingTime: [''],
@@ -144,6 +151,21 @@ export class TaskUpdateComponent implements OnInit {
       newTask.xQueryXPathSorting = xQueryXPathSorting;
     }
 
+    const datalogSolution: string = this.updateForm.get('datalogSolution')!.value;
+    if (datalogSolution) {
+      newTask.datalogSolution = datalogSolution;
+    }
+
+    const datalogQuery: string = this.updateForm.get('datalogQuery')!.value;
+    if (datalogQuery) {
+      newTask.datalogQuery = datalogQuery;
+    }
+
+    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
+    if (datalogUncheckedTerms) {
+      newTask.datalogUncheckedTerms = datalogUncheckedTerms;
+    }
+
     const maxPoints: string = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
@@ -177,6 +199,9 @@ export class TaskUpdateComponent implements OnInit {
         sqlSolution: newTask.sqlSolution,
         xQuerySolution: newTask.xQuerySolution,
         xQueryXPathSorting: newTask.xQueryXPathSorting,
+        datalogSolution: newTask.datalogSolution,
+        datalogQuery: newTask.datalogQuery,
+        datalogUncheckedTerms: newTask.datalogUncheckedTerms,
         maxPoints: newTask.maxPoints,
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
@@ -224,6 +249,9 @@ export class TaskUpdateComponent implements OnInit {
       const sqlSolution = value.sqlSolution;
       const xQuerySolution = value.xQuerySolution;
       const xQueryXPathSorting = value.xQueryXPathSorting;
+      const datalogSolution = value.datalogSolution;
+      const datalogQuery = value.datalogQuery;
+      const datalogUncheckedTerms = value.datalogUncheckedTerms;
       const maxPoints = value.maxPoints ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
@@ -250,6 +278,9 @@ export class TaskUpdateComponent implements OnInit {
         sqlSolution,
         xQuerySolution,
         xQueryXPathSorting,
+        datalogSolution,
+        datalogQuery,
+        datalogUncheckedTerms,
         maxPoints,
         diagnoseLevelWeighting,
         processingTime,
@@ -286,6 +317,9 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       this.isXQueryTask = true;
       this.patchXQueryTaskGroupValues(taskGroupId);
+    } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
+      this.isDLQTask = true;
+      this.patchDatalogTaskGroupValues(taskGroupId);
     }
   }
   /**
@@ -301,29 +335,44 @@ export class TaskUpdateComponent implements OnInit {
    */
   public taskTypeChanged(): void {
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-    if (this.isSqlOrRaTask(taskAssignmentTypeId) || taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
+    if (
+      this.isSqlOrRaTask(taskAssignmentTypeId) ||
+      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value
+    ) {
       if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
         this.isSQLTask = true;
         this.isXQueryTask = false;
         this.isRATask = false;
+        this.isDLQTask = false;
       } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
         this.isXQueryTask = true;
+        this.isSQLTask = false;
+        this.isRATask = false;
+        this.isDLQTask = false;
+      } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
+        this.isDLQTask = true;
+        this.isXQueryTask = false;
         this.isSQLTask = false;
         this.isRATask = false;
       } else {
         this.isRATask = true;
         this.isSQLTask = false;
         this.isXQueryTask = false;
+        this.isDLQTask = false;
       }
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
-      this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-      this.updateForm.get('taskGroup')!.updateValueAndValidity();
+      if (!this.updateForm.get('taskIdForDispatcher')) {
+        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+        this.updateForm.get('taskGroup')!.updateValueAndValidity();
+      }
       this.updateForm.updateValueAndValidity();
     } else {
       this.isSQLTask = false;
       this.isRATask = false;
       this.isXQueryTask = false;
+      this.isDLQTask = false;
       this.updateForm.get('taskGroup')!.clearValidators();
       this.updateForm.get('taskGroup')!.updateValueAndValidity();
       this.updateForm.get('maxPoints')!.clearValidators();
@@ -341,6 +390,8 @@ export class TaskUpdateComponent implements OnInit {
       this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
       this.patchXQueryTaskGroupValues(taskGroupId);
+    } else if (taskT === TaskAssignmentType.DatalogTask.value) {
+      this.patchDatalogTaskGroupValues(taskGroupId);
     }
   }
 
@@ -370,6 +421,8 @@ export class TaskUpdateComponent implements OnInit {
       subm = this.updateForm.get(['sqlSolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
       subm = this.updateForm.get(['xQuerySolution'])?.value ?? '';
+    } else if (taskT === TaskAssignmentType.DatalogTask.value) {
+      subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
     }
     const id = this.updateForm.get(['taskIdForDispatcher'])!.value;
     (modalRef.componentInstance as LecturerRunSubmissionComponent).submissionEntry = {
@@ -418,6 +471,21 @@ export class TaskUpdateComponent implements OnInit {
     }
   }
 
+  /**
+   * Patches the values from a datalog task group in the update form
+   * @param taskGroupId
+   * @private
+   */
+  private patchDatalogTaskGroupValues(taskGroupId: string | undefined): void {
+    if (taskGroupId) {
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
+      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+        this.updateForm.patchValue({
+          datalogFacts: taskGroupDTO.datalogFacts,
+        });
+      });
+    }
+  }
   private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }

@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { XmlFileComponent } from './xml-file/xml-file.component';
 
 /**
- * Tasks related routes
+ * Routes realated to the {@link XmlFilesModule}
  */
 export const xmlFilesRoute: Routes = [
   {

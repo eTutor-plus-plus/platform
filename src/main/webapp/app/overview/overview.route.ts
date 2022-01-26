@@ -80,6 +80,14 @@ export const overviewRoute: Routes = [
     canActivate: [UserRouteAccessService],
     loadChildren: () => import('./sql-tables/sql-tables.module').then(m => m.SqlTablesModule),
   },
+  {
+    path: 'datalog-facts',
+    data: {
+      requireLogin: true,
+    },
+    canActivate: [UserRouteAccessService],
+    loadChildren: () => import('./datalog-facts/datalog-facts.module').then(m => m.DatalogFactsModule),
+  },
 
   {
     path: 'XML',

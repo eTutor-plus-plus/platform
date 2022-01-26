@@ -63,6 +63,9 @@ public class ApplicationProperties {
      */
     public static class Dispatcher{
         private String url = "http://localhost:8081";
+        private String xqueryXmlFileUrlPrefix;
+        private String sqlTableUrlPrefix;
+        private String datalogFactsUrlPrefix;
 
         /**
          * Returns the url for the dispatcher connection
@@ -80,6 +83,30 @@ public class ApplicationProperties {
          */
         public void setUrl(String url) {
             this.url = url;
+        }
+
+        public String getXqueryXmlFileUrlPrefix() {
+            return xqueryXmlFileUrlPrefix;
+        }
+
+        public void setXqueryXmlFileUrlPrefix(String xqueryXmlFileUrlPrefix) {
+            this.xqueryXmlFileUrlPrefix = xqueryXmlFileUrlPrefix;
+        }
+
+        public String getSqlTableUrlPrefix() {
+            return sqlTableUrlPrefix;
+        }
+
+        public void setSqlTableUrlPrefix(String sqlTableUrlPrefix) {
+            this.sqlTableUrlPrefix = sqlTableUrlPrefix;
+        }
+
+        public String getDatalogFactsUrlPrefix() {
+            return datalogFactsUrlPrefix;
+        }
+
+        public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
+            this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
         }
     }
 }

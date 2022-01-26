@@ -346,6 +346,25 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
                 query.appendLiteral(taskAssignment.getxQueryXPathSorting().trim());
                 query.append(".\n");
             }
+
+            if(StringUtils.isNotBlank(taskAssignment.getDatalogSolution())){
+                query.append("?assignment etutor:hasDLGSolution ");
+                query.appendLiteral(taskAssignment.getDatalogSolution().trim());
+                query.append(".\n");
+            }
+
+            if(StringUtils.isNotBlank(taskAssignment.getDatalogQuery())){
+                query.append("?assignment etutor:hasDLGQuery ");
+                query.appendLiteral(taskAssignment.getDatalogQuery().trim());
+                query.append(".\n");
+            }
+
+            if(StringUtils.isNotBlank(taskAssignment.getDatalogUncheckedTerms())){
+                query.append("?assignment etutor:hasUncheckedDLGTerms ");
+                query.appendLiteral(taskAssignment.getDatalogUncheckedTerms().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
                 query.appendIri(taskAssignment.getTaskGroupId());
                 query.append(" etutor:hasTask ?assignment.\n");
@@ -759,7 +778,7 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
             newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
-            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), resource.getURI(), creator, now);
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now);
     }
 
     /**
@@ -788,6 +807,59 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         }
     }
 
+    /**
+     * Persists the id which is assigned by the dispatcher for a task group
+     * @param taskGroupDTO the task group to which to assign the id
+     * @param id the id
+     */
+    public void setDispatcherIdForTaskGroup(TaskGroupDTO taskGroupDTO, int id){
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            INSERT {
+              ?group etutor:hasDispatcherTaskGroupId ?id.
+            } WHERE {
+              ?group a etutor:TaskGroup.
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+        query.setLiteral("?id", id);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the id that has been assigned by the dispatcher for a task group
+     * @param taskGroupDTO the task group
+     * @return the id if found, otherwise -1
+     */
+    public int getDispatcherIdForTaskGroup(TaskGroupDTO taskGroupDTO){
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?id
+            WHERE {
+                ?group a etutor:TaskGroup;
+                    etutor:hasDispatcherTaskGroupId ?id.
+
+            }
+            """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+
+        try (RDFConnection connection = getConnection()) {
+            try(var exec = connection.query(query.asQuery())){
+                var set = exec.execSelect();
+                if (set.hasNext()){
+                    return set.next().get("?id").asLiteral().getInt();
+                }
+            }
+        }
+        return -1;
+    }
     /**
      * Persists the modifications for task groups, currently only the description can be modified.
      *
@@ -945,44 +1017,83 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
      * @return the modified taskGroup
      */
     public TaskGroupDTO modifyXQueryTaskGroup(TaskGroupDTO taskGroupDTO) {
+    Objects.requireNonNull(taskGroupDTO);
+
+    ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
+          ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
+        } INSERT {
+        """);
+
+    if (StringUtils.isNotBlank(taskGroupDTO.getxQueryDiagnoseXML())) {
+        query.append("  ?group etutor:hasDiagnoseXMLFile ?newDiagnoseFile.");
+        query.append("\n");
+    }
+
+    if (StringUtils.isNotBlank(taskGroupDTO.getxQuerySubmissionXML())) {
+        query.append("  ?group etutor:hasSubmissionXMLFile ?newSubmissionFile.");
+        query.append("\n");
+    }
+
+    query.append("""
+        } WHERE {
+          ?group a etutor:TaskGroup.
+          OPTIONAL {
+            ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
+            ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
+          }
+        }
+        """);
+
+    query.setIri("?group", taskGroupDTO.getId());
+
+    if (StringUtils.isNotBlank(taskGroupDTO.getxQueryDiagnoseXML())) {
+        query.setLiteral("?newDiagnoseFile", taskGroupDTO.getxQueryDiagnoseXML().trim());
+    }
+    if (StringUtils.isNotBlank(taskGroupDTO.getxQuerySubmissionXML())) {
+        query.setLiteral("?newSubmissionFile", taskGroupDTO.getxQuerySubmissionXML().trim());
+    }
+
+    try (RDFConnection connection = getConnection()) {
+        connection.update(query.asUpdate());
+    }
+
+    return taskGroupDTO;
+    }
+
+    public TaskGroupDTO modifyDLGTaskGroup(TaskGroupDTO taskGroupDTO){
         Objects.requireNonNull(taskGroupDTO);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            DELETE {
-              ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
-              ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
-            } INSERT {
-            """);
+        DELETE {
+          ?group etutor:hasDatalogFacts ?oldFacts.
+        } INSERT {
+        """);
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getxQueryDiagnoseXML())) {
-            query.append("  ?group etutor:hasDiagnoseXMLFile ?newDiagnoseFile.");
+        if (StringUtils.isNotBlank(taskGroupDTO.getDatalogFacts())) {
+            query.append("  ?group etutor:hasDatalogFacts ?newFacts.");
             query.append("\n");
         }
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getxQuerySubmissionXML())) {
-            query.append("  ?group etutor:hasSubmissionXMLFile ?newSubmissionFile.");
-            query.append("\n");
-        }
 
         query.append("""
-            } WHERE {
-              ?group a etutor:TaskGroup.
-              OPTIONAL {
-                ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
-                ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
-              }
-            }
-            """);
+        } WHERE {
+          ?group a etutor:TaskGroup.
+          OPTIONAL {
+            ?group etutor:hasDatalogFacts ?oldFacts.
+          }
+        }
+        """);
 
         query.setIri("?group", taskGroupDTO.getId());
 
-        if (StringUtils.isNotBlank(taskGroupDTO.getxQueryDiagnoseXML())) {
-            query.setLiteral("?newDiagnoseFile", taskGroupDTO.getxQueryDiagnoseXML().trim());
-        }
-        if (StringUtils.isNotBlank(taskGroupDTO.getxQuerySubmissionXML())) {
-            query.setLiteral("?newSubmissionFile", taskGroupDTO.getxQuerySubmissionXML().trim());
+        if (StringUtils.isNotBlank(taskGroupDTO.getDatalogFacts())) {
+            query.setLiteral("?newFacts", taskGroupDTO.getDatalogFacts().trim());
         }
 
         try (RDFConnection connection = getConnection()) {
@@ -1134,6 +1245,9 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         if(StringUtils.isNotBlank(newTaskGroupDTO.getxQuerySubmissionXML())){
             taskGroupResource.addProperty(ETutorVocabulary.hasSubmissionXMLFile, newTaskGroupDTO.getxQuerySubmissionXML().trim());
         }
+        if(StringUtils.isNotBlank(newTaskGroupDTO.getDatalogFacts())){
+            taskGroupResource.addProperty(ETutorVocabulary.hasDatalogFacts, newTaskGroupDTO.getDatalogFacts().trim());
+        }
 
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
@@ -1177,6 +1291,18 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQueryXPathSorting())){
             resource.addProperty(ETutorVocabulary.hasXQueryXPathSorting, newTaskAssignmentDTO.getxQueryXPathSorting().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution())){
+            resource.addProperty(ETutorVocabulary.hasDLGSolution, newTaskAssignmentDTO.getDatalogSolution().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())){
+            resource.addProperty(ETutorVocabulary.hasDLGQuery, newTaskAssignmentDTO.getDatalogQuery().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogUncheckedTerms())){
+            resource.addProperty(ETutorVocabulary.hasUncheckedDLGTerm, newTaskAssignmentDTO.getDatalogUncheckedTerms().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){

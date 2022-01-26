@@ -66,6 +66,9 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setTaskGroupId(newTaskAssignmentDTO.getTaskGroupId());
         setxQuerySolution(newTaskAssignmentDTO.getxQuerySolution());
         setxQueryXPathSorting(newTaskAssignmentDTO.getxQueryXPathSorting());
+        setDatalogSolution(newTaskAssignmentDTO.getDatalogSolution());
+        setDatalogQuery(newTaskAssignmentDTO.getDatalogQuery());
+        setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
 
         setId(id);
         setCreationDate(creationDate);
@@ -130,6 +133,22 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if(xPathSortingStatement != null){
             setxQueryXPathSorting(xPathSortingStatement.getString());
         }
+
+        Statement datalogSolutionStatement = resource.getProperty(ETutorVocabulary.hasDLGSolution);
+        if(datalogSolutionStatement != null){
+            setDatalogSolution(datalogSolutionStatement.getString());
+        }
+
+        Statement datalogQueryStatment = resource.getProperty(ETutorVocabulary.hasDLGQuery);
+        if(datalogQueryStatment != null){
+            setDatalogQuery(datalogQueryStatment.getString());
+        }
+
+        Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
+        if(datalogUncheckedTermsStatement != null){
+            setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
+        }
+
 
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());

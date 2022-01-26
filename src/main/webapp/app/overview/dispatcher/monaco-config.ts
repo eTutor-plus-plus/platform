@@ -1,7 +1,26 @@
+/**
+ * Export Function that can be used as {@see onMonacoLoad()} function for the Monaco editor configuration and
+ * registers custom languages, themes and token-providers for the Monaco text editor,
+ * currently for Relational Algebra, XQuery and Datalog
+ */
+
 export function myMonacoLoad(): void {
-  (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
+  // Register a tokens provider for the language
+  (window as any).monaco.languages.register({ id: 'datalog' });
+  (window as any).monaco.languages.setMonarchTokensProvider('datalog', {
+    tokenizer: {
+      root: [
+        [/\./, 'dot'],
+        [/:-/, 'assignment'],
+        [/\(/, 'left-parantheses'],
+        [/\)/, 'right-parantheses'],
+        [/\?/, 'question-mark'],
+      ],
+    },
+  });
 
   // Register a tokens provider for the language
+  (window as any).monaco.languages.register({ id: 'relationalAlgebra' });
   (window as any).monaco.languages.setMonarchTokensProvider('relationalAlgebra', {
     tokenizer: {
       root: [
@@ -35,7 +54,6 @@ export function myMonacoLoad(): void {
 
   // Register a tokens provider for the language
   (window as any).monaco.languages.register({ id: 'xquery' });
-
   (window as any).monaco.languages.setMonarchTokensProvider('xquery', {
     tokenizer: {
       root: [
@@ -85,7 +103,20 @@ export function myMonacoLoad(): void {
     },
   });
 
-  let keyWordColor = '3a92bb';
+  let keyWordColor = 'EE4B2B';
+  (window as any).monaco.editor.defineTheme('datalog-light', {
+    base: 'vs',
+    inherit: false,
+    rules: [
+      { token: 'dot', foreground: '00FF00', fontStyle: 'bold' },
+      { token: 'assignment', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'left-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'right-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'question-mark', foreground: '00FF00', fontStyle: 'bold' },
+    ],
+  });
+
+  keyWordColor = '3a92bb';
   (window as any).monaco.editor.defineTheme('relationalAlgebra-light', {
     base: 'vs',
     inherit: false,

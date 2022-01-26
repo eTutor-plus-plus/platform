@@ -27,8 +27,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML,  String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -58,6 +58,7 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement diagnoseXMLFileStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseXMLFile);
         Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
         Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
+        Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -80,6 +81,10 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         if(fileUrlStatement != null){
             setFileUrl(fileUrlStatement.getString());
         }
+        if(datalogFactsStatement != null){
+            setDatalogFacts(datalogFactsStatement.getString());
+        }
+
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {
             setChangeDate((DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(

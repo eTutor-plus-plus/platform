@@ -16,10 +16,12 @@ export class TaskGroupUpdateComponent {
   public isSaving = false;
   public isSQLGroup = false;
   public isXQueryGroup = false;
+  public isDLGGroup = false;
   public readonly taskGroupTypes = TaskGroupType.Values;
   public taskGroupToEdit?: ITaskGroupDTO;
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
   public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
+  public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
 
   public taskGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -30,6 +32,7 @@ export class TaskGroupUpdateComponent {
     sqlInsertStatementsDiagnose: ['', []],
     diagnoseXML: ['', []],
     submissionXML: ['', []],
+    datalogFacts: ['', []],
   });
 
   /**
@@ -61,11 +64,14 @@ export class TaskGroupUpdateComponent {
         sqlInsertStatementsDiagnose: this.taskGroupToEdit.sqlInsertStatementsDiagnose,
         diagnoseXML: this.taskGroupToEdit.xQueryDiagnoseXML,
         submissionXML: this.taskGroupToEdit.xQuerySubmissionXML,
+        datalogFacts: this.taskGroupToEdit.datalogFacts,
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
         this.isSQLGroup = true;
       } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.XQueryType.value) {
         this.isXQueryGroup = true;
+      } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.DatalogType.value) {
+        this.isDLGGroup = true;
       }
       this.isNew = false;
     })();
@@ -91,6 +97,7 @@ export class TaskGroupUpdateComponent {
     const sqlInsertStatementsDiagnose = this.taskGroup.get(['sqlInsertStatementsDiagnose'])!.value as string | undefined;
     const xQueryDiagnoseXML = this.taskGroup.get(['diagnoseXML'])!.value as string | undefined;
     const xQuerySubmissionXML = this.taskGroup.get(['submissionXML'])!.value as string | undefined;
+    const datalogFacts = this.taskGroup.get(['datalogFacts'])!.value as string | undefined;
     try {
       if (this.isNew) {
         const newTaskGroup = await this.taskGroupService
@@ -103,6 +110,7 @@ export class TaskGroupUpdateComponent {
             sqlInsertStatementsDiagnose,
             xQueryDiagnoseXML,
             xQuerySubmissionXML,
+            datalogFacts,
           })
           .toPromise();
 
@@ -115,6 +123,7 @@ export class TaskGroupUpdateComponent {
         this.taskGroupToEdit!.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
         this.taskGroupToEdit!.xQueryDiagnoseXML = xQueryDiagnoseXML;
         this.taskGroupToEdit!.xQuerySubmissionXML = xQuerySubmissionXML;
+        this.taskGroupToEdit!.datalogFacts = datalogFacts;
 
         const taskFromService = await this.taskGroupService.modifyTaskGroup(this.taskGroupToEdit!).toPromise();
 
@@ -131,5 +140,6 @@ export class TaskGroupUpdateComponent {
     const groupType = (this.taskGroup.get(['taskGroupType'])!.value as TaskGroupType).value;
     groupType === TaskGroupType.SQLType.value ? (this.isSQLGroup = true) : (this.isSQLGroup = false);
     groupType === TaskGroupType.XQueryType.value ? (this.isXQueryGroup = true) : (this.isXQueryGroup = false);
+    groupType === TaskGroupType.DatalogType.value ? (this.isDLGGroup = true) : (this.isDLGGroup = false);
   }
 }

@@ -6,7 +6,7 @@ import { XmlFileComponent } from './xml-file/xml-file.component';
 import { xmlFilesRoute } from './xml-files.route';
 
 /**
- * Module for displaying sql-tables
+ * Module for displaying XML files
  */
 @NgModule({
   imports: [SharedModule, OverviewSharedModule, RouterModule.forChild(xmlFilesRoute)],

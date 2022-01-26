@@ -30,6 +30,9 @@ public class NewTaskAssignmentDTO {
     private String diagnoseLevelWeighting;
     private String xQuerySolution;
     private String xQueryXPathSorting;
+    private String datalogSolution;
+    private String datalogQuery;
+    private String datalogUncheckedTerms;
 
     private String processingTime;
 
@@ -354,5 +357,29 @@ public class NewTaskAssignmentDTO {
 
     public void setxQueryXPathSorting(String xQueryXPathSorting) {
         this.xQueryXPathSorting = xQueryXPathSorting;
+    }
+
+    public String getDatalogSolution() {
+        return datalogSolution;
+    }
+
+    public void setDatalogSolution(String datalogSolution) {
+        this.datalogSolution = datalogSolution;
+    }
+
+    public String getDatalogQuery() {
+        return datalogQuery;
+    }
+
+    public void setDatalogQuery(String datalogQuery) {
+        this.datalogQuery = datalogQuery;
+    }
+
+    public String getDatalogUncheckedTerms() {
+        return datalogUncheckedTerms;
+    }
+
+    public void setDatalogUncheckedTerms(String datalogUncheckedTerms) {
+        this.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 }

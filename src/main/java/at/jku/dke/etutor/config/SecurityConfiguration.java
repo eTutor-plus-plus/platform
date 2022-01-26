@@ -105,6 +105,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/dispatcher/sql/table/**").permitAll()
             .antMatchers("/api/dispatcher/xquery/xml/fileid/**").permitAll()
+            .antMatchers("/api/dispatcher/datalog/facts/id/**").permitAll()
             .antMatchers("/api/**").authenticated()
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/health/**").permitAll()

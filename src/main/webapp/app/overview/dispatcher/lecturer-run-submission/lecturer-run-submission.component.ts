@@ -3,7 +3,7 @@ import { TaskSubmissionsModel } from '../task-submissions/task-submissions.model
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 /**
- * Modal window component for displaying submissions made by a student for an individual task
+ * Modal window component for testing submissions
  */
 
 @Component({
@@ -12,6 +12,9 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./lecturer-run-submission.component.scss'],
 })
 export class LecturerRunSubmissionComponent {
+  /**
+   * Wraps information about the submission to be evaluated
+   */
   public submissionEntry!: TaskSubmissionsModel;
   public matriculationNo: string | undefined = '';
   public showHeader = true;

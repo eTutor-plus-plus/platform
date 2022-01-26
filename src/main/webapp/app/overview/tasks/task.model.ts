@@ -67,6 +67,18 @@ export interface INewTaskModel {
    */
   xQueryXPathSorting?: string;
   /**
+   * Optional solution for a datalog task
+   */
+  datalogSolution?: string;
+  /**
+   * Optional query for a datalog task
+   */
+  datalogQuery?: string;
+  /**
+   * Optional unchecked terms for a datalog task
+   */
+  datalogUncheckedTerms?: string;
+  /**
    * Optional max points
    */
   maxPoints?: string;
@@ -151,12 +163,19 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
     'taskManagement.taskTypes.xqTask'
   );
+
+  public static readonly DatalogTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask',
+    'taskManagement.taskTypes.dlgTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
     TaskAssignmentType.SQLTask,
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
+    TaskAssignmentType.DatalogTask,
   ];
 
   private readonly _value: string;

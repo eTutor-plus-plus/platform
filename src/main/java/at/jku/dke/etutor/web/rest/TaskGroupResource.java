@@ -52,12 +52,12 @@ public class TaskGroupResource {
      */
     @PostMapping()
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO, HttpServletRequest request, @RequestHeader(name="Authorization") String token) {
+    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO) {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
             TaskGroupDTO taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO);
-            return ResponseEntity.ok(taskGroupDTO);
+            var dispatcherStatus = dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
+            return ResponseEntity.status(dispatcherStatus).body(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
         }
@@ -99,16 +99,20 @@ public class TaskGroupResource {
      */
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO, HttpServletRequest request, @RequestHeader(name = "Authorization") String token) {
+    public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
         TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
+        int dispatcherStatusCode = 200;
         if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO);
-        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+            dispatcherStatusCode = dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO);
+            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            dispatcherStatusCode=dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
+            taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
         }
-        return ResponseEntity.ok(taskGroupDTOFromService);
+        return ResponseEntity.status(dispatcherStatusCode).body(taskGroupDTOFromService);
     }
 
     /**
