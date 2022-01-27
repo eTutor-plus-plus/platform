@@ -21,18 +21,19 @@ export class SqlExerciseService {
    * @param tableName the name of the table
    * @param exerciseId an optional id providing context
    * @param taskGroup optional taskGroup providing context
+   * @param connId the optional connection id for the table
    */
   public getHTMLTable(
     tableName: string,
+    connId: string | null | undefined,
     exerciseId?: string | null | undefined,
     taskGroup?: string | null | undefined
   ): Observable<string> {
     let url = 'api/dispatcher/sql/table/' + tableName;
-    if (exerciseId) {
+    if (connId) {
+      url += '?connId=' + connId;
+    } else if (exerciseId) {
       url += '?exerciseId=' + exerciseId;
-      if (taskGroup) {
-        url += '&&taskGroup=' + taskGroup;
-      }
     } else if (taskGroup) {
       url += '?taskGroup=' + taskGroup;
     }

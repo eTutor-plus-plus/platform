@@ -19,6 +19,7 @@ export class SqlTableComponent implements OnInit, OnDestroy {
 
   private tableName!: string;
   private exerciseId?: string | null;
+  private connid?: string | null;
   private taskGroup?: string | null;
   private _paramMapSubscription?: Subscription;
   private _queryParamSubscription?: Subscription;
@@ -40,8 +41,9 @@ export class SqlTableComponent implements OnInit, OnDestroy {
       this._queryParamSubscription = this.activatedRoute.queryParamMap.subscribe(queryParams => {
         this.exerciseId = queryParams.get('exerciseId');
         this.taskGroup = queryParams.get('taskGroup');
+        this.connid = queryParams.get('connId');
         (async () => {
-          this.htmlTable = await this.sqlService.getHTMLTable(this.tableName, this.exerciseId, this.taskGroup).toPromise();
+          this.htmlTable = await this.sqlService.getHTMLTable(this.tableName, this.connid, this.taskGroup).toPromise();
         })();
       });
     });

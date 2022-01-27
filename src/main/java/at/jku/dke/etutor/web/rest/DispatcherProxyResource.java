@@ -191,13 +191,12 @@ public class DispatcherProxyResource {
     }
 
     @GetMapping(value="/sql/table/{tableName}")
-    public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
+    public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue = "-1") int connId, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup){
         String url = dispatcherURL+"/sql/table/"+encodeValue(tableName);
-        if(exerciseId != -1){
+        if(connId != -1){
+            url += "?connId="+connId;
+        } else if(exerciseId != -1){
             url += "?exerciseId="+exerciseId;
-            if(!taskGroup.equalsIgnoreCase("")){
-                url += "&&taskGroup="+taskGroup;
-            }
         }else if(!taskGroup.equalsIgnoreCase("")){
             url+="?taskGroup="+taskGroup;
         }

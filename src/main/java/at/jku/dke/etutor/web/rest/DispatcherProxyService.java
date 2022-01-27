@@ -20,6 +20,7 @@ import java.util.Objects;
 /**
  * Service to proxy requests to the dispatcher
  */
+//TODO: somehow manage errors in the dispatcher, maybe display to user?
 @Service
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
@@ -134,37 +135,37 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return 500;
         }
-        var statusCode = proxyResource.executeDDLForSQL(jsonBody).getStatusCodeValue();
+        var response = proxyResource.executeDDLForSQL(jsonBody);
+        var statusCode = response.getStatusCodeValue();
 
-        if(statusCode == 200)updateSQLTaskGroupDescriptionWithLinks(schemaName, newTaskGroupDTO, isNew);
+        if(statusCode == 200){
+            try {
+                var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
+                updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, schemaName, newTaskGroupDTO, isNew);
+                if(schemaInfo.getDiagnoseConnectionId() != -1)assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
 
         return statusCode;
     }
 
     /**
-     * Updates the description of an SQL task group by appending links to the specified tables
+     * Updates the description of an SQL task group by appending links to the specified tables and information about the schema of the tables
      * @param schemaName the name of the task group
      * @param newTaskGroupDTO the {@link TaskGroupDTO}
      */
-    private void updateSQLTaskGroupDescriptionWithLinks(String schemaName, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
-        var dummySQLTaskForReference = new NewTaskAssignmentDTO();
-        dummySQLTaskForReference.setSqlSolution("DUMMY FOR TASKGROUP "+schemaName);
-        dummySQLTaskForReference.setTaskGroupId("#"+schemaName);
-        int dummyReferenceId = createSQLTask(dummySQLTaskForReference);
-        if (dummyReferenceId == -1) return;
+    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, String schemaName, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
+        if(info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
+        var links = new ArrayList<String>();
 
-        List<String> tables = new ArrayList<>();
-        List<String> links = new ArrayList<>();
-        var statements = newTaskGroupDTO.getSqlCreateStatements().toLowerCase().split(";");
-        for(String statment : statements){
-            var begin = statment.indexOf("table");
-            var end = statment.indexOf("(");
-            if(begin != -1 && end != -1){
-                tables.add(statment.substring(begin+"table".length(), end).trim());
-            }
-        }
-        for(String table : tables){
-           links.add("<a href='"+properties.getDispatcher().getSqlTableUrlPrefix()+table+"?exerciseId="+dummyReferenceId +"' target='_blank'>"+table+"</a>");
+        for(String table : info.getTableColumns().keySet()){
+            String link = "<a href='"+properties.getDispatcher().getSqlTableUrlPrefix()+table+"?connId="+info.getDiagnoseConnectionId() +"' target='_blank'>"+table+"</a>";
+            link += " (";
+            link += String.join(", ",info.getTableColumns().get(table));
+            link += ")";
+            links.add(link);
         }
         String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
         String startOfLinks = "<p id=table_links>";
