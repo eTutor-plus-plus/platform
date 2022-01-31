@@ -13,6 +13,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.*;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -29,6 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.context.IContext;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -41,7 +49,6 @@ import java.util.*;
  */
 @Service
 public non-sealed class StudentService extends AbstractSPARQLEndpointService {
-
     private static final String QRY_STUDENTS_COURSES =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -372,6 +379,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     private final UserService userService;
     private final StudentRepository studentRepository;
     private final Random random;
+    private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     /**
      * Constructor.
@@ -380,10 +388,11 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param studentRepository    the injected student repository
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public StudentService(UserService userService, StudentRepository studentRepository, RDFConnectionFactory rdfConnectionFactory) {
+    public StudentService(UserService userService, StudentRepository studentRepository, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory) {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
+        this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
 
         random = new Random();
     }
@@ -1656,6 +1665,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             }
 
             var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, taskCount);
+            var assignedTasks = new ArrayList<TaskAssignmentDTO>();
 
             if (tasksToAssign != null) {
                 int i = 0;
@@ -1666,12 +1676,31 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
                     i++;
 
+                    var task = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#")+1));
+                    task.ifPresent(assignedTasks::add);
+
                     if (i==taskCount) {allAssigned = true;}
                 }
+                int fileId = generatePdfExerciseSheet(assignedTasks);
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
         }
+    }
+
+    private int generatePdfExerciseSheet(ArrayList<TaskAssignmentDTO> assignedTasks) {
+        TemplateEngine templateEngine = new SpringTemplateEngine();
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("/templates/");
+        resolver.setSuffix(".html");
+        resolver.setCharacterEncoding("UTF-8");
+        resolver.setTemplateMode(TemplateMode.HTML); // HTML5 option was deprecated in 3.0.0
+        templateEngine.setTemplateResolver(resolver);
+        Context ct = new Context();
+        ct.setVariable("greeting", "hello");
+        System.out.println(templateEngine.process("exerciseSheet.html", ct));
+        //TODO convert html string to pdf, persist it and store and return id
+        return -1;
     }
 
     /**
