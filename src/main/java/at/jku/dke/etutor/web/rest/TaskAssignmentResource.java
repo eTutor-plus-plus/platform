@@ -106,7 +106,7 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
-        taskAssignmentDTOOptional.ifPresent(taskAssignmentDTO -> dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTO));
+        taskAssignmentDTOOptional.ifPresent(dispatcherProxyService::deleteTaskAssignment);
 
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
 

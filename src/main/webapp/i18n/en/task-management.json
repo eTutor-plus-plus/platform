@@ -16,6 +16,7 @@
     "sqlStatementsInfo": "Statements can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
     "xqueryXMLInfo": "XMLs can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
     "xqFileUrlInfo": "The file URL can be used in the doc() function of the query to reference the corresponding XML-Files",
+    "fileUploadInfo": "The uploaded file can be downloaded by students who working on the task",
     "difficulties": {
       "easy": "Easy",
       "medium": "Medium",

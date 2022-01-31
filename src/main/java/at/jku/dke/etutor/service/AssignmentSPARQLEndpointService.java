@@ -323,6 +323,10 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             query.appendLiteral(taskAssignment.getOrganisationUnit());
             query.append(".\n");
 
+            query.append("?assignment etutor:hasUploadFileId ");
+            query.appendLiteral(taskAssignment.getUploadFileId());
+            query.append(".\n");
+
             if (taskAssignment.getUrl() != null) {
                 query.append("?assignment etutor:hasTaskUrl ");
                 query.appendLiteral(taskAssignment.getUrl().toString());
@@ -1276,6 +1280,9 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         resource.addProperty(ETutorVocabulary.hasTaskCreator, newTaskAssignmentDTO.getCreator());
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
+
+        String uploadFileid = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileid);
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());

@@ -33,6 +33,7 @@ export class TaskUpdateComponent implements OnInit {
   public isXQueryTask = false;
   public isDLQTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
+  public uploadFileId = -1;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -105,6 +106,7 @@ export class TaskUpdateComponent implements OnInit {
    * Saves the task.
    */
   public save(): void {
+    //TODO save file id
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
@@ -119,6 +121,7 @@ export class TaskUpdateComponent implements OnInit {
       privateTask: this.updateForm.get('privateTask')!.value,
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
+      uploadFileId: this.uploadFileId,
     };
 
     const urlStr: string = this.updateForm.get('url')!.value;
@@ -214,6 +217,7 @@ export class TaskUpdateComponent implements OnInit {
         id: this.taskModel!.id,
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
+        uploadFileId: this.uploadFileId,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -289,6 +293,7 @@ export class TaskUpdateComponent implements OnInit {
         taskGroup: value.taskGroupId ?? '',
       });
       this.taskTypeChanged();
+      this.uploadFileId = value.uploadFileId ?? -1;
     }
   }
 
@@ -435,6 +440,35 @@ export class TaskUpdateComponent implements OnInit {
     };
     (modalRef.componentInstance as LecturerRunSubmissionComponent).showHeader = false;
   }
+
+  /**
+   * Sets the file id.
+   *
+   * @param fileId the file to add
+   */
+  public handleFileAdded(fileId: number): void {
+    this.uploadFileId = fileId;
+  }
+
+  /**
+   * Removes the file.
+   *
+   * @param fileId the file to remove
+   */
+  public handleFileRemoved(fileId: number): void {
+    this.uploadFileId = -1;
+  }
+
+  /**
+   * Sets a modified file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleFileMoved(oldFileId: number, newFileId: number): void {
+    this.uploadFileId = newFileId;
+  }
+
   /**
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id

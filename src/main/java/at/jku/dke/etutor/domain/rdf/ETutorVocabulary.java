@@ -29,7 +29,6 @@ public final class ETutorVocabulary {
     private static final String CLASS_INDIVIDUAL_TASK_SUBMISSION = "IndividualTaskSubmission";
     private static final String CLASS_TASK_GROUP = "TaskGroup";
     private static final String CLASS_LEARNING_GOAL_ASSIGNMENT = "LearningGoalAssignment";
-    private static final String CLASS_DLG_TERM = "DatalogTerm";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -76,6 +75,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
+    private static final String PROP_HAS_UPLOAD_FILE_ID = "hasUploadFileId";
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
     private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
@@ -91,11 +91,6 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DLG_SOLUTION = "hasDLGSolution";
     private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
     private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
-
-    private static final String PROP_HAS_DLG_PREDICATE = "hasDLGPredicate";
-    private static final String PROP_HAS_DLG_TERM_POSITION = "hasDLGTermPosition";
-    private static final String PROP_HAS_DLG_TERM_NAME = "hasDLGTermName";
-
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -295,6 +290,10 @@ public final class ETutorVocabulary {
      * The hasTaskCreationDate property.
      */
     public static final Property hasTaskCreationDate = m.createProperty(URI + PROP_HAS_TASK_CREATION_DATE);
+    /**
+     * the hasUploadFileId property-
+     */
+    public static final Property hasUploadFileId = m.createProperty(URI + PROP_HAS_UPLOAD_FILE_ID);
     /**
      * The hasTypicalProcessingTime property.
      */

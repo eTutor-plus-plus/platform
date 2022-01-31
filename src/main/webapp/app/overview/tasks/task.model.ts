@@ -47,6 +47,10 @@ export interface INewTaskModel {
    */
   taskDifficultyId: string;
   /**
+   * The optional id of an uploaded file representing the solution or addition information for students
+   */
+  uploadFileId?: number;
+  /**
    * The optional  task id for the dispatcher.
    */
   taskIdForDispatcher?: string;

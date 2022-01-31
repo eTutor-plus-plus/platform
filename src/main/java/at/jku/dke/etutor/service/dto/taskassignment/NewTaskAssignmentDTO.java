@@ -24,6 +24,8 @@ public class NewTaskAssignmentDTO {
     @NotBlank
     private String header;
 
+    private int uploadFileId;
+
     private String taskIdForDispatcher;
     private String sqlSolution;
     private String maxPoints;
@@ -381,5 +383,13 @@ public class NewTaskAssignmentDTO {
 
     public void setDatalogUncheckedTerms(String datalogUncheckedTerms) {
         this.datalogUncheckedTerms = datalogUncheckedTerms;
+    }
+
+    public int getUploadFileId() {
+        return uploadFileId;
+    }
+
+    public void setUploadFileId(int uploadFileId) {
+        this.uploadFileId = uploadFileId;
     }
 }

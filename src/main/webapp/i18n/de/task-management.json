@@ -16,6 +16,7 @@
     "sqlStatementsInfo": "Statements können nur auf Ebene der Aufgabengruppen definiert und über die Auswahl am Ende des Formulars zugeordnet werden.",
     "xqueryXMLInfo": "Die XMLs können nur auf Ebene der Aufgabengruppen definiert, und über die Auswahl am Ende des Formulars zugeordnet werden.",
     "xqFileUrlInfo": "Die URL kann in der doc()-Funktion der Query verwendet werden, um die XML's der Aufgabengruppe zu referenzieren.",
+    "fileUploadInfo": "Die hinterlegte Datei kann bei der Aufgabenbearbeitung heruntergeladen werden",
     "difficulties": {
       "easy": "Leicht",
       "medium": "Mittel",
