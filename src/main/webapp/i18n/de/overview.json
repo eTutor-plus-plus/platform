@@ -46,7 +46,8 @@
         "processingTime": "Geschätzte Bearbeitungszeit",
         "creator": "Ersteller",
         "submit": "Einreichen",
-        "submitted": "Eingereicht"
+        "submitted": "Eingereicht",
+        "file": "Datei-Anhang"
       }
     }
   }

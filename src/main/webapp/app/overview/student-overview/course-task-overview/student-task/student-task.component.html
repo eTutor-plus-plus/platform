@@ -25,6 +25,11 @@
       <dt *ngIf="taskModel?.instruction"><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
       <dd *ngIf="taskModel?.instruction"><span [innerHTML]="taskModel?.instruction"></span></dd>
 
+      <dt *ngIf="uploadFileId !== -1"><span jhiTranslate="overview.student.tasks.file">File</span></dt>
+      <dd *ngIf="uploadFileId !== -1">
+        <jhi-file-download [fileId]="uploadFileId"> </jhi-file-download>
+      </dd>
+
       <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
         <span>{{ getDifficultyI18nString(taskModel?.taskDifficultyId) | translate }}</span>

@@ -34,6 +34,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public maxPoints = '';
   public diagnoseLevelWeighting = '';
   public taskGroup: ITaskGroupDTO | undefined;
+  public uploadFileId = -1;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -82,7 +83,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       (async () => {
         const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
         this._taskModel = result.body!;
-
+        this.uploadFileId = this._taskModel.uploadFileId ?? -1;
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
         this.isDispatcherTask =
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||

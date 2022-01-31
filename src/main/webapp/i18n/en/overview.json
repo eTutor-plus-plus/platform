@@ -46,7 +46,8 @@
         "processingTime": "Estimated processing time",
         "creator": "Creator",
         "submit": "Submit",
-        "submitted": "Submitted"
+        "submitted": "Submitted",
+        "file": "File-Attachment"
       }
     }
   }
