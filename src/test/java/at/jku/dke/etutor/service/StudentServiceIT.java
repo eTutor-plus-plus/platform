@@ -653,7 +653,7 @@ public class StudentServiceIT {
         // Submit task
         studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
 
-        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+        var optionalFileId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
 
         assertThat(optionalFileId).isPresent();
         assertThat(optionalFileId).hasValue(fileId);
@@ -711,7 +711,7 @@ public class StudentServiceIT {
         studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
         studentService.removeFileFromUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, fileId);
 
-        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+        var optionalFileId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
 
         assertThat(optionalFileId).isEmpty();
     }
@@ -765,7 +765,7 @@ public class StudentServiceIT {
         assertThatThrownBy(() -> studentService.setFileForUploadTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1, 5))
             .isInstanceOf(NoUploadFileTypeException.class);
 
-        var optionalFileId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
+        var optionalFileId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, 1);
 
         assertThat(optionalFileId).isEmpty();
     }

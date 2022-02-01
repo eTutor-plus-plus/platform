@@ -197,6 +197,18 @@ export class StudentService {
   }
 
   /**
+   * Returns the file attachment id for an assigned exercise sheet.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   */
+  public getFileAttachmentIdForExerciseSheet(courseInstanceId: string, exerciseSheetUUID: string): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/file-attachment`);
+  }
+
+  /**
    * Sets the submitted solution for the task
    * @param courseInstanceId the course instance
    * @param exerciseSheetUUID the exercise sheet
