@@ -35,7 +35,7 @@ public class ConvertingToPDFTest {
         assignment.setCreator("admin");
         assignment.setOrganisationUnit("dke");
         list.add(assignment);
-        var id = studentService.generatePdfExerciseSheet("", "admin", list);
+        var id = studentService.generatePdfExerciseSheet("", "admin", list, null);
     }
 
 }

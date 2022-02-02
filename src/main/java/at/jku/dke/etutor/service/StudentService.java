@@ -1689,8 +1689,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             }
 
             var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, taskCount);
-            var assignedTasks = new ArrayList<TaskAssignmentDTO>();
+            var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
             var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
+
 
             if (tasksToAssign != null) {
                 int i = 0;
@@ -1700,16 +1701,36 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
 
-                    var task = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
-                    //var taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName()
-                    task.ifPresent(assignedTasks::add);
+                    //TODO: add flag indicating if pdf should really be created
+
+                    // Adding task to collection for pdf creation
+                    var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
+                    if(taskOpt.isPresent()){
+                        var task = taskOpt.get();
+                        Optional<TaskGroupDTO> taskGroupOpt = null;
+                        if(task.getTaskGroupId() != null) taskGroupOpt = assignmentSPARQLEndpointService.getTaskGroupByName(task.getTaskGroupId().substring(task.getTaskGroupId().indexOf("#")+1));
+                        else taskGroupOpt = Optional.empty();
+                        if(taskGroupOpt.isPresent()){
+                            var taskGroup = taskGroupOpt.get();
+                            if(taskGroupToTaskListMap.get(taskGroup) != null){
+                                taskGroupToTaskListMap.get(taskGroup).add(task);
+                            }else{
+                                var taskList = new ArrayList<TaskAssignmentDTO>();
+                                taskList.add(task);
+                                taskGroupToTaskListMap.put(taskGroup, taskList);
+                            }
+                        }else{
+                            assignedTasksWithoutGroup.add(task);
+                        }
+                    }
+
 
                     i++;
                     if (i == taskCount) {
                         allAssigned = true;
                     }
                 }
-                pdfFileId = generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasks);
+                pdfFileId = generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasksWithoutGroup, taskGroupToTaskListMap);
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
@@ -1824,7 +1845,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param assignedTasks a list of tasks
      * @return the file id
      */
-    public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks) {
+    public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
         var optionalUser = userService.getUserWithAuthoritiesByLogin(matriculationNo);
         AtomicReference<Locale> locale = new AtomicReference<>(Locale.ENGLISH);
         optionalUser.ifPresent(x -> locale.set(Locale.forLanguageTag(x.getLangKey())));
@@ -1834,7 +1855,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+        //TODO: Maybe filter tasks to exclude dispatcher tasks!
         //Initialize Thymeleaf template engine
         TemplateEngine templateEngine = new SpringTemplateEngine();
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
