@@ -1996,7 +1996,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                 }).
                 FILTER (NOT EXISTS {
                     ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                    ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                    ?individualAssignment etutor:fromExerciseSheet ?anySheet;
                                           etutor:fromCourseInstance ?courseInstance;
                                           etutor:hasIndividualTask ?individualTask.
                     ?individualTask etutor:refersToTask ?task.
@@ -2085,7 +2085,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
                 FILTER (NOT EXISTS {
                     ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                    ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                    ?individualAssignment etutor:fromExerciseSheet ?anySheet;
                                           etutor:fromCourseInstance ?courseInstance;
                                           etutor:hasIndividualTask ?individualTask.
                     ?individualTask etutor:refersToTask ?task.
