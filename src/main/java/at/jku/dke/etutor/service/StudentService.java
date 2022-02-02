@@ -11,9 +11,11 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
@@ -41,9 +43,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Service class for managing students.
@@ -384,6 +388,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     private final Random random;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
+    private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
 
     /**
      * Constructor.
@@ -392,7 +397,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param studentRepository    the injected student repository
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public StudentService(UserService userService, StudentRepository studentRepository,
+    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository,
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
         , UploadFileService uploadFileService) {
         super(rdfConnectionFactory);
@@ -400,6 +405,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         this.studentRepository = studentRepository;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
+        this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
 
         random = new Random();
     }
@@ -1684,6 +1690,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
             var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, taskCount);
             var assignedTasks = new ArrayList<TaskAssignmentDTO>();
+            var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
 
             if (tasksToAssign != null) {
                 int i = 0;
@@ -1694,6 +1701,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
 
                     var task = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
+                    //var taskGroup = assignmentSPARQLEndpointService.getTaskGroupByName()
                     task.ifPresent(assignedTasks::add);
 
                     i++;
@@ -1701,7 +1709,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                         allAssigned = true;
                     }
                 }
-                pdfFileId = generatePdfExerciseSheet(matriculationNumber, assignedTasks);
+                pdfFileId = generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasks);
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
@@ -1721,6 +1729,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
+
 
         String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
@@ -1815,18 +1824,31 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param assignedTasks a list of tasks
      * @return the file id
      */
-    public long generatePdfExerciseSheet(String matriculationNo, ArrayList<TaskAssignmentDTO> assignedTasks) {
-        //Initialize Thymeleaf template enginge
+    public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks) {
+        var optionalUser = userService.getUserWithAuthoritiesByLogin(matriculationNo);
+        AtomicReference<Locale> locale = new AtomicReference<>(Locale.ENGLISH);
+        optionalUser.ifPresent(x -> locale.set(Locale.forLanguageTag(x.getLangKey())));
+        Optional<ExerciseSheetDTO> optionalExerciseSheet = Optional.empty();
+        try {
+            optionalExerciseSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(exerciseSheetId);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        //Initialize Thymeleaf template engine
         TemplateEngine templateEngine = new SpringTemplateEngine();
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("/templates/");
+        resolver.setPrefix("/templates/exercise-sheet/");
         resolver.setSuffix(".html");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setTemplateMode(TemplateMode.HTML); // HTML5 option was deprecated in 3.0.0
         templateEngine.setTemplateResolver(resolver);
         Context ct = new Context();
-        ct.setVariable("greeting", "hello");
-
+        ct.setLocale(locale.get());
+        ct.setVariable("tasks", assignedTasks);
+        ct.setVariable("matriculationNumber", matriculationNo);
+        optionalUser.ifPresent(u -> ct.setVariable("studentName", u.getFirstName() + " " +u.getLastName()));
+        optionalExerciseSheet.ifPresent(e -> ct.setVariable("exerciseSheetHeader", e.getName()));
         // Process template
         String inputHTML = templateEngine.process("exerciseSheet.html", ct);
         System.out.println(inputHTML);
@@ -1837,9 +1859,17 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         // Convert to pdf
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            // initialize renderer
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.toStream(outputStream);
-            builder.withW3cDocument(new W3CDom().fromJsoup(document), "/");
+            // Get base uri for html related resources (css, etc)
+            var baseUrl = this.getClass().getResource("/templates/exercise-sheet/");
+            if(baseUrl == null){
+                baseUrl = this.getClass().getClassLoader().getResource("/templates/exercise-sheet/");
+            }
+            String baseUri = baseUrl != null ? baseUrl.toURI().toString() : "/";
+            // render pdf
+            builder.withW3cDocument(new W3CDom().fromJsoup(document), baseUri);
             builder.run();
 
             // Convert outputstream to multipartFile
@@ -1890,6 +1920,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (StudentNotExistsException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         return -1;

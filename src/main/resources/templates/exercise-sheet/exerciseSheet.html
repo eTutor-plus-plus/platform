@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <title th:text="#{title}">Exercise Sheet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link th:href="@{exerciseSheet.css}" rel="stylesheet" />
+  </head>
+  <body>
+  <!-- Heading -->
+  <div class="container">
+    <div class="heading sheet-heading">
+      <h1 th:text="${exerciseSheetHeader} ?: #{heading}">Exercise Sheet</h1>
+    </div>
+    <p th:if="${studentName != null}" th:utext="|${studentName} ${matriculationNumber}|"></p>
+    <p th:unless="${studentName != null}" th:utext ="${matriculationNumber}"></p>
+    <p th:utext ="|#{numberOfTasks} ${tasks.size()}|"></p>
+
+    <!-- End of Heading -->
+
+    <!-- Tasks -->
+    <h2 th:text="#{tasks.heading}"></h2>
+      <th:block class="tasks" th:each="task : ${tasks}">
+        <div class="task">
+          <div class="task-heading">
+            <h2 th:text="${task.header}"></h2>
+          </div>
+          <div class="task-details">
+            <table>
+              <colgroup>
+                <col class="twenty">
+                <col class="eighty">
+              </colgroup>
+              <tr>
+                <td class="odd-column" th:utext="#{task.creationDate}" ></td>
+                <td class="even-column" th:utext="${task.creationDate.toString()}"></td>
+              </tr>
+              <tr>
+                <td class="odd-column" th:utext="#{task.organisationUnit}" ></td>
+                <td class="even-column" th:utext="${task.organisationUnit}"></td>
+              </tr>
+              <tr>
+                <td class="odd-column" th:utext="#{task.instructions}" ></td>
+                <td class="even-column" th:utext="${task.instruction}"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </th:block>
+    <!-- End of Tasks -->
+  </div>
+  </body>
+</html>
