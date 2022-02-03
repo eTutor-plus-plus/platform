@@ -6,6 +6,7 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
+import at.jku.dke.etutor.service.dto.MultipartFileImpl;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
@@ -1649,7 +1650,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Assigns all available tasks according to the student's current learning curve.
-     *
+     * Generates a pdf-exercise sheet that can be downloaded by the student (only for no-type tasks, excluding SQL-Tasks etc.)
      * @param courseInstanceUUID  the course instance uuid
      * @param exerciseSheetUUID   the exercise sheet uuid
      * @param matriculationNumber the student's matriculation number
@@ -1664,10 +1665,11 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
 
+        long pdfFileId = -1;
+
         String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
-        long pdfFileId = -1;
 
         ParameterizedSparqlString alreadyAssignedTaskQuery = new ParameterizedSparqlString(QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT);
         alreadyAssignedTaskQuery.setIri("?courseInstance", courseInstanceId);
@@ -1688,11 +1690,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             if (taskCount == assignedCount) {
                 throw new AllTasksAlreadyAssignedException();
             }
+            int availableForAssignmentCount = taskCount-assignedCount;
 
-            var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, taskCount);
+            var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, availableForAssignmentCount);
+
             var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
             var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
-
 
             if (tasksToAssign != null) {
                 int i = 0;
@@ -1708,7 +1711,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
                     if(taskOpt.isPresent()){
                         var task = taskOpt.get();
-                        Optional<TaskGroupDTO> taskGroupOpt = null;
+                        Optional<TaskGroupDTO> taskGroupOpt;
                         if(task.getTaskGroupId() != null) taskGroupOpt = assignmentSPARQLEndpointService.getTaskGroupByName(task.getTaskGroupId().substring(task.getTaskGroupId().indexOf("#")+1));
                         else taskGroupOpt = Optional.empty();
                         if(taskGroupOpt.isPresent()){
@@ -1725,9 +1728,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                         }
                     }
 
-
                     i++;
-                    if (i == taskCount) {
+                    if (i == availableForAssignmentCount) {
                         allAssigned = true;
                     }
                 }
@@ -1736,16 +1738,15 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                 throw new NoFurtherTasksAvailableException();
             }
         }
-
         if(pdfFileId != -1) setFileForIndividualAssignment(matriculationNumber, courseInstanceUUID, exerciseSheetUUID, pdfFileId);
     }
 
     /**
-     *
-     * @param matriculationNumber
-     * @param courseInstanceUUID
-     * @param exerciseSheetUUID
-     * @param fileId
+     * Sets the file id for an individual assignment (an assigned exercise sheet)
+     * @param matriculationNumber the matriculation number
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param fileId the file id to set
      */
     private void setFileForIndividualAssignment(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, long fileId) {
         Objects.requireNonNull(courseInstanceUUID);
@@ -1789,10 +1790,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Returns the file id of an individual task assignment (an assigned exercise sheet)
-     * @param matriculationNo
-     * @param courseInstanceUUID
-     * @param exerciseSheetUUID
-     * @return
+     * @param matriculationNo the matriculation number
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise-sheet - all required to identify the IndividualTaskAssignment
+     * @return an {@link Optional<Integer>} wrapping the file-id, if found
      */
     public Optional<Integer> getFileIdOfIndividualTaskAssignment(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID){
         Objects.requireNonNull(courseInstanceUUID);
@@ -1840,33 +1841,33 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Generates a pdf exercise sheet according to a list of assigned tasks using a thymeleaf template under /resources/templates/exerciseSheet.html
-     * Uploads the pdf file and returns the id
+     * Generates a pdf exercise sheet.
+     * Uploads the pdf file and returns the file-id.
      * @param matriculationNo the matriculation number
      * @param assignedTasks a list of tasks
      * @return the file id
      */
     public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
-        var optionalUser = userService.getUserWithAuthoritiesByLogin(matriculationNo);
+        //TODO: Maybe filter tasks to exclude dispatcher tasks!
+
+        // Set locale according to user
         AtomicReference<Locale> locale = new AtomicReference<>(Locale.ENGLISH);
+        var optionalUser = userService.getUserWithAuthoritiesByLogin(matriculationNo);
         optionalUser.ifPresent(x -> locale.set(Locale.forLanguageTag(x.getLangKey())));
+
+        //Get Exercise Sheet for PDF-Heading
         Optional<ExerciseSheetDTO> optionalExerciseSheet = Optional.empty();
         try {
             optionalExerciseSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(exerciseSheetId);
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        //Get number of tasks with task group
         var numberOfTasksWithGroup = 0;
         numberOfTasksWithGroup = taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).collect(Collectors.toList()).size();
-        //TODO: Maybe filter tasks to exclude dispatcher tasks!
-        //Initialize Thymeleaf template engine
-        TemplateEngine templateEngine = new SpringTemplateEngine();
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("/templates/exercise-sheet/");
-        resolver.setSuffix(".html");
-        resolver.setCharacterEncoding("UTF-8");
-        resolver.setTemplateMode(TemplateMode.HTML); // HTML5 option was deprecated in 3.0.0
-        templateEngine.setTemplateResolver(resolver);
+
+        // Initialize Context for template engine
         Context ct = new Context();
         ct.setLocale(locale.get());
         ct.setVariable("tasks", assignedTasks);
@@ -1875,79 +1876,47 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         ct.setVariable("nTasksWithGroup", numberOfTasksWithGroup);
         optionalUser.ifPresent(u -> ct.setVariable("studentName", u.getFirstName() + " " +u.getLastName()));
         optionalExerciseSheet.ifPresent(e -> ct.setVariable("exerciseSheetHeader", e.getName()));
-        // Process template
-        String inputHTML = templateEngine.process("exerciseSheet2.html", ct);
-        System.out.println(inputHTML);
 
-        // Parse JSoup document
+        //Initialize Thymeleaf template engine
+        TemplateEngine templateEngine = new SpringTemplateEngine();
+
+        //Initialize and set template-resolver
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("/templates/exercise-sheet/");
+        resolver.setSuffix(".html");
+        resolver.setCharacterEncoding("UTF-8");
+        resolver.setTemplateMode(TemplateMode.HTML); // HTML5 option was deprecated in 3.0.0
+        templateEngine.setTemplateResolver(resolver);
+
+        // Process template to retrieve HTML-String
+        String inputHTML = templateEngine.process("exerciseSheet2.html", ct);
+
+        // Parse JSoup document from HTML-String (required for rendering pdf)
         Document document = Jsoup.parse(inputHTML, "UTF-8");
         document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
 
-        // Convert to pdf
+        // Convert Jsoup-Document to PDF
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            // initialize renderer
-            PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.toStream(outputStream);
-            // Get base uri for html related resources (css, etc)
+            // Get base uri for HTML related resources (css, etc) (Running from jar requires different approach, therefore the following if-block)
             var baseUrl = this.getClass().getResource("/templates/exercise-sheet/");
             if(baseUrl == null){
                 baseUrl = this.getClass().getClassLoader().getResource("/templates/exercise-sheet/");
             }
             String baseUri = baseUrl != null ? baseUrl.toURI().toString() : "/";
-            // render pdf
+
+            // Initialize and run renderer
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.toStream(outputStream);
             builder.withW3cDocument(new W3CDom().fromJsoup(document), baseUri);
             builder.run();
 
-            // Convert outputstream to multipartFile
-            byte[] outputStreamByteArray = outputStream.toByteArray();
-            MultipartFile multipartFile = new MultipartFile() {
-                @Override
-                public String getName() {
-                    return "";
-                }
+            // Convert PDF-Outputstream to Multipart-File
+            MultipartFile multipartFile = new MultipartFileImpl(outputStream, "pdf");
 
-                @Override
-                public String getOriginalFilename() {
-                    return "";
-                }
-
-                @Override
-                public String getContentType() {
-                    return "pdf";
-                }
-
-                @Override
-                public boolean isEmpty() {
-                    return outputStream.size() == 0;
-                }
-
-                @Override
-                public long getSize() {
-                    return outputStream.size();
-                }
-
-                @Override
-                public byte[] getBytes() throws IOException {
-                    return outputStreamByteArray;
-                }
-
-                @Override
-                public InputStream getInputStream() throws IOException {
-                    return new ByteArrayInputStream(outputStreamByteArray);
-                }
-
-                @Override
-                public void transferTo(File dest) throws IOException, IllegalStateException {
-
-                }
-            };
-            // Upload Multipart PDF-file
+            // Upload Multipart PDF-file and return file id
             return this.uploadFileService.uploadFile(matriculationNo, multipartFile, "testExerciseSheet.pdf");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (StudentNotExistsException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
+
+        } catch (IOException | StudentNotExistsException | URISyntaxException e) {
             e.printStackTrace();
         }
         return -1;
@@ -2047,7 +2016,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Method which is looking for all fitting assignment for the current exercise sheet,
-     * depending on the goals already reached by the student.
+     * depending on the goals already reached by the student and limiting to the task-count.
      *
      * @param courseInstanceUrl the course instance URL
      * @param exerciseSheetUrl  the exercise sheet URL
