@@ -48,6 +48,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing students.
@@ -1855,6 +1856,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        var numberOfTasksWithGroup = 0;
+        numberOfTasksWithGroup = taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).collect(Collectors.toList()).size();
         //TODO: Maybe filter tasks to exclude dispatcher tasks!
         //Initialize Thymeleaf template engine
         TemplateEngine templateEngine = new SpringTemplateEngine();
@@ -1868,10 +1871,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         ct.setLocale(locale.get());
         ct.setVariable("tasks", assignedTasks);
         ct.setVariable("matriculationNumber", matriculationNo);
+        ct.setVariable("tasksWithGroup", taskGroupDTOTaskListMap);
+        ct.setVariable("nTasksWithGroup", numberOfTasksWithGroup);
         optionalUser.ifPresent(u -> ct.setVariable("studentName", u.getFirstName() + " " +u.getLastName()));
         optionalExerciseSheet.ifPresent(e -> ct.setVariable("exerciseSheetHeader", e.getName()));
         // Process template
-        String inputHTML = templateEngine.process("exerciseSheet.html", ct);
+        String inputHTML = templateEngine.process("exerciseSheet2.html", ct);
         System.out.println(inputHTML);
 
         // Parse JSoup document
