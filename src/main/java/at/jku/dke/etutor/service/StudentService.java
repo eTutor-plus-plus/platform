@@ -1705,8 +1705,6 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
 
-                    //TODO: add flag indicating if pdf should really be created
-
                     // Adding task to collection for pdf creation
                     var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
                     if(taskOpt.isPresent()){
@@ -1848,7 +1846,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @return the file id
      */
     public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
-        //TODO: Maybe filter tasks to exclude dispatcher tasks!
+        // Replace links
+        String hrefToBeReplaced = "href=\"/";
+        String hrefToReplaceWith = "href=\"https://etutor.dke.uni-linz.ac.at/etutorpp/";
+        assignedTasks.forEach(t -> t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith)));
+        taskGroupDTOTaskListMap.forEach((key, value) -> {
+            key.setDescription(key.getDescription().replace(hrefToBeReplaced, hrefToReplaceWith));
+            value.forEach(t -> t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith)));
+        });
 
         // Set locale according to user
         AtomicReference<Locale> locale = new AtomicReference<>(Locale.ENGLISH);
@@ -1866,6 +1871,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         //Get number of tasks with task group
         var numberOfTasksWithGroup = 0;
         numberOfTasksWithGroup = taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).collect(Collectors.toList()).size();
+
 
         // Initialize Context for template engine
         Context ct = new Context();
@@ -1889,7 +1895,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         templateEngine.setTemplateResolver(resolver);
 
         // Process template to retrieve HTML-String
-        String inputHTML = templateEngine.process("exerciseSheet2.html", ct);
+        String inputHTML = templateEngine.process("exercise-sheet.html", ct);
 
         // Parse JSoup document from HTML-String (required for rendering pdf)
         Document document = Jsoup.parse(inputHTML, "UTF-8");
