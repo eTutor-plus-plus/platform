@@ -138,6 +138,7 @@ public class LearningGoalResource {
      * @return {@link ResponseEntity} with no content
      */
     @PutMapping("/learninggoals/{owner}/{goalName}/dependencies")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> setDependencies(@PathVariable String owner, @PathVariable String goalName, @RequestBody JSONArray goalIds) {
         sparqlEndpointService.setDependencies(owner, goalName, StreamEx.of(goalIds).map(String.class::cast).toList());
 
@@ -184,6 +185,7 @@ public class LearningGoalResource {
      *                                                                              already exist
      */
     @PostMapping("/learninggoals/{owner}/{parentGoalName}/subGoal")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<LearningGoalDTO> createSubGoal(
         @Valid @RequestBody NewLearningGoalDTO newLearningGoalDTO,
         @PathVariable("owner") String owner,
@@ -215,7 +217,8 @@ public class LearningGoalResource {
     }
 
     @PostMapping("/learninggoals/{owner}/")
-
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    // TODO: preauthorize all? add endpoint for sub goal assignment
     /**
      * {@code GET /learninggoals}
      *
