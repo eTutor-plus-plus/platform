@@ -216,9 +216,37 @@ public class LearningGoalResource {
         }
     }
 
-    @PostMapping("/learninggoals/{owner}/")
+    @PostMapping("/learninggoals/{parentGoalOwner}/parentGoal/{parentGoalName}/{subGoalOwner}/subGoal/{subGoalName}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    // TODO: preauthorize all? add endpoint for sub goal assignment
+    public ResponseEntity<Void> addSubGoal(
+        @PathVariable("subGoalName") String subGoalName,
+        @PathVariable("parentGoalOwner") String parentGoalOwner,
+        @PathVariable("parentGoalName") String parentGoalName,
+        @PathVariable("subGoalOwner") String subGoalOwner
+
+    ) {
+        log.debug("REST request to add a sub goal: {} for parent: {}", subGoalName, parentGoalName);
+
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!StringUtils.equals(subGoalOwner, currentLogin) || !StringUtils.equals(parentGoalOwner, subGoalOwner)) {
+            throw new BadRequestAlertException(
+                "Only the creator is allowed to edit the learning goal!",
+                "learningGoalManagement",
+                "learningGoalNotOwner"
+            );
+        }
+
+
+        try {
+            sparqlEndpointService.insertExistingGoalAsSubgoal(subGoalOwner, subGoalName, parentGoalName);
+
+           return ResponseEntity.ok().build();
+
+        } catch (LearningGoalNotExistsException e) {
+            throw new LearningGoalNotFoundException();
+        }
+    }
     /**
      * {@code GET /learninggoals}
      *
