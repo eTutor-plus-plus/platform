@@ -214,6 +214,8 @@ public class LearningGoalResource {
         }
     }
 
+    @PostMapping("/learninggoals/{owner}/")
+
     /**
      * {@code GET /learninggoals}
      *

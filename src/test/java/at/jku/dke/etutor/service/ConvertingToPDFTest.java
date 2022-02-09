@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 
 @IntegrationTest
@@ -22,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConvertingToPDFTest {
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    SPARQLEndpointService sparqlEndpointService;
 
     @Test
     @Transactional
@@ -36,6 +40,13 @@ public class ConvertingToPDFTest {
         assignment.setOrganisationUnit("dke");
         list.add(assignment);
         var id = studentService.generatePdfExerciseSheet("", "admin", list, null);
+    }
+
+    @Test
+    @Transactional
+    void testSubGoalAdding(){
+        assertThatNoException()
+            .isThrownBy(() -> sparqlEndpointService.insertExistingGoalAsSubgoal("admin", "ra", "test_links"));
     }
 
 }

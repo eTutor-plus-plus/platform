@@ -1920,7 +1920,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             MultipartFile multipartFile = new MultipartFileImpl(outputStream, "pdf");
 
             // Upload Multipart PDF-file and return file id
-            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, "testExerciseSheet.pdf");
+            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, matriculationNo+".pdf");
 
         } catch (IOException | StudentNotExistsException | URISyntaxException e) {
             e.printStackTrace();

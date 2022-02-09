@@ -393,6 +393,37 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
         }
     }
 
+
+    /**
+     * Adds an existing goal as sub-goal of another existing goal
+     * @param subGoalName the name of the sub-goal
+     * @param parentGoalName the name of the parent-goal
+     * @throws LearningGoalNotExistsException     if one of the goals could not be found
+     */
+    public void insertExistingGoalAsSubgoal(String owner, String subGoalName, String parentGoalName) throws LearningGoalNotExistsException {
+        Model model = ModelFactory.createDefaultModel();
+
+        try (RDFConnection conn = getConnection()) {
+            String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
+            String escapedSubGoalName = URLEncoder.encode(subGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
+
+
+
+            Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
+            Boolean subGoalPrivate = isLearningGoalPrivate(conn, owner, escapedSubGoalName);
+
+            if (superGoalPrivate == null || subGoalPrivate == null) {
+                throw new LearningGoalNotExistsException();
+            }
+
+            Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
+            Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);
+
+            parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, subGoalResource);
+
+            conn.load(model);
+        }
+    }
     /**
      * Returns all learning goals which are visible for the given owner.
      *
