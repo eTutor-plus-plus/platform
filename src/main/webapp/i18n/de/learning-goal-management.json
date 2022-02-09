@@ -20,6 +20,8 @@
     "dependencies": "Abhängigkeiten",
     "manageDependencies": "Abhängigkeiten verwalten",
     "manageDependenciesHeader": "Abhängigkeiten vom Lernziel '{{goalName}}' verwalten",
+    "addAsSubGoal": "Als Teilziel hinzufügen",
+    "addAsSubGoalHeader": "Lernziel '{{goalName}}' als Teilziel hinzufügen: ",
     "filter": {
       "filter": "Filter:",
       "onlyShowOwnGoals": "Nur die eigenen Lernziele anzeigen?"

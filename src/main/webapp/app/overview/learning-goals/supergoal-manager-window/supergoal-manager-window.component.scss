@@ -1,0 +1,13 @@
+.row-item {
+  .bi {
+    cursor: pointer;
+  }
+
+  .private {
+    color: gray;
+  }
+
+  .selected {
+    background-color: lightgray;
+  }
+}

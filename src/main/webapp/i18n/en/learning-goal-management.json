@@ -20,6 +20,8 @@
     "dependencies": "Dependencies",
     "manageDependencies": "Manage dependencies",
     "manageDependenciesHeader": "Manage dependencies of learning goal '{{goalName}}'",
+    "addAsSubGoal": "Add as sub goal",
+    "addAsSubGoalHeader": "Add learning goal '{{goalName}}' as sub goal to:",
     "filter": {
       "filter": "Filter:",
       "onlyShowOwnGoals": "Only show own learning goals?"

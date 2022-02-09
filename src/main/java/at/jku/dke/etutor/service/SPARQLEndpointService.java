@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
+import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -19,6 +20,7 @@ import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.tags.Param;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -149,6 +151,15 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
               OPTIONAL {
                 ?parent etutor:hasSubGoal ?goal.
               }
+            }
+            """;
+
+    private final String ASK_IS_SUBGOAL_TRANS =
+            """
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            ASK {
+              %s etutor:hasSubGoal* %s.
             }
             """;
     //endregion
@@ -407,7 +418,7 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
             String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
             String escapedSubGoalName = URLEncoder.encode(subGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
 
-
+            //TODO: remove parent goals from sub goal befor assigning new sub goal
 
             Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
             Boolean subGoalPrivate = isLearningGoalPrivate(conn, owner, escapedSubGoalName);
@@ -416,12 +427,18 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
                 throw new LearningGoalNotExistsException();
             }
 
-            Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
-            Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);
+            String parentGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedParentGoalName)+">";
+            String subGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedSubGoalName)+">";
 
-            parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, subGoalResource);
+            String query = String.format(ASK_IS_SUBGOAL_TRANS, subGoalURL, parentGoalURL);
+            if(!conn.queryAsk(query)){
+                Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
+                Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);
 
-            conn.load(model);
+                parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, subGoalResource);
+
+                conn.load(model);
+            }
         }
     }
     /**

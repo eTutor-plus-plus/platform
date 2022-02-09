@@ -126,4 +126,19 @@ export class LearningGoalsService {
     const encodedName = encodeURIComponent(goalName);
     return this.http.delete(`${SERVER_API_URL}api/learninggoals/${encodedName}`, { observe: 'response' });
   }
+
+  public addGoalAsSubGoal(
+    goalOwner: string,
+    goalName: string,
+    parentGoalOwner: string,
+    parentGoalName: string
+  ): Observable<HttpResponse<any>> {
+    const encodedGoalName = encodeURIComponent(goalName);
+    const encodedParentGoalName = encodeURIComponent(parentGoalName);
+    return this.http.post(
+      SERVER_API_URL + `api/learninggoals/${parentGoalOwner}/parentGoal/${encodedParentGoalName}/${goalOwner}/subGoal/${encodedGoalName}`,
+      null,
+      { observe: 'response' }
+    );
+  }
 }

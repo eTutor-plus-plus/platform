@@ -7,12 +7,19 @@ import { LearningGoalDisplayComponent } from './learning-goal-display/learning-g
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { OverviewSharedModule } from '../shared/overview-shared.module';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
+import { SupergoalManagerWindowComponent } from './supergoal-manager-window/supergoal-manager-window.component';
 
 /**
  * Module for the learning goal related components.
  */
 @NgModule({
   imports: [SharedModule, OverviewSharedModule, RouterModule.forChild(learningGoalsRoute)],
-  declarations: [LearningGoalsComponent, LearningGoalDisplayComponent, LearningGoalCreationComponent, DependencyManagerWindowComponent],
+  declarations: [
+    LearningGoalsComponent,
+    LearningGoalDisplayComponent,
+    LearningGoalCreationComponent,
+    DependencyManagerWindowComponent,
+    SupergoalManagerWindowComponent,
+  ],
 })
 export class LearningGoalsModule {}

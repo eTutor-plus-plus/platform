@@ -11,6 +11,7 @@ import { DependencyManagerWindowComponent } from './dependency-manager-window/de
 import { combineLatest } from 'rxjs';
 import { AlertService } from 'app/core/util/alert.service';
 import { TreeviewComponent } from '../../shared/ngx-treeview/components/treeview/treeview.component';
+import { SupergoalManagerWindowComponent } from './supergoal-manager-window/supergoal-manager-window.component';
 
 /**
  * Component which is used for visualising the learning goals management.
@@ -163,6 +164,15 @@ export class LearningGoalsComponent implements OnInit {
     (modalRef.componentInstance as DependencyManagerWindowComponent).currentGoal = goalItem;
     modalRef.closed.subscribe(() => {
       this.onSelect(goalItem);
+    });
+  }
+
+  public onManageSuperGoalRequested(goalItem: LearningGoalTreeviewItem): void {
+    const modalRef = this.modalService.open(SupergoalManagerWindowComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as SupergoalManagerWindowComponent).currentGoal = goalItem;
+    modalRef.closed.subscribe(() => {
+      this.onSelect(goalItem);
+      this.loadLearningGoalsAsync();
     });
   }
 
