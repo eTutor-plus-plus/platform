@@ -106,7 +106,6 @@ export class TaskUpdateComponent implements OnInit {
    * Saves the task.
    */
   public save(): void {
-    //TODO save file id
     this.isSaving = true;
 
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;

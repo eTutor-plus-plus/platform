@@ -8,7 +8,10 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.MissingParameterException;
+import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
+import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -62,16 +65,17 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
         try {
             newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
+            TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
+            return ResponseEntity.ok(assignment);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new DispatcherRequestFailedException();
+        } catch (MissingParameterException mpe) {
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch(NotAValidTaskGroupException navtge){
+            throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
         }
-
-
-        TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
-        return ResponseEntity.ok(assignment);
     }
 
     /**
@@ -131,11 +135,11 @@ public class TaskAssignmentResource {
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             dispatcherProxyService.updateTask(taskAssignmentDTO);
-
-
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();
+        } catch(MissingParameterException mpe){
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
     }
 

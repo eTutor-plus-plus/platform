@@ -7,6 +7,10 @@
   This exercise sheet has already been closed!
 </p>
 
+<p *ngIf="!exerciseSheetClosed && fileAttachmentId != -1">
+  <jhi-file-download [fileId]="fileAttachmentId"></jhi-file-download>
+</p>
+
 <div class="table-responsive" *ngIf="entries">
   <table class="table table-striped">
     <thead>

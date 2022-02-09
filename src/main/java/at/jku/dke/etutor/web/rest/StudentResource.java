@@ -17,6 +17,7 @@ import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.models.Response;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -278,8 +279,8 @@ public class StudentResource {
     }
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} : Returns
-     * the file attachment's id.
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} :
+     * Returns the file attachment's id for an individual task.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -288,11 +289,11 @@ public class StudentResource {
      */
     @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/uploadTask/{taskNo}/file-attachment")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Integer> getFileAttachmentId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                       @PathVariable int taskNo) {
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                       @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<Integer> optionalId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         int id = optionalId.orElse(-1);
 
@@ -455,7 +456,7 @@ public class StudentResource {
 
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment/of-student/:matriculationNo} : Returns
-     * the file attachment's id.
+     * the file attachment's id of an individual task for a specific student.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -468,7 +469,27 @@ public class StudentResource {
     public ResponseEntity<Integer> getFileAttachmentIdOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                 @PathVariable int taskNo, @PathVariable String matriculationNo) {
 
-        Optional<Integer> optionalId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/file-attachment}
+     * Returns the file id of an individual assignment (an assigned exercise sheet) for the logged in student.
+     *
+     * @param courseInstanceUUID The course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @return the id of the file
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/file-attachment")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachementIdOfAssignment(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTaskAssignment(matriculationNo, courseInstanceUUID, exerciseSheetUUID);
 
         int id = optionalId.orElse(-1);
 

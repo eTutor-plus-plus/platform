@@ -20,6 +20,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   public entries: IStudentTaskListInfoDTO[] = [];
   public exerciseSheetName = '';
   public exerciseSheetClosed = false;
+  public fileAttachmentId = -1;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -64,6 +65,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
         }
       })();
       this.loadTasksAsync();
+      this.loadFileAttachmentAsync();
     });
   }
 
@@ -100,5 +102,11 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   private async loadTasksAsync(): Promise<any> {
     const result = await this.studentService.getExerciseSheetTasks(this._instance!.instanceId, this._exerciseSheetUUID).toPromise();
     this.entries = result.body ?? [];
+  }
+
+  private async loadFileAttachmentAsync(): Promise<any> {
+    this.fileAttachmentId = await this.studentService
+      .getFileAttachmentIdForExerciseSheet(this._instance!.instanceId, this._exerciseSheetUUID)
+      .toPromise();
   }
 }

@@ -1,0 +1,70 @@
+@font-face {
+  font-family: serif;
+  src: url('SourceSerif4-Medium.ttf');
+}
+
+@page {
+  size: 8.5in 11in;
+  margin: 0.4in;
+  @bottom-center {
+    content: counter(page) '/' counter(pages);
+  }
+}
+
+body {
+  counter-reset: h2counter;
+}
+h1 {
+  counter-reset: h2counter;
+}
+
+h2:before {
+  content: counter(h2counter) '.\0000a0\0000a0';
+  counter-increment: h2counter;
+  counter-reset: h3counter;
+}
+h2.nocount:before {
+  content: none;
+  counter-increment: none;
+}
+
+h3:before {
+  content: counter(h2counter) '.' counter(h3counter) '.\0000a0\0000a0';
+  counter-increment: h3counter;
+}
+h3.nocount:before {
+  content: none;
+  counter-increment: none;
+}
+
+.groups {
+  counter-reset: h2counter;
+}
+
+.tasks {
+  counter-reset: h2counter;
+}
+
+.task {
+  page-break-inside: avoid;
+  display: block;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.sheet-heading {
+  margin: auto;
+  align-content: center;
+  text-align: center;
+}
+
+.group-description {
+  page-break-inside: avoid;
+  display: block;
+}
+
+.groups {
+  page-break-before: always;
+}
