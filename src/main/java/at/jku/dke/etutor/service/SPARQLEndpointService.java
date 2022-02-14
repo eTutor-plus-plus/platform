@@ -441,6 +441,9 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
                         }
                         WHERE{
                           ?goal a etutor:Goal.
+                          OPTIONAL {
+                            ?goal etutor:hasSubGoal ?subGoal .
+                          }
                         }
                         """
                 );

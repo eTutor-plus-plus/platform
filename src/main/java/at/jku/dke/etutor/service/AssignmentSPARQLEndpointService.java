@@ -1050,7 +1050,9 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         } WHERE {
           ?group a etutor:TaskGroup.
           OPTIONAL {
-            ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
+            ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
+          }
+          OPTIONAL {
             ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
           }
         }
