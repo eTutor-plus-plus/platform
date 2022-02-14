@@ -136,6 +136,7 @@ public class TaskAssignmentResource {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             dispatcherProxyService.updateTask(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
+
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();
         } catch(MissingParameterException mpe){

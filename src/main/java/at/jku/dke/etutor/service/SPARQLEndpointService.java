@@ -411,7 +411,7 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
      * @param parentGoalName the name of the parent-goal
      * @throws LearningGoalNotExistsException     if one of the goals could not be found
      */
-    public void insertExistingGoalAsSubgoal(String owner, String subGoalName, String parentGoalName) throws LearningGoalNotExistsException {
+    public void insertExistingGoalAsSubgoal(String owner, String subGoalName, String parentGoalName) throws LearningGoalNotExistsException, IllegalArgumentException {
         Model model = ModelFactory.createDefaultModel();
 
         try (RDFConnection conn = getConnection()) {
@@ -425,20 +425,36 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
             if (superGoalPrivate == null || subGoalPrivate == null) {
                 throw new LearningGoalNotExistsException();
             }
-            // TODO: remove parent goals from sub goal before assigning new sub goal
+            String parentGoalURL = ETutorVocabulary.createGoalUrl(owner, escapedParentGoalName);
+            String parentGoalIRI = "<" + parentGoalURL + ">";
+            String subGoalURL = ETutorVocabulary.createGoalUrl(owner, escapedSubGoalName);
+            String subGoalIRI = "<" + subGoalURL + ">";
 
-            String parentGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedParentGoalName)+">";
-            String subGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedSubGoalName)+">";
-
-            String query = String.format(ASK_IS_SUBGOAL_TRANS, subGoalURL, parentGoalURL);
-            // TODO: add exception!
+            String query = String.format(ASK_IS_SUBGOAL_TRANS, subGoalIRI, parentGoalIRI);
             if(!conn.queryAsk(query)){
+                ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+                    """
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                        DELETE {
+                          ?goal etutor:hasSubGoal ?subGoal .
+                        }
+                        WHERE{
+                          ?goal a etutor:Goal.
+                        }
+                        """
+                );
+                updateQry.setIri("?subGoal", subGoalURL);
+                conn.update(updateQry.asUpdate());
+
                 Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
                 Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);
 
                 parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, subGoalResource);
 
                 conn.load(model);
+            }else{
+                throw new IllegalArgumentException();
             }
         }
     }

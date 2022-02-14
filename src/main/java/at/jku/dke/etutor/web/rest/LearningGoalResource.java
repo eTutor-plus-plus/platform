@@ -251,6 +251,8 @@ public class LearningGoalResource {
 
         } catch (LearningGoalNotExistsException e) {
             throw new LearningGoalNotFoundException();
+        } catch(IllegalArgumentException e){
+            throw new BadRequestAlertException("Cannot construct cyclic sub-goal relation!", "learningGoalManagement", "cyclicSubGoalRelation");
         }
     }
     /**

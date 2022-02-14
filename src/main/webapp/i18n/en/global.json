@@ -172,7 +172,8 @@
     "goalsNotEqual": "Parent-goal and sub-goal must not be equal!",
     "missingParameter": "There are required parameters missing!",
     "notAValidTaskGroup": "The chosen task-group does not match the type of the task assignment!",
-    "dispatcherRequestFailed": "The request could not be processed by the dispatcher, this is typically caused by syntax errors. Contact a system admin for further information on the error."
+    "dispatcherRequestFailed": "The request could not be processed by the dispatcher, this is typically caused by syntax errors. Contact a system admin for further information on the error.",
+    "cyclicSubGoalRelation": "Cannot construct a cyclic sub-goal relation!"
   },
   "footer": {
     "contact": "Contact",

@@ -1862,6 +1862,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         //Get Exercise Sheet for PDF-Heading
         Optional<ExerciseSheetDTO> optionalExerciseSheet = Optional.empty();
+        final String[] sheetName = {""};
         try {
             optionalExerciseSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(exerciseSheetId);
         } catch (ParseException e) {
@@ -1881,7 +1882,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         ct.setVariable("tasksWithGroup", taskGroupDTOTaskListMap);
         ct.setVariable("nTasksWithGroup", numberOfTasksWithGroup);
         optionalUser.ifPresent(u -> ct.setVariable("studentName", u.getFirstName() + " " +u.getLastName()));
-        optionalExerciseSheet.ifPresent(e -> ct.setVariable("exerciseSheetHeader", e.getName()));
+        optionalExerciseSheet.ifPresent(e -> {
+            sheetName[0] = e.getName();
+            ct.setVariable("exerciseSheetHeader", e.getName());
+        });
 
         //Initialize Thymeleaf template engine
         TemplateEngine templateEngine = new SpringTemplateEngine();
@@ -1920,7 +1924,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             MultipartFile multipartFile = new MultipartFileImpl(outputStream, "pdf");
 
             // Upload Multipart PDF-file and return file id
-            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, matriculationNo+".pdf");
+            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, sheetName[0] + "_" + matriculationNo + ".pdf");
 
         } catch (IOException | StudentNotExistsException | URISyntaxException e) {
             e.printStackTrace();
