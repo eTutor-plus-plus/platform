@@ -183,21 +183,19 @@ public class DispatcherProxyService {
             links.add(link);
         }
         String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
-        String startOfLinks = "<p id=table_links>";
+        String startOfLinks = "<strong>Tables:";
         if(!isNew){
             int indexOfTableLinks=description.indexOf(startOfLinks);
             if(indexOfTableLinks != -1) description=description.substring(0, indexOfTableLinks);
         }
-        description += startOfLinks;
         description += "<br>";
-        description += "<b>Tables:</b><br>";
+        description += startOfLinks + "</strong><br>";
 
         StringBuilder sb = new StringBuilder();
         for (String link : links){
             sb.append(link).append("<br>");
         }
         description += sb.toString();
-        description += "</p>";
 
         newTaskGroupDTO.setDescription(description);
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
@@ -231,8 +229,13 @@ public class DispatcherProxyService {
         assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
         if(fileURL != null) {
+            String oldDescription = taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription() : "";
+            String startOfLinks = "<a href=\"/XML";
+            int indexOfLinks= oldDescription.indexOf(startOfLinks);
+            if(indexOfLinks != -1) oldDescription = oldDescription.substring(0, indexOfLinks);
+
             String link = "<br><br> <a href='"+properties.getDispatcher().getXqueryXmlFileUrlPrefix()+fileURL.substring(fileURL.contains("=") ? fileURL.indexOf("=") +1 : 0)+"' target='_blank'>View XML</a>";
-            String newDescription = taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription()+link : link;
+            String newDescription = oldDescription + link;
             newDescription += "<br><br> You can include the XML document for this task group using the following function: <br>";
             newDescription += "<b> let $doc := doc('"+ fileURL + "') </b>";
             taskGroupDTO.setDescription(newDescription);
