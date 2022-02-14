@@ -10,6 +10,6 @@ public class MissingParameterException extends BadRequestAlertException{
     private static final long serialVersionUID = 1L;
 
     public MissingParameterException(){
-        super("Not enought parameter provided", "taskManagement", "missingParameters");
+        super("Not enought parameter provided", "taskManagement", "missingParameter");
     }
 }

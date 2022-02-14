@@ -26,7 +26,6 @@ import java.util.Objects;
 /**
  * Service to proxy requests to the dispatcher
  */
-//TODO: somehow manage errors in the dispatcher, maybe display to user?
 @Service
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
@@ -480,7 +479,7 @@ public class DispatcherProxyService {
      *
      * @param taskAssignmentDTO the task assignment to be updated
      */
-    public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException {
+    public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
         if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
@@ -513,12 +512,10 @@ public class DispatcherProxyService {
      * Updates the dispatcher resources for a datalog-type task-assignment
      * @param taskAssignmentDTO the {@link TaskAssignmentDTO} to be updated
      */
-    private void updateDLGExercise(TaskAssignmentDTO taskAssignmentDTO) {
+    private void updateDLGExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         var exercise = getDatalogExerciseDTOFromTaskAssignment(taskAssignmentDTO);
         var response = proxyResource.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
-        if(response.getStatusCodeValue() != 200){
-            //TODO handle errors in dispatcher general
-        }
+        if(response == null || response.getStatusCodeValue() != 200) throw new DispatcherRequestFailedException();
     }
 
     /**
@@ -526,10 +523,11 @@ public class DispatcherProxyService {
      *
      * @param taskAssignmentDTO the SQL task assignment to be updated
      */
-    private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO) {
+    private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String solution = taskAssignmentDTO.getSqlSolution();
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-        proxyResource.updateSQLExerciseSolution(id, solution);
+        var response = proxyResource.updateSQLExerciseSolution(id, solution);
+        if (response == null || response.getStatusCodeValue() != 200) throw new DispatcherRequestFailedException();
     }
 
     /**
@@ -537,7 +535,7 @@ public class DispatcherProxyService {
      *
      * @param taskAssignmentDTO the task assignment to be updated
      */
-    private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) {
+    private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
         if (dtoSorting != null) sortings.add(dtoSorting);
@@ -554,7 +552,10 @@ public class DispatcherProxyService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody).getBody();
+        var response = proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody);
+        if (response == null || response.getStatusCodeValue() != 200){
+            throw new DispatcherRequestFailedException();
+        }
     }
 
     /**

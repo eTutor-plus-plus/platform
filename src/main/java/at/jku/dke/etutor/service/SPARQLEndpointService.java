@@ -418,7 +418,6 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
             String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
             String escapedSubGoalName = URLEncoder.encode(subGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
 
-            //TODO: remove parent goals from sub goal befor assigning new sub goal
 
             Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
             Boolean subGoalPrivate = isLearningGoalPrivate(conn, owner, escapedSubGoalName);
@@ -426,11 +425,13 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
             if (superGoalPrivate == null || subGoalPrivate == null) {
                 throw new LearningGoalNotExistsException();
             }
+            // TODO: remove parent goals from sub goal before assigning new sub goal
 
             String parentGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedParentGoalName)+">";
             String subGoalURL = "<"+ETutorVocabulary.createGoalUrl(owner, escapedSubGoalName)+">";
 
             String query = String.format(ASK_IS_SUBGOAL_TRANS, subGoalURL, parentGoalURL);
+            // TODO: add exception!
             if(!conn.queryAsk(query)){
                 Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
                 Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);

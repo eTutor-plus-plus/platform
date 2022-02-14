@@ -230,10 +230,16 @@ public class LearningGoalResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!StringUtils.equals(subGoalOwner, currentLogin) || !StringUtils.equals(parentGoalOwner, subGoalOwner)) {
+        throw new BadRequestAlertException(
+            "Only the creator is allowed to edit the learning goal!",
+            "learningGoalManagement",
+            "learningGoalNotOwner"
+        );
+        }else if (parentGoalName.trim().equals(subGoalName.trim())){
             throw new BadRequestAlertException(
-                "Only the creator is allowed to edit the learning goal!",
+                "Parent-goal and sub-goal must not be equal!",
                 "learningGoalManagement",
-                "learningGoalNotOwner"
+                "goalsNotEqual"
             );
         }
 

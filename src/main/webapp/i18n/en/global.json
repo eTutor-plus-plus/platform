@@ -168,7 +168,11 @@
     "studentNotExists": "The student does not exist!",
     "fileStorage": "A file storage problem occurred!",
     "wrongTaskType": "The wrong task type has been selected!",
-    "taskGroupAlreadyExistent": "The task group's name is already existent!"
+    "taskGroupAlreadyExistent": "The task group's name is already existent!",
+    "goalsNotEqual": "Parent-goal and sub-goal must not be equal!",
+    "missingParameter": "There are required parameters missing!",
+    "notAValidTaskGroup": "The chosen task-group does not match the type of the task assignment!",
+    "dispatcherRequestFailed": "The request could not be processed by the dispatcher, this is typically caused by syntax errors. Contact a system admin for further information on the error."
   },
   "footer": {
     "contact": "Contact",

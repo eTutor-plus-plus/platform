@@ -140,6 +140,8 @@ public class TaskAssignmentResource {
             throw new TaskAssignmentNonexistentException();
         } catch(MissingParameterException mpe){
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
+            throw new DispatcherRequestFailedException();
         }
     }
 
