@@ -69,7 +69,7 @@ public class TaskAssignmentResource {
             newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
             TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
             throw new DispatcherRequestFailedException();
         } catch (MissingParameterException mpe) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
@@ -110,7 +110,13 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
-        taskAssignmentDTOOptional.ifPresent(dispatcherProxyService::deleteTaskAssignment);
+        if(taskAssignmentDTOOptional.isPresent()){
+            try {
+                dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTOOptional.get());
+            } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+                e.printStackTrace();
+            }
+        }
 
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
 

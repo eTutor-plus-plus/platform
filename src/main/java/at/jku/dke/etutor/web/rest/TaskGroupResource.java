@@ -79,7 +79,11 @@ public class TaskGroupResource {
     @DeleteMapping("{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
-        dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody());
+        try {
+            dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody());
+        } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+            e.printStackTrace();
+        }
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
         return ResponseEntity.noContent().build();
     }

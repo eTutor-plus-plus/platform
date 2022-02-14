@@ -47,7 +47,7 @@ public class DispatcherProxyService {
      * @return the submission
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
-    public DispatcherSubmissionDTO getSubmission(String UUID) throws JsonProcessingException {
+    public DispatcherSubmissionDTO getSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
         return mapper.readValue(proxyResource.getSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
     }
 
@@ -58,7 +58,7 @@ public class DispatcherProxyService {
      * @return the grading
      * @throws JsonProcessingException if the returned value cannot be parsed
      */
-    public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException {
+    public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
         return mapper.readValue(proxyResource.getGrading(UUID).getBody(), DispatcherGradingDTO.class);
     }
 
@@ -90,7 +90,7 @@ public class DispatcherProxyService {
      * Adds the link to view the facts to the task-groups description (only once).
      * @param newTaskGroupDTO the task group
      */
-    private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) {
+    private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskGroupDTO);
         int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(newTaskGroupDTO);
         int statusCode;
@@ -112,8 +112,8 @@ public class DispatcherProxyService {
         }
         id = body != null ? body : -1;
         if(id == -1) return statusCode;
-        assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
 
+        assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
 
         String link = "<br> <a href='"+properties.getDispatcher().getDatalogFactsUrlPrefix()+id+"' target='_blank'>Facts</a>";
         newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
@@ -127,14 +127,18 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the task group
      */
-    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) {
+    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException {
         if (newTaskGroupDTO.getSqlCreateStatements() == null) return 500;
         String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
 
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
         body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
-        body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
-        body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
+        if(newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null){
+            body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
+        }
+        if(newTaskGroupDTO.getSqlInsertStatementsSubmission() != null){
+            body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
+        }
         body.setSchemaName(schemaName);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -152,7 +156,7 @@ public class DispatcherProxyService {
         if(statusCode == 200){
             try {
                 var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
-                updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, schemaName, newTaskGroupDTO, isNew);
+                updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
                 if(schemaInfo.getDiagnoseConnectionId() != -1)assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -163,11 +167,11 @@ public class DispatcherProxyService {
     }
 
     /**
+     *
      * Updates the description of an SQL task group by appending links to the specified tables and information about the schema of the tables
-     * @param schemaName the name of the task group
      * @param newTaskGroupDTO the {@link TaskGroupDTO}
      */
-    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, String schemaName, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
+    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
         if(info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
         var links = new ArrayList<String>();
 
@@ -206,7 +210,7 @@ public class DispatcherProxyService {
      *
      * @param taskGroupDTO the task group
      */
-    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) {
+    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
         if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) && StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
             return 200;
         }
@@ -242,7 +246,7 @@ public class DispatcherProxyService {
      *
      * @param taskGroupDTO the task group
      */
-    public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO) {
+    public void deleteDispatcherResourcesForTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(taskGroupDTO);
         Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
         Objects.requireNonNull(taskGroupDTO.getName());
@@ -265,7 +269,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the task assignment
      * @throws JsonProcessingException if there is an error while serializing
      */
-    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException {
+    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         /*
@@ -310,12 +314,16 @@ public class DispatcherProxyService {
                 && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) {
                 var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
                 if(group.isPresent()){
-                    if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) throw new NotAValidTaskGroupException();
+                    if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
+                        throw new NotAValidTaskGroupException();
                 }
                 int id = this.createDLGTask(newTaskAssignmentDTO);
                 if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
             } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) {
                 DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
+
+                if(exerciseDTO == null) throw new DispatcherRequestFailedException();
+
                 newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
                 newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
                 String uncheckedTerms = exerciseDTO.getUncheckedTerms()
@@ -333,7 +341,7 @@ public class DispatcherProxyService {
      * @param taskIdForDispatcher the id
      * @return the {@link DatalogExerciseDTO} containing the information
      */
-    private DatalogExerciseDTO fetchDLGExerciseInfo(String taskIdForDispatcher) {
+    private DatalogExerciseDTO fetchDLGExerciseInfo(String taskIdForDispatcher) throws DispatcherRequestFailedException {
         return proxyResource.getDLGExercise(Integer.parseInt(taskIdForDispatcher)).getBody();
     }
 
@@ -342,7 +350,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the{@link NewTaskAssignmentDTO} to be created
      * @return the dispatcher-id of the task
      */
-    private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         var exerciseDTO = getDatalogExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
         var response = proxyResource.createDLGExercise(exerciseDTO);
         if(response.getBody() != null) return response.getBody();
@@ -413,7 +421,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the task assignment
      * @return the id of the created task
      */
-    private int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    private int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getxQuerySolution());
 
         List<String> sortings = new ArrayList<>();
@@ -442,8 +450,12 @@ public class DispatcherProxyService {
      * @param taskIdForDispatcher the task id
      * @return an XQueryExerciseDTO
      */
-    private XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher) throws JsonProcessingException {
-        return mapper.readValue(proxyResource.getXQExerciseInfo(Integer.parseInt(taskIdForDispatcher)).getBody(), XQueryExerciseDTO.class);
+    private XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher) throws JsonProcessingException, DispatcherRequestFailedException {
+        var response = proxyResource.getXQExerciseInfo(Integer.parseInt(taskIdForDispatcher));
+        if(response != null){
+            return mapper.readValue(response.getBody(), XQueryExerciseDTO.class);
+        }
+        throw new DispatcherRequestFailedException();
     }
 
     /**
@@ -452,7 +464,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the new task assignment
      * @return the id of the created exercise
      */
-    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
@@ -469,7 +481,7 @@ public class DispatcherProxyService {
      * @param taskIdForDispatcher the id
      * @return the solution
      */
-    private String fetchSQLSolution(String taskIdForDispatcher) {
+    private String fetchSQLSolution(String taskIdForDispatcher) throws DispatcherRequestFailedException {
         return proxyResource.getSQLSolution(Integer.parseInt(taskIdForDispatcher)).getBody();
 
     }
@@ -526,8 +538,7 @@ public class DispatcherProxyService {
     private void updateSQLExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String solution = taskAssignmentDTO.getSqlSolution();
         int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-        var response = proxyResource.updateSQLExerciseSolution(id, solution);
-        if (response == null || response.getStatusCodeValue() != 200) throw new DispatcherRequestFailedException();
+        proxyResource.updateSQLExerciseSolution(id, solution);
     }
 
     /**
@@ -563,7 +574,7 @@ public class DispatcherProxyService {
      *
      * @param taskAssignmentDTO the task assignment to be deleted
      */
-    public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) {
+    public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
 
         if (taskAssignmentDTO.getTaskIdForDispatcher() == null || taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
@@ -576,11 +587,11 @@ public class DispatcherProxyService {
             return;
         }
         if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
-            proxyResource.deleteXQExercise(id).getBody();
+            proxyResource.deleteXQExercise(id);
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {
-            proxyResource.deleteSQLExercise(id).getBody();
+            proxyResource.deleteSQLExercise(id);
         } else if (taskType.equals(ETutorVocabulary.DatalogTask.toString())){
-            proxyResource.deleteDLGExercise(id).getBody();
+            proxyResource.deleteDLGExercise(id);
         }
     }
 }

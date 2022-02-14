@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.dispatcher.DispatcherGradingDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
@@ -383,7 +384,7 @@ public class StudentResource {
         try {
             submission = dispatcherProxyService.getSubmission(dispatcherUUID);
             grading = dispatcherProxyService.getGrading(dispatcherUUID);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
             e.printStackTrace();
         }
         Objects.requireNonNull(submission);

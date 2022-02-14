@@ -951,7 +951,11 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
               ?group a etutor:TaskGroup.
               OPTIONAL {
                 ?group etutor:hasSQLCreateStatements ?oldSQLCreateStatements.
+              }
+              OPTIONAL {
                 ?group etutor:hasSQLInsertStatementsSubmission ?oldSQLInsertStatementsSubmission.
+              }
+              OPTIONAL {
                 ?group etutor:hasSQLInsertStatementsDiagnose ?oldSQLInsertStatementsDiagnose.
               }
             }
