@@ -1849,10 +1849,20 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         // Replace links
         String hrefToBeReplaced = "href=\"/";
         String hrefToReplaceWith = "href=\"https://etutor.dke.uni-linz.ac.at/etutorpp/";
-        assignedTasks.forEach(t -> t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith)));
+        assignedTasks.forEach(t -> {
+            if(t.getInstruction() != null) {
+                t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith));
+            }
+        });
         taskGroupDTOTaskListMap.forEach((key, value) -> {
-            key.setDescription(key.getDescription().replace(hrefToBeReplaced, hrefToReplaceWith));
-            value.forEach(t -> t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith)));
+            if(key.getDescription() != null){
+                key.setDescription(key.getDescription().replace(hrefToBeReplaced, hrefToReplaceWith));
+            }
+            value.forEach(t -> {
+                if(t.getInstruction() != null){
+                    t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith));
+                }
+            });
         });
 
         // Set locale according to user
@@ -1871,7 +1881,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         //Get number of tasks with task group
         var numberOfTasksWithGroup = 0;
-        numberOfTasksWithGroup = taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).collect(Collectors.toList()).size();
+        numberOfTasksWithGroup = (int) taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).count();
 
 
         // Initialize Context for template engine
