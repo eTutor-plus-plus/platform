@@ -29,12 +29,15 @@
         "sheetClosedText": "Der Übungszettel wurde bereits geschlossen!",
         "sheetOfTaskClosedText": "Der Übungszettel dieser Aufgabe wurde bereits geschlossen!",
         "openLearningGoals": "Lernziele anzeigen",
+        "learningGoalHeader": "Lernziele von '{{entity}}'",
+        "goalAssignmentTooltip": "Lernzielzuordnung von '{{entity}}' anzeigen",
         "fields": {
           "taskNo": "Aufgabennummer",
           "name": "Name",
           "assessed": "Beurteilt",
           "learningGoalReached": "Lernziel erreicht",
-          "submitted": "Eingereicht"
+          "submitted": "Eingereicht",
+          "learningGoals": "Lernziele"
         }
       },
       "tasks": {

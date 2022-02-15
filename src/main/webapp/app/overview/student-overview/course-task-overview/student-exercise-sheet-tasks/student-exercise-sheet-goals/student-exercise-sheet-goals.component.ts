@@ -16,6 +16,7 @@ import { AccountService } from '../../../../../core/auth/account.service';
 export class StudentExerciseSheetGoalsComponent implements OnInit {
   public allLearningGoals: LearningGoalTreeviewItem[] = [];
   public filteredGoals: LearningGoalTreeviewItem[] = [];
+  public header = '';
 
   private _assignedGoals: string[] = [];
   private _loginName = '';

@@ -238,7 +238,7 @@ public class TaskAssignmentResource {
      * @return the {@link ResponseEntity} containing the list of associated learning goal ids
      */
     @GetMapping("tasks/assignments/{assignmentId}/learninggoals")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<String>> getAssignedLearningGoalsOfAssignment(@PathVariable String assignmentId) {
         List<String> learningGoalIds = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(assignmentId);
         return ResponseEntity.ok(learningGoalIds);
