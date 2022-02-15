@@ -28,6 +28,7 @@
         "header": "Aufgaben des Übungszettels '{{name}}'",
         "sheetClosedText": "Der Übungszettel wurde bereits geschlossen!",
         "sheetOfTaskClosedText": "Der Übungszettel dieser Aufgabe wurde bereits geschlossen!",
+        "openLearningGoals": "Lernziele anzeigen",
         "fields": {
           "taskNo": "Aufgabennummer",
           "name": "Name",

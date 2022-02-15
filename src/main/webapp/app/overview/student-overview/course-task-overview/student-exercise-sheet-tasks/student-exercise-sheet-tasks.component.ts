@@ -5,6 +5,8 @@ import { ICourseInstanceInformationDTO, IStudentTaskListInfoDTO } from '../../..
 import { Subscription } from 'rxjs';
 import { Location } from '@angular/common';
 import { ExerciseSheetsService } from 'app/overview/exercise-sheets/exercise-sheets.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { StudentExerciseSheetGoalsComponent } from './student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -34,13 +36,15 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    * @param location the injected location service
    * @param activatedRoute the injected activated route
    * @param exerciseSheetService the injected exercise sheet service
+   * @param modalService
    */
   constructor(
     private studentService: StudentService,
     private router: Router,
     private location: Location,
     private activatedRoute: ActivatedRoute,
-    private exerciseSheetService: ExerciseSheetsService
+    private exerciseSheetService: ExerciseSheetsService,
+    private modalService: NgbModal
   ) {
     const nav = this.router.getCurrentNavigation();
 
@@ -97,10 +101,10 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Opens the assigned learning goals for the exercise sheet as treeview for the sheet
+   * Opens the assigned learning goals for the exercise sheet as treeview-component for the exercise sheet
    */
   public openLearningGoals(): void {
-    const i = 1;
+    this.openLearningGoalsAsync();
   }
   /**
    * Asynchronously loads the student's tasks.
@@ -114,5 +118,17 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
     this.fileAttachmentId = await this.studentService
       .getFileAttachmentIdForExerciseSheet(this._instance!.instanceId, this._exerciseSheetUUID)
       .toPromise();
+  }
+
+  /**
+   * Opens the modal window that displays the assigned learning goals of the exercise sheet
+   * @private
+   */
+  private async openLearningGoalsAsync(): Promise<any> {
+    const exerciseSheetResponse = await this.exerciseSheetService.getExerciseSheetById(this._exerciseSheetUUID).toPromise();
+    const exerciseSheet = exerciseSheetResponse.body!;
+    const assignedGoalsOfSheet = exerciseSheet.learningGoals.filter(g => g.learningGoal.name).map(g => g.learningGoal.name!);
+    const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = assignedGoalsOfSheet;
   }
 }

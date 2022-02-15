@@ -14,6 +14,7 @@ import { LecturerOverviewComponent } from './lecturer-overview/lecturer-overview
 import { CourseManagementSharedModule } from './course-management-shared/course-management-shared.module';
 import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/course-instance-statistics-overview/course-instance-statistics-overview.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { StudentExerciseSheetGoalsComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 
 /**
  * Module for the overview component.
@@ -36,6 +37,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     StudentTaskComponent,
     LecturerOverviewComponent,
     CourseInstanceStatisticsOverviewComponent,
+    StudentExerciseSheetGoalsComponent,
   ],
 })
 export class OverviewModule {}
