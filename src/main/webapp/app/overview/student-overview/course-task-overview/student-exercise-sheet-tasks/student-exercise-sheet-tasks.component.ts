@@ -147,6 +147,10 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = assignedGoalsOfSheet;
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).header = this.exerciseSheetName;
+    if (this._instance?.courseName) {
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).courseName = this._instance.courseName!;
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).useOnlyCourseGoals = true;
+    }
   }
 
   /**
@@ -163,5 +167,9 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
       (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = assignedGoals;
     }
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).header = entry.taskHeader;
+    if (this._instance?.courseName) {
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).courseName = this._instance.courseName!;
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).useOnlyCourseGoals = true;
+    }
   }
 }

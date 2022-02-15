@@ -188,6 +188,7 @@ public class CourseResource {
      * @return a {@link ResponseEntity} with the learning goals
      */
     @GetMapping("/course/{courseName}/goals")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Set<DisplayLearningGoalAssignmentDTO>> getLearningGoalsForCourse(@PathVariable String courseName) {
         try {
             var goals = sparqlEndpointService.getLearningGoalsForCourse(courseName);

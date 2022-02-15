@@ -143,5 +143,9 @@ export class CourseTaskOverviewComponent implements OnInit {
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = assignedGoalsOfSheet;
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).header = item.assignmentHeader;
+    if (this.instance?.courseName) {
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).courseName = this.instance.courseName!;
+      (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).useOnlyCourseGoals = true;
+    }
   }
 }

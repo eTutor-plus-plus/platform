@@ -3,6 +3,7 @@ import { LearningGoalsService } from '../../../../learning-goals/learning-goals.
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { LearningGoalTreeviewItem } from '../../../../shared/learning-goal-treeview-item.model';
 import { AccountService } from '../../../../../core/auth/account.service';
+import { CourseManagementService } from '../../../../course-management/course-management.service';
 
 /**
  * Component for displaying assigned goals
@@ -17,6 +18,8 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
   public allLearningGoals: LearningGoalTreeviewItem[] = [];
   public filteredGoals: LearningGoalTreeviewItem[] = [];
   public header = '';
+  public courseName = '';
+  public useOnlyCourseGoals = false;
 
   private _assignedGoals: string[] = [];
   private _loginName = '';
@@ -27,11 +30,13 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
    * @param learningGoalsService the injected learning goal service
    * @param activeModal the injected active modal service
    * @param accountService the injected account service
+   * @param courseService the injected course service
    */
   constructor(
     private learningGoalsService: LearningGoalsService,
     private activeModal: NgbActiveModal,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private courseService: CourseManagementService
   ) {
     this._loginName = this.accountService.getLoginName()!;
   }
@@ -40,10 +45,17 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
    * Implements the init method. See {@link OnInit}.
    */
   public ngOnInit(): void {
-    this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this._loginName).subscribe(value => {
-      this.allLearningGoals = value;
-      this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
-    });
+    if (this.useOnlyCourseGoals) {
+      this.courseService.getLearningGoalsFromCourse(this.courseName, this._loginName).subscribe(value => {
+        this.allLearningGoals = value;
+        this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+      });
+    } else {
+      this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this._loginName).subscribe(value => {
+        this.allLearningGoals = value;
+        this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+      });
+    }
   }
 
   /**
