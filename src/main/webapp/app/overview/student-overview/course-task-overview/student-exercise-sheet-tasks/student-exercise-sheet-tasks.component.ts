@@ -97,6 +97,12 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Opens the assigned learning goals for the exercise sheet as treeview for the sheet
+   */
+  public openLearningGoals(): void {
+    const i = 1;
+  }
+  /**
    * Asynchronously loads the student's tasks.
    */
   private async loadTasksAsync(): Promise<any> {

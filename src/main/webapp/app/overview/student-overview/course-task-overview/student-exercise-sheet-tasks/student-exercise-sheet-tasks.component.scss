@@ -1,3 +1,18 @@
 .red-text {
   color: red;
 }
+
+.exercise-sheet-header {
+  display: inline-block;
+}
+
+.learning-goal-button {
+  display: inline-block;
+  position: absolute;
+  right: 0.5rem;
+}
+
+.exercise-sheet-header-container {
+  position: relative;
+  padding: 1rem 0 1rem 0;
+}

@@ -1,7 +1,19 @@
 <button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
 <br />
 <br />
-<h4>{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
+<div class="exercise-sheet-header-container">
+  <h4 class="exercise-sheet-header">{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
+  <div class="btn-group learning-goal-button">
+    <button
+      [disabled]="false"
+      class="btn btn-info"
+      (click)="openLearningGoals()"
+      jhiTranslate="overview.student.exerciseSheetTaskOverview.openTask"
+    >
+      Open
+    </button>
+  </div>
+</div>
 
 <p *ngIf="exerciseSheetClosed" class="red-text" jhiTranslate="overview.student.exerciseSheetTaskOverview.sheetClosedText">
   This exercise sheet has already been closed!
