@@ -42,8 +42,29 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
   public ngOnInit(): void {
     this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this._loginName).subscribe(value => {
       this.allLearningGoals = value;
-      this.filteredGoals = this.allLearningGoals.filter(g => this.assignedGoals.includes(g.text));
+      this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
     });
+  }
+
+  /**
+   * Recursively checks if any of the sub-goals of the passed goals is included in the assigned goals
+   * Thereby, only relevant hierarchies are displayed
+   * @param goal
+   */
+  public containsAssignedGoalInHierarchy(goal: LearningGoalTreeviewItem): boolean {
+    if (this._assignedGoals.includes(goal.text)) {
+      return true;
+    }
+
+    if (goal.childItems.length > 0) {
+      for (const child of goal.childItems) {
+        if (this.containsAssignedGoalInHierarchy(child)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
