@@ -129,17 +129,30 @@ public class DispatcherProxyService {
             && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())){
             throw new MissingParameterException();
         }
-        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
-
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
-        body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
+
+        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
+        body.setSchemaName(schemaName);
+
+        List<String> createStatements = Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).filter(StringUtils::isNotBlank).toList();
+        body.setCreateStatements(createStatements);
+
+        List<String> insertStatements;
+
         if(newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null){
-            body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsDiagnose(insertStatements);
         }
         if(newTaskGroupDTO.getSqlInsertStatementsSubmission() != null){
-            body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsSubmission(insertStatements);
         }
-        body.setSchemaName(schemaName);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
