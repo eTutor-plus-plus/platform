@@ -65,7 +65,7 @@ public class DispatcherProxyService {
      * @param newTaskGroupDTO the new task group
      * @return the HTML status code of the creation
      */
-    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException {
+    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
         int statusCode = 200;
         if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             statusCode = proxyXMLtoDispatcher(newTaskGroupDTO);
@@ -124,8 +124,11 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the task group
      */
-    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException {
-        if (newTaskGroupDTO.getSqlCreateStatements() == null) return 500;
+    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
+        if (StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())
+            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())){
+            throw new MissingParameterException();
+        }
         String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
 
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
@@ -205,9 +208,10 @@ public class DispatcherProxyService {
      *
      * @param taskGroupDTO the task group
      */
-    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
-        if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) && StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
-            return 200;
+    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException, MissingParameterException {
+        if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) &&
+            StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
+            throw new MissingParameterException();
         }
 
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
