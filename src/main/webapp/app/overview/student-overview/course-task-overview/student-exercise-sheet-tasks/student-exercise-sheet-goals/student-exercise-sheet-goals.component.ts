@@ -20,6 +20,7 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
   public header = '';
   public courseName = '';
   public useOnlyCourseGoals = false;
+  public filterGoalTrees = true;
 
   private _assignedGoals: string[] = [];
   private _loginName = '';
@@ -48,12 +49,20 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
     if (this.useOnlyCourseGoals) {
       this.courseService.getLearningGoalsFromCourse(this.courseName, this._loginName).subscribe(value => {
         this.allLearningGoals = value;
-        this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+        if (this.filterGoalTrees) {
+          this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+        } else {
+          this.filteredGoals = this.allLearningGoals;
+        }
       });
     } else {
       this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this._loginName).subscribe(value => {
         this.allLearningGoals = value;
-        this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+        if (this.filterGoalTrees) {
+          this.filteredGoals = this.allLearningGoals.filter(g => this.containsAssignedGoalInHierarchy(g));
+        } else {
+          this.filteredGoals = this.allLearningGoals;
+        }
       });
     }
   }

@@ -27,7 +27,14 @@
             <fa-icon icon="bullseye"></fa-icon>
           </a>
         </td>
-        <td>-</td>
+        <td>
+          <a
+            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: course.courseName } }}"
+            (click)="viewReachedGoals(course)"
+          >
+            <fa-icon icon="bullseye"></fa-icon>
+          </a>
+        </td>
         <td class="text-right">
           <div class="btn-group">
             <button

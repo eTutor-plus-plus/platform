@@ -77,6 +77,16 @@ export class StudentService {
   }
 
   /**
+   * Returns the reached goals of the student for a course instance
+   * @param courseInstanceId
+   */
+  public getReachedGoalsOfCourseInstance(courseInstanceId: string): Observable<HttpResponse<string[]>> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<string[]>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/goals/reached`, { observe: 'response' });
+  }
+
+  /**
    * Marks the given task as submitted.
    *
    * @param courseInstanceId the course instance id

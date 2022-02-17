@@ -134,6 +134,11 @@ export class CourseTaskOverviewComponent implements OnInit {
     });
   }
 
+  /**
+   * Opens the modal window to view the assigned goals of an exercise sheet
+   * @param item the course instance
+   * @private
+   */
   private async viewGoalAssignmentsAsync(item: ICourseInstanceProgressOverviewDTO): Promise<any> {
     const exerciseSheetResponse = await this.exerciseSheetService
       .getExerciseSheetById(item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1))

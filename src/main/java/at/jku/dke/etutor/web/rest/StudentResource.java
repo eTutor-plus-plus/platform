@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.StudentService;
@@ -89,6 +90,22 @@ public class StudentResource {
         Collection<CourseInstanceProgressOverviewDTO> items = studentService.getProgressOverview(matriculationNumber, uuid);
 
         return ResponseEntity.ok(items);
+    }
+
+    /**
+     * Returns the reached goals of a student, for a course instance
+     * @param uuid the uuid of the course instance
+     * @return a collection with all the reached goals
+     */
+    @GetMapping("courses/{uuid}/goals/reached")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Collection<String>> getReachedGoalsForCourse(@PathVariable(name = "uuid") String uuid){
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(uuid);
+
+        Collection<String> reachedGoals = studentService.getReachedGoalsOfStudentAndCourseInstance(courseInstanceURL, matriculationNumber);
+
+        return ResponseEntity.ok(reachedGoals);
     }
 
     /**

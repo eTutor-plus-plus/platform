@@ -5,6 +5,7 @@ import { ICourseModel, Term } from '../course-management/course-mangement.model'
 import { Router } from '@angular/router';
 import { LearningGoalAssignmentDisplayComponent } from '../course-management/learning-goal-assignment-display/learning-goal-assignment-display.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { StudentExerciseSheetGoalsComponent } from './course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -75,5 +76,20 @@ export class StudentOverviewComponent implements OnInit {
       name: courseInstance.courseName,
     };
     (modalRef.componentInstance as LearningGoalAssignmentDisplayComponent).selectedCourse = course;
+  }
+
+  public viewReachedGoals(course: ICourseInstanceInformationDTO): void {
+    this.viewReachedGoalsAsync(course);
+  }
+
+  private async viewReachedGoalsAsync(course: ICourseInstanceInformationDTO): Promise<any> {
+    const reachedGoalsResponse = await this.studentService.getReachedGoalsOfCourseInstance(course.instanceId).toPromise();
+    const reachedGoals = reachedGoalsResponse.body ?? [];
+    const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).filterGoalTrees = false;
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = reachedGoals;
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).header = 'student';
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).courseName = course.courseName;
+    (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).useOnlyCourseGoals = true;
   }
 }
