@@ -84,7 +84,8 @@ export class StudentOverviewComponent implements OnInit {
 
   private async viewReachedGoalsAsync(course: ICourseInstanceInformationDTO): Promise<any> {
     const reachedGoalsResponse = await this.studentService.getReachedGoalsOfCourseInstance(course.instanceId).toPromise();
-    const reachedGoals = reachedGoalsResponse.body ?? [];
+    const reachedGoalsUnfiltered = reachedGoalsResponse.body ?? [];
+    const reachedGoals = reachedGoalsUnfiltered.map(g => g.substr(g.lastIndexOf('#') + 1));
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).filterGoalTrees = false;
     (modalRef.componentInstance as StudentExerciseSheetGoalsComponent).assignedGoals = reachedGoals;

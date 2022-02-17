@@ -713,6 +713,8 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
      * @param courseInstanceId the internal course instance uri
      * @param connection       the rdf connection
      */
+    // TODO: copying sub goals into named graph somehow not working
+    // Fix here and remove class assignment from grading query
     private void copyLearningGoalsIntoNamedCourseInstanceGraph(String courseInstanceId, RDFConnection connection) {
         ParameterizedSparqlString query = new ParameterizedSparqlString(
             """
@@ -722,13 +724,18 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
                 INSERT {
                   GRAPH ?instance {
                   	?goal a etutor:Goal.
-                  	?goal etutor:hasFailedCount "0"^^xsd:int
+                  	?goal etutor:hasFailedCount "0"^^xsd:int.
+                  	?subGoal a etutor:Goal.
+                  	?subGoal etutor:hasFailedCount "0"^^xsd:int.
                   }
                 }
                 WHERE {
                   ?instance a etutor:CourseInstance.
                   ?instance etutor:hasCourse ?course.
-                  ?course etutor:hasGoal/etutor:hasSubGoal* ?goal.
+                  ?course etutor:hasGoal ?goal.
+                  OPTIONAL {
+                    ?goal etutor:hasSubGoal* ?subGoal.
+                  }
                 }
                 """
         );

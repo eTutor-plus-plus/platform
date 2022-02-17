@@ -182,8 +182,9 @@ public non-sealed class LecturerSPARQLEndpointService extends AbstractSPARQLEndp
               	?goal etutor:hasSubGoal+ ?subGoal.
               }
               GRAPH ?courseinstance {
-              	?goal a etutor:Goal.
+              	    ?goal a etutor:Goal.
               }
+
             }
             """;
     private static final String QRY_ADJUST_LEARNING_GOALS_GOAL_FAILED =
