@@ -29,10 +29,10 @@
         </td>
         <td>
           <a
-            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: course.courseName } }}"
+            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: loginName } }}"
             (click)="viewReachedGoals(course)"
           >
-            <fa-icon icon="bullseye"></fa-icon>
+            <fa-icon icon="check"></fa-icon>
           </a>
         </td>
         <td class="text-right">

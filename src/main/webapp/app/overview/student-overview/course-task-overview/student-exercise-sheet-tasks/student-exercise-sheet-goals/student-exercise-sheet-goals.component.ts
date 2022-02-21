@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { LearningGoalsService } from '../../../../learning-goals/learning-goals.service';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LearningGoalTreeviewItem } from '../../../../shared/learning-goal-treeview-item.model';
 import { AccountService } from '../../../../../core/auth/account.service';
 import { CourseManagementService } from '../../../../course-management/course-management.service';
+import { LearningGoalDescriptionModalComponent } from '../../../../learning-goals/learning-goal-description-modal/learning-goal-description-modal.component';
 
 /**
  * Component for displaying assigned goals
@@ -32,12 +33,14 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
    * @param activeModal the injected active modal service
    * @param accountService the injected account service
    * @param courseService the injected course service
+   * @param modalService the injected modal service
    */
   constructor(
     private learningGoalsService: LearningGoalsService,
     private activeModal: NgbActiveModal,
     private accountService: AccountService,
-    private courseService: CourseManagementService
+    private courseService: CourseManagementService,
+    private modalService: NgbModal
   ) {
     this._loginName = this.accountService.getLoginName()!;
   }
@@ -108,5 +111,25 @@ export class StudentExerciseSheetGoalsComponent implements OnInit {
    */
   public cancel(): void {
     this.activeModal.dismiss();
+  }
+
+  /**
+   * Closes the current modal window.
+   */
+  public close(): void {
+    this.activeModal.close();
+  }
+
+  /**
+   * Handles a click on a goal by displaying the description of the goal in a modal window
+   * @param item
+   */
+  public handleGoalClicked(item: LearningGoalTreeviewItem): void {
+    const description = item.description;
+    if (description) {
+      const modalRef = this.modalService.open(LearningGoalDescriptionModalComponent, { backdrop: 'static', size: 'xl' });
+      (modalRef.componentInstance as LearningGoalDescriptionModalComponent).description = description;
+      (modalRef.componentInstance as LearningGoalDescriptionModalComponent).name = item.text;
+    }
   }
 }

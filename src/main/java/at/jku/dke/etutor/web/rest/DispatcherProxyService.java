@@ -179,7 +179,7 @@ public class DispatcherProxyService {
         var response = proxyResource.executeDDLForSQL(jsonBody);
         var statusCode = response.getStatusCodeValue();
 
-        // Update task group description with links and schema info and set id from disptacher in RDF-Graph
+        // Update task group description with links and schema info and set id from dispatcher in RDF-Graph
         if(statusCode == 200){ // update succesful
             try {
                 var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);

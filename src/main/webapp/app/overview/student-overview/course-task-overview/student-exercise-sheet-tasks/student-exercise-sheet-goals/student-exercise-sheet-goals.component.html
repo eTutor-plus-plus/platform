@@ -24,9 +24,12 @@
         <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
       </svg>
     </i>
-    <label class="bi form-check-label" [ngClass]="{ private: item.markedAsPrivate, selected: assignedGoals.includes(item.text) }">{{
-      item.text
-    }}</label>
+    <label
+      class="bi form-check-label"
+      [ngClass]="{ private: item.markedAsPrivate, selected: assignedGoals.includes(item.text) }"
+      (click)="handleGoalClicked(item)"
+      >{{ item.text }}</label
+    >
   </div>
 </ng-template>
 <div>
@@ -39,5 +42,10 @@
     <jhi-alert-error></jhi-alert-error>
 
     <jhi-learning-goal-treeview [items]="filteredGoals" [itemTemplate]="learningGoalsTemplate"> </jhi-learning-goal-treeview>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
+    </button>
   </div>
 </div>

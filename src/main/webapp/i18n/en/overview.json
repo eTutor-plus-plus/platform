@@ -10,6 +10,7 @@
       "showAssignments": "Show assignments",
       "showSelfAssessment": "Start self assessment",
       "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
+      "goalDescriptionHeader": "Learning goal description of '{{goalName}}'",
       "back": "Back",
       "difficulty": "Difficulty",
       "completed": "Completed",
