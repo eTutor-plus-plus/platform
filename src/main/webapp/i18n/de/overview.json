@@ -11,6 +11,7 @@
       "showSelfAssessment": "Selbstüberprüfung durchführen",
       "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
       "goalDescriptionHeader": "Beschreibung des Lernziels '{{goalName}}'",
+      "goalDescriptionTooltip": "Klicken Sie das Ziel um die Beschreibung zu sehen.",
       "back": "Zurück",
       "difficulty": "Schwierigkeit",
       "completed": "Abgeschlossen",

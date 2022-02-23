@@ -8,6 +8,12 @@
   }
 
   .selected {
-    background-color: lightgray;
+    background-color: darkgray;
   }
+}
+
+.info-circle-container {
+  display: inline-block;
+  position: relative;
+  left: 1rem;
 }

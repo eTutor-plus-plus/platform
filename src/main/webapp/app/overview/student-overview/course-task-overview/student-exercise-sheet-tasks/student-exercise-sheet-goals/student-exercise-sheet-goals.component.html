@@ -35,7 +35,9 @@
 <div>
   <div class="modal-header">
     <h4 class="modal-title">{{ 'overview.student.exerciseSheetTaskOverview.learningGoalHeader' | translate: { entity: header } }}</h4>
-
+    <div class="info-circle-container">
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'overview.student.goalDescriptionTooltip' | translate }}" placement="right"></fa-icon>
+    </div>
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
   </div>
   <div class="modal-body">

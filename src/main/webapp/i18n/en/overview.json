@@ -11,6 +11,7 @@
       "showSelfAssessment": "Start self assessment",
       "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
       "goalDescriptionHeader": "Learning goal description of '{{goalName}}'",
+      "goalDescriptionTooltip": "By clicking a goal you can view its description.",
       "back": "Back",
       "difficulty": "Difficulty",
       "completed": "Completed",
