@@ -1,0 +1,19 @@
+.row-item {
+  .bi {
+    cursor: pointer;
+  }
+
+  .private {
+    color: gray;
+  }
+
+  .selected {
+    background-color: darkgray;
+  }
+}
+
+.info-circle-container {
+  display: inline-block;
+  position: relative;
+  left: 1rem;
+}

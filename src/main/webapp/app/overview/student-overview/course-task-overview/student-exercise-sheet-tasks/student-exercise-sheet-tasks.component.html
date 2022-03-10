@@ -1,7 +1,19 @@
 <button type="button" class="btn btn-primary" (click)="navigateBack()" jhiTranslate="overview.student.back">Back</button>
 <br />
 <br />
-<h4>{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
+<div class="exercise-sheet-header-container">
+  <h4 class="exercise-sheet-header">{{ 'overview.student.exerciseSheetTaskOverview.header' | translate: { name: exerciseSheetName } }}</h4>
+  <div class="btn-group learning-goal-button">
+    <button
+      [disabled]="false"
+      class="btn btn-info"
+      (click)="openLearningGoalsForSheet()"
+      jhiTranslate="overview.student.exerciseSheetTaskOverview.openLearningGoals"
+    >
+      Show Goals
+    </button>
+  </div>
+</div>
 
 <p *ngIf="exerciseSheetClosed" class="red-text" jhiTranslate="overview.student.exerciseSheetTaskOverview.sheetClosedText">
   This exercise sheet has already been closed!
@@ -20,6 +32,7 @@
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.assessed">Assessed</th>
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoalReached">Learning goal reached</th>
         <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.submitted">Submitted</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoals">Goals</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -38,6 +51,14 @@
         <td [ngSwitch]="entry.submitted">
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td>
+          <a
+            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: entry.taskHeader } }}"
+            (click)="viewGoalAssignments(entry)"
+          >
+            <fa-icon icon="bullseye"></fa-icon>
+          </a>
         </td>
         <td class="text-right">
           <div class="btn-group">

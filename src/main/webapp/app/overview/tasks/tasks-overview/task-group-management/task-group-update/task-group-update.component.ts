@@ -65,13 +65,14 @@ export class TaskGroupUpdateComponent {
         diagnoseXML: this.taskGroupToEdit.xQueryDiagnoseXML,
         submissionXML: this.taskGroupToEdit.xQuerySubmissionXML,
         datalogFacts: this.taskGroupToEdit.datalogFacts,
+        taskGroupType: this.taskGroupToEdit.taskGroupTypeId,
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
-        this.isSQLGroup = true;
+        this.adjustFormForSQLType();
       } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.XQueryType.value) {
-        this.isXQueryGroup = true;
+        this.adjustFormForXQType();
       } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.DatalogType.value) {
-        this.isDLGGroup = true;
+        this.adjustFormForDLGType();
       }
       this.isNew = false;
     })();
@@ -137,9 +138,58 @@ export class TaskGroupUpdateComponent {
   }
 
   public groupTypeChanged(): void {
-    const groupType = (this.taskGroup.get(['taskGroupType'])!.value as TaskGroupType).value;
-    groupType === TaskGroupType.SQLType.value ? (this.isSQLGroup = true) : (this.isSQLGroup = false);
-    groupType === TaskGroupType.XQueryType.value ? (this.isXQueryGroup = true) : (this.isXQueryGroup = false);
-    groupType === TaskGroupType.DatalogType.value ? (this.isDLGGroup = true) : (this.isDLGGroup = false);
+    const groupType = (this.taskGroup.get(['taskGroupType'])?.value as TaskGroupType).value;
+
+    if (groupType === TaskGroupType.DatalogType.value) {
+      this.adjustFormForDLGType();
+    } else {
+      this.isDLGGroup = false;
+    }
+
+    if (groupType === TaskGroupType.SQLType.value) {
+      this.adjustFormForSQLType();
+    } else {
+      this.isSQLGroup = false;
+    }
+
+    if (groupType === TaskGroupType.XQueryType.value) {
+      this.adjustFormForXQType();
+    } else {
+      this.isXQueryGroup = false;
+    }
+  }
+
+  private adjustFormForDLGType(): void {
+    this.isDLGGroup = true;
+    this.taskGroup.get(['datalogFacts'])?.setValidators(Validators.required);
+    this.taskGroup.get(['datalogFacts'])?.updateValueAndValidity();
+    this.taskGroup.updateValueAndValidity();
+    this.clearSQLValidators();
+  }
+
+  private adjustFormForSQLType(): void {
+    this.isSQLGroup = true;
+    this.taskGroup.get(['sqlCreateStatements'])?.setValidators(Validators.required);
+    this.taskGroup.get(['sqlCreateStatements'])?.updateValueAndValidity();
+    this.taskGroup.updateValueAndValidity();
+    this.clearDLGValidators();
+  }
+
+  private adjustFormForXQType(): void {
+    this.isXQueryGroup = true;
+    this.clearDLGValidators();
+    this.clearSQLValidators();
+  }
+
+  private clearSQLValidators(): void {
+    this.taskGroup.get(['sqlCreateStatements'])?.clearValidators();
+    this.taskGroup.get(['sqlCreateStatements'])?.updateValueAndValidity();
+    this.taskGroup.updateValueAndValidity();
+  }
+
+  private clearDLGValidators(): void {
+    this.taskGroup.get(['datalogFacts'])?.clearValidators();
+    this.taskGroup.get(['datalogFacts'])?.updateValueAndValidity();
+    this.taskGroup.updateValueAndValidity();
   }
 }

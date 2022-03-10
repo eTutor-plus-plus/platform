@@ -65,9 +65,10 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        TaskAssignmentDTO assignment = null;
         try {
             newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
-            TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
+            assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
             throw new DispatcherRequestFailedException();
@@ -238,7 +239,7 @@ public class TaskAssignmentResource {
      * @return the {@link ResponseEntity} containing the list of associated learning goal ids
      */
     @GetMapping("tasks/assignments/{assignmentId}/learninggoals")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<String>> getAssignedLearningGoalsOfAssignment(@PathVariable String assignmentId) {
         List<String> learningGoalIds = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(assignmentId);
         return ResponseEntity.ok(learningGoalIds);

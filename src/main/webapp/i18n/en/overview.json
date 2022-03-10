@@ -10,6 +10,8 @@
       "showAssignments": "Show assignments",
       "showSelfAssessment": "Start self assessment",
       "exerciseSheetOverviewHeader": "Exercise sheets overview of '{{courseName}}'",
+      "goalDescriptionHeader": "Learning goal description of '{{goalName}}'",
+      "goalDescriptionTooltip": "By clicking a goal you can view its description.",
       "back": "Back",
       "difficulty": "Difficulty",
       "completed": "Completed",
@@ -28,12 +30,16 @@
         "header": "Tasks of the exercise sheet '{{name}}'",
         "sheetClosedText": "This exercise sheet has already been closed!",
         "sheetOfTaskClosedText": "This task's exercise sheet has already been closed!",
+        "openLearningGoals": "Show goals",
+        "learningGoalHeader": "Goals of '{{entity}}'",
+        "goalAssignmentTooltip": "Display goal assignment of '{{entity}}'",
         "fields": {
           "taskNo": "Task number",
           "name": "Name",
           "assessed": "Assessed",
           "learningGoalReached": "Learning goal reached",
-          "submitted": "Submitted"
+          "submitted": "Submitted",
+          "learningGoals": "Goals"
         }
       },
       "tasks": {

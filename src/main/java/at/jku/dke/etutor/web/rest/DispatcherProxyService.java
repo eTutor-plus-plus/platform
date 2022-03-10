@@ -65,7 +65,7 @@ public class DispatcherProxyService {
      * @param newTaskGroupDTO the new task group
      * @return the HTML status code of the creation
      */
-    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException {
+    public int createTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
         int statusCode = 200;
         if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
             statusCode = proxyXMLtoDispatcher(newTaskGroupDTO);
@@ -89,16 +89,19 @@ public class DispatcherProxyService {
      */
     private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskGroupDTO);
+        // Check if task group is already existent or new
         int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(newTaskGroupDTO);
         int statusCode;
         if (id != -1) {
             return proxyResource.updateDLGTaskGroup(id, newTaskGroupDTO.getDatalogFacts()).getStatusCodeValue();
-        }
+        }// group is new
 
+        // Initialize DTO
         var group = new DatalogTaskGroupDTO();
         group.setFacts(newTaskGroupDTO.getDatalogFacts());
         group.setName(newTaskGroupDTO.getName());
 
+        // Proxy request
         Integer body = null;
         try {
             var response = proxyResource.createDLGTaskGroup(new ObjectMapper().writeValueAsString(group));
@@ -110,11 +113,17 @@ public class DispatcherProxyService {
         id = body != null ? body : -1;
         if(id == -1) return statusCode;
 
+        // Set received id for task group in RDF-graph
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
 
+        // Update description of task group with link to the facts
         String link = "<br> <a href='"+properties.getDispatcher().getDatalogFactsUrlPrefix()+id+"' target='_blank'>Facts</a>";
         newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
+
+        // Update task group in RDF to include the new description
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
+
+        // Return status code
         return statusCode;
     }
 
@@ -124,20 +133,40 @@ public class DispatcherProxyService {
      *
      * @param newTaskGroupDTO the task group
      */
-    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException {
-        if (newTaskGroupDTO.getSqlCreateStatements() == null) return 500;
-        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
+    private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
+        // Check if both insert statements are blank (if only one is blank, the dispatcher will use the other)
+        if (StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())
+            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())){
+            throw new MissingParameterException();
+        }
 
+        // Initialize DTO
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
-        body.setCreateStatements(Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).toList());
-        if(newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null){
-            body.setInsertStatementsDiagnose(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";")).toList());
-        }
-        if(newTaskGroupDTO.getSqlInsertStatementsSubmission() != null){
-            body.setInsertStatementsSubmission(Arrays.stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";")).toList());
-        }
+
+        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
         body.setSchemaName(schemaName);
 
+        List<String> createStatements = Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).filter(StringUtils::isNotBlank).toList();
+        body.setCreateStatements(createStatements);
+
+        List<String> insertStatements;
+
+        if(newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null){
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsDiagnose(insertStatements);
+        }
+        if(newTaskGroupDTO.getSqlInsertStatementsSubmission() != null){
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsSubmission(insertStatements);
+        }
+
+        // Proxy request to disptacher
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
 
@@ -150,7 +179,8 @@ public class DispatcherProxyService {
         var response = proxyResource.executeDDLForSQL(jsonBody);
         var statusCode = response.getStatusCodeValue();
 
-        if(statusCode == 200){
+        // Update task group description with links and schema info and set id from dispatcher in RDF-Graph
+        if(statusCode == 200){ // update succesful
             try {
                 var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
                 updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
@@ -160,6 +190,7 @@ public class DispatcherProxyService {
             }
         }
 
+        // return status code
         return statusCode;
     }
 
@@ -169,7 +200,10 @@ public class DispatcherProxyService {
      * @param newTaskGroupDTO the {@link TaskGroupDTO}
      */
     private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
+        // Check if schema info or connection id is invalid
         if(info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
+
+        // Transform the name of the tables into links for group description
         var links = new ArrayList<String>();
 
         for(String table : info.getTableColumns().keySet()){
@@ -179,6 +213,8 @@ public class DispatcherProxyService {
             link += ")";
             links.add(link);
         }
+
+        // Update/Set description
         String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
         String startOfLinks = "<strong>Tables:";
         if(!isNew){
@@ -194,6 +230,7 @@ public class DispatcherProxyService {
         }
         description += sb.toString();
 
+        // Set updated description and update group in RDF-graph to reflect the changes
         newTaskGroupDTO.setDescription(description);
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
     }
@@ -205,11 +242,14 @@ public class DispatcherProxyService {
      *
      * @param taskGroupDTO the task group
      */
-    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
-        if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) && StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
-            return 200;
+    private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException, MissingParameterException {
+        // Check if both XML´s are empty (if only one is empty, the dispatcher will use the other)
+        if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) &&
+            StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
+            throw new MissingParameterException();
         }
 
+        // Initialize DTO
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
         String submissionXML = taskGroupDTO.getxQuerySubmissionXML();
         DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML, submissionXML);
@@ -223,9 +263,12 @@ public class DispatcherProxyService {
         }
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
-        assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
-        if(fileURL != null) {
+        if(fileURL != null && StringUtils.isBlank(fileURL)){
+            // Update file-url in RDF-Graph (can be used in XQuery-queries to reference the group/XML)
+            assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
+
+            // Update group-description with link to view the diagnose XML
             String oldDescription = taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription() : "";
             String startOfLinks = "<a href=\"/XML";
             int indexOfLinks= oldDescription.indexOf(startOfLinks);
@@ -238,6 +281,7 @@ public class DispatcherProxyService {
             taskGroupDTO.setDescription(newDescription);
             assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         }
+
         return response.getStatusCodeValue();
     }
 
@@ -250,6 +294,7 @@ public class DispatcherProxyService {
         Objects.requireNonNull(taskGroupDTO);
         Objects.requireNonNull(taskGroupDTO.getTaskGroupTypeId());
         Objects.requireNonNull(taskGroupDTO.getName());
+
         String taskGroupName = taskGroupDTO.getName().trim().replace(" ", "_");
 
         if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
@@ -272,68 +317,131 @@ public class DispatcherProxyService {
     public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
-        /*
-        1. check which task type
-        2. check whether dispatcher id is set to reference an existing task or if a new task should be created (taskgroup != null and of right type, solution != null)
-         */
+        if(!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
 
         if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) { // XQuery task
-            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
-                && StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())) { // No Dispatcher-ID set AND task group not null AND solution not null
-                var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-                if(group.isPresent()){
-                    if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) throw new NotAValidTaskGroupException();
-                }
-                // task group is of right type (XQuery task group)
-                int id = this.createXQueryTask(newTaskAssignmentDTO);
-                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-            } else if(newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Dispatcher ID set to reference existing task
-                XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
-                newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
-                if (!e.getSortedNodes().isEmpty())
-                    newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
-            }else{ // Either is the id not set, or group + solution is not set
-                throw new MissingParameterException();
-            }
+            handleXQTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
-            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
-                var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-                if(group.isPresent()){
-                    if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) throw new NotAValidTaskGroupException();
-                }
-                int id = this.createSQLTask(newTaskAssignmentDTO);
-                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-            } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) {
-                String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
-                newTaskAssignmentDTO.setSqlSolution(solution);
-            } else {
-                throw new MissingParameterException();
-            }
+            handleSQLTaskCreation(newTaskAssignmentDTO);
         } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
-            if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
-                && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) {
-                var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-                if(group.isPresent()){
-                    if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
-                        throw new NotAValidTaskGroupException();
-                }
-                int id = this.createDLGTask(newTaskAssignmentDTO);
-                if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-            } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) {
-                DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
-
-                if(exerciseDTO == null) throw new DispatcherRequestFailedException();
-
-                newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
-                newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
-                String uncheckedTerms = exerciseDTO.getUncheckedTerms()
-                        .stream().map(DatalogTermDescriptionDTO::toString).reduce("", (x, y)->x+y+".\n");
-                newTaskAssignmentDTO.setDatalogUncheckedTerms(uncheckedTerms);
-            }else{
-                throw new MissingParameterException();
-            }
+            handleDLGTaskCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
+    }
+
+    /**
+     * Handles creation of a datalog task
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws NotAValidTaskGroupException if task group type does not match the task type
+     * @throws DispatcherRequestFailedException if dispatche returned an error
+     * @throws MissingParameterException if not enough parameter have been provided to execute the creation
+     */
+    private void handleDLGTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws NotAValidTaskGroupException, DispatcherRequestFailedException, MissingParameterException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())) return;
+
+        // Check whether we want to create a new task or if we are referencing a task which is already existing in the dispatcher by referencing via the ID
+        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) { //creation of new task
+
+            // Fetch assigned task-group to check if the group-type matches the task type
+            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
+            if(group.isPresent()){
+                if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
+                    throw new NotAValidTaskGroupException();
+            }
+            // Create task
+            int id = this.createDLGTask(newTaskAssignmentDTO);
+
+            // Set the returned id of the task
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+        } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) { // Reference of existing task
+            // Fetch the Info about the exercise from dispatcher
+            DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
+
+            // Indicates most likely that id could not be found in the dispatcher
+            if(exerciseDTO == null) throw new DispatcherRequestFailedException();
+
+            // Set the relevant fields in the task assignment
+            newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
+            newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
+            // Parse the List of DatalogUncheckedTerms into a String representation
+            String uncheckedTerms = exerciseDTO.getUncheckedTerms()
+                .stream().map(DatalogTermDescriptionDTO::toString).reduce("", (x, y)->x+y+".\n");
+            newTaskAssignmentDTO.setDatalogUncheckedTerms(uncheckedTerms);
+        }else{ // Creation failed, either because no id and no group has been set or, in the case of the creation of a new task, not enough info has been provided
+            throw new MissingParameterException();
+        }
+    }
+
+    /**
+     * Handles the creation of an XQuery task
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws NotAValidTaskGroupException if task group type does not match the task type
+     * @throws DispatcherRequestFailedException if dispatcher returned an error
+     * @throws MissingParameterException if not enough parameter have been provided to execute the creation
+     */
+    private void handleXQTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, JsonProcessingException, MissingParameterException, NotAValidTaskGroupException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) return;
+
+        // Check wheter we are creating a new task, or referencing an existing task
+        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())) { // No Dispatcher-ID set AND task group not null AND solution not null
+
+            // Fetch group to compare the group type with the task assignment type
+            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
+            if(group.isPresent() && !group.get().getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
+               throw new NotAValidTaskGroupException();
+            }// task group is of right type (XQuery task group)
+
+            // Create XQ-Task
+            int id = this.createXQueryTask(newTaskAssignmentDTO);
+
+            // Set the returned id from the task in the dispatcher
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+        } else if(newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Dispatcher ID set to reference existing task
+            // Fetch info about the exercise from dispatcher
+            XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
+
+            // Set the solution and optional sorted nodes
+            newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
+            if (!e.getSortedNodes().isEmpty())
+                newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
+        }else{ // Either is the id not set, or group + solution is not set
+            throw new MissingParameterException();
+        }
+    }
+
+    /**
+     * Handles creation of an SQL-Task
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws DispatcherRequestFailedException if an error is returned by the dispatcher
+     * @throws NotAValidTaskGroupException if the task group type does not match the task type
+     * @throws MissingParameterException if not enough parameters have been provided to create the task
+     */
+    private void handleSQLTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())) return;
+
+        // Check wheter we are creating a new task or referencing an existing task in the dispatcher
+        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+            // Fetch group to compare type
+            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
+            if (group.isPresent()) {
+                if (!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
+                    throw new NotAValidTaskGroupException();
+            }
+            // Create task
+            int id = this.createSQLTask(newTaskAssignmentDTO);
+
+            // Set disptacher id of task
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+        } else if (newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Reference of existing task
+            // Fetch solution
+            String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
+            // Set solution
+            newTaskAssignmentDTO.setSqlSolution(solution);
+        } else {
+            throw new MissingParameterException();
+        }
     }
 
     /**
@@ -363,12 +471,22 @@ public class DispatcherProxyService {
      * @return the {@link DatalogExerciseDTO}
      */
     private DatalogExerciseDTO getDatalogExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO){
+        // Initialize DTO
         DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
         List<String> queries = new ArrayList<>();
+
+        // Split the queries and initialize list of queries
         Arrays.stream(newTaskAssignmentDTO.getDatalogQuery().split(";")).forEach(x -> queries.add(x.trim().replace("\r", "").replace("\n", "").replace(" ", "")));
+
         exerciseDTO.setQueries(queries);
         exerciseDTO.setSolution(newTaskAssignmentDTO.getDatalogSolution());
-        if(newTaskAssignmentDTO.getDatalogUncheckedTerms() != null) exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
+
+        // Parse the String of unchecked terms into a list of DTOs
+        if(newTaskAssignmentDTO.getDatalogUncheckedTerms() != null)
+            exerciseDTO.setUncheckedTerms(parseUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms()));
+
+        // Set the id of the facts by a quick and dirty solution of initializing a new task group with the id of the
+        // task group set in the task, which can be used to retrieve the id of the task group
         var tempTaskGroup = new TaskGroupDTO();
         tempTaskGroup.setId(newTaskAssignmentDTO.getTaskGroupId());
         exerciseDTO.setFactsId(assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(tempTaskGroup));
@@ -424,14 +542,18 @@ public class DispatcherProxyService {
     private int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getxQuerySolution());
 
+        // Initialize DTO
+        XQueryExerciseDTO body = new XQueryExerciseDTO();
+
         List<String> sortings = new ArrayList<>();
         String dtoSorting = newTaskAssignmentDTO.getxQueryXPathSorting();
         if (dtoSorting != null) sortings.add(dtoSorting);
 
-        XQueryExerciseDTO body = new XQueryExerciseDTO();
+
         body.setQuery(newTaskAssignmentDTO.getxQuerySolution());
         body.setSortedNodes(sortings);
 
+        // Send request
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
         try {
@@ -440,7 +562,10 @@ public class DispatcherProxyService {
             e.printStackTrace();
             return -1;
         }
+
         var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_"), jsonBody);
+
+        // Return ID of the task
         return response.getBody() != null ? response.getBody() : -1;
     }
 
@@ -468,10 +593,14 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
+        // Get solution and task group required by the dispatcher to create the task
         String solution = newTaskAssignmentDTO.getSqlSolution();
         String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_");
 
+        // Proxy request to dispatcher
         var response = proxyResource.createSQLExercise(solution, taskGroup);
+
+        // Return dispatcher-id of the exercise
         return response.getBody() != null ? Integer.parseInt(response.getBody()) : -1;
     }
 
@@ -494,6 +623,8 @@ public class DispatcherProxyService {
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
+        if(!isDispatcherTaskAssignment(taskAssignmentDTO)) return;
+
         if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
             throw new MissingParameterException();
         }
@@ -519,15 +650,30 @@ public class DispatcherProxyService {
         }
     }
 
+    /**
+     * Checks whether the given task assignment has a type related to the dispatcher
+     * @param taskAssignmentDTO the task assignment
+     * @return boolean indicating type
+     */
+    private boolean isDispatcherTaskAssignment(NewTaskAssignmentDTO taskAssignmentDTO) {
+        String type = taskAssignmentDTO.getTaskAssignmentTypeId();
+        return type.equals(ETutorVocabulary.SQLTask.toString()) ||
+            type.equals(ETutorVocabulary.DatalogTask.toString()) ||
+            type.equals(ETutorVocabulary.RATask.toString()) ||
+            type.equals(ETutorVocabulary.XQueryTask.toString());
+    }
+
 
     /**
      * Updates the dispatcher resources for a datalog-type task-assignment
      * @param taskAssignmentDTO the {@link TaskAssignmentDTO} to be updated
      */
     private void updateDLGExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        // Initialize DTO from task assignment
         var exercise = getDatalogExerciseDTOFromTaskAssignment(taskAssignmentDTO);
-        var response = proxyResource.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
-        if(response == null || response.getStatusCodeValue() != 200) throw new DispatcherRequestFailedException();
+
+        // Proxy request to dispatcher
+        proxyResource.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
     }
 
     /**
@@ -547,11 +693,13 @@ public class DispatcherProxyService {
      * @param taskAssignmentDTO the task assignment to be updated
      */
     private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        // Initialize DTO
+        XQueryExerciseDTO body = new XQueryExerciseDTO();
+
+
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
         if (dtoSorting != null) sortings.add(dtoSorting);
-
-        XQueryExerciseDTO body = new XQueryExerciseDTO();
         body.setQuery(taskAssignmentDTO.getxQuerySolution());
         body.setSortedNodes(sortings);
 
@@ -563,10 +711,8 @@ public class DispatcherProxyService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        var response = proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody);
-        if (response == null || response.getStatusCodeValue() != 200){
-            throw new DispatcherRequestFailedException();
-        }
+        // Proxy request
+        proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody);
     }
 
     /**
@@ -576,16 +722,17 @@ public class DispatcherProxyService {
      */
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
+        if(!isDispatcherTaskAssignment(taskAssignmentDTO) || taskAssignmentDTO.getTaskIdForDispatcher() == null) return;
 
-        if (taskAssignmentDTO.getTaskIdForDispatcher() == null || taskType.equals(ETutorVocabulary.NoType.toString()) || taskType.equals(ETutorVocabulary.UploadTask.toString()))
-            return;
-
+        // Parse the id of the task
         int id = -1;
         try{
             id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
         }catch(NumberFormatException e){
             return;
         }
+
+        // Proxy request according to task type
         if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
             proxyResource.deleteXQExercise(id);
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {

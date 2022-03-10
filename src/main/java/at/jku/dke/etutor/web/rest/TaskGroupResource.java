@@ -7,6 +7,7 @@ import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
+import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
 import org.springframework.data.domain.Page;
@@ -66,6 +67,9 @@ public class TaskGroupResource {
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new DispatcherRequestFailedException();
+        } catch (MissingParameterException e) {
+            assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
     }
 
@@ -125,6 +129,8 @@ public class TaskGroupResource {
             }
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             throw new DispatcherRequestFailedException();
+        } catch (MissingParameterException e) {
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
         return ResponseEntity.ok(taskGroupDTOFromService);
     }

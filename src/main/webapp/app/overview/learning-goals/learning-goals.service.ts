@@ -24,7 +24,7 @@ export class LearningGoalsService {
    * Returns all visible learning goal tree view items.
    *
    * @param userLogin the login of the current user
-   * @param onlyShowOwnGoals indicated whehter only the currently logged-in user's goals
+   * @param onlyShowOwnGoals indicated whether only the currently logged-in user's goals
    * should be displayed (default: false)
    * @returns an observable which contains the list of {@link LearningGoalTreeviewItem}.
    */
