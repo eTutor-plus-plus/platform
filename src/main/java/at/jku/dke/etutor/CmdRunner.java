@@ -2,15 +2,12 @@ package at.jku.dke.etutor;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.web.rest.vm.LoginVM;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import liquibase.pro.packaged.O;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -99,7 +96,7 @@ public class CmdRunner implements CommandLineRunner {
                     NewTaskGroupDTO newTaskGroupDTO = new NewTaskGroupDTO();
                     newTaskGroupDTO.setName(groupDescription);
                     newTaskGroupDTO.setDescription(text);
-                    newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.NoTypeTaskGroup.getURI());
+                    newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.NoTypeTaskGroup.getURI()); // Do not change
 
                     taskGroups.add(new TaskGroupDTO(id, groupDescription, text,
                         createNewTaskGroup(newTaskGroupDTO)));
@@ -159,6 +156,10 @@ public class CmdRunner implements CommandLineRunner {
         }
     }
 
+    /**
+     * Authentication method which sets the authorization token
+     * @throws JsonProcessingException on marshalling error
+     */
     private void authenticate() throws JsonProcessingException {
         LoginVM login = new LoginVM();
         login.setUsername(properties.getCmd_runner().getEtutor_login());
@@ -183,6 +184,11 @@ public class CmdRunner implements CommandLineRunner {
         this.authorizationToken = authHeader;
     }
 
+    /**
+     * Adds a new task group via the endpoint
+     * @param newTaskGroupDTO the task group to add
+     * @return the returned task group
+     */
     private at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO createNewTaskGroup(NewTaskGroupDTO newTaskGroupDTO) {
         ObjectMapper mapper = new ObjectMapper();
         String body = "";
@@ -211,6 +217,10 @@ public class CmdRunner implements CommandLineRunner {
         }
     }
 
+    /**
+     * Adds a new task assignment via the endpoint
+     * @param newTaskAssignmentDTO the task assignment to add
+     */
     private void insertNewTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         ObjectMapper mapper = new ObjectMapper();
         String body = "";
@@ -232,7 +242,9 @@ public class CmdRunner implements CommandLineRunner {
         restTemplate.exchange(taskAssignmentEndpoint, HttpMethod.POST, entity, String.class).getBody();
     }
 
-
+    /**
+     * Local representation of a task group
+     */
     public static class TaskGroupDTO {
         private int id;
         private String groupDescription;
