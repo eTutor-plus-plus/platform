@@ -194,5 +194,6 @@ application:
     max_points: 10
     diagnose_level_weighting: 1
     organisation_unit: DKE
-    task_assignment_type: 
+    task_assignment_type: http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask # http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask
+
 
