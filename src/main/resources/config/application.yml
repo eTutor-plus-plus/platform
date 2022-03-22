@@ -182,4 +182,17 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  cmd_runner:
+    password: insert-pw
+    user: insert-user
+    url: jdbc:mysql://localhost:3306/moodle
+    etutor_login: insert-user
+    etutor_pw: insert-pw
+    cookie_id: MOODLEID_=%E8%9CO%18%E6%2B%E1%5D%B3
+    creator: admin
+    max_points: 10
+    diagnose_level_weighting: 1
+    organisation_unit: DKE
+    task_assignment_type: 
+
