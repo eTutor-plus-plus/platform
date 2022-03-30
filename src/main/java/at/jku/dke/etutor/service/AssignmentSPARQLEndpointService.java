@@ -772,7 +772,7 @@ public class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointServi
             """);
         query.setIri("?group", id);
 
-        try (RDFConnection connection = rdfC) {
+        try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
     }
