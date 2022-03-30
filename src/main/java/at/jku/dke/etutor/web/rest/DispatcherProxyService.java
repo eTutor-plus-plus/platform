@@ -264,7 +264,7 @@ public class DispatcherProxyService {
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
 
-        if(fileURL != null && StringUtils.isBlank(fileURL)){
+        if(fileURL != null && StringUtils.isNotBlank(fileURL)){
             // Update file-url in RDF-Graph (can be used in XQuery-queries to reference the group/XML)
             assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
