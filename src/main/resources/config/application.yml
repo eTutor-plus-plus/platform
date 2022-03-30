@@ -184,12 +184,12 @@ jhipster:
 
 application:
   cmd_runner:
-    password: insert-pw
-    user: insert-user
+    password:
+    user:
     url: jdbc:mysql://localhost:3306/moodle
-    etutor_login: insert-user
-    etutor_pw: insert-pw
-    cookie_id: MOODLEID_=%E8%9CO%18%E6%2B%E1%5D%B3
+    etutor_login: ak124038
+    etutor_pw:
+    cookie_id:
     creator: admin
     max_points: 10
     diagnose_level_weighting: 1

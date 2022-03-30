@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdfconnection.RDFConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -82,7 +85,7 @@ public class CmdRunner implements CommandLineRunner {
                  ResultSet set =
                      taskGroupStatement.executeQuery("""
                          select DISTINCT gr.id as groupId, gr.shortdescription, inter.text from mdl_question_etutor_exerc_group gr, mdl_question_etutor_internation inter
-                         where gr.id in (select exercisegroupid from mdl_question_etutor where tasktypeid = 1)
+                         where gr.id in (select exercisegroupid from mdl_question_etutor where tasktypeid = 12)
                          AND gr.id = inter.recordid AND inter.tabletype = 'e' AND length(inter.text) > 0
                          order by gr.id
                          """)) {
@@ -108,7 +111,7 @@ public class CmdRunner implements CommandLineRunner {
                  ResultSet set = stmt.executeQuery("""
                      select DISTINCT question.remoteid, question.exercisegroupid, inter.text, cats.name as category, mdl_q.name as qname from mdl_question_etutor question,
                      mdl_question_etutor_internation inter, mdl_question mdl_q, mdl_question_categories cats
-                     where tasktypeid = 1 AND inter.tabletype = 'q' AND inter.recordid = question.questionid
+                     where tasktypeid = 12 AND inter.tabletype = 'q' AND inter.recordid = question.questionid
                      and length(inter.text) > 0 AND question.questionid = mdl_q.id AND mdl_q.category = cats.id
                      order by question.id
                      """)) {
