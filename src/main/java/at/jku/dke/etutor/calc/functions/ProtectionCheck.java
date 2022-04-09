@@ -10,13 +10,18 @@ public class ProtectionCheck {
         return sheet.getProtect();
     }
 
+    /**
+     * @param solution sheet of the solution
+     * @param submission sheet of the submission
+     * @return true, when the protection of the sheet of the submission equals the protection of the sheet of the solution
+     * the function also checks if some cells are able to change even if the sheet is protected
+     */
     public static boolean correctProtected (Sheet solution, Sheet submission) {
-
-        // TODO: Checks if the sheet is correct protected
+        // Checks if the sheet is correct protected
         if (isSheetProtected(solution) != isSheetProtected(submission)) {
             return false;
         }
-        // TODO: Checks if the correct cells of the sheet are unprotected
+        // Checks if the correct cells of the sheet are unprotected
         for (Row row : solution) {
             for (Cell cell : row) {
                 Cell submission_cell = submission.getRow(cell.getRowIndex()).getCell(cell.getColumnIndex());

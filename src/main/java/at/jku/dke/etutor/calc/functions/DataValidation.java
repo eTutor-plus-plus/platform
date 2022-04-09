@@ -10,6 +10,13 @@ import java.util.List;
 
 public class DataValidation {
 
+    /**
+     * @param solution sheet of the solution
+     * @param submission sheet of the submission
+     * @return true, when the dataValidation of the submission equals the dataValidation of the solution
+     * this function is for the Examples 5 & 6 where it should only be possible to type in specific dates
+     * this function is just checking the dataValidation for dates, because otherwise it fails (numeric does not equal integer and problems which the overritten formulas in the CreateRandomInstruction.overrideWorkbooks)
+     */
     public static boolean checkDataValidation (Sheet solution, Sheet submission) {
         List<XSSFDataValidation> solution_validation = (List<XSSFDataValidation>) solution.getDataValidations();
         List<XSSFDataValidation> submission_validation = (List<XSSFDataValidation>) submission.getDataValidations();

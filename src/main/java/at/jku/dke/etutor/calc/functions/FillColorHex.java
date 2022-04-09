@@ -10,6 +10,11 @@ import java.util.Objects;
 
 public class FillColorHex {
 
+    /**
+     * @param cell cell of which the color should be returned
+     * @return String which expresses the color of the cell
+     * This function got copied by the Internet
+     */
     public static String getFillColorHex(Cell cell) throws Exception {
         String fillColorString = "none";
         if (cell != null) {
@@ -33,6 +38,9 @@ public class FillColorHex {
         return fillColorString;
     }
 
+    /**
+     * @return List of Cells of a sheet with green background-color
+     */
     public static List<Cell> getDropdownCells (Sheet sheet) throws Exception {
         // [255, 0, 169, 51] -> green
         List <Cell> dropdowns = new ArrayList<>();
@@ -46,6 +54,9 @@ public class FillColorHex {
         return dropdowns;
     }
 
+    /**
+     * @return List of Cells of a sheet with yellow background-color
+     */
     public static List<Cell> getValueCells (Sheet sheet) throws Exception {
         // [255, 255, 255, 0] -> yellow
         List <Cell> value_cells = new ArrayList<>();
@@ -59,6 +70,9 @@ public class FillColorHex {
         return value_cells;
     }
 
+    /**
+     * @return List of Cells of a sheet with orange background-color
+     */
     public static List<Cell> getCalculationCells (Sheet sheet) throws Exception {
         // [255, 255, 128, 0] -> orange
         List <Cell> value_cells = new ArrayList<>();
@@ -72,6 +86,9 @@ public class FillColorHex {
         return value_cells;
     }
 
+    /**
+     * @return List of Cells of a sheet with red background-color
+     */
     public static List<Cell> getCalculationHelpCells (Sheet sheet) throws Exception {
         // [255, 255, 0, 0] -> red
         List <Cell> value_cells = new ArrayList<>();
@@ -85,21 +102,33 @@ public class FillColorHex {
         return value_cells;
     }
 
+    /**
+     * @return true, when the cell is a dropDownCell
+     */
     public static boolean isDropdownCell (Sheet sheet, Cell cell) throws Exception {
         List <Cell> dropdowns = getDropdownCells(sheet);
         return dropdowns.contains(cell);
     }
 
+    /**
+     * @return true, when the cell is a valueCell
+     */
     public static boolean isValueCell (Sheet sheet, Cell cell) throws Exception {
         List <Cell> value_cells = getValueCells(sheet);
         return value_cells.contains(cell);
     }
 
+    /**
+     * @return true, when the cell is a calculationCell
+     */
     public static boolean isCalculationCell (Sheet sheet, Cell cell) throws Exception {
         List <Cell> calculation_cells = getCalculationCells(sheet);
         return calculation_cells.contains(cell);
     }
 
+    /**
+     * @return true, when the cell is a calculationHelpCell
+     */
     public static boolean isCalculationHelpCell (Sheet sheet, Cell cell) throws Exception {
         List <Cell> calculation_help_cells = getCalculationHelpCells(sheet);
         return calculation_help_cells.contains(cell);
