@@ -422,6 +422,12 @@
             <artifactId>openhtmltopdf-pdfbox</artifactId>
             <version>1.0.6</version>
         </dependency>
+        <!-- Apache POI Dependency for Calc Module -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.12</version>
+        </dependency>
     </dependencies>
 
     <build>
