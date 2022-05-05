@@ -301,7 +301,7 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
             if(StringUtils.isNotBlank(taskAssignment.getDiagnoseLevelWeighting())){
                 query.append("?assignment etutor:hasDiagnoseLevelWeighting ");
-                query.appendLiteral(taskAssignment.getDiagnoseLevelWeighting());
+                query.appendLiteral(taskAssignment.getDiagnoseLevelWeighting() != null ? taskAssignment.getDiagnoseLevelWeighting() : "0");
                 query.append(".\n");
             }
 
@@ -1324,6 +1324,8 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDiagnoseLevelWeighting())){
             resource.addProperty(ETutorVocabulary.hasDiagnoseLevelWeighting, newTaskAssignmentDTO.getDiagnoseLevelWeighting());
+        }else{
+            resource.addProperty(ETutorVocabulary.hasDiagnoseLevelWeighting, "0");
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getProcessingTime())) {

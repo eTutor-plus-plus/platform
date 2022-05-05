@@ -264,7 +264,8 @@ export class AssignmentComponent implements AfterContentChecked {
    * @private
    */
   private calculatePoints(): number {
-    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * parseInt(this.diagnoseLevelWeighting, 10);
+    const weighting = this.diagnoseLevelWeighting ? parseInt(this.diagnoseLevelWeighting, 10) : 0;
+    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * weighting;
     if (points > 1) {
       return points;
     }
