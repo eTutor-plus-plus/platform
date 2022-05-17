@@ -70,6 +70,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setDatalogQuery(newTaskAssignmentDTO.getDatalogQuery());
         setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
         setUploadFileId(newTaskAssignmentDTO.getUploadFileId());
+        setBpmnTestConfig(newTaskAssignmentDTO.getBpmnTestConfig());
 
         setId(id);
         setCreationDate(creationDate);
@@ -156,6 +157,11 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
         if(datalogUncheckedTermsStatement != null){
             setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
+        }
+
+        Statement bpmnConfig = resource.getProperty(ETutorVocabulary.hasBpmnConfig);
+        if(bpmnConfig != null){
+            setBpmnTestConfig(bpmnConfig.getString());
         }
 
 
