@@ -1546,9 +1546,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                          ?individualTask etutor:hasOrderNo ?orderNo;
                                          etutor:refersToTask ?taskAssignment.
 
-                         ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
-                                         etutor:hasMaxPoints ?maxPoints;
+                         ?taskAssignment etutor:hasMaxPoints ?maxPoints;
                                          etutor:hasTaskIdForDispatcher ?dispatcherId.
+
+                         OPTIONAL{
+                            ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
+                         }
                     }
             """);
 
@@ -1569,9 +1572,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
 
                     var result = new Double[3];
-                    result[0] = diagnoseLevelWeightingLiteral.getDouble();
-                    result[1] = maxPointsLiteral.getDouble();
-                    result[2] = dispatcherIdLiteral.getDouble();
+                    result[0] = diagnoseLevelWeightingLiteral != null ? diagnoseLevelWeightingLiteral.getDouble() : 0.0;
+                    result[1] = maxPointsLiteral != null ? maxPointsLiteral.getDouble() : 0.0;
+                    result[2] = dispatcherIdLiteral != null ? dispatcherIdLiteral.getDouble() : -1.0;
                     return Optional.of(result);
                 } else {
                     return Optional.empty();
