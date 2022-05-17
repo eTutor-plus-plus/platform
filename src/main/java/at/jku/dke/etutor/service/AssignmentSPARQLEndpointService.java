@@ -369,6 +369,12 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
                 query.append(".\n");
             }
 
+            if(StringUtils.isNotBlank(taskAssignment.getBpmnTestConfig())){
+                query.append("?assignment etutor:hasBpmnConfig ");
+                query.appendLiteral(taskAssignment.getBpmnTestConfig());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getTaskGroupId())) {
                 query.appendIri(taskAssignment.getTaskGroupId());
                 query.append(" etutor:hasTask ?assignment.\n");
@@ -1312,6 +1318,10 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())){
             resource.addProperty(ETutorVocabulary.hasDLGQuery, newTaskAssignmentDTO.getDatalogQuery().trim());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getBpmnTestConfig())){
+            resource.addProperty(ETutorVocabulary.hasBpmnConfig, newTaskAssignmentDTO.getBpmnTestConfig());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogUncheckedTerms())){

@@ -97,6 +97,13 @@
         </small>
       </div>
     </div>
+    <div class="form-group" *ngIf="isBpmnTask">
+      <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"
+        >Bpmn: CreateJson:</label
+      >
+      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
+      <ngx-monaco-editor [options]="editorOptions" id="bpmnTestConfig" formControlName="bpmnTestConfig"></ngx-monaco-editor>
+    </div>
     <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
       <label class="form-control-label" for="taskIdForDispatcher">
         {{ 'taskManagement.fields.taskIdForDispatcher' | translate }}

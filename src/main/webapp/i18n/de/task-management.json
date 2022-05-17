@@ -29,7 +29,8 @@
       "sqlTask": "SQL Aufgabe",
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
-      "dlgTask": "Datalog Aufgabe"
+      "dlgTask": "Datalog Aufgabe",
+      "bpmnTask": "Bpmn Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -59,7 +60,8 @@
       "datalogSolution": "Datalog Lösung:",
       "datalogQuery": "Datalog Query:",
       "datalogFacts": "Datalog Fakten:",
-      "datalogUncheckedTerms": "Datalog Terms"
+      "datalogUncheckedTerms": "Datalog Terms",
+      "bpmnCreateStatements": "Create Bpmn Json Testkonfiguration"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
@@ -99,6 +101,7 @@
         "editHeader": "Aufgabengruppe '{{name}}' bearbeiten",
         "nameField": "Name:",
         "sqlCreateStatements": "SQL: Create-Table-Statements",
+        "bpmnCreateStatements": "Bpmn: Create Json:",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
         "sqlCreateStatementsInfo": "Geben Sie hier die DDL-Statements für die Gruppe ein. Die Links zu den Tabellen werden beim erstmaligen erstellen der Gruppe automatisch zur Beschreibung hinzugefügt.",

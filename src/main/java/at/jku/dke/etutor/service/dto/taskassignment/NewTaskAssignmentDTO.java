@@ -38,6 +38,8 @@ public class NewTaskAssignmentDTO {
 
     private String processingTime;
 
+    private String bpmnTestConfig;
+
     @NotBlank
     @DifficultyRankingConstraint
     private String taskDifficultyId;
@@ -391,5 +393,13 @@ public class NewTaskAssignmentDTO {
 
     public void setUploadFileId(int uploadFileId) {
         this.uploadFileId = uploadFileId;
+    }
+
+    public String getBpmnTestConfig() {
+        return bpmnTestConfig;
+    }
+
+    public void setBpmnTestConfig(String bpmnTestConfig) {
+        this.bpmnTestConfig = bpmnTestConfig;
     }
 }
