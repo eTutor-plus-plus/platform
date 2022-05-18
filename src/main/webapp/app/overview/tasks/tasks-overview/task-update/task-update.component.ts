@@ -438,6 +438,7 @@ export class TaskUpdateComponent implements OnInit {
       taskType: taskT,
     };
     (modalRef.componentInstance as LecturerRunSubmissionComponent).showHeader = false;
+    (modalRef.componentInstance as LecturerRunSubmissionComponent).showSubmitButton = true;
   }
 
   /**

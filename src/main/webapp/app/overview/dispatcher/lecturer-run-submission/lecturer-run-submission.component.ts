@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TaskSubmissionsModel } from '../task-submissions/task-submissions.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -18,6 +18,7 @@ export class LecturerRunSubmissionComponent {
   public submissionEntry!: TaskSubmissionsModel;
   public matriculationNo: string | undefined = '';
   public showHeader = true;
+  public showSubmitButton = false;
 
   constructor(private activeModal: NgbActiveModal, private modalService: NgbModal) {}
 
