@@ -256,7 +256,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
-      const bpmnTestConfig = value.bpmnTestConfig;
+      const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
       const xQuerySolution = value.xQuerySolution;
       const xQueryXPathSorting = value.xQueryXPathSorting;
@@ -387,9 +387,11 @@ export class TaskUpdateComponent implements OnInit {
       }
       this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
+      if (taskAssignmentTypeId !== TaskAssignmentType.BpmnTask.value) {
       if (!this.updateForm.get('taskIdForDispatcher')) {
         this.updateForm.get('taskGroup')!.setValidators(Validators.required);
         this.updateForm.get('taskGroup')!.updateValueAndValidity();
+      }
       }
       this.updateForm.updateValueAndValidity();
     } else {

@@ -98,9 +98,7 @@
       </div>
     </div>
     <div class="form-group" *ngIf="isBpmnTask">
-      <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"
-        >Bpmn: CreateJson:</label
-      >
+      <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"></label>
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
       <ngx-monaco-editor [options]="editorOptions" id="bpmnTestConfig" formControlName="bpmnTestConfig"></ngx-monaco-editor>
     </div>
@@ -118,7 +116,7 @@
         formControlName="taskIdForDispatcher"
       />
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isBpmnTask">
       <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
       <input type="number" class="form-control" name="maxPoints" id="maxPoints" formControlName="maxPoints" />
       <div *ngIf="updateForm.get('maxPoints')!.invalid">
@@ -131,7 +129,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isBpmnTask">
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
         <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.diagnoseLevelWeightingInfo' | translate }}" placement="right"></fa-icon>
