@@ -29,13 +29,14 @@
   </div>
   <div class="editor" style="height: 500px">
     <ngx-monaco-editor
-      *ngIf="!this.isBpmnTask"
+      *ngIf="this.isBpmnTask"
       style="height: 100%"
       [options]="editorOptions"
       name="submission"
       id="submission"
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
+    <div *ngIf="this.isBpmnTask" id="bpmn"></div>
   </div>
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="onSubmit()">
