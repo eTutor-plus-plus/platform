@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -37,12 +36,16 @@ import java.util.concurrent.Executors;
 @RequestMapping("/api/dispatcher")
 public class DispatcherProxyResource {
     private final String dispatcherURL;
+
+    private final String bpmnDispatcherURL;
     private HttpClient client;
+
     private final HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
 
     public DispatcherProxyResource(ApplicationProperties properties){
         this.dispatcherURL = properties.getDispatcher().getUrl();
+        this.bpmnDispatcherURL = properties.getBpmnDispatcher().getUrl();
         init();
     }
 
@@ -350,6 +353,17 @@ public class DispatcherProxyResource {
 
         return getResponseEntity(request, stringHandler);
     }
+    /**
+     * Deletes an XQuery exercise
+     * @param id the exercise id
+     * @return a ResponseEntity
+     */
+    public ResponseEntity<String> deleteBpmnExercise(int id) throws DispatcherRequestFailedException {
+        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
+        var request = getDeleteRequest(url);
+
+        return getResponseEntity(request, stringHandler);
+    }
 
     /**
      * Proxies the request to create a datalog task group to the dispatcher
@@ -414,6 +428,19 @@ public class DispatcherProxyResource {
        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
 
+    public ResponseEntity<Integer> createBpmnExercise(String bpmnExercise) throws DispatcherRequestFailedException {
+        String url = this.bpmnDispatcherURL +"/bpmn/exercise";
+        HttpRequest request = null;
+        request = getPostRequestWithBody(url, bpmnExercise).build();
+
+        var response = getResponseEntity(request, stringHandler);
+
+        if (response.getBody() == null) throw new DispatcherRequestFailedException();
+
+        int id = Integer.parseInt(response.getBody());
+        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
+
     /**
      * Requests modification of a datalog exercise
      * @param exerciseDTO the {@link DatalogExerciseDTO} with the new attributes
@@ -430,6 +457,17 @@ public class DispatcherProxyResource {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
+        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+    /**
+     * Requests modification of a datalog exercise
+     * @return a {@link ResponseEntity} indicating if the udpate has been successful
+     */
+    public ResponseEntity<Void> modifyBpmnExercise(String exercise, int id) throws DispatcherRequestFailedException {
+        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
+
+        HttpRequest request = null;
+        request = getPostRequestWithBody(url, exercise).build();
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 
@@ -542,5 +580,4 @@ public class DispatcherProxyResource {
     private String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
-
 }
