@@ -29,6 +29,7 @@
   </div>
   <div class="editor" style="height: 500px">
     <ngx-monaco-editor
+      *ngIf="!this.isBpmnTask"
       style="height: 100%"
       [options]="editorOptions"
       name="submission"

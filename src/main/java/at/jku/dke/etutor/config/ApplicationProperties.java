@@ -14,6 +14,8 @@ public class ApplicationProperties {
     private final Fuseki fuseki = new Fuseki();
     private final Dispatcher dispatcher = new Dispatcher();
 
+    private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
+
     /**
      * Getter for the field <code>fuseki</code>
      *
@@ -30,6 +32,15 @@ public class ApplicationProperties {
      */
     public Dispatcher getDispatcher() {
         return dispatcher;
+    }
+
+    /**
+     * Getter for the field <code>dispatcher</code>
+     *
+     * @return a {@link ApplicationProperties.Dispatcher} object
+     */
+    public BpmnDispatcher getBpmnDispatcher() {
+        return bpmnDispatcher;
     }
 
     /**
@@ -107,6 +118,30 @@ public class ApplicationProperties {
 
         public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
             this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
+        }
+    }
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class BpmnDispatcher {
+        private String url = "http://localhost:8084";
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

@@ -91,6 +91,7 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   public isXQueryTask = false;
   public isDatalogTask = false;
+  public isBpmnTask = false;
 
   /**
    *
@@ -133,6 +134,8 @@ export class AssignmentComponent implements AfterContentChecked {
         return 'datalog';
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
         return 'xquery';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+        return 'bpmn';
       default:
         return 'pgsql';
     }
@@ -172,6 +175,8 @@ export class AssignmentComponent implements AfterContentChecked {
       } else if (lang === 'datalog') {
         this.isDatalogTask = true;
         the = 'datalog-light';
+      } else if (lang === 'bpmn') {
+        this.isBpmnTask = true;
       }
 
       this.editorOptions = { theme: the, language: lang };
