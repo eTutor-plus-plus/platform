@@ -71,6 +71,20 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Requests a grading from the dispatcher
+     * @param submissionId the submission-id identifying the grading
+     * @return the response from the dispatcher
+     */
+    @GetMapping(value="/grading/bpmn/{submissionId}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getBpmnGrading(@PathVariable String submissionId) throws DispatcherRequestFailedException {
+        var request = getGetRequest(bpmnDispatcherURL+"/grading/"+submissionId);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+
+    /**
      * Sends the submission to the dispatcher and returns the submission-id
      * @param submissionDto the submission
      * @return the submission-id
@@ -79,6 +93,20 @@ public class DispatcherProxyResource {
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto)
+            .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
+            .build();
+
+        return getResponseEntity(request, stringHandler);
+    }
+    /**
+     * Sends the submission to the dispatcher and returns the submission-id
+     * @param submissionDto the submission
+     * @return the submission-id
+     */
+    @PostMapping(value="/bpmn/submission")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> postBpmnSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
+        var request = getPostRequestWithBody(bpmnDispatcherURL+"/submission", submissionDto)
             .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
             .build();
 
