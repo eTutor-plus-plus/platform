@@ -258,8 +258,18 @@
     </div>
 
     <div class="form-group" *ngIf="isCalcTask">
+      <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Calc: </label>
+      <jhi-file-upload
+        id="calcInstructionFileUpload"
+        [fileId]="calcInstructionFileId"
+        (fileAdded)="handleCalcInstructionFileAdded($event)"
+        (fileRemoved)="handleCalcInstructionFileRemoved($event)"
+        (fileModified)="handleCalcInstructionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+
+      <br />
       <label class="form-control-label" for="calcSolutionFileUpload">Upload Solution Calc: </label>
-      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->
       <jhi-file-upload
         id="calcSolutionFileUpload"
         [fileId]="calcSolutionFileId"

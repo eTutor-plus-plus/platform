@@ -26,6 +26,7 @@ public class NewTaskAssignmentDTO {
 
     private int uploadFileId;
     private int calcSolutionFileId; // has to match with task.model.ts
+    private int calcInstructionFileId; // has to match with task.model.ts
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -400,5 +401,13 @@ public class NewTaskAssignmentDTO {
 
     public void setCalcSolutionFileId(int calcSolutionFileId) {
         this.calcSolutionFileId = calcSolutionFileId;
+    }
+
+    public int getCalcInstructionFileId() {
+        return calcInstructionFileId;
+    }
+
+    public void setCalcInstructionFileId(int calcInstructionFileId) {
+        this.calcInstructionFileId = calcInstructionFileId;
     }
 }

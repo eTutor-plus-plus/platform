@@ -71,7 +71,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
         setUploadFileId(newTaskAssignmentDTO.getUploadFileId());
         setCalcSolutionFileId(newTaskAssignmentDTO.getCalcSolutionFileId());
-        //TODO: add
+        setCalcInstructionFileId(newTaskAssignmentDTO.getCalcInstructionFileId());
+
 
         setId(id);
         setCreationDate(creationDate);
@@ -122,7 +123,14 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         }else{
             setCalcSolutionFileId(-1);
         }
-        // TODO
+
+        Statement calcInstructionFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadCalcInstructionFileId);
+        if(calcInstructionFileIdStatement != null){
+            setCalcInstructionFileId(calcInstructionFileIdStatement.getInt());
+        }else{
+            setCalcInstructionFileId(-1);
+        }
+
 
 
         Statement taskIdForDispatcherStatement = resource.getProperty(ETutorVocabulary.hasTaskIdForDispatcher);

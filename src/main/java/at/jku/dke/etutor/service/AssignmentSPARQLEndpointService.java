@@ -331,7 +331,10 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             query.appendLiteral(taskAssignment.getCalcSolutionFileId());
             query.append(".\n");
 
-            //TODO: add instruction
+            query.append("?assignment etutor:hasCalcInstructionFileId ");
+            query.appendLiteral(taskAssignment.getCalcInstructionFileId());
+            query.append(".\n");
+
 
             if (taskAssignment.getUrl() != null) {
                 query.append("?assignment etutor:hasTaskUrl ");
@@ -1298,7 +1301,10 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         String calcSolutionFileId = String.valueOf(newTaskAssignmentDTO.getCalcSolutionFileId());
         resource.addProperty(ETutorVocabulary.hasUploadCalcSolutionFileId, calcSolutionFileId);
-        //TODO: add instruction
+
+        String calcInstructionFileId = String.valueOf(newTaskAssignmentDTO.getCalcInstructionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcInstructionFileId, calcInstructionFileId);
+
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());

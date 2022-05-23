@@ -51,8 +51,9 @@ export interface INewTaskModel {
    */
   uploadFileId?: number;
 
-  // TODO: add instruction
   calcSolutionFileId?: number;
+
+  calcInstructionFileId?: number;
   /**
    * The optional  task id for the dispatcher.
    */

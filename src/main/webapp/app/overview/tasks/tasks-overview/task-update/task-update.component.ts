@@ -36,6 +36,7 @@ export class TaskUpdateComponent implements OnInit {
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
   public calcSolutionFileId = -1;
+  public calcInstructionFileId = -1;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -124,6 +125,7 @@ export class TaskUpdateComponent implements OnInit {
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
       calcSolutionFileId: this.calcSolutionFileId,
+      calcInstructionFileId: this.calcInstructionFileId,
     };
 
     const urlStr: string = this.updateForm.get('url')!.value;
@@ -221,6 +223,7 @@ export class TaskUpdateComponent implements OnInit {
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
         calcSolutionFileId: this.calcSolutionFileId,
+        calcInstructionFileId: this.calcInstructionFileId,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -298,6 +301,7 @@ export class TaskUpdateComponent implements OnInit {
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
+      this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
     }
   }
 
@@ -489,6 +493,18 @@ export class TaskUpdateComponent implements OnInit {
 
   public handleCalcSolutionFileMoved(oldFileId: number, newFileId: number): void {
     this.calcSolutionFileId = newFileId;
+  }
+
+  public handleCalcInstructionFileAdded(fileId: number): void {
+    this.calcInstructionFileId = fileId;
+  }
+
+  public handleCalcInstructionFileRemoved(fileId: number): void {
+    this.calcInstructionFileId = -1;
+  }
+
+  public handleCalcInstructionFileMoved(oldFileId: number, newFileId: number): void {
+    this.calcInstructionFileId = newFileId;
   }
 
   /**
