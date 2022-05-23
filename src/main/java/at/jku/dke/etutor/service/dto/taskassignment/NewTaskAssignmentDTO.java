@@ -25,6 +25,7 @@ public class NewTaskAssignmentDTO {
     private String header;
 
     private int uploadFileId;
+    private int calcSolutionFileId; // has to match with task.model.ts
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -35,7 +36,6 @@ public class NewTaskAssignmentDTO {
     private String datalogSolution;
     private String datalogQuery;
     private String datalogUncheckedTerms;
-    //TODO: add calc
 
     private String processingTime;
 
@@ -392,5 +392,13 @@ public class NewTaskAssignmentDTO {
 
     public void setUploadFileId(int uploadFileId) {
         this.uploadFileId = uploadFileId;
+    }
+
+    public int getCalcSolutionFileId() {
+        return calcSolutionFileId;
+    }
+
+    public void setCalcSolutionFileId(int calcSolutionFileId) {
+        this.calcSolutionFileId = calcSolutionFileId;
     }
 }

@@ -327,6 +327,12 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             query.appendLiteral(taskAssignment.getUploadFileId());
             query.append(".\n");
 
+            query.append("?assignment etutor:hasCalcSolutionFileId ");
+            query.appendLiteral(taskAssignment.getCalcSolutionFileId());
+            query.append(".\n");
+
+            //TODO: add instruction
+
             if (taskAssignment.getUrl() != null) {
                 query.append("?assignment etutor:hasTaskUrl ");
                 query.appendLiteral(taskAssignment.getUrl().toString());
@@ -1287,8 +1293,12 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
 
-        String uploadFileid = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
-        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileid);
+        String uploadFileId = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileId);
+
+        String calcSolutionFileId = String.valueOf(newTaskAssignmentDTO.getCalcSolutionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcSolutionFileId, calcSolutionFileId);
+        //TODO: add instruction
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());

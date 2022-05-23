@@ -257,18 +257,18 @@
       <input type="text" [disabled]="true" class="form-control" name="xQueryFileURL" id="xQueryFileURL" formControlName="xQueryFileURL" />
     </div>
 
-    <!--    <div class="form-group" *ngIf="isCalcTask">-->
-    <!--      <label class="form-control-label" for="calcSolutionFileUpload">Upload Solution Calc: </label>-->
-    <!--      &lt;!&ndash;      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>&ndash;&gt;-->
-    <!--      <jhi-file-upload-->
-    <!--        id="calcSolutionFileUpload"-->
-    <!--        [fileId]="calcSolutionFileId"-->
-    <!--        (fileAdded)="handleCalcSolutionFileAdded($event)"-->
-    <!--        (fileRemoved)="handleCalcSolutionFileRemoved($event)"-->
-    <!--        (fileModified)="handleCalcSolutionFileMoved($event[0], $event[1])"-->
-    <!--      >-->
-    <!--      </jhi-file-upload>-->
-    <!--    </div>-->
+    <div class="form-group" *ngIf="isCalcTask">
+      <label class="form-control-label" for="calcSolutionFileUpload">Upload Solution Calc: </label>
+      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->
+      <jhi-file-upload
+        id="calcSolutionFileUpload"
+        [fileId]="calcSolutionFileId"
+        (fileAdded)="handleCalcSolutionFileAdded($event)"
+        (fileRemoved)="handleCalcSolutionFileRemoved($event)"
+        (fileModified)="handleCalcSolutionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+    </div>
 
     <div class="form-group">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>

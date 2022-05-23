@@ -76,6 +76,8 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
     private static final String PROP_HAS_UPLOAD_FILE_ID = "hasUploadFileId";
+    private static final String PROP_HAS_UPLOAD_CALC_SOLUTION_FILE_ID = "hasCalcSolutionFileId"; // Beziehung im RDF Graphen
+
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
     private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
@@ -296,6 +298,7 @@ public final class ETutorVocabulary {
      * the hasUploadFileId property-
      */
     public static final Property hasUploadFileId = m.createProperty(URI + PROP_HAS_UPLOAD_FILE_ID);
+    public static final Property hasUploadCalcSolutionFileId = m.createProperty(URI + PROP_HAS_UPLOAD_CALC_SOLUTION_FILE_ID);
     /**
      * The hasTypicalProcessingTime property.
      */
