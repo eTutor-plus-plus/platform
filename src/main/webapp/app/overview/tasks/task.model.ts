@@ -50,6 +50,9 @@ export interface INewTaskModel {
    * The optional id of an uploaded file representing the solution or addition information for students
    */
   uploadFileId?: number;
+
+  // TODO: add instruction
+  calcSolutionFileId?: number;
   /**
    * The optional  task id for the dispatcher.
    */
@@ -173,6 +176,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.dlgTask'
   );
 
+  public static readonly CalcTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#CalcTask',
+    'taskManagement.taskTypes.calcTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -180,6 +188,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,
+    TaskAssignmentType.CalcTask,
   ];
 
   private readonly _value: string;

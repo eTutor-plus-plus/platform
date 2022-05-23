@@ -35,6 +35,7 @@ public class NewTaskAssignmentDTO {
     private String datalogSolution;
     private String datalogQuery;
     private String datalogUncheckedTerms;
+    //TODO: add calc
 
     private String processingTime;
 

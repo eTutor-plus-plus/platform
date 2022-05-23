@@ -29,7 +29,8 @@
       "sqlTask": "SQL Task",
       "raTask": "Relational algebra task",
       "xqTask": "XQuery task",
-      "dlgTask": "Datalog task"
+      "dlgTask": "Datalog task",
+      "calcTask": "Calc task"
     },
     "fields": {
       "header": "Header:",

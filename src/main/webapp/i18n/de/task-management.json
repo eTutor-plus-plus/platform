@@ -29,7 +29,8 @@
       "sqlTask": "SQL Aufgabe",
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
-      "dlgTask": "Datalog Aufgabe"
+      "dlgTask": "Datalog Aufgabe",
+      "calcTask": "Calc Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",

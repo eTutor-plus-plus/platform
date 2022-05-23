@@ -32,8 +32,10 @@ export class TaskUpdateComponent implements OnInit {
   public isRATask = false;
   public isXQueryTask = false;
   public isDLQTask = false;
+  public isCalcTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
+  public calcSolutionFileId = -1;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -121,6 +123,7 @@ export class TaskUpdateComponent implements OnInit {
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
+      calcSolutionFileId: this.calcSolutionFileId,
     };
 
     const urlStr: string = this.updateForm.get('url')!.value;
@@ -217,6 +220,7 @@ export class TaskUpdateComponent implements OnInit {
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
+        calcSolutionFileId: this.calcSolutionFileId,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -293,6 +297,7 @@ export class TaskUpdateComponent implements OnInit {
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
+      this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
     }
   }
 
@@ -324,6 +329,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
       this.isDLQTask = true;
       this.patchDatalogTaskGroupValues(taskGroupId);
+    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
+      this.isCalcTask = true;
     }
   }
   /**
@@ -382,6 +389,10 @@ export class TaskUpdateComponent implements OnInit {
       this.updateForm.get('maxPoints')!.clearValidators();
       this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
       this.updateForm.updateValueAndValidity();
+      this.isCalcTask = false;
+      if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
+        this.isCalcTask = true;
+      }
     }
   }
   /**
@@ -466,6 +477,18 @@ export class TaskUpdateComponent implements OnInit {
    */
   public handleFileMoved(oldFileId: number, newFileId: number): void {
     this.uploadFileId = newFileId;
+  }
+
+  public handleCalcSolutionFileAdded(fileId: number): void {
+    this.calcSolutionFileId = fileId;
+  }
+
+  public handleCalcSolutionFileRemoved(fileId: number): void {
+    this.calcSolutionFileId = -1;
+  }
+
+  public handleCalcSolutionFileMoved(oldFileId: number, newFileId: number): void {
+    this.calcSolutionFileId = newFileId;
   }
 
   /**

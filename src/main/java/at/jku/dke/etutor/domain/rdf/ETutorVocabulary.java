@@ -130,6 +130,8 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
+    private static final String INSTANCE_CALC_TASK = "CalcTask";
+
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -602,6 +604,11 @@ public final class ETutorVocabulary {
      * The Datalog type instance
      */
     public static final Resource DatalogTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DLG_TASK);
+
+    /**
+     * The Calc type instance
+     */
+    public static final Resource CalcTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_CALC_TASK);
 
     /**
      * The no type task group type
