@@ -64,7 +64,8 @@
     },
     "error": {
       "required": "This field is required!",
-      "urlPattern": "This optional field has to conform the URL standard!"
+      "urlPattern": "This optional field has to conform the URL standard!",
+      "contentType": "Please upload the correct content type of the file!"
     },
     "modal": {
       "newHeader": "Create new task",

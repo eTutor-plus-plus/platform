@@ -64,7 +64,8 @@
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
-      "urlPattern": "Das optionale Feld entspricht nicht dem URL-Standard!"
+      "urlPattern": "Das optionale Feld entspricht nicht dem URL-Standard!",
+      "contentType": "Bitte laden Sie das richtige Dateiformat hoch!"
     },
     "modal": {
       "newHeader": "Neue Aufgabe anlegen",

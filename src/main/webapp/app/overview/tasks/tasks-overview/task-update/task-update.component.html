@@ -267,6 +267,11 @@
         (fileModified)="handleCalcInstructionFileMoved($event[0], $event[1])"
       >
       </jhi-file-upload>
+      <div *ngIf="calcInstructionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
 
       <br />
       <label class="form-control-label" for="calcSolutionFileUpload">Upload Solution Calc: </label>
@@ -278,6 +283,11 @@
         (fileModified)="handleCalcSolutionFileMoved($event[0], $event[1])"
       >
       </jhi-file-upload>
+      <div *ngIf="calcSolutionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
     </div>
 
     <div class="form-group">
@@ -324,9 +334,28 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
     </button>
 
-    <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
-      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
-      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
-    </button>
+    <ng-container *ngIf="isCalcTask">
+      <button
+        type="submit"
+        [disabled]="
+          updateForm.invalid ||
+          isSaving ||
+          calcSolutionFileId == -2 ||
+          calcSolutionFileId == -1 ||
+          calcInstructionFileId == -2 ||
+          calcInstructionFileId == -1
+        "
+        class="btn btn-primary"
+      >
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+      </button>
+    </ng-container>
+    <ng-container *ngIf="!isCalcTask">
+      <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+      </button>
+    </ng-container>
   </div>
 </form>

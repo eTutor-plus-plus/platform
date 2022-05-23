@@ -10,6 +10,7 @@ import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-gro
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 import { LecturerRunSubmissionComponent } from '../../../dispatcher/lecturer-run-submission/lecturer-run-submission.component';
+import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
 
 /**
  * Component for creating / updating tasks.
@@ -79,6 +80,7 @@ export class TaskUpdateComponent implements OnInit {
    * @param eventManager the injected event manager service
    * @param taskGroupService the task group service
    * @param sqlExerciseService the injected SQL exercise service
+   * @param fileService the injected File service
    */
   constructor(
     private fb: FormBuilder,
@@ -87,7 +89,8 @@ export class TaskUpdateComponent implements OnInit {
     private tasksService: TasksService,
     private eventManager: EventManager,
     private sqlExerciseService: SqlExerciseService,
-    private taskGroupService: TaskGroupManagementService
+    private taskGroupService: TaskGroupManagementService,
+    private fileService: FileUploadService
   ) {}
 
   /**
@@ -484,7 +487,13 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   public handleCalcSolutionFileAdded(fileId: number): void {
-    this.calcSolutionFileId = fileId;
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcSolutionFileId = fileId;
+      } else {
+        this.calcSolutionFileId = -2;
+      }
+    });
   }
 
   public handleCalcSolutionFileRemoved(fileId: number): void {
@@ -492,11 +501,23 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   public handleCalcSolutionFileMoved(oldFileId: number, newFileId: number): void {
-    this.calcSolutionFileId = newFileId;
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcSolutionFileId = newFileId;
+      } else {
+        this.calcSolutionFileId = -2;
+      }
+    });
   }
 
   public handleCalcInstructionFileAdded(fileId: number): void {
-    this.calcInstructionFileId = fileId;
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcInstructionFileId = fileId;
+      } else {
+        this.calcInstructionFileId = -2;
+      }
+    });
   }
 
   public handleCalcInstructionFileRemoved(fileId: number): void {
@@ -504,7 +525,13 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   public handleCalcInstructionFileMoved(oldFileId: number, newFileId: number): void {
-    this.calcInstructionFileId = newFileId;
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcInstructionFileId = newFileId;
+      } else {
+        this.calcInstructionFileId = -2;
+      }
+    });
   }
 
   /**
