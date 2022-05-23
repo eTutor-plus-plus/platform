@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,36 +183,40 @@ public class CreateRandomInstruction {
     /**
      * @param instruction  is the base instruction which should be randomised
      * @param path is the path where the new instruction should be saved
-     * @return the new instruction
+     * @return the new instruction where all the yellow values are randomised
      */
 
-    public static XSSFWorkbook createRandomInstruction (XSSFWorkbook instruction, String path) throws IOException {
+
+    public static XSSFWorkbook createRandomInstruction (XSSFWorkbook instruction, String path) throws Exception {
 
         // Randomise a new Instruction
         Sheet datatypeSheet_instruction = instruction.getSheetAt(0);
 
-        // Unterkunft pro Tag (zw. 20 - 200) (Row 2-4, Cell 3)
-        datatypeSheet_instruction.getRow(2).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-        datatypeSheet_instruction.getRow(3).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-        datatypeSheet_instruction.getRow(4).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
+        try {
 
-        // Kosten pro Person (zw. 5 - 50) (Row 2-4, Cell 4)
-        datatypeSheet_instruction.getRow(2).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-        datatypeSheet_instruction.getRow(3).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-        datatypeSheet_instruction.getRow(4).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
+            for (Row row : datatypeSheet_instruction) {
+                for (Cell cell : row) {
+                    if (FillColorHex.isValueCell(datatypeSheet_instruction, cell)) {
+                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                            Random r = new Random();
+                            double rand =  0.8 + (1.2 - 0.8) * r.nextDouble();
+                            cell.setCellValue(cell.getNumericCellValue() * Math.round(rand * 100.0) / 100.0);
+                        }
+                    }
+                }
+            }
 
-        // Rabattklasse (zw. 5 - 50) (Row 9, Cell 1-3)
-        datatypeSheet_instruction.getRow(9).getCell(1).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-        datatypeSheet_instruction.getRow(9).getCell(2).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-        datatypeSheet_instruction.getRow(9).getCell(3).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
 
-        instruction = createRandomLocation(instruction);
+            instruction = createRandomLocation(instruction);
 
-        FileOutputStream out = new FileOutputStream(path);
-        instruction.write(out);
-        out.close();
+            FileOutputStream out = new FileOutputStream(path);
+            instruction.write(out);
+            out.close();
 
-        return instruction;
+            return instruction;
+        } catch (Exception e) {
+            return instruction;
+        }
     }
 
     /**

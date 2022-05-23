@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.calc.functions;
 
+import org.apache.jena.base.Sys;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -132,6 +133,26 @@ public class FillColorHex {
     public static boolean isCalculationHelpCell (Sheet sheet, Cell cell) throws Exception {
         List <Cell> calculation_help_cells = getCalculationHelpCells(sheet);
         return calculation_help_cells.contains(cell);
+    }
+
+    public static boolean isSheetUnchanged (Sheet solution, Sheet submission) throws Exception {
+        for (Row current_row_solution : solution) {
+            for (Cell current_cell_solution : current_row_solution) {
+                if (isDropdownCell(solution, current_cell_solution) != isDropdownCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
+                    return false;
+                }
+                if (isCalculationCell(solution, current_cell_solution) != isCalculationCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
+                    return false;
+                }
+                if (isValueCell(solution, current_cell_solution) != isValueCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
+                    return false;
+                }
+                if (isCalculationHelpCell(solution, current_cell_solution) != isCalculationHelpCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 

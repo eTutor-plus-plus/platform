@@ -281,9 +281,10 @@
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>
     </div>
+
     <div class="form-group">
       <label class="form-control-label" for="fileUpload">Upload: </label>
-      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>
+      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->
       <jhi-file-upload
         id="fileUpload"
         [fileId]="uploadFileId"

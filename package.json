@@ -88,7 +88,7 @@
     "@ng-select/ng-select": "7.3.0",
     "@ngx-translate/core": "13.0.0",
     "@ngx-translate/http-loader": "6.0.0",
-    "@rxweb/reactive-form-validators": "2.1.4",
+    "@rxweb/reactive-form-validators": "^2.1.4",
     "angular-confirmation-popover": "6.0.0",
     "bootstrap": "4.6.0",
     "bootswatch": "4.6.0",

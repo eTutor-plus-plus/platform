@@ -44,8 +44,8 @@ public class CorrectSheetFormat {
                 Cell submission_cell = submission.getRow(cell.getRowIndex()).getCell(cell.getColumnIndex());
                 // Checks if the Data Format of the Cell is correct
                 if (!Objects.equals(cell.getCellStyle().getDataFormatString(), submission_cell.getCellStyle().getDataFormatString())) {
-                    System.out.println(submission_cell.getCellStyle().getDataFormatString());
-                    System.out.println(cell.getCellStyle().getDataFormatString());
+                    //System.out.println(submission_cell.getCellStyle().getDataFormatString());
+                    //System.out.println(cell.getCellStyle().getDataFormatString());
                     return false;
                 }
                 // Checks if the length after the Comma is correct
