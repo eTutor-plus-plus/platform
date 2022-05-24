@@ -335,6 +335,39 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+    // TODO: introduce hasCalcAssignmentFileId in ETutorVocabulary
+    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TAKS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+              ?individualTask etutor:hasCalcAssignmentFileId ?id.
+        }
+        WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+    private static final String QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?id WHERE {
+               ?courseInstance a etutor:CourseInstance.
+               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+               ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                            etutor:fromCourseInstance ?courseInstance.
+               ?individualAssignment etutor:hasIndividualTask ?individualTask.
+               ?individualTask etutor:hasOrderNo ?orderNo;
+                               etutor:hasCalcAssignmentFileId ?id.
+        }
+        """;
+
+
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
@@ -2190,6 +2223,29 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         individualAssignmentInsertQry.setLiteral("?newOrderNo", orderNo);
 
         connection.update(individualAssignmentInsertQry.asUpdate());
+        // Use newTaskResourceUrl to fetch TaskAssignmentDTO (some service method)
+
+        // Check if task assignment is of CALC-type
+        if(false){
+            // Generate random assignment file
+
+            // save file (some service)
+
+            // construct query to add file id to IndividualTask in graph
+            ParameterizedSparqlString addFileIdForCalcAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TAKS);
+            addFileIdForCalcAssignment.setIri("?courseInstance", courseInstanceUrl);
+            addFileIdForCalcAssignment.setIri("?student", studentUrl);
+            addFileIdForCalcAssignment.setIri("?sheet", exerciseSheetUrl);
+            addFileIdForCalcAssignment.setIri("?newTask", newTaskResourceUrl);
+            addFileIdForCalcAssignment.setLiteral("?newOrderNo", orderNo);
+            // replace file id !!!!!!!!!
+            addFileIdForCalcAssignment.setLiteral("?id", -1);
+
+            // execute update
+            // connection.update(addFileIdForCalcAssignment.asUpdate());
+
+            // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
+        }
     }
     //endregion
 }
