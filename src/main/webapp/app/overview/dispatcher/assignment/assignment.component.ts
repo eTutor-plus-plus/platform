@@ -225,6 +225,8 @@ export class AssignmentComponent implements AfterContentChecked {
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
+      // eslint-disable-next-line no-console
+      console.log(this.gradingDto);
       this.gradingReceived = true;
 
       this.setHasErrors();
@@ -254,7 +256,9 @@ export class AssignmentComponent implements AfterContentChecked {
     }
 
     if (this.submissionIdDto.submissionId) {
-      this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId);
+      !this.submissionIdDto.isBpmnTask
+        ? this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId)
+        : this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId + '#BpmnTask');
     }
 
     if (this.points === 0 && !this.hasErrors && this.action === 'submit') {

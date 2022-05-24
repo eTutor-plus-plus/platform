@@ -297,10 +297,19 @@ export class StudentService {
   ): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
-    return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`,
-      undefined
-    );
+    // eslint-disable-next-line no-console
+    console.log(dispatcherUUID.includes('#BpmnTask'));
+    let url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`;
+
+    if (dispatcherUUID.includes('#BpmnTask')) {
+      // eslint-disable-next-line no-console
+      console.log('TEST');
+      dispatcherUUID.replace('#BpmnTask', '');
+      url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/bpmn/${dispatcherUUID}`;
+    }
+    // eslint-disable-next-line no-console
+    console.log(url);
+    return this.http.put(url, undefined);
   }
 
   /**

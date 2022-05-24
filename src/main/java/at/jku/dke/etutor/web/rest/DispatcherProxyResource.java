@@ -73,7 +73,7 @@ public class DispatcherProxyResource {
     /**
      * Requests a grading from the dispatcher
      * @param submissionId the submission-id identifying the grading
-     * @return the response from the dispatcher
+     * @return the response from the Bpmn Dispatcher
      */
     @GetMapping(value="/grading/bpmn/{submissionId}")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
@@ -122,6 +122,19 @@ public class DispatcherProxyResource {
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
         var request = getGetRequest(dispatcherURL+"/submission/"+submissionUUID);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Sends the submission UUID to the dispatcher and returns the Bpmn submission
+     * @param submissionUUID the UUID identifying the Bpmn submission
+     * @return the submission
+     */
+    @GetMapping(value="/submission/bpmn/{submissionUUID}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getBpmnSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
+        var request = getGetRequest(bpmnDispatcherURL+"/submission/"+submissionUUID);
 
         return getResponseEntity(request, stringHandler);
     }

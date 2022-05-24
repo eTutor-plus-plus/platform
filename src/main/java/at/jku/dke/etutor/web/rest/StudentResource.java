@@ -19,7 +19,6 @@ import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.models.Response;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -401,6 +400,75 @@ public class StudentResource {
         try {
             submission = dispatcherProxyService.getSubmission(dispatcherUUID);
             grading = dispatcherProxyService.getGrading(dispatcherUUID);
+        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
+            e.printStackTrace();
+        }
+        Objects.requireNonNull(submission);
+
+        // comparing excercise-id of assignment and submission
+        var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
+
+        if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
+
+        if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        // persisting the submission
+        boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
+        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+
+        // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
+        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+
+        // calculating and setting the points if submission has been solved but not previously solved
+        if(grading == null) return ResponseEntity.ok().build();
+
+        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        if(points == 0
+            && submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() == grading.getPoints()
+            && grading.getMaxPoints() != 0
+        ){
+            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+            var maxPoints = weightingAndMaxPointsIdArr[1];
+
+            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Processes a submission and grading provided by the dispatcher in the course
+     * of an individual task assignment's submission by the student
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param dispatcherUUID the UUID identifying the submission
+     * @param token the JWT-Token needed to call the proxy to the dispatcher
+     * @return
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/bpmn/{dispatcherUUID}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> handleBpmnDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        DispatcherSubmissionDTO submission = null;
+        DispatcherGradingDTO grading = null;
+        try {
+            submission = dispatcherProxyService.getBpmnSubmission(dispatcherUUID);
+            grading = dispatcherProxyService.getBpmnGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException e) {
             e.printStackTrace();
         }
