@@ -60,6 +60,21 @@ public class FileRepositoryCustomImpl implements FileRepositoryCustom {
         return fileEntity.getId();
     }
 
+    @Override
+    public long uploadFile(String filename, String contentType,
+                           byte[] content, long size) {
+
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setContent(content);
+        fileEntity.setContentType(contentType);
+        fileEntity.setName(filename);
+        fileEntity.setSize(size);
+
+        entityManager.persist(fileEntity);
+
+        return fileEntity.getId();
+    }
+
     /**
      * Retrieves the file meta data from a stored file.
      *

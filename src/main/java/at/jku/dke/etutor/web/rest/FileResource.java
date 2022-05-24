@@ -99,6 +99,14 @@ public class FileResource {
         }
     }
 
+    @GetMapping("/create_random_calc_instruction/{id}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Long> createRandomCalcFileInstruction (@PathVariable long id) throws Exception {
+        return ResponseEntity
+            .ok()
+            .body(uploadFileService.createRandomCalcFileInstruction(id));
+    }
+
     /**
      * Returns the request file's meta data.
      *

@@ -1,17 +1,23 @@
 package at.jku.dke.etutor.service;
 
+import at.jku.dke.etutor.calc.functions.CreateRandomInstruction;
+import at.jku.dke.etutor.calc.functions.DecodeMultipartFile;
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
+import liquibase.pro.packaged.B;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.ResizableByteArrayOutputStream;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -57,6 +63,31 @@ public class UploadFileService {
         String name = StringUtils.cleanPath(Objects.requireNonNull(fileNameStr));
         return fileRepository.uploadFile(matriculationNumber, name, file.getContentType(),
             file.getBytes(), file.getSize());
+    }
+
+    @Transactional
+    public long createRandomCalcFileInstruction (Long file_id) throws Exception {
+         FileEntity file_old = fileRepository.getById(file_id);
+//         try {
+             InputStream stream_old = new ByteArrayInputStream(file_old.getContent());
+             XSSFWorkbook workbook_old = new XSSFWorkbook(stream_old);
+             XSSFWorkbook workbook_new = CreateRandomInstruction.createRandomInstruction(workbook_old);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             workbook_new.write(bos);
+//             FileEntity file_new = new FileEntity();
+//             file_new.setContent(bos.toByteArray());
+//             file_new.setName(file_old.getName() + " Random Instruction");
+//             file_new.setContentType(file_old.getContentType());
+//             file_new.setSize(bos.toByteArray().length);
+//             file_new.setStudent(file_old.getStudent());
+//             fileRepository.save(file_new);
+             MultipartFile file_new = new DecodeMultipartFile(bos.toByteArray());
+
+             return fileRepository.uploadFile(file_old.getName() + " randomised", file_old.getContentType(), file_new.getBytes(), file_new.getSize());
+//
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
     }
 
     /**
