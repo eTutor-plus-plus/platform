@@ -50,6 +50,17 @@ public class DispatcherProxyService {
     }
 
     /**
+     * Returns the {@link DispatcherSubmissionDTO} for a given id, which represents a submission for an individual task
+     *
+     * @param UUID the UUID
+     * @return the Bpmn submission
+     * @throws JsonProcessingException if the returned value cannot be deserialized
+     */
+    public DispatcherSubmissionDTO getBpmnSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+    }
+
+    /**
      * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
      *
      * @param UUID the UUID
@@ -58,6 +69,17 @@ public class DispatcherProxyService {
      */
     public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
         return mapper.readValue(proxyResource.getGrading(UUID).getBody(), DispatcherGradingDTO.class);
+    }
+
+    /**
+     * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
+     *
+     * @param UUID the UUID
+     * @return the grading
+     * @throws JsonProcessingException if the returned value cannot be parsed
+     */
+    public DispatcherGradingDTO getBpmnGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnGrading(UUID).getBody(), DispatcherGradingDTO.class);
     }
 
     /**
