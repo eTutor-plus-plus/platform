@@ -3,7 +3,7 @@
     <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
-  <div *ngIf="showDiagnoseBar">
+  <div *ngIf="showDiagnoseBar && !isBpmnTask">
     <label class="form-control-label">
       {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
       <fa-icon icon="info-circle" ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}" placement="right"></fa-icon>
@@ -61,13 +61,14 @@
     </strong>
   </div>
 
-  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.report.error"></div>
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.error"></div>
   <div
     *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask"
     [innerHTML]="gradingDto.report.description"
   ></div>
   <br />
   <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.report.hint"></div>
+  <div *ngIf="gradingReceived && hasErrors && isBpmnTask" [innerHTML]="gradingDto.report.description"></div>
   <div *ngIf="gradingReceived && (isXQueryTask || isDatalogTask) && !isBpmnTask" [innerHTML]="gradingDto.result | safeHtml"></div>
   <div *ngIf="gradingReceived && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.result"></div>
 </div>
