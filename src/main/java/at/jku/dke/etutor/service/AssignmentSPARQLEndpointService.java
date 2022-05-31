@@ -12,10 +12,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.vocabulary.RDF;
@@ -76,6 +73,23 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
               }
             }
             """;
+
+
+    private static final String QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?maxPoints WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo;
+                            etutor:refersToTask ?taskAssignment.
+                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
+        }
+        """;
 
     private static final String QRY_DELETE_ASSIGNMENT =
         """
@@ -1248,6 +1262,38 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         }
     }
 
+    public Optional<Integer> getMaxPointsForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal pointsLiteral = solution.getLiteral("?maxPoints");
+
+                    if (pointsLiteral == null) {
+                        return Optional.of(0);
+                    }
+                    return Optional.of(pointsLiteral.getInt());
+                } else {
+                    return Optional.of(0);
+                }
+            }
+        }
+    }
     //region Helper methods
 
     /**

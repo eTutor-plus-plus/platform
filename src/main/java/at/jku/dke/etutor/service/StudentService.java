@@ -352,6 +352,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+
     private static final String QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
