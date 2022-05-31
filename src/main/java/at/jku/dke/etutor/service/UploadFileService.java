@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.service;
 
+import at.jku.dke.etutor.calc.functions.CalcCorrection;
 import at.jku.dke.etutor.calc.functions.CreateRandomInstruction;
 import at.jku.dke.etutor.calc.functions.DecodeMultipartFile;
 import at.jku.dke.etutor.domain.FileEntity;
@@ -7,15 +8,13 @@ import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
-import liquibase.pro.packaged.B;
+import io.swagger.models.auth.In;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.ResizableByteArrayOutputStream;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.*;
 import java.util.Objects;
@@ -65,29 +64,58 @@ public class UploadFileService {
             file.getBytes(), file.getSize());
     }
 
+    /**
+     * Creates a randomised instruction and return the file id
+     *
+     * @param file_id id of the task's instruction file
+     * @param login login of the student
+     * @return the id of the generated instruction
+     */
     @Transactional
-    public long createRandomCalcFileInstruction (Long file_id) throws Exception {
+    public long createRandomCalcFileInstruction (Long file_id, String login) throws Exception {
          FileEntity file_old = fileRepository.getById(file_id);
-//         try {
-             InputStream stream_old = new ByteArrayInputStream(file_old.getContent());
-             XSSFWorkbook workbook_old = new XSSFWorkbook(stream_old);
-             XSSFWorkbook workbook_new = CreateRandomInstruction.createRandomInstruction(workbook_old);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             workbook_new.write(bos);
-//             FileEntity file_new = new FileEntity();
-//             file_new.setContent(bos.toByteArray());
-//             file_new.setName(file_old.getName() + " Random Instruction");
-//             file_new.setContentType(file_old.getContentType());
-//             file_new.setSize(bos.toByteArray().length);
-//             file_new.setStudent(file_old.getStudent());
-//             fileRepository.save(file_new);
-             MultipartFile file_new = new DecodeMultipartFile(bos.toByteArray());
+         InputStream stream_old = new ByteArrayInputStream(file_old.getContent());
+         XSSFWorkbook workbook_old = new XSSFWorkbook(stream_old);
+         XSSFWorkbook workbook_new = CreateRandomInstruction.createRandomInstruction(workbook_old);
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         workbook_new.write(bos);
+         MultipartFile file_new = new DecodeMultipartFile(bos.toByteArray());
+         String new_filename = file_old.getName().substring(0, file_old.getName().lastIndexOf('.'))
+             + "_"
+             + login
+             + file_old.getName().substring(file_old.getName().lastIndexOf('.'));
 
-             return fileRepository.uploadFile(file_old.getName() + " randomised", file_old.getContentType(), file_new.getBytes(), file_new.getSize());
-//
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//         }
+         return fileRepository.uploadFile(new_filename , file_old.getContentType(), file_new.getBytes(), file_new.getSize());
+    }
+
+    /**
+     * Corrects a calc task
+     *
+     * @param instruction_file_id id of the instruction file
+     * @param solution_file_id id of the solution file
+     * @param submission_file_id id of the submission file
+     * @return a string containing the feedback of the correction
+     */
+    @Transactional
+    public String correctCalcTask (Long instruction_file_id, Long solution_file_id, Long submission_file_id) {
+        FileEntity instruction_file = fileRepository.getById(instruction_file_id);
+        FileEntity solution_file = fileRepository.getById(solution_file_id);
+        FileEntity submission_file = fileRepository.getById(submission_file_id);
+
+        try {
+            InputStream stream_instruction = new ByteArrayInputStream(instruction_file.getContent());
+            InputStream stream_solution = new ByteArrayInputStream(solution_file.getContent());
+            InputStream stream_submission = new ByteArrayInputStream(submission_file.getContent());
+
+            XSSFWorkbook workbook_instruction = new XSSFWorkbook(stream_instruction);
+            XSSFWorkbook workbook_solution = new XSSFWorkbook(stream_solution);
+            XSSFWorkbook workbook_submission = new XSSFWorkbook(stream_submission);
+
+            return CalcCorrection.correctTask(workbook_instruction, workbook_solution, workbook_submission);
+
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**

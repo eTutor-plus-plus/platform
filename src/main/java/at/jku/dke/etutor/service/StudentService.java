@@ -20,6 +20,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
+import org.apache.jena.base.Sys;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -335,8 +336,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
-    // TODO: introduce hasCalcAssignmentFileId in ETutorVocabulary
-    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TAKS = """
+    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         INSERT {
@@ -1030,7 +1030,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
                               etutor:refersToTask ?task.
-              ?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.
+              {?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.}
+              UNION
+              {?task etutor:hasTaskAssignmentType etutor-task-assingment-type:CalcTask.}
+
             }
             """);
 
@@ -1134,6 +1137,52 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
+
+    /**
+     * Return the file id of an individual calc instruction
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param matriculationNo    the matriculation no
+     * @param orderNo             the order no
+     * @return {@link Optional} containing the file id
+     */
+    public Optional<Integer> getFileIdIndividualCalcInstruction (String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo ) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+        assert orderNo > 0;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK);
+        qry.setIri("?student", studentUrl);
+        qry.setIri("?sheet", sheetId);
+        qry.setIri("?courseInstance", courseInstanceId);
+        qry.setLiteral("?orderNo", orderNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(qry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal attachmentIdLiteral = solution.getLiteral("?id");
+
+                    if (attachmentIdLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(attachmentIdLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+
 
     /**
      * Handles a submission for an individual task
@@ -1678,6 +1727,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -1768,6 +1819,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if(pdfFileId != -1) setFileForIndividualAssignment(matriculationNumber, courseInstanceUUID, exerciseSheetUUID, pdfFileId);
     }
@@ -1870,6 +1923,11 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
+
+//    public int getFileIdOfCalcSolution (String assignmentId) {
+//        Objects.requireNonNull(assignmentId);
+//         return assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId).get().getCalcSolutionFileId();
+//    }
 
     /**
      * Generates a pdf exercise sheet.
@@ -2198,7 +2256,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      */
     private void insertNewAssignedTask(@NotNull String courseInstanceUrl, @NotNull String
         exerciseSheetUrl, @NotNull String studentUrl, @NotNull String newTaskResourceUrl, @NotNull RDFConnection
-                                           connection) {
+                                           connection) throws Exception {
         ParameterizedSparqlString latestOrderNoQry = new ParameterizedSparqlString(QRY_SELECT_MAX_ORDER_NO);
         latestOrderNoQry.setIri("?courseInstance", courseInstanceUrl);
         latestOrderNoQry.setIri("?student", studentUrl);
@@ -2215,6 +2273,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             orderNo = solution.getLiteral("?maxOrderNo").getInt() + 1;
         }
 
+
+
         ParameterizedSparqlString individualAssignmentInsertQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_ASSIGNMENT);
         individualAssignmentInsertQry.setIri("?courseInstance", courseInstanceUrl);
         individualAssignmentInsertQry.setIri("?student", studentUrl);
@@ -2223,26 +2283,29 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         individualAssignmentInsertQry.setLiteral("?newOrderNo", orderNo);
 
         connection.update(individualAssignmentInsertQry.asUpdate());
-        // Use newTaskResourceUrl to fetch TaskAssignmentDTO (some service method)
 
-        // Check if task assignment is of CALC-type
-        if(false){
-            // Generate random assignment file
 
-            // save file (some service)
+        Optional<TaskAssignmentDTO> taskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(newTaskResourceUrl.substring(newTaskResourceUrl.lastIndexOf('#') + 1));
 
-            // construct query to add file id to IndividualTask in graph
-            ParameterizedSparqlString addFileIdForCalcAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TAKS);
+        String login = studentUrl.substring(studentUrl.lastIndexOf('#')+ 1);
+
+
+        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
+
+
+            long generated_file_id = uploadFileService.createRandomCalcFileInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(), login);
+
+            ParameterizedSparqlString addFileIdForCalcAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK);
             addFileIdForCalcAssignment.setIri("?courseInstance", courseInstanceUrl);
             addFileIdForCalcAssignment.setIri("?student", studentUrl);
             addFileIdForCalcAssignment.setIri("?sheet", exerciseSheetUrl);
             addFileIdForCalcAssignment.setIri("?newTask", newTaskResourceUrl);
+            System.out.println(newTaskResourceUrl);
             addFileIdForCalcAssignment.setLiteral("?newOrderNo", orderNo);
-            // replace file id !!!!!!!!!
-            addFileIdForCalcAssignment.setLiteral("?id", -1);
+            addFileIdForCalcAssignment.setLiteral("?id", generated_file_id);
 
             // execute update
-            // connection.update(addFileIdForCalcAssignment.asUpdate());
+            connection.update(addFileIdForCalcAssignment.asUpdate());
 
             // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
         }

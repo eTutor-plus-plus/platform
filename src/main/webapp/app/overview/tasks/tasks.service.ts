@@ -71,6 +71,24 @@ export class TasksService {
   }
 
   /**
+   * returns the calc solution file id
+   *
+   * @param internalId the internal task's id
+   * @param alreadyParsed indicates whether the given internalId is already parsed or not (default = false)
+   */
+  public getFileIdOfCalcSolution(internalId: string, alreadyParsed = false): Observable<number> {
+    let id;
+
+    if (alreadyParsed) {
+      id = internalId;
+    } else {
+      id = internalId.substr(internalId.lastIndexOf('#') + 1);
+    }
+
+    return this.http.get<number>(`api/tasks/assignments/calc_solution/${id}`);
+  }
+
+  /**
    * Saves a new task.
    *
    * @param task the task to save

@@ -99,12 +99,21 @@ public class FileResource {
         }
     }
 
-    @GetMapping("/create_random_calc_instruction/{id}")
+
+    /**
+     * Corrects a calc submission and returns feedback
+     *
+     * @param instructionFileId id of the instruction calc file
+     * @param solutionFileId id of the solution calc file
+     * @param submissionFileId if of the submission calc file
+     * @return a string which contains the feedback of the correction
+     */
+    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Long> createRandomCalcFileInstruction (@PathVariable long id) throws Exception {
+    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
         return ResponseEntity
             .ok()
-            .body(uploadFileService.createRandomCalcFileInstruction(id));
+            .body(uploadFileService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
     }
 
     /**

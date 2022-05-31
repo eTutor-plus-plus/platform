@@ -486,6 +486,11 @@ export class TaskUpdateComponent implements OnInit {
     this.uploadFileId = newFileId;
   }
 
+  /**
+   * Sets the calc solution file id.
+   *
+   * @param fileId the file to add
+   */
   public handleCalcSolutionFileAdded(fileId: number): void {
     this.fileService.getFileMetaData(fileId).subscribe(data => {
       if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -496,10 +501,21 @@ export class TaskUpdateComponent implements OnInit {
     });
   }
 
+  /**
+   * Removes the calc solution file.
+   *
+   * @param fileId the file to remove
+   */
   public handleCalcSolutionFileRemoved(fileId: number): void {
     this.calcSolutionFileId = -1;
   }
 
+  /**
+   * Sets a modified solution calc file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
   public handleCalcSolutionFileMoved(oldFileId: number, newFileId: number): void {
     this.fileService.getFileMetaData(newFileId).subscribe(data => {
       if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -510,6 +526,11 @@ export class TaskUpdateComponent implements OnInit {
     });
   }
 
+  /**
+   * Sets the calc instruction id.
+   *
+   * @param fileId the file to add
+   */
   public handleCalcInstructionFileAdded(fileId: number): void {
     this.fileService.getFileMetaData(fileId).subscribe(data => {
       if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -520,10 +541,21 @@ export class TaskUpdateComponent implements OnInit {
     });
   }
 
+  /**
+   * Removes the calc instruction file.
+   *
+   * @param fileId the file to remove
+   */
   public handleCalcInstructionFileRemoved(fileId: number): void {
     this.calcInstructionFileId = -1;
   }
 
+  /**
+   * Sets a modified  calc instruction file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
   public handleCalcInstructionFileMoved(oldFileId: number, newFileId: number): void {
     this.fileService.getFileMetaData(newFileId).subscribe(data => {
       if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {

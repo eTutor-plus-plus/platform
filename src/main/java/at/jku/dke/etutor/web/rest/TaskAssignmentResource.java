@@ -232,6 +232,20 @@ public class TaskAssignmentResource {
     }
 
     /**
+     * REST endpoint for retrieving the calc solution file id by its
+     * internal id
+     *
+     * @param assignmentId the internal id (path variable)
+     * @return the id of the calc solution file
+     */
+    @GetMapping("tasks/assignments/calc_solution/{assignmentId}")
+    public ResponseEntity<Integer> getFileIdOfCalcSolution (@PathVariable String assignmentId) {
+        Optional<Integer> calc_solution_file_id = assignmentSPARQLEndpointService.getFileIdOfCalcSolution(assignmentId);
+
+        return ResponseEntity.of(calc_solution_file_id);
+    }
+
+    /**
      * REST endpoint for retrieving the assigned learning goal ids of a given
      * task assignment.
      *

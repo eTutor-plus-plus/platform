@@ -207,6 +207,38 @@ export class StudentService {
   }
 
   /**
+   * Returns the file attachment id of the generated calc instruction file.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getFileAttachmentIdOfIndividualCalcInstruction(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number
+  ): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/individual-instruction`
+    );
+  }
+
+  /**
+   * Returns the feedback of the corrected calc submission
+   *
+   * @param instructionFileId the id of the generated calc instruction
+   * @param solutionFileId the id of the calc solution
+   * @param submissionFileId the id of the calc submission
+   */
+  public getCorrectionOfCalcTask(instructionFileId: number, solutionFileId: number, submissionFileId: number): Observable<string> {
+    return this.http.get<string>(`${SERVER_API_URL}api/files/${instructionFileId}/${solutionFileId}/${submissionFileId}/correct_task`, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  /**
    * Returns the file attachment id for an assigned exercise sheet.
    *
    * @param courseInstanceId the course instance id

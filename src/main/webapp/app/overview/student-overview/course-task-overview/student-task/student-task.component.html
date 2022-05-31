@@ -30,6 +30,13 @@
         <jhi-file-download [fileId]="uploadFileId"> </jhi-file-download>
       </dd>
 
+      <dt *ngIf="calcIndividualInstructionFileId !== -1">
+        <span jhiTranslate="overview.student.tasks.randomInstruction">Random Instruction</span>
+      </dt>
+      <dd *ngIf="calcIndividualInstructionFileId !== -1">
+        <jhi-file-download [fileId]="calcIndividualInstructionFileId"> </jhi-file-download>
+      </dd>
+
       <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
         <span>{{ getDifficultyI18nString(taskModel?.taskDifficultyId) | translate }}</span>
@@ -45,7 +52,6 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-    <p></p>
     <div class="assignment-component">
       <jhi-assignment
         *ngIf="isDispatcherTask"
@@ -69,8 +75,23 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
+    <jhi-file-upload
+      *ngIf="isCalcTask"
+      [fileId]="uploadCalcSubmissionFileId"
+      (fileAdded)="handleCalcFileAddedAsync($event)"
+      (fileRemoved)="handleCalcFileRemovedAsync($event)"
+      (fileModified)="handleCalcFileMovedAsync($event[0], $event[1])"
+      [disabled]="isSubmitted"
+    >
+    </jhi-file-upload>
+    <div *ngIf="uploadCalcSubmissionFileId == -2">
+      <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+        Please upload the correct content type of the file!
+      </small>
+    </div>
+
     <button
-      *ngIf="!isDispatcherTask"
+      *ngIf="!isDispatcherTask && !isCalcTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
@@ -83,6 +104,40 @@
       >
       <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
     </button>
+
+    <td class="text-right" *ngIf="isCalcTask">
+      <button
+        *ngIf="isCalcTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+        (click)="correctCalcTask()"
+      >
+        Diagnose
+      </button>
+
+      <button
+        *ngIf="isCalcTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="
+          isSubmitted || isSaving || exerciseSheetAlreadyClosed || uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2
+        "
+        (click)="markTaskAsSubmittedAsync()"
+      >
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+          >Submit</span
+        >
+        <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
+      </button>
+
+      <ng-container *ngIf="calcCorrectionFeedback !== undefined">
+        <span>{{ calcCorrectionFeedback }}</span>
+      </ng-container>
+    </td>
     <br />
   </div>
 </div>

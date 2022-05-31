@@ -53,7 +53,8 @@
         "creator": "Creator",
         "submit": "Submit",
         "submitted": "Submitted",
-        "file": "File-Attachment"
+        "file": "File-Attachment",
+        "randomInstruction": "Randomised Instruction"
       }
     }
   }

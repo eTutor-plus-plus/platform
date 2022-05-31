@@ -20,6 +20,7 @@ import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.models.Response;
+import io.swagger.models.auth.In;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -312,6 +313,27 @@ public class StudentResource {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
         Optional<Integer> optionalId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * Returns the calc instruction file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-instruction")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualCalcInstruction (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualCalcInstruction(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         int id = optionalId.orElse(-1);
 

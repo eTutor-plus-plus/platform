@@ -17,6 +17,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -592,6 +594,23 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             return Optional.empty();
         }
     }
+
+    /**
+     * Returns the id of the calc solution file by its internal id
+     *
+     * @param assignmentId the task's internal id
+     * @return {@link Optional} which contains the id of the calc solution of the task
+     */
+    public Optional<Integer> getFileIdOfCalcSolution (String assignmentId) {
+        Objects.requireNonNull(assignmentId);
+        try {
+            return Optional.of(getTaskAssignmentByInternalId(assignmentId).get().getCalcSolutionFileId());
+        }
+        catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
 
     /**
      * Returns a paged task display (task header + id). An optional header filter may be passed to this method.

@@ -53,7 +53,8 @@
         "creator": "Ersteller",
         "submit": "Einreichen",
         "submitted": "Eingereicht",
-        "file": "Datei-Anhang"
+        "file": "Datei-Anhang",
+        "randomInstruction": "Generierte Angabe"
       }
     }
   }
