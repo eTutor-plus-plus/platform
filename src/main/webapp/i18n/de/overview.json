@@ -54,7 +54,8 @@
         "submit": "Einreichen",
         "submitted": "Eingereicht",
         "file": "Datei-Anhang",
-        "randomInstruction": "Generierte Angabe"
+        "randomInstruction": "Generierte Angabe",
+        "calcTaskPointsDescription": "Erreichte Punkte: "
       }
     }
   }

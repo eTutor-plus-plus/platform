@@ -1,8 +1,11 @@
 package at.jku.dke.etutor.service;
 
+import at.jku.dke.etutor.calc.functions.CalcCorrection;
+import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.CSVHelper;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
@@ -29,6 +32,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
@@ -421,6 +425,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     private final UserService userService;
     private final StudentRepository studentRepository;
+    private final FileRepository fileRepository;
     private final Random random;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
@@ -433,12 +438,13 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param studentRepository    the injected student repository
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository,
+    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository, FileRepository fileRepository,
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
         , UploadFileService uploadFileService) {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
+        this.fileRepository = fileRepository;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
         this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
@@ -1180,6 +1186,36 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     return Optional.empty();
                 }
             }
+        }
+    }
+
+    /**
+     * Corrects a calc task
+     *
+     * @param instruction_file_id id of the instruction file
+     * @param solution_file_id id of the solution file
+     * @param submission_file_id id of the submission file
+     * @return a string containing the feedback of the correction
+     */
+    @Transactional
+    public String correctCalcTask (Long instruction_file_id, Long solution_file_id, Long submission_file_id) {
+        FileEntity instruction_file = fileRepository.getById(instruction_file_id);
+        FileEntity solution_file = fileRepository.getById(solution_file_id);
+        FileEntity submission_file = fileRepository.getById(submission_file_id);
+
+        try {
+            InputStream stream_instruction = new ByteArrayInputStream(instruction_file.getContent());
+            InputStream stream_solution = new ByteArrayInputStream(solution_file.getContent());
+            InputStream stream_submission = new ByteArrayInputStream(submission_file.getContent());
+
+            XSSFWorkbook workbook_instruction = new XSSFWorkbook(stream_instruction);
+            XSSFWorkbook workbook_solution = new XSSFWorkbook(stream_solution);
+            XSSFWorkbook workbook_submission = new XSSFWorkbook(stream_submission);
+
+            return CalcCorrection.correctTask(workbook_instruction, workbook_solution, workbook_submission);
+
+        } catch (IOException e) {
+            return null;
         }
     }
 

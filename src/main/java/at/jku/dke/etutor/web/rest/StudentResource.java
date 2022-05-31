@@ -3,6 +3,7 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
+import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
@@ -19,8 +20,6 @@ import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.models.Response;
-import io.swagger.models.auth.In;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +39,7 @@ public class StudentResource {
     private final UserService userService;
     private final StudentService studentService;
     private final DispatcherProxyService dispatcherProxyService;
+    private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     /**
      * Constructor.
@@ -47,10 +47,11 @@ public class StudentResource {
      * @param userService    the injected user service
      * @param studentService the injected student service
      */
-    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService) {
+    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
         this.userService = userService;
         this.studentService = studentService;
         this.dispatcherProxyService = dispatcherProxyService;
+        this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
     }
 
     /**
@@ -63,6 +64,15 @@ public class StudentResource {
     public ResponseEntity<List<StudentInfoDTO>> retrieveAllStudents() {
         List<StudentInfoDTO> studentList = userService.getAvailableStudents();
         return ResponseEntity.ok(studentList);
+    }
+
+    @GetMapping("matriculationNumber")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getCurrentStudentsMatriculationNumber () {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        return ResponseEntity
+            .ok()
+            .body(matriculationNumber);
     }
 
     /**
@@ -340,6 +350,22 @@ public class StudentResource {
         return ResponseEntity.ok(id);
     }
 
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{instructionFileId}/{solutionFileId}/{submissionFileId}/calcTask")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                               @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                               @PathVariable long instructionFileId, @PathVariable long solutionFileId,
+                                                               @PathVariable long submissionFileId) {
+        String feedback = studentService.correctCalcTask(instructionFileId, solutionFileId, submissionFileId);
+        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+        if (feedback.contains("Congratulation")) {
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+
     /**
      * Returns all submissions mady by a student for a specific individual task
      * @param courseInstanceUUID the course instance
@@ -471,6 +497,10 @@ public class StudentResource {
         }
         return ResponseEntity.ok().build();
     }
+
+
+
+
 
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level} : Returns

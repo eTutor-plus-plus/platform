@@ -116,28 +116,25 @@
       >
         Diagnose
       </button>
-
       <button
         *ngIf="isCalcTask"
         type="button"
         class="btn btn-primary"
         style="margin-top: 10px"
-        [disabled]="
-          isSubmitted || isSaving || exerciseSheetAlreadyClosed || uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2
-        "
-        (click)="markTaskAsSubmittedAsync()"
+        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+        (click)="submitCalcTask()"
       >
-        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
-        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
-          >Submit</span
-        >
-        <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
+        Submit
       </button>
-
-      <ng-container *ngIf="calcCorrectionFeedback !== undefined">
-        <span>{{ calcCorrectionFeedback }}</span>
-      </ng-container>
     </td>
     <br />
+    <ng-container *ngIf="calcCorrectionFeedback !== undefined">
+      <span>{{ calcCorrectionFeedback }}</span>
+      <br />
+    </ng-container>
+    <ng-container *ngIf="calcTaskPoints !== undefined">
+      <span jhiTranslate="overview.student.tasks.calcTaskPointsDescription">Reached Points</span>
+      <span>{{ calcTaskPoints }}</span>
+    </ng-container>
   </div>
 </div>

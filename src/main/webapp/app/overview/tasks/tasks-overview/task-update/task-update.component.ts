@@ -399,6 +399,7 @@ export class TaskUpdateComponent implements OnInit {
       this.isCalcTask = false;
       if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
         this.isCalcTask = true;
+        this.updateForm.get('maxPoints')!.setValidators(Validators.required);
       }
     }
   }

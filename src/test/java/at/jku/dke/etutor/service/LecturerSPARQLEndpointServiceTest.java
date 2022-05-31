@@ -6,6 +6,7 @@ import at.jku.dke.etutor.domain.User;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.*;
@@ -75,6 +76,9 @@ public class LecturerSPARQLEndpointServiceTest {
     private StudentRepository studentRepository;
 
     @Autowired
+    private FileRepository fileRepository;
+
+    @Autowired
     private SpringLiquibase springLiquibase;
 
     private User student;
@@ -122,7 +126,7 @@ public class LecturerSPARQLEndpointServiceTest {
         );
 
         //TODO: change to not null
-        studentService = new StudentService(null, userService, studentRepository, null, rdfConnectionFactory, null);
+        studentService = new StudentService(null, userService, studentRepository, fileRepository, null, rdfConnectionFactory, null);
 
         sparqlEndpointService.insertScheme();
 

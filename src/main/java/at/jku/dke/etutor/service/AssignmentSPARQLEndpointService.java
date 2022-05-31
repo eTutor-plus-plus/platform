@@ -14,7 +14,6 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -1262,10 +1260,11 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         }
     }
 
-    public Optional<Integer> getMaxPointsForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID) {
+    public Optional<Integer> getMaxPointsForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
         Objects.requireNonNull(matriculationNumber);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
 
         String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
@@ -1275,6 +1274,7 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         query.setIri("?courseInstance", courseInstanceURL);
         query.setIri("?student", studentURL);
         query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
 
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(query.asQuery())) {

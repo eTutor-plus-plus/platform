@@ -41,6 +41,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public calcIndividualInstructionFileId = -1;
   public calcSolutionFileId = -1;
   public calcCorrectionFeedback: string | undefined;
+  public matriculationNumber: string | undefined;
+  public calcTaskPoints: number | undefined;
 
   private readonly _instance?: ICourseInstanceInformationDTO;
   private _paramMapSubscription?: Subscription;
@@ -142,6 +144,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
             .getFileAttachmentIdOfIndividualCalcInstruction(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
           this.calcSolutionFileId = await this.taskService.getFileIdOfCalcSolution(this._taskUUID, true).toPromise();
+          this.studentService.getMatriculationNumberOfLoggedInStudent().subscribe(data => {
+            this.matriculationNumber = data;
+          });
+          this.updateCalcTaskPoints();
         }
         const taskGroupId = this._taskModel.taskGroupId;
         if (taskGroupId) {
@@ -311,11 +317,43 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  public submitCalcTask(): void {
+    if (
+      this.uploadCalcSubmissionFileId !== -1 &&
+      this.uploadCalcSubmissionFileId !== -2 &&
+      this.calcSolutionFileId !== -1 &&
+      this.calcIndividualInstructionFileId !== -1 &&
+      this.matriculationNumber !== undefined &&
+      this._instance !== undefined
+    ) {
+      this.studentService
+        .handleCalcTaskSubmission(
+          this.matriculationNumber,
+          this._instance.instanceId,
+          this._exerciseSheetUUID,
+          this._taskNo,
+          this.calcIndividualInstructionFileId,
+          this.calcSolutionFileId,
+          this.uploadCalcSubmissionFileId
+        )
+        .toPromise();
+      this.updateCalcTaskPoints();
+    }
+  }
+
   /**
    * Redirects the UUID from the dispatcher to the server
    * @param $event the UUID
    */
   public handleDispatcherUUID($event: string): void {
     this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
+  }
+
+  public updateCalcTaskPoints(): void {
+    if (this._instance !== undefined) {
+      this.studentService.getDispatcherPoints(this._instance.instanceId, this._exerciseSheetUUID, this._taskNo).subscribe(data => {
+        this.calcTaskPoints = data;
+      });
+    }
   }
 }

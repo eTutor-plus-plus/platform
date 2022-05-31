@@ -43,6 +43,12 @@ export class StudentService {
     );
   }
 
+  public getMatriculationNumberOfLoggedInStudent(): Observable<string> {
+    return this.http.get<string>(`${SERVER_API_URL}api/student/matriculationNumber`, {
+      responseType: 'text' as 'json',
+    });
+  }
+
   /**
    * Retrieves the courses of the currently logged-in student.
    */
@@ -236,6 +242,23 @@ export class StudentService {
     return this.http.get<string>(`${SERVER_API_URL}api/files/${instructionFileId}/${solutionFileId}/${submissionFileId}/correct_task`, {
       responseType: 'text' as 'json',
     });
+  }
+
+  public handleCalcTaskSubmission(
+    matriculationNo: string,
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    instructionFileId: number,
+    solutionFileId: number,
+    submissionFileId: number
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/student/${matriculationNo}/calcSubmission/${instructionFileId}/${solutionFileId}/${submissionFileId}/calcTask`,
+      undefined
+    );
   }
 
   /**
