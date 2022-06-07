@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
@@ -60,6 +60,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * @param taskService the injected task service
    * @param studentService the injected student service
    * @param taskGroupService the injected task group service
+   * @param fileService the injected file service
    */
   constructor(
     private router: Router,
@@ -336,8 +337,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this.calcSolutionFileId,
           this.uploadCalcSubmissionFileId
         )
-        .toPromise();
-      this.updateCalcTaskPoints();
+        .subscribe(() => {
+          this.updateCalcTaskPoints();
+        });
     }
   }
 
