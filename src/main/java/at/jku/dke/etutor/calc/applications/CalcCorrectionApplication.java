@@ -1,6 +1,9 @@
 package at.jku.dke.etutor.calc.applications;
 
 import at.jku.dke.etutor.calc.functions.*;
+import org.apache.jena.base.Sys;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -16,15 +19,25 @@ public class CalcCorrectionApplication {
     private static final String INSTRUCTION_K11827238 = "src/main/resources/calc/instruction_K11827238.xlsx";
     private static final String SUBMISSION_K11827238 = "src/main/resources/calc/submission_K11827238.xlsx";
     private static final String SOLUTION = "src/main/resources/calc/solution_n.xlsx";
+    private static final String COLORS = "src/main/resources/calc/colors.xlsx";
 
     public static void main(String[] args) throws Exception {
 
-        FileInputStream excelFile_instruction = new FileInputStream(new File(INSTRUCTION));
+        FileInputStream excelFile_instruction = new FileInputStream(new File(COLORS));
         XSSFWorkbook workbook_instruction = new XSSFWorkbook(excelFile_instruction);
+
+        Sheet sheet = workbook_instruction.getSheetAt(0);
+
+        for (Row row: sheet) {
+            for (Cell cell : row) {
+                System.out.println(FillColorHex.getFillColorHex(cell));
+                System.out.println(FillColorHex.isCalculationHelpCell(sheet,cell));
+            }
+        }
 
         // How to create a random Instruction
 
-        CreateRandomInstruction.createRandomInstruction(workbook_instruction, "src/main/resources/calc/instruction_K11827238_new.xlsx");
+//        CreateRandomInstruction.createRandomInstruction(workbook_instruction, "src/main/resources/calc/instruction_K11827238_new.xlsx");
 
 //        runCorrection(INSTRUCTION_K11827238,SOLUTION,SUBMISSION_K11827238);
 //        FileInputStream excelFile_instruction = new FileInputStream(new File(INSTRUCTION_K11827238));
