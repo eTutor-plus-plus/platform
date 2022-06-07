@@ -318,6 +318,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * submits the submitted calc task and sets the dispatcher points
+   */
   public submitCalcTask(): void {
     if (
       this.uploadCalcSubmissionFileId !== -1 &&
@@ -351,6 +354,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
   }
 
+  /**
+   * updates the achieved calc task points
+   */
   public updateCalcTaskPoints(): void {
     if (this._instance !== undefined) {
       this.studentService.getDispatcherPoints(this._instance.instanceId, this._exerciseSheetUUID, this._taskNo).subscribe(data => {

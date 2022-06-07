@@ -100,21 +100,6 @@ public class FileResource {
     }
 
 
-    /**
-     * Corrects a calc submission and returns feedback
-     *
-     * @param instructionFileId id of the instruction calc file
-     * @param solutionFileId id of the solution calc file
-     * @param submissionFileId if of the submission calc file
-     * @return a string which contains the feedback of the correction
-     */
-    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
-        return ResponseEntity
-            .ok()
-            .body(uploadFileService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
-    }
 
     /**
      * Returns the request file's meta data.

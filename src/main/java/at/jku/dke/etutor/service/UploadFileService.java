@@ -88,35 +88,6 @@ public class UploadFileService {
          return fileRepository.uploadFile(new_filename , file_old.getContentType(), file_new.getBytes(), file_new.getSize());
     }
 
-    /**
-     * Corrects a calc task
-     *
-     * @param instruction_file_id id of the instruction file
-     * @param solution_file_id id of the solution file
-     * @param submission_file_id id of the submission file
-     * @return a string containing the feedback of the correction
-     */
-    @Transactional
-    public String correctCalcTask (Long instruction_file_id, Long solution_file_id, Long submission_file_id) {
-        FileEntity instruction_file = fileRepository.getById(instruction_file_id);
-        FileEntity solution_file = fileRepository.getById(solution_file_id);
-        FileEntity submission_file = fileRepository.getById(submission_file_id);
-
-        try {
-            InputStream stream_instruction = new ByteArrayInputStream(instruction_file.getContent());
-            InputStream stream_solution = new ByteArrayInputStream(solution_file.getContent());
-            InputStream stream_submission = new ByteArrayInputStream(submission_file.getContent());
-
-            XSSFWorkbook workbook_instruction = new XSSFWorkbook(stream_instruction);
-            XSSFWorkbook workbook_solution = new XSSFWorkbook(stream_solution);
-            XSSFWorkbook workbook_submission = new XSSFWorkbook(stream_submission);
-
-            return CalcCorrection.correctTask(workbook_instruction, workbook_solution, workbook_submission);
-
-        } catch (IOException e) {
-            return null;
-        }
-    }
 
     /**
      * Returns a stored file.

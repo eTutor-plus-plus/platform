@@ -350,6 +350,32 @@ public class StudentResource {
         return ResponseEntity.ok(id);
     }
 
+    /**
+     * Corrects a calc submission and returns feedback
+     *
+     * @param instructionFileId id of the instruction calc file
+     * @param solutionFileId id of the solution calc file
+     * @param submissionFileId if of the submission calc file
+     * @return a string which contains the feedback of the correction
+     */
+    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
+        return ResponseEntity
+            .ok()
+            .body(studentService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
+    }
+
+
+    /**
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param matriculationNo the matriculation number
+     * @param instructionFileId the file id of the generated instruction
+     * @param solutionFileId the file id of the solution
+     * @param submissionFileId the file id of the sumbission
+     */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{instructionFileId}/{solutionFileId}/{submissionFileId}/calcTask")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,

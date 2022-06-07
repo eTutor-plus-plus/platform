@@ -43,6 +43,9 @@ export class StudentService {
     );
   }
 
+  /**
+   * returns the matriculation number of the logged in Student.
+   */
   public getMatriculationNumberOfLoggedInStudent(): Observable<string> {
     return this.http.get<string>(`${SERVER_API_URL}api/student/matriculationNumber`, {
       responseType: 'text' as 'json',
@@ -239,11 +242,22 @@ export class StudentService {
    * @param submissionFileId the id of the calc submission
    */
   public getCorrectionOfCalcTask(instructionFileId: number, solutionFileId: number, submissionFileId: number): Observable<string> {
-    return this.http.get<string>(`${SERVER_API_URL}api/files/${instructionFileId}/${solutionFileId}/${submissionFileId}/correct_task`, {
+    return this.http.get<string>(`${SERVER_API_URL}api/student/${instructionFileId}/${solutionFileId}/${submissionFileId}/correct_task`, {
       responseType: 'text' as 'json',
     });
   }
 
+  /**
+   * handles the submitted calc task
+   *
+   * @param matriculationNo the matriculation number of the logged in student
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   * @param instructionFileId the file id of the generated instruction
+   * @param solutionFileId the file id of the solution
+   * @param submissionFileId the file id of the submission
+   */
   public handleCalcTaskSubmission(
     matriculationNo: string,
     courseInstanceId: string,
