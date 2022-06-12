@@ -18,7 +18,7 @@ public class ProtectionCheck {
      * the function also checks if some cells are able to change even if the sheet is protected
      */
     public static boolean correctProtected (Sheet solution, Sheet submission) {
-//        try {
+        try {
             // Checks if the sheet is correct protected
             if (isSheetProtected(solution) != isSheetProtected(submission)) {
                 return false;
@@ -32,19 +32,14 @@ public class ProtectionCheck {
                     }
                 }
             }
-//        } catch (Exception e) {
-//        System.out.println("Your submission has Syntax errors, please do not change the given Instruction, just change the values of the green and yellow Cells!");
-//        return false;
-//    }
+        } catch (Exception e) {
+        System.out.println("Your submission has Syntax errors, please do not change the given Instruction, just change the values of the green and yellow Cells!");
+        return false;
+    }
 
         return true;
     }
 
-    public static void protectSheet (Sheet sheet) {
-        if (!isSheetProtected(sheet)) {
-            sheet.protectSheet("asdf");
-        }
-    }
 
 
 }

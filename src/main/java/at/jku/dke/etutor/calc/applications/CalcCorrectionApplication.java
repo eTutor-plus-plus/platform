@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.calc.applications;
 
 import at.jku.dke.etutor.calc.functions.*;
-import org.apache.jena.base.Sys;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -71,7 +70,7 @@ public class CalcCorrectionApplication {
         FileInputStream excelFile_submission = new FileInputStream(new File(submission));
         XSSFWorkbook workbook_submission = new XSSFWorkbook(excelFile_submission);
 
-        List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overriteWorkbooks(workbook_instruction,workbook_solution,workbook_submission);
+        List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overrideWorkbooks(workbook_instruction,workbook_solution,workbook_submission);
 
 
         // TODO: iterates through all sheets except the first sheet because it is the source
@@ -143,7 +142,7 @@ public class CalcCorrectionApplication {
 
 
         try {
-            List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overriteWorkbooks(instruction,solution,submission);
+            List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overrideWorkbooks(instruction,solution,submission);
             Sheet sheet_solution = xssfWorkbookList.get(0).getSheetAt(1);
             Sheet sheet_submission = xssfWorkbookList.get(1).getSheetAt(1);
 

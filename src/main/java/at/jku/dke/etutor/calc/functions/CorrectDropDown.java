@@ -205,6 +205,7 @@ public class CorrectDropDown {
             String feedback = "Your Dropdown and the Values are correct !";
 
             for (Cell current_dropdown_cell_solution : dropdown_cells) {
+
                 Cell current_dropdown_cell_submission = sheet_submission.getRow(current_dropdown_cell_solution.getRowIndex()).getCell(current_dropdown_cell_solution.getColumnIndex());
                 if (isDropdown(sheet_submission, current_dropdown_cell_submission)) {
                     List<String> dropdownCells_submission = getDropdownValues(workbook_submission, sheet_submission, current_dropdown_cell_submission);

@@ -24,7 +24,7 @@ public class CreateRandomInstruction {
      * The function also overrides the functions of the solution because the references to the source are not correct anymore
      * and the function overrides the dates of the submission because in Example 5 & 6 it is possible to insert random dates
      */
-    public static List<XSSFWorkbook> overriteWorkbooks (XSSFWorkbook workbook_instruction,  XSSFWorkbook workbook_solution, XSSFWorkbook workbook_submission) throws IOException {
+    public static List<XSSFWorkbook> overrideWorkbooks(XSSFWorkbook workbook_instruction, XSSFWorkbook workbook_solution, XSSFWorkbook workbook_submission) throws IOException {
 
         Sheet source_solution_old = workbook_solution.getSheetAt(0);
         int row_old= 0;
@@ -179,46 +179,10 @@ public class CreateRandomInstruction {
     }
 
 
-
     /**
-     * @param instruction  is the base instruction which should be randomised
-     * @param path is the path where the new instruction should be saved
-     * @return the new instruction where all the yellow values are randomised
+     * @param instruction the workbook which should be randomised
+     * @return returns a randomised workbook, where all the values which are a value cells (yellow color) are changed between 80 % and 120 %
      */
-
-
-    public static XSSFWorkbook createRandomInstruction (XSSFWorkbook instruction, String path) throws Exception {
-
-        // Randomise a new Instruction
-        Sheet datatypeSheet_instruction = instruction.getSheetAt(0);
-
-        try {
-
-            for (Row row : datatypeSheet_instruction) {
-                for (Cell cell : row) {
-                    if (FillColorHex.isValueCell(datatypeSheet_instruction, cell)) {
-                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                            Random r = new Random();
-                            double rand =  0.8 + (1.2 - 0.8) * r.nextDouble();
-                            cell.setCellValue(cell.getNumericCellValue() * Math.round(rand * 100.0) / 100.0);
-                        }
-                    }
-                }
-            }
-
-
-            instruction = createRandomLocation(instruction);
-
-            FileOutputStream out = new FileOutputStream(path);
-            instruction.write(out);
-            out.close();
-
-            return instruction;
-        } catch (Exception e) {
-            return instruction;
-        }
-    }
-
     public static XSSFWorkbook createRandomInstruction (XSSFWorkbook instruction) throws Exception {
 
         // Randomise a new Instruction
@@ -247,33 +211,6 @@ public class CreateRandomInstruction {
         }
     }
 
-//    /**
-//     * @param instruction  is the base instruction which should be randomised
-//     * @return the new instruction
-//     */
-//
-//    public static XSSFWorkbook createRandomInstruction (XSSFWorkbook instruction) throws IOException {
-//
-//        // TODO: Randomise a new Instruction
-//        Sheet datatypeSheet_instruction = instruction.getSheetAt(0);
-//
-//        // Unterkunft pro Tag (zw. 20 - 200) (Row 2-4, Cell 3)
-//        datatypeSheet_instruction.getRow(2).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-//        datatypeSheet_instruction.getRow(3).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-//        datatypeSheet_instruction.getRow(4).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-//
-//        // Kosten pro Person (zw. 5 - 50) (Row 2-4, Cell 4)
-//        datatypeSheet_instruction.getRow(2).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-//        datatypeSheet_instruction.getRow(3).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-//        datatypeSheet_instruction.getRow(4).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-//
-//        // Rabattklasse (zw. 5 - 50) (Row 9, Cell 1-3)
-//        datatypeSheet_instruction.getRow(9).getCell(1).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-//        datatypeSheet_instruction.getRow(9).getCell(2).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-//        datatypeSheet_instruction.getRow(9).getCell(3).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-//
-//        return instruction;
-//    }
 
     /**
      * @param workbook workboook where the Location of the cells should be randomised
@@ -281,7 +218,8 @@ public class CreateRandomInstruction {
      */
     public static XSSFWorkbook createRandomLocation (XSSFWorkbook workbook) {
         XSSFWorkbook xssfWorkbook = workbook;
-        xssfWorkbook.createSheet("Hilfstabellen1");
+        String sheetName = workbook.getSheetName(0);
+        xssfWorkbook.createSheet(sheetName + 1);
 
         Sheet sheet = xssfWorkbook.getSheetAt(xssfWorkbook.getNumberOfSheets()-1);
         Sheet datatypeSheet = workbook.getSheetAt(0);
@@ -303,8 +241,16 @@ public class CreateRandomInstruction {
                     sheet.setColumnWidth(cell.getColumnIndex() + column_c, datatypeSheet.getColumnWidth(cell.getColumnIndex()));
                 }
 
-                if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getNumericCellValue());
+                if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC || cell.getCellType() == Cell.CELL_TYPE_STRING || cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+                    if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                        sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getNumericCellValue());
+                    }
+                    if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                        sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getStringCellValue());
+                    }
+                    if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+                        sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue("");
+                    }
                     CellStyle newStyle = xssfWorkbook.createCellStyle();
                     newStyle.cloneStyleFrom(cell.getCellStyle());
                     newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
@@ -314,28 +260,7 @@ public class CreateRandomInstruction {
                     newStyle.setAlignment(cell.getCellStyle().getAlignment());
                     sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
                 }
-                if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getStringCellValue());
-                    CellStyle newStyle = xssfWorkbook.createCellStyle();
-                    newStyle.cloneStyleFrom(cell.getCellStyle());
-                    newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
-                    newStyle.setBorderLeft(cell.getCellStyle().getBorderLeft());
-                    newStyle.setBorderRight(cell.getCellStyle().getBorderRight());
-                    newStyle.setBorderTop(cell.getCellStyle().getBorderTop());
-                    newStyle.setAlignment(cell.getCellStyle().getAlignment());
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
-                }
-                if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue("");
-                    CellStyle newStyle = xssfWorkbook.createCellStyle();
-                    newStyle.cloneStyleFrom(cell.getCellStyle());
-                    newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
-                    newStyle.setBorderLeft(cell.getCellStyle().getBorderLeft());
-                    newStyle.setBorderRight(cell.getCellStyle().getBorderRight());
-                    newStyle.setBorderTop(cell.getCellStyle().getBorderTop());
-                    newStyle.setAlignment(cell.getCellStyle().getAlignment());
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
-                }
+
             }
         }
         for (int i=0; i < datatypeSheet.getNumMergedRegions(); i++) {
@@ -347,115 +272,14 @@ public class CreateRandomInstruction {
             sheet.addMergedRegion(copy);
         }
         xssfWorkbook.removeSheetAt(0);
-        xssfWorkbook.setSheetName(xssfWorkbook.getNumberOfSheets()-1, "Hilfstabellen");
+        xssfWorkbook.setSheetName(xssfWorkbook.getNumberOfSheets()-1, sheetName);
         xssfWorkbook.getSheetAt(xssfWorkbook.getNumberOfSheets()-1).protectSheet("");
-        xssfWorkbook.setSheetOrder("Hilfstabellen", 0);
+        xssfWorkbook.setSheetOrder(sheetName, 0);
 
         return xssfWorkbook;
     }
 
-    /**
-     * @param xssfWorkbook workbook where the values of the cells should be randomised
-     * @param new_instruction_path path where the new workbook should be saved
-     * @return a new workbook where the first sheet is randomised
-     */
-    public static Sheet randomiseSheet (XSSFWorkbook xssfWorkbook, String new_instruction_path) throws IOException {
 
-        Sheet datatypeSheet = xssfWorkbook.getSheetAt(0);
-
-        // Unterkunft pro Tag (zw. 20 - 200) (Row 2-4, Cell 3)
-        datatypeSheet.getRow(2).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-        datatypeSheet.getRow(3).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-        datatypeSheet.getRow(4).getCell(3).setCellValue(Math.round(Math.random()*(200 - 20) + 20));
-
-        // Kosten pro Person (zw. 5 - 50) (Row 2-4, Cell 4)
-        datatypeSheet.getRow(2).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-        datatypeSheet.getRow(3).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-        datatypeSheet.getRow(4).getCell(4).setCellValue(Math.round(Math.random()*(50 - 5) + 5));
-
-        // Rabattklasse (zw. 5 - 50) (Row 9, Cell 1-3)
-        datatypeSheet.getRow(9).getCell(1).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-        datatypeSheet.getRow(9).getCell(2).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-        datatypeSheet.getRow(9).getCell(3).setCellValue(Math.round((Math.random() / 10.0)*100.00)/100.00);
-
-
-        XSSFWorkbook workbook = xssfWorkbook;
-        workbook.createSheet(datatypeSheet.getSheetName() + "1");
-        Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets() -1);
-
-        int row_c = (int) Math.round(Math.random()*(10 - 1) + 1);
-        int column_c = (int) Math.round(Math.random()*(10 - 1) + 1);
-
-        for (Row row : datatypeSheet) {
-            for (Cell cell : row) {
-
-                if (sheet.getRow(cell.getRowIndex() + row_c) == null) {
-                    sheet.createRow(cell.getRowIndex() + row_c);
-                    sheet.getRow(cell.getRowIndex() + row_c).setHeight(datatypeSheet.getRow(cell.getRowIndex()).getHeight());
-
-                }
-                if (sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c) == null) {
-                    sheet.getRow(cell.getRowIndex() + row_c).createCell(cell.getColumnIndex() + column_c);
-                }
-                if (sheet.getColumnWidth(cell.getColumnIndex() + column_c) != datatypeSheet.getColumnWidth(cell.getColumnIndex())) {
-                    sheet.setColumnWidth(cell.getColumnIndex() + column_c, datatypeSheet.getColumnWidth(cell.getColumnIndex()));
-                }
-
-                if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getNumericCellValue());
-                    CellStyle newStyle = workbook.createCellStyle();
-                    newStyle.cloneStyleFrom(cell.getCellStyle());
-                    newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
-                    newStyle.setBorderLeft(cell.getCellStyle().getBorderLeft());
-                    newStyle.setBorderRight(cell.getCellStyle().getBorderRight());
-                    newStyle.setBorderTop(cell.getCellStyle().getBorderTop());
-                    newStyle.setAlignment(cell.getCellStyle().getAlignment());
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
-                }
-                if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue(cell.getStringCellValue());
-                    CellStyle newStyle = workbook.createCellStyle();
-                    newStyle.cloneStyleFrom(cell.getCellStyle());
-                    newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
-                    newStyle.setBorderLeft(cell.getCellStyle().getBorderLeft());
-                    newStyle.setBorderRight(cell.getCellStyle().getBorderRight());
-                    newStyle.setBorderTop(cell.getCellStyle().getBorderTop());
-                    newStyle.setAlignment(cell.getCellStyle().getAlignment());
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
-                }
-                if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellValue("");
-                    CellStyle newStyle = workbook.createCellStyle();
-                    newStyle.cloneStyleFrom(cell.getCellStyle());
-                    newStyle.setBorderBottom(cell.getCellStyle().getBorderBottom());
-                    newStyle.setBorderLeft(cell.getCellStyle().getBorderLeft());
-                    newStyle.setBorderRight(cell.getCellStyle().getBorderRight());
-                    newStyle.setBorderTop(cell.getCellStyle().getBorderTop());
-                    newStyle.setAlignment(cell.getCellStyle().getAlignment());
-                    sheet.getRow(cell.getRowIndex() + row_c).getCell(cell.getColumnIndex() + column_c).setCellStyle(newStyle);
-                }
-            }
-        }
-        for (int i=0; i < datatypeSheet.getNumMergedRegions(); i++) {
-            CellRangeAddress copy = datatypeSheet.getMergedRegion(i);
-            copy.setFirstColumn(datatypeSheet.getMergedRegion(i).getFirstColumn() + column_c);
-            copy.setLastColumn(datatypeSheet.getMergedRegion(i).getLastColumn() + column_c);
-            copy.setFirstRow(datatypeSheet.getMergedRegion(i).getFirstRow() + row_c);
-            copy.setLastRow(datatypeSheet.getMergedRegion(i).getLastRow() + row_c);
-            sheet.addMergedRegion(copy);
-        }
-
-        workbook.removeSheetAt(0);
-        workbook.setSheetName(xssfWorkbook.getNumberOfSheets()-1, "Hilfstabellen");
-        workbook.getSheetAt(xssfWorkbook.getNumberOfSheets()-1).protectSheet("");
-        workbook.setSheetOrder("Hilfstabellen", 0);
-
-        FileOutputStream out = new FileOutputStream(new_instruction_path);
-        workbook.write(out);
-        out.close();
-
-        return sheet;
-    }
 
 
     /**

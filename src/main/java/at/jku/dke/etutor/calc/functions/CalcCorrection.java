@@ -3,8 +3,6 @@ package at.jku.dke.etutor.calc.functions;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +20,7 @@ public class CalcCorrection {
     public static String correctTask (XSSFWorkbook instruction, XSSFWorkbook solution, XSSFWorkbook submission) throws IOException {
 
         try {
-            List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overriteWorkbooks(instruction,solution,submission);
+            List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overrideWorkbooks(instruction,solution,submission);
             Sheet sheet_solution = xssfWorkbookList.get(0).getSheetAt(1);
             Sheet sheet_submission = xssfWorkbookList.get(1).getSheetAt(1);
 
@@ -45,7 +43,7 @@ public class CalcCorrection {
                 return "Your Row / Columns are not correct hidden";
             }
             if (!CorrectSheetFormat.isCorrectFormatted(sheet_solution, sheet_submission)) {
-                return "Your Cells are not correct formated";
+                return "Your Cells are not correct formatted";
             }
             return "Congratulation! Your Submission is correct";
 
