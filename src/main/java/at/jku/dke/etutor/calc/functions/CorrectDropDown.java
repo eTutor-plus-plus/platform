@@ -243,7 +243,7 @@ public class CorrectDropDown {
                                         // all Cells have to be evaluated because otherwise the different Dropdowns will not be checked
                                         formulaEvaluator_solution.evaluateAll();
                                         formulaEvaluator_submission.evaluateAll();
-                                        if (!(CorrectValues.compareCells(currentCell, currentCell_submission))) {
+                                        if (!(CorrectValues.compareCells(currentCell, currentCell_submission)) || currentCell.getCellType() != currentCell_submission.getCellType()) {
                                                 correct_dropdown_values = false;
                                         }
 
