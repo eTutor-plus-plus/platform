@@ -82,7 +82,7 @@ public class CalcCorrectionApplication {
 
 
                 if (!FillColorHex.isSheetUnchanged(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter))) {
-                    System.out.println(workbook_solution.getSheetName(sheet_counter) + ": " + "Your submission has syntax errors. Please do not change the colors of the cells!");
+                    System.out.println(workbook_solution.getSheetName(sheet_counter) + ": " + "Your submission has syntax errors. Please do not change the cells without colors!");
                 } else {
 
                     String correctDropDown = CorrectDropDown.correctDropDown(xssfWorkbookList.get(0), xssfWorkbookList.get(1), xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
@@ -105,7 +105,7 @@ public class CalcCorrectionApplication {
                     }
 
                     if (!correctDataValidation) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Plaese check your Data Validation");
+                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Please check your Data Validation");
                     }
 
                     if (!correctHidden) {
@@ -113,7 +113,7 @@ public class CalcCorrectionApplication {
                     }
 
                     if (!correctFormated) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your Cells are not correct formated");
+                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your Cells are not correct formatted");
                     }
 
                     if (Objects.equals(correctDropDown, "Your Dropdown and the Values are correct !") && correctCalculation && correctFormated && correctHidden && correctProtected && correctDataValidation) {

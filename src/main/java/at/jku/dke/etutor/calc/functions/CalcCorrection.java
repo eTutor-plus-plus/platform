@@ -17,7 +17,7 @@ public class CalcCorrection {
      * @param submission workbook of the submission
      * @return a string containing the feedback
      */
-    public static String correctTask (XSSFWorkbook instruction, XSSFWorkbook solution, XSSFWorkbook submission) throws IOException {
+    public static String correctTask (XSSFWorkbook instruction, XSSFWorkbook solution, XSSFWorkbook submission) {
 
         try {
             List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overrideWorkbooks(instruction,solution,submission);
