@@ -43,6 +43,7 @@ public class CreateRandomInstruction {
         Sheet instruction_sheet = workbook_instruction.getSheetAt(0);
 
 
+
         XSSFWorkbook solution = changeFirstSheet(instruction_sheet, workbook_solution);
         XSSFWorkbook submission = changeFirstSheet(instruction_sheet, workbook_submission);
 
@@ -344,7 +345,7 @@ public class CreateRandomInstruction {
         String sheetName = workbook.getSheetName(0);
         workbook.removeSheetAt(0);
         workbook.setSheetOrder(new_name,0);
-        workbook.setSheetName(0, sheetName);
+//        workbook.setSheetName(0, sheetName);
         return workbook;
     }
 
