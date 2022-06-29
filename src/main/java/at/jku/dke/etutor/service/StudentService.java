@@ -987,7 +987,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString typeAskQuery = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
+            PREFIX etutor-task-assignment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
 
             ASK {
               ?instance a etutor:CourseInstance.
@@ -997,7 +997,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
                               etutor:refersToTask ?task.
-              ?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.
+              ?task etutor:hasTaskAssignmentType ?type.
+
+              FILTER (?type IN ( etutor-task-assignment-type:UploadTask, etutor-task-assignment-type:DLGTask, etutor-task-assignment-type:XQTask, etutor-task-assignment-type:SQLTask) )
             }
             """);
 
