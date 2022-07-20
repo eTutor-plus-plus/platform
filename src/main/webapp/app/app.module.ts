@@ -31,12 +31,14 @@ import { ErrorComponent } from './layouts/error/error.component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { QuillModule } from 'ngx-quill';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// import {MaterialModule} from "./material.model";
 
 @NgModule({
   imports: [
     BrowserModule,
     SharedModule,
     HomeModule,
+    // MaterialModule,
     ContextMenuModule.forRoot({
       useBootstrap4: true,
     }),

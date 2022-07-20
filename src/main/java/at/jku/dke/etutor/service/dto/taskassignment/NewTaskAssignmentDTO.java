@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,11 @@ public class NewTaskAssignmentDTO {
     private int uploadFileId;
     private int calcSolutionFileId; // has to match with task.model.ts
     private int calcInstructionFileId; // has to match with task.model.ts
+    private int writerInstructionFileId;
+    // insert time
+
+    private Timestamp startTime;
+    private Timestamp endTime;
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -409,5 +415,29 @@ public class NewTaskAssignmentDTO {
 
     public void setCalcInstructionFileId(int calcInstructionFileId) {
         this.calcInstructionFileId = calcInstructionFileId;
+    }
+
+    public int getWriterInstructionFileId() {
+        return writerInstructionFileId;
+    }
+
+    public void setWriterInstructionFileId(int writerInstructionFileId) {
+        this.writerInstructionFileId = writerInstructionFileId;
+    }
+
+    public Timestamp getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
+    public Timestamp getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
     }
 }

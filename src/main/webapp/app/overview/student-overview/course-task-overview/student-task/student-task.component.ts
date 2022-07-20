@@ -38,8 +38,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public diagnoseLevelWeighting = '';
   public taskGroup: ITaskGroupDTO | undefined;
   public uploadFileId = -1;
+  public writerIndividualInstructionFileId = -1;
   public calcIndividualInstructionFileId = -1;
-  public calcSolutionFileId = -1;
+  public calcIndividualSolutionFileId = -1;
+  // public calcSolutionFileId = -1;
   public calcCorrectionFeedback: string | undefined;
   public matriculationNumber: string | undefined;
   public calcTaskPoints: number | undefined;
@@ -141,10 +143,16 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this.uploadCalcSubmissionFileId = await this.studentService
             .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
+          this.writerIndividualInstructionFileId = await this.studentService
+            .getFileAttachmentIdOfIndividualWriterInstruction(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
           this.calcIndividualInstructionFileId = await this.studentService
             .getFileAttachmentIdOfIndividualCalcInstruction(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
-          this.calcSolutionFileId = await this.taskService.getFileIdOfCalcSolution(this._taskUUID, true).toPromise();
+          this.calcIndividualSolutionFileId = await this.studentService
+            .getFileAttachmentIdOfIndividualCalcSolution(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .toPromise();
+          // this.calcSolutionFileId = await this.taskService.getFileIdOfCalcSolution(this._taskUUID, true).toPromise();
           this.studentService.getMatriculationNumberOfLoggedInStudent().subscribe(data => {
             this.matriculationNumber = data;
           });
@@ -307,11 +315,25 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     if (
       this.uploadCalcSubmissionFileId !== -1 &&
       this.uploadCalcSubmissionFileId !== -2 &&
-      this.calcSolutionFileId !== -1 &&
-      this.calcIndividualInstructionFileId !== -1
+      this.writerIndividualInstructionFileId !== -1 &&
+      this.calcIndividualSolutionFileId !== -1 &&
+      this.calcIndividualInstructionFileId !== -1 &&
+      this.matriculationNumber !== undefined &&
+      this._instance !== undefined
     ) {
       this.studentService
-        .getCorrectionOfCalcTask(this.calcIndividualInstructionFileId, this.calcSolutionFileId, this.uploadCalcSubmissionFileId)
+        .getCorrectionOfCalcTaskDatabase(
+          this.matriculationNumber,
+          this._instance.instanceId,
+          this._exerciseSheetUUID,
+          this._taskNo,
+          this.writerIndividualInstructionFileId,
+          this.calcIndividualSolutionFileId,
+          this.uploadCalcSubmissionFileId
+        )
+        .subscribe();
+      this.studentService
+        .getCorrectionOfCalcTask(this.writerIndividualInstructionFileId, this.calcIndividualSolutionFileId, this.uploadCalcSubmissionFileId)
         .subscribe(data => {
           this.calcCorrectionFeedback = data;
         });
@@ -325,7 +347,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     if (
       this.uploadCalcSubmissionFileId !== -1 &&
       this.uploadCalcSubmissionFileId !== -2 &&
-      this.calcSolutionFileId !== -1 &&
+      this.writerIndividualInstructionFileId !== -1 &&
+      this.calcIndividualSolutionFileId !== -1 &&
       this.calcIndividualInstructionFileId !== -1 &&
       this.matriculationNumber !== undefined &&
       this._instance !== undefined
@@ -336,8 +359,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._instance.instanceId,
           this._exerciseSheetUUID,
           this._taskNo,
-          this.calcIndividualInstructionFileId,
-          this.calcSolutionFileId,
+          this.writerIndividualInstructionFileId,
+          this.calcIndividualSolutionFileId,
           this.uploadCalcSubmissionFileId
         )
         .subscribe(() => {

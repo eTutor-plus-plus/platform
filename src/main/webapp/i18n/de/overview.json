@@ -54,7 +54,8 @@
         "submit": "Einreichen",
         "submitted": "Eingereicht",
         "file": "Datei-Anhang",
-        "randomInstruction": "Generierte Angabe",
+        "randomWriterInstruction": "Generierte Writer Angabe",
+        "randomCalcInstruction": "Generierte Calc Angabe",
         "calcTaskPointsDescription": "Erreichte Punkte: "
       }
     }

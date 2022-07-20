@@ -1,11 +1,29 @@
 package at.jku.dke.etutor.calc.functions;
 
+import at.jku.dke.etutor.calc.models.CorrectnessRule;
+import at.jku.dke.etutor.calc.models.Feedback;
 import org.apache.jena.base.Sys;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class ProtectionCheck {
+public class ProtectionCheck extends CorrectnessRule {
+
+
+    /**
+     * This function is not concluded in the config file
+     * @param solution workbook of the solution
+     * @param submission workbook of the submission
+     * @return the Feedback regarding the correct sheet protection
+     */
+    @Override
+    public Feedback checkCorrectness(XSSFWorkbook solution, XSSFWorkbook submission) throws Exception {
+        if (correctProtected(solution.getSheetAt(1), submission.getSheetAt(1))) {
+            return new Feedback(true, null);
+        }
+        return new Feedback(false, "Your submission is not correct protected !");
+    }
 
     public static boolean isSheetProtected (Sheet sheet) {
         return sheet.getProtect();

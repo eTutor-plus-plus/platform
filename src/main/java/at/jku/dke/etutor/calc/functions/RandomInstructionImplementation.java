@@ -1,9 +1,12 @@
 package at.jku.dke.etutor.calc.functions;
 
+import at.jku.dke.etutor.calc.exception.CreateRandomInstructionFailedException;
 import at.jku.dke.etutor.calc.models.RandomInstruction;
+import liquibase.pro.packaged.A;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
@@ -28,51 +31,51 @@ public class RandomInstructionImplementation {
      * @param login id of the student
      * @return a RandomInstruction Object with the new writer instruction, new calc instruction and new calc solution
      */
-    public static RandomInstruction createRandomInstruction (XWPFDocument instructionWriter, XSSFWorkbook instructionCalc, XSSFWorkbook solutionCalc, String login) throws Exception {
+    public static RandomInstruction createRandomInstruction (XWPFDocument instructionWriter, XSSFWorkbook instructionCalc, XSSFWorkbook solutionCalc, String login) throws CreateRandomInstructionFailedException {
 
-        List<String> sheetList = readPossibleSheetsOfInstructionWriter(instructionWriter);
+        try {
+            List<List<String>> sheetList = readPossibleSheetOptionsOfInstructionWriter(instructionWriter);
+            List<Map<String, List<String>>> mapList = readPossibleParametersOfInstructionWriter(instructionWriter);
 
-        List<Map<String, List<String>>> mapList = readPossibleParametersOfInstructionWriter(instructionWriter);
+            // checks if the instructions (writer and calc) and solution do contain the same number of sheets
+            int numberOfSheetsInstruction = instructionCalc.getNumberOfSheets();
+            int numberOfSheetsSolution = solutionCalc.getNumberOfSheets();
+            int numberOfDefinedSheetsWriter = 0;
 
-        String pickedSheet = pickRandomSheet(sheetList);
-
-        List <String> randomLocations = pickRandomOptions(mapList, pickedSheet).get(0);
-        List <String> randomValues = pickRandomOptions(mapList, pickedSheet).get(1);
-
-        String encryptedCode = createEncryptedCode(login);
-
-        XWPFDocument newInstructionWriter = overrideInstructionWriterFooter(overrideInstructionWriterWithPickedOptions(instructionWriter, randomValues), login, encryptedCode);
-
-        XSSFWorkbook newInstructionCalc = setEncryptedCodeCalcInstruction(randomiseValuesCalcInstruction(deleteNonPickedSheetsCalcInstruction(instructionCalc, pickedSheet)), encryptedCode);
-
-        XSSFWorkbook newSolutionCalc =  overrideCalcSolutionWithPickedAndRandomisedValues(deleteNonPickedSheetsCalcSolution(solutionCalc, pickedSheet), newInstructionCalc, randomLocations, randomValues);
-
-
-        return new RandomInstruction(newInstructionWriter, newInstructionCalc, newSolutionCalc);
-    }
-
-
-
-    /**
-     * @param instructionWriter is the document where the instruction and all different parameters and sheets are defined
-     * @return a List of Strings with all possible sheets defined in the instruction
-     */
-    public static List<String> readPossibleSheetsOfInstructionWriter (XWPFDocument instructionWriter) {
-        List<XWPFParagraph> list = instructionWriter.getParagraphs();
-        String paragraphWithSheets = "";
-        for (XWPFParagraph paragraph : list) {
-            if (paragraph.getText().contains("[") && paragraph.getText().contains("]") && paragraph.getText().contains(";") && !paragraph.getText().contains("{")) {
-                paragraphWithSheets = paragraph.getText();
+            for (List <String> elem : sheetList) {
+                numberOfDefinedSheetsWriter += elem.size();
             }
+            System.out.println(numberOfDefinedSheetsWriter);
+            System.out.println(numberOfSheetsInstruction);
+            System.out.println(numberOfSheetsSolution);
+
+            if (numberOfSheetsInstruction != numberOfSheetsSolution || numberOfSheetsInstruction != numberOfDefinedSheetsWriter) {
+                throw new CreateRandomInstructionFailedException();
+            }
+
+            List<String> pickedSheets = pickRandomSheets(sheetList);
+
+
+            List<String> randomLocations = pickRandomOptions(mapList, pickedSheets).get(0);
+            List<String> randomValues = pickRandomOptions(mapList, pickedSheets).get(1);
+
+            String encryptedCode = createEncryptedCode(login);
+
+            XWPFDocument newInstructionWriter = overrideInstructionWriterFooter(overrideInstructionWriterWithPickedOptions(instructionWriter, randomValues), login, encryptedCode);
+
+            XSSFWorkbook newInstructionCalc = setEncryptedCodeCalcInstruction(randomiseValuesCalcInstruction(deleteNonPickedSheetsCalcInstruction(instructionCalc, pickedSheets)), encryptedCode);
+
+            XSSFWorkbook newSolutionCalc = overrideCalcSolutionWithPickedAndRandomisedValues(deleteNonPickedSheetsCalcSolution(solutionCalc, pickedSheets), newInstructionCalc, randomLocations, randomValues);
+
+            return new RandomInstruction(newInstructionWriter, newInstructionCalc, newSolutionCalc);
+
         }
-
-        // removing the brackets and the empty spaces
-        paragraphWithSheets = paragraphWithSheets.replaceAll("\\[", "").replaceAll("]", "").replaceAll(" ", "");
-
-        // array with all possible sheets
-
-        return List.of(paragraphWithSheets.split(";"));
+        catch (Exception e) {
+            throw new CreateRandomInstructionFailedException();
+        }
     }
+
+
 
     /**
      * @param instructionWriter is the document where the instruction and all different parameters and sheets are defined
@@ -82,7 +85,7 @@ public class RandomInstructionImplementation {
         List<XWPFParagraph> list = instructionWriter.getParagraphs();
         String paragraphWithSheets = "";
         for (XWPFParagraph paragraph : list) {
-            if (paragraph.getText().contains("{[") && paragraph.getText().contains("]}")) {
+            if ((paragraph.getText().contains("{[") || paragraph.getText().contains("{ [")) && (paragraph.getText().contains("]}") || paragraph.getText().contains("] }"))) {
                 paragraphWithSheets = paragraph.getText();
             }
         }
@@ -119,7 +122,7 @@ public class RandomInstructionImplementation {
         List<XWPFParagraph> list = instructionWriter.getParagraphs();
         List<String> paragraphsWithBrackets = new ArrayList<>();
         for (XWPFParagraph paragraph : list) {
-            if (paragraph.getText().contains("[{") && paragraph.getText().contains("}]")) {
+            if ((paragraph.getText().contains("[{") || paragraph.getText().contains("[ {")) && (paragraph.getText().contains("}]") || paragraph.getText().contains("} ]"))) {
                 paragraphsWithBrackets.add(paragraph.getText());
             }
         }
@@ -192,25 +195,25 @@ public class RandomInstructionImplementation {
 
 
     /**
-     * @param sheetList randomly picks a sheet
-     * @return a string with the picked sheet
+     * @param sheetList randomly picks a sheet option
+     * @return a List of strings with the picked sheets
      */
-    public static String pickRandomSheet (List<String> sheetList) {
+    public static List<String> pickRandomSheets (List<List<String>> sheetList) {
         int numberOfPossibleSheets = sheetList.size();
 
-        // pick one sheet
+        // pick one sheet option
         int randomNum = ThreadLocalRandom.current().nextInt(0, numberOfPossibleSheets);
         return sheetList.get(randomNum);
     }
 
     /**
      * @param mapList a list with all possible options of parameters and sheets
-     * @param pickedSheet the picked sheet
+     * @param pickedSheets the picked sheets
      * @return a list of a list with strings
      * on the first place there are the random locations which are picked with the pickedSheet
      * on the second place there are the randomly picked options which are possible with the pickedSheet
      */
-    public static List<List<String>> pickRandomOptions (List<Map<String, List<String>>> mapList, String pickedSheet) {
+    public static List<List<String>> pickRandomOptions (List<Map<String, List<String>>> mapList, List<String> pickedSheets) {
         List<List<String>> returningList  = new ArrayList<>();
         List <String> randomLocations = new ArrayList<>();
         List <String> randomValues = new ArrayList<>();
@@ -220,23 +223,23 @@ public class RandomInstructionImplementation {
             for (var entry : map.entrySet()) {
                 String cellLocation = "";
                 String cellValue = "";
-                if (entry.getKey().contains(pickedSheet)) {
-                    String regex = "!(.*)";
-
-                    Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-                    Matcher matcher = pattern.matcher(entry.getKey());
-
-                    if (matcher.find()) {
-                        if (matcher.groupCount() >= 1) {
-                            cellLocation = matcher.group(1);
-                        }
-                    }
+                if (pickedSheets.contains(entry.getKey().substring(0,entry.getKey().lastIndexOf("!")))) {
+//                    String regex = "!(.*)";
+//
+//                    Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+//                    Matcher matcher = pattern.matcher(entry.getKey());
+//
+//                    if (matcher.find()) {
+//                        if (matcher.groupCount() >= 1) {
+//                            cellLocation = matcher.group(1);
+//                        }
+//                    }
 
                     int numberOfOptions = entry.getValue().size();
                     int randomNumOptions = ThreadLocalRandom.current().nextInt(0, numberOfOptions);
 
                     cellValue = entry.getValue().get(randomNumOptions);
-                    randomLocations.add(cellLocation);
+                    randomLocations.add(entry.getKey());
                     randomValues.add(cellValue);
                 }
             }
@@ -258,12 +261,12 @@ public class RandomInstructionImplementation {
         int helpCounter = 0;
 
         for (XWPFParagraph paragraph : instructionWriter.getParagraphs()) {
-            if (paragraph.getText().contains("[") && paragraph.getText().contains("]") && paragraph.getText().contains(";") && !paragraph.getText().contains("{")) {
+            if ((paragraph.getText().contains("{[") || paragraph.getText().contains("{ [")) && (paragraph.getText().contains("]}") || paragraph.getText().contains("] }"))) {
                 for (XWPFRun run : paragraph.getRuns()) {
                     run.setText("",0);
                 }
             }
-            else if (paragraph.getText().contains("[{") && paragraph.getText().contains("}]") && paragraph.getText().contains(";")) {
+            else if ((paragraph.getText().contains("[{") || paragraph.getText().contains("[ {")) && (paragraph.getText().contains("}]") || paragraph.getText().contains("} ]"))) {
                 String paragraphText = paragraph.getText();
                 String regex = "\\[\\{.*?\\}]";
                 final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
@@ -352,28 +355,17 @@ public class RandomInstructionImplementation {
 
     /**
      * @param instructionCalc the calc instruction
-     * @param pickedSheet the name of the randomly picked sheet
-     * @return the calc instruction with just the picked sheet, all other sheets got deleted
+     * @param pickedSheets the list of names of the randomly picked sheets
+     * @return the calc instruction with just the picked sheets, all other sheets got deleted
      */
-    public static XSSFWorkbook deleteNonPickedSheetsCalcInstruction (XSSFWorkbook instructionCalc, String pickedSheet) {
-
-        int numberOfSheets = instructionCalc.getNumberOfSheets();
-        int sheetNumberStays = instructionCalc.getSheetIndex(instructionCalc.getSheet(pickedSheet));
-
-
-        List<Integer> sheetNumbers = new ArrayList<>();
+    public static XSSFWorkbook deleteNonPickedSheetsCalcInstruction (XSSFWorkbook instructionCalc, List<String> pickedSheets) {
         int i = 0;
-        while (i < numberOfSheets) {
-            if (i != sheetNumberStays) {
-                sheetNumbers.add(i);
+        while (pickedSheets.size() < instructionCalc.getNumberOfSheets() && i < instructionCalc.getNumberOfSheets()) {
+            if (!pickedSheets.contains(instructionCalc.getSheetName(i))) {
+                instructionCalc.removeSheetAt(i);
             }
-            i++;
+            else i++;
         }
-
-        for (int j : sheetNumbers) {
-            instructionCalc.removeSheetAt(j);
-        }
-
         return instructionCalc;
     }
 
@@ -382,13 +374,15 @@ public class RandomInstructionImplementation {
      * @return the calc instruction where all the yellow cells are randomised between 80 and 120 %
      */
     public static XSSFWorkbook randomiseValuesCalcInstruction (XSSFWorkbook instructionCalc) throws Exception {
-        for (Row row : instructionCalc.getSheetAt(0)) {
-            for (Cell cell : row) {
-                if (FillColorHex.isCalculationHelpCell(instructionCalc.getSheetAt(0), cell)) {
-                    if (cell.getCellType() == CellType.NUMERIC) {
-                        Random r = new Random();
-                        double rand =  0.8 + (1.2 - 0.8) * r.nextDouble();
-                        cell.setCellValue(cell.getNumericCellValue() * Math.round(rand * 100.0) / 100.0);
+        for (Sheet sheet : instructionCalc) {
+            for (Row row : sheet) {
+                for (Cell cell : row) {
+                    if (FillColorHex.isCalculationHelpCell(sheet, cell)) {
+                        if (cell.getCellType() == CellType.NUMERIC) {
+                            Random r = new Random();
+                            double rand = 0.8 + (1.2 - 0.8) * r.nextDouble();
+                            cell.setCellValue(cell.getNumericCellValue() * Math.round(rand * 100.0) / 100.0);
+                        }
                     }
                 }
             }
@@ -408,26 +402,16 @@ public class RandomInstructionImplementation {
 
     /**
      * @param solutionCalc the calc solution
-     * @param pickedSheet the name of the picked sheet
-     * @return the calc solution with just the picked sheet, all other sheets got deleted
+     * @param pickedSheets the name of the picked sheets
+     * @return the calc solution with just the picked sheets, all other sheets got deleted
      */
-    public static XSSFWorkbook deleteNonPickedSheetsCalcSolution (XSSFWorkbook solutionCalc, String pickedSheet) {
-        int numberOfSheets = solutionCalc.getNumberOfSheets();
-
-        int sheetNumberStays = solutionCalc.getSheetIndex(solutionCalc.getSheet(pickedSheet));
-
-
-        List<Integer> sheetNumbers = new ArrayList<>();
+    public static XSSFWorkbook deleteNonPickedSheetsCalcSolution (XSSFWorkbook solutionCalc, List<String> pickedSheets) {
         int i = 0;
-        while (i < numberOfSheets) {
-            if (i != sheetNumberStays) {
-                sheetNumbers.add(i);
+        while (pickedSheets.size() < solutionCalc.getNumberOfSheets() && i < solutionCalc.getNumberOfSheets()) {
+            if (!pickedSheets.contains(solutionCalc.getSheetName(i))) {
+                solutionCalc.removeSheetAt(i);
             }
-            i++;
-        }
-
-        for (int j : sheetNumbers) {
-            solutionCalc.removeSheetAt(j);
+            else i++;
         }
         return solutionCalc;
     }
@@ -437,49 +421,65 @@ public class RandomInstructionImplementation {
      * @param instructionCalc the calc instruction
      * @param randomLocations the randomly picked locations
      * @param randomValues the randomly picked values
-     * @return the calc solution with the overwritten random values of the calc instruction and the picked options of the wirter instruction
+     * @return the calc solution with the overwritten random values of the calc instruction and the picked options of the writer instruction
      */
     public static XSSFWorkbook overrideCalcSolutionWithPickedAndRandomisedValues (XSSFWorkbook solutionCalc, XSSFWorkbook instructionCalc, List<String> randomLocations, List<String> randomValues) throws Exception {
 
-        // override the values cells
-        for (Row row : instructionCalc.getSheetAt(0)) {
-            for (Cell cell : row) {
-                if (FillColorHex.isCalculationHelpCell(instructionCalc.getSheetAt(0), cell)) {
-                    if (cell.getCellType() == CellType.NUMERIC) {
-                        solutionCalc.getSheetAt(0).getRow(cell.getRowIndex()).getCell(cell.getColumnIndex()).setCellValue(cell.getNumericCellValue());
+        for (Sheet sheetSolution : solutionCalc) {
+
+            int sheetIndex = solutionCalc.getSheetIndex(sheetSolution.getSheetName());
+
+            // override the values cells
+            for (Row row : instructionCalc.getSheetAt(sheetIndex)) {
+                for (Cell cell : row) {
+                    if (FillColorHex.isCalculationHelpCell(instructionCalc.getSheetAt(sheetIndex), cell)) {
+                        if (cell.getCellType() == CellType.NUMERIC) {
+                            solutionCalc.getSheetAt(sheetIndex).getRow(cell.getRowIndex()).getCell(cell.getColumnIndex()).setCellValue(cell.getNumericCellValue());
+                        }
+                    }
+                }
+            }
+
+            // override the values of the instruction writer
+
+            for (String elem : randomLocations) {
+                if (elem.contains(sheetSolution.getSheetName())) {
+                    String cellLocation = "";
+                    String regex = "!(.*)";
+
+                    Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+                    Matcher matcher = pattern.matcher(elem);
+
+                    if (matcher.find()) {
+                        if (matcher.groupCount() >= 1) {
+                            cellLocation = matcher.group(1);
+                        }
+                    }
+
+                    CellReference cellReference = new CellReference(cellLocation);
+                    String value = randomValues.get(randomLocations.indexOf(elem));
+                    double doubleValue = 0.0;
+                    regex = "\\d";
+
+                    pattern = Pattern.compile(regex, Pattern.MULTILINE);
+                    matcher = pattern.matcher(value);
+                    if (matcher.find()) {
+                        if (value.contains(",")) {
+                            NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+                            Number number = format.parse(value);
+                            doubleValue = number.doubleValue();
+                        } else if (value.contains(".")) {
+                            doubleValue = Double.parseDouble(value);
+                        }
+                    }
+                    if (doubleValue != 0.0) {
+                        solutionCalc.getSheetAt(sheetIndex).getRow(cellReference.getRow()).getCell(cellReference.getCol()).setCellValue(doubleValue);
+                    } else {
+                        solutionCalc.getSheetAt(sheetIndex).getRow(cellReference.getRow()).getCell(cellReference.getCol()).setCellValue(value);
                     }
                 }
             }
         }
-
-        // override the values of the instruction writer
-
-        for (String elem : randomLocations) {
-            CellReference cellReference = new CellReference(elem);
-            String value = randomValues.get(randomLocations.indexOf(elem));
-            double doubleValue = 0.0;
-            final String regex = "\\d";
-
-            final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-            final Matcher matcher = pattern.matcher(value);
-            if (matcher.find()) {
-                if (value.contains(",")) {
-                    NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
-                    Number number = format.parse(value);
-                    doubleValue = number.doubleValue();
-                }
-                else if (value.contains(".")) {
-                    doubleValue = Double.parseDouble(value);
-                }
-            }
-            if (doubleValue != 0.0) {
-                solutionCalc.getSheetAt(0).getRow(cellReference.getRow()).getCell(cellReference.getCol()).setCellValue(doubleValue);
-            }
-            else {
-                solutionCalc.getSheetAt(0).getRow(cellReference.getRow()).getCell(cellReference.getCol()).setCellValue(value);
-            }
-        }
-
         return solutionCalc;
     }
 

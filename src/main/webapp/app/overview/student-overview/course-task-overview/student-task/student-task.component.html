@@ -30,8 +30,15 @@
         <jhi-file-download [fileId]="uploadFileId"> </jhi-file-download>
       </dd>
 
+      <dt *ngIf="writerIndividualInstructionFileId !== -1">
+        <span jhiTranslate="overview.student.tasks.randomWriterInstruction">Random Writer Instruction</span>
+      </dt>
+      <dd *ngIf="writerIndividualInstructionFileId !== -1">
+        <jhi-file-download [fileId]="writerIndividualInstructionFileId"> </jhi-file-download>
+      </dd>
+
       <dt *ngIf="calcIndividualInstructionFileId !== -1">
-        <span jhiTranslate="overview.student.tasks.randomInstruction">Random Instruction</span>
+        <span jhiTranslate="overview.student.tasks.randomCalcInstruction">Random Calc Instruction</span>
       </dt>
       <dd *ngIf="calcIndividualInstructionFileId !== -1">
         <jhi-file-download [fileId]="calcIndividualInstructionFileId"> </jhi-file-download>

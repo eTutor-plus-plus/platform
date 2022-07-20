@@ -1,0 +1,9 @@
+at.jku.dke.etutor.calc.functions.CalculationCorrection
+at.jku.dke.etutor.calc.functions.DropDownCorrection
+at.jku.dke.etutor.calc.functions.DataValidationOptions
+at.jku.dke.etutor.calc.functions.CellFormatCorrection
+at.jku.dke.etutor.calc.functions.ConditionalFormattingOptions
+at.jku.dke.etutor.calc.functions.ChartOptions
+at.jku.dke.etutor.calc.functions.HeaderFooterOptions
+at.jku.dke.etutor.calc.functions.PivotTableOptions
+at.jku.dke.etutor.calc.functions.PrintOptions

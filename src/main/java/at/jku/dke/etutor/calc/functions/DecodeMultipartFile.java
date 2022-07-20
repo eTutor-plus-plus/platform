@@ -4,6 +4,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
+/**
+ * This class is a help call for the conversion of files
+ */
 public class DecodeMultipartFile implements MultipartFile {
 
     private final byte [] content;

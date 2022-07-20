@@ -13,6 +13,7 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -76,7 +77,10 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(NotAValidTaskGroupException navtge){
             throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
+        } catch (WrongCalcParametersException wcpe) {
+            throw new at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException();
         }
+
     }
 
     /**

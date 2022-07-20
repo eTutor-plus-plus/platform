@@ -1,14 +1,33 @@
 package at.jku.dke.etutor.calc.functions;
 
+import at.jku.dke.etutor.calc.models.CorrectnessRule;
+import at.jku.dke.etutor.calc.models.Feedback;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataValidationConstraint;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataValidation {
+public class DataValidation extends CorrectnessRule {
+
+
+    /**
+     * OLD FEATURE THE NEW CLASS IS DataValidationOptions
+     * @param solution workbook of the solution
+     * @param submission workbook of the submission
+     * @return the Feedback regarding the correct data validation
+     */
+    @Override
+    public Feedback checkCorrectness(XSSFWorkbook solution, XSSFWorkbook submission) throws Exception {
+        if (checkDataValidation(solution.getSheetAt(1), submission.getSheetAt(1))) {
+            return new Feedback(true, null);
+        }
+        return new Feedback(false, "Please check your Data Validation !");
+    }
+
 
     /**
      * @param solution sheet of the solution

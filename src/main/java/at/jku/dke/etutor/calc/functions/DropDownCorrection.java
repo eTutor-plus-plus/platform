@@ -1,15 +1,32 @@
 package at.jku.dke.etutor.calc.functions;
 
+import at.jku.dke.etutor.calc.models.CorrectnessRule;
+import at.jku.dke.etutor.calc.models.Feedback;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFDataValidation;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CorrectDropDown {
+import static org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator.evaluateAllFormulaCells;
+
+public class DropDownCorrection extends CorrectnessRule {
+
+
+    /**
+     * @param solution workbook of the solution
+     * @param submission workbook of the submission
+     * @return the Feedback regarding the correct dropdowns
+     */
+    @Override
+    public Feedback checkCorrectness(XSSFWorkbook solution, XSSFWorkbook submission) throws Exception {
+        if (correctDropDown(solution, submission).equals("Your Dropdown and the Values are correct !")) {
+            return new Feedback(true, null);
+        }
+        return new Feedback(false, correctDropDown(solution, submission));
+    }
 
     /**
      * @param sheet sheet where the function should be evaluated
@@ -78,7 +95,7 @@ public class CorrectDropDown {
      * @param cell cell where the function should be evaluated
      * @return a List of Strings with all Dropdown values of a cell
      */
-    public static List <String> getDropdownValues (XSSFWorkbook workbook, Sheet sheet, Cell cell) {
+    public static List <String> getDropdownValues (XSSFWorkbook workbook, Sheet sheet, Cell cell) throws Exception {
         List <Cell> dropdowns = getDropdownCells(workbook, sheet, cell);
         List <String> dropdown_values = new ArrayList<>();
         for (Cell elem : dropdowns) {
@@ -134,23 +151,29 @@ public class CorrectDropDown {
 
     }
 
+
+
     /**
      * @param workbook workbook where the function should be evaluated
      * @param sheet sheet where the function should be evaluated
      * @param cell cell where the function should be evaluated
      * @return a List of Cells with all Dropdown values of a cell
      */
-    public static List <Cell> getDropdownCells (XSSFWorkbook workbook, Sheet sheet, Cell cell) {
+    public static List <Cell> getDropdownCells (XSSFWorkbook workbook, Sheet sheet, Cell cell) throws Exception {
         char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
         String cell_position = alphabet[cell.getColumnIndex()] + Integer.toString(cell.getRowIndex()+1);
 
+        // gets all ranges of the dropdownCells
         List<XSSFDataValidation> dropdown = (List<XSSFDataValidation>) sheet.getDataValidations();
 
         List <String> data = new ArrayList<>();
 
         for (XSSFDataValidation elem : dropdown) {
-            if (elem.getValidationConstraint().getFormula1().contains("Hilfstabellen") && !(elem.getValidationConstraint().getFormula1()).contains("$A$3")) {
-                data.add(elem.getValidationConstraint().getFormula1());
+            for (CellRangeAddress cellRangeAddress : elem.getRegions().getCellRangeAddresses()) {
+                // just adds the current cells referring dropdown cells
+                if (cellRangeAddress.isInRange(cell.getRowIndex(), cell.getColumnIndex())) {
+                    data.add(elem.getValidationConstraint().getFormula1());
+                }
             }
         }
 
@@ -159,7 +182,6 @@ public class CorrectDropDown {
         List <String> dropdowns = new ArrayList<>();
         List <Cell> cells = new ArrayList<>();
 
-        // Split up every dropdown Area (sometimes the dropdowns are defined as A2:A8) so that it can be checked if the cell is a dropdown
         if (cell_dropdown_values_location.contains(":")) {
             String pattern = "([\\s\\S]+)!\\$(\\D)\\$(\\d*):\\$(\\D)\\$(\\d*)";
             String sheet_name = cell_dropdown_values_location.replaceAll(pattern, "$1");
@@ -172,101 +194,117 @@ public class CorrectDropDown {
                 }
             }
         }
-        else if (cell_dropdown_values_location.contains(workbook.getSheetName(0))) {
+        else {
             dropdowns.add(cell_dropdown_values_location);
         }
 
         for (String elem : dropdowns) {
             CellReference cf = new CellReference(elem);
-            Sheet s = workbook.getSheetAt(0);
+            Sheet s = workbook.getSheet(cf.getSheetName());
             Row row = s.getRow(cf.getRow());
             Cell cell_1 = row.getCell(cf.getCol());
             cells.add(cell_1);
+
         }
         return cells;
     }
 
+
+
     /**
-     * @param workbook_submission workbook of the submission
-     * @param workbook_solution workbook of the solution
-     * @param sheet_submission sheet of the submission
-     * @param sheet_solution sheet of the solution
+     * @param submission workbook of the submission
+     * @param solution workbook of the solution
      * @return a String which gives feedback about the dropdowns of the sheet of the submission, by comparing the dropdowns with the dropdowns of the solution
      * Catches every Exception and prints feedback that the submission has syntax errors
      */
-    public static String correctDropDown (XSSFWorkbook workbook_submission, XSSFWorkbook workbook_solution, Sheet sheet_submission, Sheet sheet_solution) throws Exception {
+    public static String correctDropDown (XSSFWorkbook solution, XSSFWorkbook submission) throws Exception {
         try {
 
-            List<Cell> dropdown_cells = FillColorHex.getDropdownCells(sheet_solution);
+            for (Sheet sheetSolution : solution) {
 
-            FormulaEvaluator formulaEvaluator_submission = workbook_submission.getCreationHelper().createFormulaEvaluator();
-            FormulaEvaluator formulaEvaluator_solution = workbook_solution.getCreationHelper().createFormulaEvaluator();
+                Sheet sheetSubmission = submission.getSheetAt(solution.getSheetIndex(sheetSolution.getSheetName()));
 
-            String feedback = "Your Dropdown and the Values are correct !";
+                // List of cell with all dropdown cells (all cells with a green background color) of the solution
+                List<Cell> dropdownCellsSolution = FillColorHex.getDropdownCells(sheetSolution);
 
-            for (Cell current_dropdown_cell_solution : dropdown_cells) {
-
-                Cell current_dropdown_cell_submission = sheet_submission.getRow(current_dropdown_cell_solution.getRowIndex()).getCell(current_dropdown_cell_solution.getColumnIndex());
-                if (isDropdown(sheet_submission, current_dropdown_cell_submission)) {
-                    List<String> dropdownCells_submission = getDropdownValues(workbook_submission, sheet_submission, current_dropdown_cell_submission);
-                    List<String> dropdownCells_solution = getDropdownValues(workbook_solution, sheet_solution, current_dropdown_cell_solution);
+                FormulaEvaluator formulaEvaluatorSubmission = submission.getCreationHelper().createFormulaEvaluator();
+                FormulaEvaluator formulaEvaluatorSolution = solution.getCreationHelper().createFormulaEvaluator();
 
 
-                    boolean correct_dropdown = true;
-                    boolean correct_dropdown_values = true;
+                // iterates over all dropdown cells (green cells)
+                for (Cell currentDropdownCellSolution : dropdownCellsSolution) {
 
-                    for (String elem : dropdownCells_solution) {
-                        if ((!(dropdownCells_submission.contains(elem))) || dropdownCells_submission.size() != dropdownCells_solution.size()) {
-                            correct_dropdown = false;
-                            break;
-                        }
-                    }
+                    // gets the cell of the submission which is on the same place as the solution cell
+                    Cell currentDropdownCellSubmission = sheetSubmission.getRow(currentDropdownCellSolution.getRowIndex()).getCell(currentDropdownCellSolution.getColumnIndex());
 
-                    if (correct_dropdown) {
-                        for (String elem : dropdownCells_solution) {
-                            sheet_solution.getRow(current_dropdown_cell_solution.getRowIndex()).getCell(current_dropdown_cell_solution.getColumnIndex()).setCellValue(elem);
-                            sheet_submission.getRow(current_dropdown_cell_solution.getRowIndex()).getCell(current_dropdown_cell_solution.getColumnIndex()).setCellValue(elem);
-                            for (Row currentRow : sheet_solution) {
-                                for (Cell currentCell : currentRow) {
-                                    Cell currentCell_submission = sheet_submission.getRow(currentCell.getRowIndex()).getCell(currentCell.getColumnIndex());
-                                    if (currentCell_submission.getCellType() == Cell.CELL_TYPE_FORMULA) {
-                                        CorrectValues.checkFormula(formulaEvaluator_submission,currentCell_submission);
-                                    }
-                                    if (FillColorHex.isDropdownCell(sheet_solution, currentCell) && (!(currentCell.getColumnIndex() == current_dropdown_cell_solution.getColumnIndex() && currentCell.getRowIndex() == current_dropdown_cell_solution.getRowIndex()))) {
-                                        sheet_submission.getRow(currentCell.getRowIndex()).getCell(currentCell.getColumnIndex()).setCellValue(currentCell.getStringCellValue());
-                                    }
-                                    if (currentCell.getCellType() == Cell.CELL_TYPE_FORMULA && currentCell_submission.getCellType() == Cell.CELL_TYPE_FORMULA) {
-                                        CorrectValues.checkFormula(formulaEvaluator_solution, currentCell);
-                                        CorrectValues.checkFormula(formulaEvaluator_submission, currentCell_submission);
-                                    }
-                                    if (FillColorHex.isValueCell(sheet_solution, currentCell)) {
-                                        // all Cells have to be evaluated because otherwise the different Dropdowns will not be checked
-                                        formulaEvaluator_solution.evaluateAll();
-                                        formulaEvaluator_submission.evaluateAll();
-                                        if (!(CorrectValues.compareCells(currentCell, currentCell_submission)) || currentCell.getCellType() != currentCell_submission.getCellType()) {
-                                                correct_dropdown_values = false;
+                    if (isDropdown(sheetSolution, currentDropdownCellSolution)) {
+                        // checks if the submission cell is a dropdown
+                        if (isDropdown(sheetSubmission, currentDropdownCellSubmission)) {
+                            List<String> dropdownValuesSubmission = getDropdownValues(submission, sheetSubmission, currentDropdownCellSubmission);
+                            List<String> dropdownValuesSolution = getDropdownValues(solution, sheetSolution, currentDropdownCellSolution);
+
+                            boolean correct_dropdown = true;
+                            boolean correct_dropdown_values = true;
+
+                            for (String elem : dropdownValuesSolution) {
+                                if ((!(dropdownValuesSubmission.contains(elem))) || dropdownValuesSubmission.size() != dropdownValuesSolution.size()) {
+                                    correct_dropdown = false;
+                                    break;
+                                }
+                            }
+
+                            if (correct_dropdown) {
+                                for (String elem : dropdownValuesSolution) {
+                                    sheetSolution.getRow(currentDropdownCellSolution.getRowIndex()).getCell(currentDropdownCellSolution.getColumnIndex()).setCellValue(elem);
+                                    sheetSubmission.getRow(currentDropdownCellSubmission.getRowIndex()).getCell(currentDropdownCellSubmission.getColumnIndex()).setCellValue(elem);
+                                    for (Row currentRow : sheetSolution) {
+                                        for (Cell currentCell_solution : currentRow) {
+                                            Cell currentCell_submission = sheetSubmission.getRow(currentCell_solution.getRowIndex()).getCell(currentCell_solution.getColumnIndex());
+                                            if (currentCell_submission.getCellType() == CellType.FORMULA) {
+                                                ValuesCorrection.overrideUnknownFormulas(formulaEvaluatorSubmission, currentCell_submission);
+                                            }
+                                            if (FillColorHex.isDropdownCell(sheetSolution, currentCell_solution) && (!(currentCell_solution.getColumnIndex() == currentDropdownCellSolution.getColumnIndex() && currentCell_solution.getRowIndex() == currentDropdownCellSolution.getRowIndex()))) {
+                                                sheetSubmission.getRow(currentCell_solution.getRowIndex()).getCell(currentCell_solution.getColumnIndex()).setCellValue(currentCell_solution.getStringCellValue());
+                                            }
+                                            if (currentCell_solution.getCellType() == CellType.FORMULA && currentCell_submission.getCellType() == CellType.FORMULA) {
+                                                ValuesCorrection.overrideUnknownFormulas(formulaEvaluatorSolution, currentCell_solution);
+                                                ValuesCorrection.overrideUnknownFormulas(formulaEvaluatorSubmission, currentCell_submission);
+                                            }
+                                            if (FillColorHex.isValueCell(sheetSolution, currentCell_solution)) {
+                                                if (currentCell_solution.getCellType() == CellType.FORMULA) {
+                                                    formulaEvaluatorSolution.evaluateFormulaCell(currentCell_solution);
+                                                }
+                                                if (!(ValuesCorrection.compareCells(currentCell_solution, currentCell_submission)) || currentCell_solution.getCellType() != currentCell_submission.getCellType()) {
+                                                    correct_dropdown_values = false;
+                                                }
+
+                                            }
                                         }
 
                                     }
                                 }
 
+                                if (!correct_dropdown_values) {
+                                    return "The Values which are referring to your Dropdown are not correct !";
+                                }
+                            } else {
+                                return "Your Dropdown does not refer to the correct cells !";
                             }
-                        }
 
-                        if (!correct_dropdown_values) {
-                            feedback = "The Values which are referring to your Dropdown are not correct !";
+                        } else {
+                            return "You dont have a Dropdown in the right cell !";
                         }
-                    } else {
-                        feedback = "Your Dropdown does not refer to the correct cells !";
                     }
-
-                } else {
-                    feedback = "You dont have a Dropdown in the right cell !";
                 }
             }
-            return feedback;
+            return "Your Dropdown and the Values are correct !";
         } catch (Exception e) {
-            return "Your submission has Syntax errors, please do not change the given Instruction, just change the values of the green and yellow Cells!";
+            return "Your submission has either Syntax errors or does not include the correct dropdown cells.";
         }
     }
+
+
+
 }
+
+

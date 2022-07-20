@@ -1,8 +1,12 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.calc.service.CorrectionService;
 import at.jku.dke.etutor.config.ApplicationProperties;
+import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.UploadFileService;
 import at.jku.dke.etutor.service.dto.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
@@ -10,11 +14,19 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
+import at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import liquibase.pro.packaged.U;
+import liquibase.pro.packaged.W;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,17 +36,20 @@ import java.util.Objects;
  * Service to proxy requests to the dispatcher
  */
 @Service
+@Transactional
 public class DispatcherProxyService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final DispatcherProxyResource proxyResource;
     private final ObjectMapper mapper;
     private final ApplicationProperties properties;
+    private final FileRepository fileRepository;
 
-    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource, ApplicationProperties properties) {
+    public DispatcherProxyService(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyResource proxyResource, ApplicationProperties properties, FileRepository fileRepository) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.proxyResource = proxyResource;
         this.mapper = new ObjectMapper();
         this.properties = properties;
+        this.fileRepository = fileRepository;
     }
 
     /**
@@ -314,7 +329,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the task assignment
      * @throws JsonProcessingException if there is an error while serializing
      */
-    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException {
+    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         if(!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
@@ -325,6 +340,8 @@ public class DispatcherProxyService {
             handleSQLTaskCreation(newTaskAssignmentDTO);
         } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
             handleDLGTaskCreation(newTaskAssignmentDTO);
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
+            handleCalcTaskCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
     }
@@ -441,6 +458,37 @@ public class DispatcherProxyService {
             newTaskAssignmentDTO.setSqlSolution(solution);
         } else {
             throw new MissingParameterException();
+        }
+    }
+
+    /**
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws WrongCalcParametersException if the files of the calc task are correct
+     */
+    private void handleCalcTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws WrongCalcParametersException {
+
+        if (!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) return;
+
+
+            FileEntity calcInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcInstructionFileId());
+            FileEntity calcSolutionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcSolutionFileId());
+            FileEntity writerInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getWriterInstructionFileId());
+            InputStream calcInstructionStream = new ByteArrayInputStream(calcInstructionFile.getContent());
+            InputStream calcSolutionStream = new ByteArrayInputStream(calcSolutionFile.getContent());
+            InputStream writerInstructionStream = new ByteArrayInputStream(writerInstructionFile.getContent());
+            System.out.println();
+
+        try {
+            System.out.println();
+            XSSFWorkbook workbookCalcInstruction = new XSSFWorkbook(calcInstructionStream);
+            XSSFWorkbook workbookCalcSolution = new XSSFWorkbook(calcSolutionStream);
+            XWPFDocument documentWriterInstruction = new XWPFDocument(writerInstructionStream);
+            System.out.println();
+
+            CorrectionService.createInstruction(documentWriterInstruction, workbookCalcInstruction, workbookCalcSolution, "asdf");
+            System.out.println();
+        }catch (Exception e) {
+            throw new WrongCalcParametersException();
         }
     }
 
@@ -660,7 +708,8 @@ public class DispatcherProxyService {
         return type.equals(ETutorVocabulary.SQLTask.toString()) ||
             type.equals(ETutorVocabulary.DatalogTask.toString()) ||
             type.equals(ETutorVocabulary.RATask.toString()) ||
-            type.equals(ETutorVocabulary.XQueryTask.toString());
+            type.equals(ETutorVocabulary.XQueryTask.toString()) ||
+            type.equals(ETutorVocabulary.CalcTask.toString());
     }
 
 
