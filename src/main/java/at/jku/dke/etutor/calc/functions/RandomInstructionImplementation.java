@@ -45,9 +45,7 @@ public class RandomInstructionImplementation {
             for (List <String> elem : sheetList) {
                 numberOfDefinedSheetsWriter += elem.size();
             }
-            System.out.println(numberOfDefinedSheetsWriter);
-            System.out.println(numberOfSheetsInstruction);
-            System.out.println(numberOfSheetsSolution);
+
 
             if (numberOfSheetsInstruction != numberOfSheetsSolution || numberOfSheetsInstruction != numberOfDefinedSheetsWriter) {
                 throw new CreateRandomInstructionFailedException();
@@ -224,17 +222,6 @@ public class RandomInstructionImplementation {
                 String cellLocation = "";
                 String cellValue = "";
                 if (pickedSheets.contains(entry.getKey().substring(0,entry.getKey().lastIndexOf("!")))) {
-//                    String regex = "!(.*)";
-//
-//                    Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-//                    Matcher matcher = pattern.matcher(entry.getKey());
-//
-//                    if (matcher.find()) {
-//                        if (matcher.groupCount() >= 1) {
-//                            cellLocation = matcher.group(1);
-//                        }
-//                    }
-
                     int numberOfOptions = entry.getValue().size();
                     int randomNumOptions = ThreadLocalRandom.current().nextInt(0, numberOfOptions);
 
