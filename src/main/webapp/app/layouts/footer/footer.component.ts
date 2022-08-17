@@ -9,5 +9,5 @@ import { Component } from '@angular/core';
 })
 export class FooterComponent {
   readonly imprintUrl: string = 'https://www.jku.at/impressum';
-  readonly contactUrl: string = 'mailto:ernst@dke.uni-linz.ac.at';
+  readonly contactUrl: string = 'mailto:kschuetz@dke.uni-linz.ac.at';
 }
