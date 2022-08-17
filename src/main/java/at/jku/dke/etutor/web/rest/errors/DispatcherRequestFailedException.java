@@ -24,7 +24,7 @@ public class DispatcherRequestFailedException extends BadRequestAlertException{
      * Constructor
      */
     public DispatcherRequestFailedException(Exception e){
-        super(e.toString(), "taskManagement", "dispatcherRequestFailed");
+        super(e.getMessage(), null, null);
     }
 
 }
