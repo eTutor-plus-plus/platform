@@ -19,4 +19,12 @@ public class DispatcherRequestFailedException extends BadRequestAlertException{
         super("The request that has been sent to the dispatcher failed", "taskManagement", "dispatcherRequestFailed");
     }
 
+
+    /**
+     * Constructor
+     */
+    public DispatcherRequestFailedException(Exception e){
+        super(e.toString(), "taskManagement", "dispatcherRequestFailed");
+    }
+
 }

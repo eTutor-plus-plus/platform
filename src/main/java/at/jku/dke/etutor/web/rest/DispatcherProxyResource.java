@@ -173,7 +173,7 @@ public class DispatcherProxyResource {
     @GetMapping("/xquery/xml/fileid/{id}/asinputstream")
     public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(@PathVariable int id) throws DispatcherRequestFailedException {
         String xml = this.getXMLForXQByFileId(id).getBody();
-        if(xml == null) throw new DispatcherRequestFailedException();
+        if(xml == null) throw new DispatcherRequestFailedException("XML cannot be null");
 
         ByteArrayInputStream ssInput = new ByteArrayInputStream(xml.getBytes());
         InputStreamResource fileInputStream = new InputStreamResource(ssInput);
@@ -308,7 +308,7 @@ public class DispatcherProxyResource {
         HttpResponse<String> response = null;
         try {
             response = client.send(request.build(), stringHandler);
-            if(response.statusCode() == 500) throw new DispatcherRequestFailedException();
+            if(response.statusCode() == 500) throw new DispatcherRequestFailedException(response.body());
             return ResponseEntity.ok(Integer.parseInt(response.body()));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -361,7 +361,7 @@ public class DispatcherProxyResource {
         var request = getPostRequestWithBody(url, groupDTO).build();
         var response = getResponseEntity(request, stringHandler);
 
-        if(response.getBody() == null) throw new DispatcherRequestFailedException();
+        if(response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
         var id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
@@ -408,7 +408,7 @@ public class DispatcherProxyResource {
         }
         var response = getResponseEntity(request, stringHandler);
 
-        if (response.getBody() == null) throw new DispatcherRequestFailedException();
+        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
        var id = Integer.parseInt(response.getBody());
        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
@@ -473,7 +473,7 @@ public class DispatcherProxyResource {
     private <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
             HttpResponse<T> response = this.client.send(request, handler);
-            if (response.statusCode() == 500) throw new DispatcherRequestFailedException();
+            if (response.statusCode() == 500) throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

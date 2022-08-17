@@ -66,7 +66,7 @@ public class TaskGroupResource {
             throw new TaskGroupAlreadyExistentException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
@@ -128,7 +128,7 @@ public class TaskGroupResource {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
             }
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
