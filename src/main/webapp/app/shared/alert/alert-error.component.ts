@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AlertError } from './alert-error.model';
 import { Alert, AlertService } from 'app/core/util/alert.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
+import { timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-alert-error',
@@ -41,7 +42,7 @@ export class AlertErrorComponent implements OnDestroy {
               entityKey = httpErrorResponse.headers.get(entry);
             }
           }
-          if (errorHeader) {
+          if (errorHeader && errorHeader !== 'error.null') {
             const alertData = entityKey ? { entityName: translateService.instant(`global.menu.entities.${entityKey}`) } : undefined;
             this.addErrorAlert(errorHeader, errorHeader, alertData);
           } else if (httpErrorResponse.error !== '' && httpErrorResponse.error.fieldErrors) {
@@ -55,12 +56,18 @@ export class AlertErrorComponent implements OnDestroy {
               const fieldName: string = translateService.instant(`etutorPlusPlusApp.${fieldError.objectName as string}.${convertedField}`);
               this.addErrorAlert(`Error on field "${fieldName}"`, `error.${fieldError.message as string}`, { fieldName });
             }
-          } else if (httpErrorResponse.error !== '' && httpErrorResponse.error.message) {
+          } else if (
+            httpErrorResponse.error !== '' &&
+            httpErrorResponse.error.message &&
+            httpErrorResponse.error.message !== 'error.null'
+          ) {
             this.addErrorAlert(
               httpErrorResponse.error.detail ?? httpErrorResponse.error.message,
               httpErrorResponse.error.message,
               httpErrorResponse.error.params
             );
+          } else if (httpErrorResponse.error?.title) {
+            this.addErrorAlert(httpErrorResponse.error.title, undefined, undefined, 10000);
           } else {
             this.addErrorAlert(httpErrorResponse.error, httpErrorResponse.error);
           }
@@ -102,7 +109,12 @@ export class AlertErrorComponent implements OnDestroy {
     alert.close?.(this.alerts);
   }
 
-  private addErrorAlert(message?: string, translationKey?: string, translationParams?: { [key: string]: unknown }): void {
-    this.alertService.addAlert({ type: 'danger', message, translationKey, translationParams }, this.alerts);
+  private addErrorAlert(
+    message?: string,
+    translationKey?: string,
+    translationParams?: { [key: string]: unknown },
+    alertTimeout?: number
+  ): void {
+    this.alertService.addAlert({ type: 'danger', message, translationKey, translationParams, timeout: alertTimeout }, this.alerts);
   }
 }
