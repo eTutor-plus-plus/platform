@@ -27,7 +27,12 @@ export class AssignmentService {
    * @param submission the {@link SubmissionDTO}
    */
   postSubmission(submission: SubmissionDTO): Observable<SubmissionIdDTO> {
-    const url = `${SERVER_API_URL}api/dispatcher/submission`;
+    let url: string | undefined = undefined;
+    if (submission.taskType === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask') {
+      url = `${SERVER_API_URL}api/dispatcher/bpmn/submission`;
+    } else {
+      url = `${SERVER_API_URL}api/dispatcher/submission`;
+    }
     const headers = httpOptions.headers.append('Accept-Language', this.translateService.currentLang);
     const options = {
       headers,
@@ -40,7 +45,12 @@ export class AssignmentService {
    * @param submissionId the id of the submission/grading
    */
   getGrading(submissionId: SubmissionIdDTO): Observable<GradingDTO> {
-    const url = `${SERVER_API_URL}api/dispatcher/grading/${submissionId.submissionId}`;
+    let url: string | undefined = undefined;
+    if (submissionId.isBpmnTask !== undefined) {
+      url = `${SERVER_API_URL}api/dispatcher/grading/bpmn/${submissionId.submissionId}`;
+    } else {
+      url = `${SERVER_API_URL}api/dispatcher/grading/${submissionId.submissionId}`;
+    }
     return this.http.get<GradingDTO>(url);
   }
 }

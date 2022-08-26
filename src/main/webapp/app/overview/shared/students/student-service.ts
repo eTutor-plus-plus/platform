@@ -297,10 +297,14 @@ export class StudentService {
   ): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
-    return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`,
-      undefined
-    );
+    let url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`;
+
+    if (dispatcherUUID.includes('#BpmnTask')) {
+      dispatcherUUID.replace('#BpmnTask', '');
+      url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/bpmn/${dispatcherUUID}`;
+    }
+
+    return this.http.put(url, undefined);
   }
 
   /**
