@@ -362,8 +362,6 @@ export class TaskUpdateComponent implements OnInit {
       this.isRATask = true;
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
-      this.isCalcTask = true;
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
@@ -525,7 +523,6 @@ export class TaskUpdateComponent implements OnInit {
     this.isRATask = false;
     this.isDLQTask = false;
     this.isBpmnTask = false;
-    this.isCalcTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
