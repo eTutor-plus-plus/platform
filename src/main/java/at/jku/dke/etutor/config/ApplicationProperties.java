@@ -14,7 +14,6 @@ public class ApplicationProperties {
     private final Fuseki fuseki = new Fuseki();
     private final CmdRunnerConfig cmd_runner = new CmdRunnerConfig();
     private final Dispatcher dispatcher = new Dispatcher();
-
     private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
 
     /**
@@ -74,7 +73,7 @@ public class ApplicationProperties {
         }
     }
 
-    public static class CmdRunnerConfig{
+    public static class CmdRunnerConfig {
         private String password;
         private String user;
         private String url;
@@ -101,33 +100,6 @@ public class ApplicationProperties {
 
         public void setEtutor_pw(String etutor_pw) {
             this.etutor_pw = etutor_pw;
-        }
-
-    /**
-     * Configuration class for the dispatcher connection
-     */
-    public static class Dispatcher{
-        private String url = "http://localhost:8081";
-        private String xqueryXmlFileUrlPrefix;
-        private String sqlTableUrlPrefix;
-        private String datalogFactsUrlPrefix;
-
-        /**
-         * Returns the url for the dispatcher connection
-         *
-         * @return the url for the dispatcher connection
-         */
-        public String getUrl() {
-            return url;
-        }
-
-        /**
-         * Sets the url for the dispatcher connection
-         *
-         * @param url the url for the dispatcher connection
-         */
-        public void setUrl(String url) {
-            this.url = url;
         }
 
         public String getPassword() {
@@ -192,6 +164,44 @@ public class ApplicationProperties {
 
         public void setTask_assignment_type(String task_assignment_type) {
             this.task_assignment_type = task_assignment_type;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class Dispatcher{
+        private String url = "http://localhost:8081";
+        private String xqueryXmlFileUrlPrefix;
+        private String sqlTableUrlPrefix;
+        private String datalogFactsUrlPrefix;
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+
         public String getXqueryXmlFileUrlPrefix() {
             return xqueryXmlFileUrlPrefix;
         }
@@ -216,6 +226,7 @@ public class ApplicationProperties {
             this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
         }
     }
+
     /**
      * Configuration class for the dispatcher connection
      */
@@ -241,3 +252,5 @@ public class ApplicationProperties {
         }
     }
 }
+
+
