@@ -24,7 +24,7 @@ export class LearningGoalsService {
    * Returns all visible learning goal tree view items.
    *
    * @param userLogin the login of the current user
-   * @param onlyShowOwnGoals indicated whehter only the currently logged-in user's goals
+   * @param onlyShowOwnGoals indicated whether only the currently logged-in user's goals
    * should be displayed (default: false)
    * @returns an observable which contains the list of {@link LearningGoalTreeviewItem}.
    */
@@ -125,5 +125,20 @@ export class LearningGoalsService {
   public deleteGoalWithSubGoals(goalName: string): Observable<HttpResponse<any>> {
     const encodedName = encodeURIComponent(goalName);
     return this.http.delete(`${SERVER_API_URL}api/learninggoals/${encodedName}`, { observe: 'response' });
+  }
+
+  public addGoalAsSubGoal(
+    goalOwner: string,
+    goalName: string,
+    parentGoalOwner: string,
+    parentGoalName: string
+  ): Observable<HttpResponse<any>> {
+    const encodedGoalName = encodeURIComponent(goalName);
+    const encodedParentGoalName = encodeURIComponent(parentGoalName);
+    return this.http.post(
+      SERVER_API_URL + `api/learninggoals/${parentGoalOwner}/parentGoal/${encodedParentGoalName}/${goalOwner}/subGoal/${encodedGoalName}`,
+      null,
+      { observe: 'response' }
+    );
   }
 }

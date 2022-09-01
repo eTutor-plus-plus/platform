@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <title th:text="#{title}">Exercise Sheet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link th:href="@{exercise-sheet.css}" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Heading -->
+    <div class="container">
+      <div class="heading sheet-heading">
+        <h1 th:text="${exerciseSheetHeader} ?: #{heading}">Exercise Sheet</h1>
+      </div>
+      <p th:if="${studentName != null}" th:utext="|${studentName} ${matriculationNumber}|"></p>
+      <p th:unless="${studentName != null}" th:utext="${matriculationNumber}"></p>
+      <!-- End of Heading -->
+
+      <!-- Tasks -->
+
+      <!-- Tasks without group-->
+      <h2 class="nocount uppercase tasks" th:text="#{tasks.heading.noGroup}"></h2>
+      <p th:utext="|#{numberOfTasks} ${tasks.size()}|"></p>
+      <th:block th:each="task : ${tasks}">
+        <div class="task">
+          <h2 th:text="${task.header}"></h2>
+          <p th:utext="${task.instruction}"></p>
+        </div>
+      </th:block>
+      <!-- End of tasks without group -->
+
+      <!-- Task groups with tasks -->
+      <div th:if="${nTasksWithGroup > 0}">
+        <div class="groups">
+          <h2 class="nocount uppercase groups" th:text="#{tasks.heading.group}"></h2>
+          <p th:utext="|#{numberOfTasks} ${nTasksWithGroup}|"></p>
+        </div>
+        <th:block th:each="entry : ${tasksWithGroup}">
+          <div class="group-description">
+            <h2 th:text="${entry.key.name}"></h2>
+            <p th:utext="${entry.key.description}"></p>
+          </div>
+          <th:block th:each="task : ${entry.value}">
+            <div class="task">
+              <h3 th:text="${task.header}"></h3>
+              <p th:utext="${task.instruction}"></p>
+            </div>
+          </th:block>
+        </th:block>
+      </div>
+      <!-- End of task groups with tasks -->
+
+      <!-- End of Tasks -->
+    </div>
+  </body>
+</html>

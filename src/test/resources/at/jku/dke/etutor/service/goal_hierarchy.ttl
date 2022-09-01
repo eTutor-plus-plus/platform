@@ -1,0 +1,83 @@
+@prefix etutor: <http://www.dke.uni-linz.ac.at/etutorpp/> .
+@prefix etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#> .
+@prefix etutor-term: <http://www.dke.uni-linz.ac.at/etutorpp/Term#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Outerjoin>
+        rdf:type                  etutor:Goal ;
+        rdfs:label                "Outerjoin" ;
+        etutor:dependsOn          <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Innerjoin> ;
+        etutor:hasChangeDate      "2021-05-03T13:37:03"^^xsd:dateTime ;
+        etutor:hasDescription     "" ;
+        etutor:hasOwner           "admin" ;
+        etutor:isPrivate          false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Innerjoin>
+        rdf:type                  etutor:Goal ;
+        rdfs:label                "Innerjoin" ;
+        etutor:hasChangeDate      "2021-05-03T13:36:54"^^xsd:dateTime ;
+        etutor:hasDescription     "" ;
+        etutor:hasOwner           "admin" ;
+        etutor:isPrivate          false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Select>
+        rdf:type                  etutor:Goal ;
+        rdfs:label                "Select" ;
+        etutor:hasChangeDate      "2021-05-03T13:35:43"^^xsd:dateTime ;
+        etutor:hasDescription     "<p>Select (Projection)</p>" ;
+        etutor:hasOwner           "admin" ;
+        etutor:isPrivate          false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Sorting>
+        rdf:type                  etutor:Goal ;
+        rdfs:label                "Sorting" ;
+        etutor:dependsOn          <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Select> ;
+        etutor:hasChangeDate      "2021-05-03T13:35:55"^^xsd:dateTime ;
+        etutor:hasDescription     "" ;
+        etutor:hasOwner           "admin" ;
+        etutor:isPrivate          false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Where>
+        rdf:type                  etutor:Goal ;
+        rdfs:label                "Where" ;
+        etutor:dependsOn          <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Select> ;
+        etutor:hasChangeDate      "2021-05-03T13:36:25"^^xsd:dateTime ;
+        etutor:hasDescription     "<p>Where clause (Selection)</p>" ;
+        etutor:hasOwner           "admin" ;
+        etutor:isPrivate          false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Basic_SQL>
+        rdf:type               etutor:Goal ;
+        rdfs:label             "Basic SQL" ;
+        etutor:hasChangeDate   "2021-05-03T13:35:23"^^xsd:dateTime ;
+        etutor:hasDescription  "" ;
+        etutor:hasOwner        "admin" ;
+        etutor:hasSubGoal      <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Sorting> , <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join> , <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Select> , <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Where> ;
+        etutor:isPrivate       false ;
+        etutor:needsVerificationBeforeCompletion
+                false .
+
+<http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Join>
+        rdf:type               etutor:Goal ;
+        rdfs:label             "Join" ;
+        etutor:dependsOn       <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Where> ;
+        etutor:hasChangeDate   "2021-05-03T13:36:36"^^xsd:dateTime ;
+        etutor:hasDescription  "" ;
+        etutor:hasOwner        "admin" ;
+        etutor:hasSubGoal      <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Outerjoin> , <http://www.dke.uni-linz.ac.at/etutorpp/admin/Goal#Innerjoin> ;
+        etutor:isPrivate       false ;
+        etutor:needsVerificationBeforeCompletion
+                false .

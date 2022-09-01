@@ -12,6 +12,7 @@
         <th jhiTranslate="overview.student.difficulty">Difficulty</th>
         <th jhiTranslate="overview.student.completed">Completed</th>
         <th jhiTranslate="overview.student.started">Started</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoals">Goals</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -26,6 +27,16 @@
         <td [ngSwitch]="item.opened">
           <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
           <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+        </td>
+        <td>
+          <a
+            ngbTooltip="{{
+              'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: item.assignmentHeader }
+            }}"
+            (click)="viewGoalAssignments(item)"
+          >
+            <fa-icon icon="bullseye"></fa-icon>
+          </a>
         </td>
         <td>
           <button type="button" class="btn btn-info" (click)="navigateToTasks(item)">Aufgaben anzeigen</button>

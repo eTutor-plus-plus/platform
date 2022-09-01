@@ -6,7 +6,11 @@
       "matriculationNumber": "Matrikelnummer",
       "submitted": "Vollständig abgegeben",
       "fullyGraded": "Vollständig beurteilt",
-      "btnGrade": "Beurteilen"
+      "btnGrade": "Beurteilen",
+      "btnExport": "Export",
+      "submission": "Abgabe",
+      "submissionTime": "Abgabe-Zeitpunkt",
+      "solved": "Gelöst"
     },
     "footerClose": "Schließen",
     "gradingWindow": {
@@ -18,6 +22,31 @@
         "taskGraded": "Aufgabe bereits beurteilt?",
         "saveEvaluation": "Beurteilung speichern"
       }
+    },
+    "submissionWindow": {
+      "modalHeader": "Abgaben von '{{student}}'",
+      "windowHeader": "Abgaben von '{{student}}' einsehen"
+    },
+    "runSubmissionWindow": {
+      "modalHeader": "Abgabe von '{{student}}' analysieren"
+    },
+    "overviewComponent": {
+      "header": "Eigene LVAs",
+      "table": {
+        "courseName": "Kursabhaltungsbezeichnung",
+        "showStatistics": "Statistiken anzeigen"
+      }
+    },
+    "courseInstanceStatistics": {
+      "header": "Statistische Übersicht der Kursabhaltung '{{instanceName}}'",
+      "backBtnText": "Zurück zur Übersicht navigieren",
+      "totalStudentCntText": "Gesamanzahl der Studierenden dieser Lehrveranstaltungsabhaltung: {{cnt}}",
+      "achievementHeader": "Lernzielerreichung",
+      "colGoalName": "Lernzielname",
+      "colAbsoluteCnt": "Absolute Anzahl",
+      "colRelativeCnt": "Relative Anzahl",
+      "failureCountHeader": "Anzahl an gescheiterten Versuchen je Lernziel",
+      "colFailedGoalCnt": "Anzahl an gescheiterten Versuchen"
     }
   }
 }

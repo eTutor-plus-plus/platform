@@ -8,7 +8,7 @@ import { AccountService } from '../../../core/auth/account.service';
 import { cloneDeep } from 'lodash';
 
 /**
- * Component which is used to
+ * Component which is used to add learning goals
  */
 @Component({
   selector: 'jhi-learning-goal-assignment-update',

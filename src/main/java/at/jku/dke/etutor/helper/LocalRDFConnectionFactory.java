@@ -8,10 +8,18 @@ import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.query.text.TextIndexConfig;
 import org.apache.jena.query.text.analyzer.Util;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * Class which is used to created local RDF connections to an in-memory
@@ -55,6 +63,31 @@ public class LocalRDFConnectionFactory implements RDFConnectionFactory {
     @Override
     public void clearDataset() {
         createLuceneDataset(DatasetFactory.createTxnMem());
+    }
+
+    /**
+     * Returns whether a hashtag replacement is needed or not.
+     *
+     * @return {@code true} if a hashtag replacement is needed, otherwise {@code false}
+     */
+    @Override
+    public boolean needsHashtagReplacement() {
+        return false;
+    }
+
+    /**
+     * Writes the local RDF dataset's default graph to the given file (for debug purposes only).
+     *
+     * @param path the path - must not be {@code null}
+     * @throws IOException if an I/O related error occurs
+     */
+    @Deprecated
+    public void writeDefaultGraph(File path) throws IOException {
+        Objects.requireNonNull(path);
+
+        try (OutputStream os = new FileOutputStream(path)) {
+            RDFDataMgr.write(os, dataset.getDefaultModel(), RDFFormat.TURTLE);
+        }
     }
 
     /**

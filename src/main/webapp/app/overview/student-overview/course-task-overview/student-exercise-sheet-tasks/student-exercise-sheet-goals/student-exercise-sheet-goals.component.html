@@ -1,0 +1,53 @@
+<ng-template #learningGoalsTemplate let-item="item" let-onCollapseExpand="onCollapseExpand">
+  <div class="form-inline row-item">
+    <i *ngIf="item.children" class="mr-1" (click)="onCollapseExpand()" aria-hidden="true" [ngSwitch]="item.collapsed">
+      <svg
+        *ngSwitchCase="true"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-right-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+      </svg>
+      <svg
+        *ngSwitchCase="false"
+        width="0.8rem"
+        height="0.8rem"
+        viewBox="0 0 16 16"
+        class="bi bi-caret-down-fill"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+      </svg>
+    </i>
+    <label
+      class="bi form-check-label"
+      [ngClass]="{ private: item.markedAsPrivate, selected: assignedGoals.includes(item.text) }"
+      (click)="handleGoalClicked(item)"
+      >{{ item.text }}</label
+    >
+  </div>
+</ng-template>
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ 'overview.student.exerciseSheetTaskOverview.learningGoalHeader' | translate: { entity: header } }}</h4>
+    <div class="info-circle-container">
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'overview.student.goalDescriptionTooltip' | translate }}" placement="right"></fa-icon>
+    </div>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-learning-goal-treeview [items]="filteredGoals" [itemTemplate]="learningGoalsTemplate"> </jhi-learning-goal-treeview>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
+    </button>
+  </div>
+</div>

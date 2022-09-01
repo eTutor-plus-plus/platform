@@ -64,6 +64,13 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setPrivateTask(newTaskAssignmentDTO.isPrivateTask());
         setTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         setTaskGroupId(newTaskAssignmentDTO.getTaskGroupId());
+        setxQuerySolution(newTaskAssignmentDTO.getxQuerySolution());
+        setxQueryXPathSorting(newTaskAssignmentDTO.getxQueryXPathSorting());
+        setDatalogSolution(newTaskAssignmentDTO.getDatalogSolution());
+        setDatalogQuery(newTaskAssignmentDTO.getDatalogQuery());
+        setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
+        setUploadFileId(newTaskAssignmentDTO.getUploadFileId());
+        setBpmnTestConfig(newTaskAssignmentDTO.getBpmnTestConfig());
 
         setId(id);
         setCreationDate(creationDate);
@@ -100,6 +107,14 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setLearningGoalIds(learningGoalIds);
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskCreator).getString());
         setHeader(resource.getProperty(ETutorVocabulary.hasTaskHeader).getString());
+
+        Statement uploadFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadFileId);
+        if(uploadFileIdStatement != null){
+            setUploadFileId(uploadFileIdStatement.getInt());
+        }else{
+            setUploadFileId(-1);
+        }
+
         Statement taskIdForDispatcherStatement = resource.getProperty(ETutorVocabulary.hasTaskIdForDispatcher);
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
@@ -120,6 +135,36 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (processingTimeStatement != null) {
             setProcessingTime(processingTimeStatement.getString());
         }
+        Statement xQuerySolutionStatement = resource.getProperty(ETutorVocabulary.hasXQuerySolution);
+        if(xQuerySolutionStatement != null){
+            setxQuerySolution(xQuerySolutionStatement.getString());
+        }
+        Statement xPathSortingStatement = resource.getProperty(ETutorVocabulary.hasXQueryXPathSorting);
+        if(xPathSortingStatement != null){
+            setxQueryXPathSorting(xPathSortingStatement.getString());
+        }
+
+        Statement datalogSolutionStatement = resource.getProperty(ETutorVocabulary.hasDLGSolution);
+        if(datalogSolutionStatement != null){
+            setDatalogSolution(datalogSolutionStatement.getString());
+        }
+
+        Statement datalogQueryStatment = resource.getProperty(ETutorVocabulary.hasDLGQuery);
+        if(datalogQueryStatment != null){
+            setDatalogQuery(datalogQueryStatment.getString());
+        }
+
+        Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
+        if(datalogUncheckedTermsStatement != null){
+            setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
+        }
+
+        Statement bpmnConfig = resource.getProperty(ETutorVocabulary.hasBpmnConfig);
+        if(bpmnConfig != null){
+            setBpmnTestConfig(bpmnConfig.getString());
+        }
+
+
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());

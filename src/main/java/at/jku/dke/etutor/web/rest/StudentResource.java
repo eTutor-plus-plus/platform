@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.StudentService;
@@ -8,19 +9,22 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherGradingDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.AllTasksAlreadyAssignedException;
 import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
-import org.springframework.http.ResponseEntity;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * REST controller for managing students.
@@ -33,6 +37,7 @@ public class StudentResource {
 
     private final UserService userService;
     private final StudentService studentService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
@@ -40,9 +45,10 @@ public class StudentResource {
      * @param userService    the injected user service
      * @param studentService the injected student service
      */
-    public StudentResource(UserService userService, StudentService studentService) {
+    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService) {
         this.userService = userService;
         this.studentService = studentService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -83,6 +89,22 @@ public class StudentResource {
         Collection<CourseInstanceProgressOverviewDTO> items = studentService.getProgressOverview(matriculationNumber, uuid);
 
         return ResponseEntity.ok(items);
+    }
+
+    /**
+     * Returns the reached goals of a student, for a course instance
+     * @param uuid the uuid of the course instance
+     * @return a collection with all the reached goals
+     */
+    @GetMapping("courses/{uuid}/goals/reached")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Collection<String>> getReachedGoalsForCourse(@PathVariable(name = "uuid") String uuid){
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(uuid);
+
+        Collection<String> reachedGoals = studentService.getReachedGoalsOfStudentAndCourseInstance(courseInstanceURL, matriculationNumber);
+
+        return ResponseEntity.ok(reachedGoals);
     }
 
     /**
@@ -274,8 +296,8 @@ public class StudentResource {
     }
 
     /**
-     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} : Returns
-     * the file attachment's id.
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment} :
+     * Returns the file attachment's id for an individual task.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -284,11 +306,11 @@ public class StudentResource {
      */
     @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/uploadTask/{taskNo}/file-attachment")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Integer> getFileAttachmentId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                       @PathVariable int taskNo) {
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                       @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<Integer> optionalId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         int id = optionalId.orElse(-1);
 
@@ -296,23 +318,21 @@ public class StudentResource {
     }
 
     /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/submission}
-     * Sets the submission for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param submission the submission
-     * @return
+     * Returns all submissions mady by a student for a specific individual task
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the submissions
      */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @RequestBody String submission) {
-        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/student/{matriculationNo}/submissions")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<List<IndividualTaskSubmissionDTO>> getAllSubmissionsOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                        @PathVariable int taskNo, @PathVariable String matriculationNo){
 
-        studentService.setLastSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission);
-        return ResponseEntity.noContent().build();
+        Optional<List<IndividualTaskSubmissionDTO>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        List<IndividualTaskSubmissionDTO> submissions = optionalSubmissions.orElse(null);
+
+        return ResponseEntity.ok(submissions);
     }
 
     /**
@@ -326,35 +346,15 @@ public class StudentResource {
      */
     @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/submission")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<String> getSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+    public ResponseEntity<String> getLatestSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                        @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<String> optionalSubmission = studentService.getSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<String> optionalSubmission = studentService.getLatestSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         String submission = optionalSubmission.orElse("");
 
         return ResponseEntity.ok(submission);
-    }
-
-    /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/:points}
-     * Sets the points for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param points the points
-     * @return
-     */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/{points}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setDispatcherPoints(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                              @PathVariable int taskNo, @PathVariable int points) {
-        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-
-        studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
-        return ResponseEntity.noContent().build();
     }
 
 
@@ -381,23 +381,141 @@ public class StudentResource {
     }
 
     /**
-     * {@code PUT /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level/:diagnoseLevel}
-     * Sets the diagnose level for an individual task
-     *
-     * @param courseInstanceUUID the course instance id
-     * @param exerciseSheetUUID the exercise sheet id
-     * @param taskNo the task no
-     * @param diagnoseLevel the diagnose level
+     * Processes a submission and grading provided by the dispatcher in the course
+     * of an individual task assignment's submission by the student
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param dispatcherUUID the UUID identifying the submission
+     * @param token the JWT-Token needed to call the proxy to the dispatcher
      * @return
      */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/diagnose-level/{diagnoseLevel}")
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> setHighestDiagnoseLevel(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                    @PathVariable int taskNo, @PathVariable int diagnoseLevel) {
+    public ResponseEntity<Void> handleDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        DispatcherSubmissionDTO submission = null;
+        DispatcherGradingDTO grading = null;
+        try {
+            submission = dispatcherProxyService.getSubmission(dispatcherUUID);
+            grading = dispatcherProxyService.getGrading(dispatcherUUID);
+        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
+            e.printStackTrace();
+        }
+        Objects.requireNonNull(submission);
 
-        studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, diagnoseLevel);
-        return ResponseEntity.noContent().build();
+        // comparing excercise-id of assignment and submission
+        var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
+
+        if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
+
+        if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        // persisting the submission
+        boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
+        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+
+        // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
+        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+
+        // calculating and setting the points if submission has been solved but not previously solved
+        if(grading == null) return ResponseEntity.ok().build();
+
+        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        if(points == 0
+            && submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() == grading.getPoints()
+            && grading.getMaxPoints() != 0
+        ){
+            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+            var maxPoints = weightingAndMaxPointsIdArr[1];
+
+            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Processes a submission and grading provided by the dispatcher in the course
+     * of an individual task assignment's submission by the student
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param dispatcherUUID the UUID identifying the submission
+     * @param token the JWT-Token needed to call the proxy to the dispatcher
+     * @return
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/bpmn/{dispatcherUUID}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> handleBpmnDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        DispatcherSubmissionDTO submission = null;
+        DispatcherGradingDTO grading = null;
+        try {
+            submission = dispatcherProxyService.getBpmnSubmission(dispatcherUUID);
+            grading = dispatcherProxyService.getBpmnGrading(dispatcherUUID);
+        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
+            e.printStackTrace();
+        }
+        Objects.requireNonNull(submission);
+
+        // comparing excercise-id of assignment and submission
+        var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
+
+        if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
+
+        if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        // persisting the submission
+        boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
+        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+
+        // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
+        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+
+        // calculating and setting the points if submission has been solved but not previously solved
+        if(grading == null) return ResponseEntity.ok().build();
+
+        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        if(points == 0
+            && submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() == grading.getPoints()
+            && grading.getMaxPoints() != 0
+        ){
+            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+            var maxPoints = weightingAndMaxPointsIdArr[1];
+
+            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -424,7 +542,7 @@ public class StudentResource {
 
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/uploadTask/:taskNo/file-attachment/of-student/:matriculationNo} : Returns
-     * the file attachment's id.
+     * the file attachment's id of an individual task for a specific student.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -437,7 +555,27 @@ public class StudentResource {
     public ResponseEntity<Integer> getFileAttachmentIdOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                 @PathVariable int taskNo, @PathVariable String matriculationNo) {
 
-        Optional<Integer> optionalId = studentService.getFileIdOfAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/file-attachment}
+     * Returns the file id of an individual assignment (an assigned exercise sheet) for the logged in student.
+     *
+     * @param courseInstanceUUID The course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @return the id of the file
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/file-attachment")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachementIdOfAssignment(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdOfIndividualTaskAssignment(matriculationNo, courseInstanceUUID, exerciseSheetUUID);
 
         int id = optionalId.orElse(-1);
 

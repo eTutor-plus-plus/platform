@@ -168,7 +168,12 @@
     "studentNotExists": "Der Student existiert nicht!",
     "fileStorage": "Ein Problem bei der Dateispeicherung ist aufgetreten!",
     "wrongTaskType": "Ein falscher Aufgabentype wurde ausgewählt!",
-    "taskGroupAlreadyExistent": "Der Aufgabengruppenname existiert bereits!"
+    "taskGroupAlreadyExistent": "Der Aufgabengruppenname existiert bereits!",
+    "goalsNotEqual": "Übergeordnetes und untergeordnetes Ziel können nicht dieselben sein!",
+    "missingParameter": "Es fehlen Parameter, die zur Erstellung notwendig sind!",
+    "notAValidTaskGroup": "Der Typ der Aufgabengruppe stimmt nicht mit dem Typ der Aufgabe überein!",
+    "dispatcherRequestFailed": "Die Anfrage konnte vom Dispatcher nicht verarbeitet werden. Typischerweise sind Syntax-Fehler die Ursache dafür. Kontaktieren Sie einen System-Admin, um weitere Infos zu erhalten!",
+    "cyclicSubGoalRelation": "Zyklische Teilziel-Beziehungen dürfen nicht angelegt werden!"
   },
   "footer": {
     "contact": "Kontakt",

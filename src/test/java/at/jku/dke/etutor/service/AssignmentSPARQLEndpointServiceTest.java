@@ -6,12 +6,10 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.LearningGoalDTO;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
+import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -378,7 +376,9 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(optionalTaskFromDb).isPresent();
         TaskAssignmentDTO taskFromDb = optionalTaskFromDb.get();
 
-        assertThat(taskFromDb).isEqualToComparingFieldByField(task);
+        assertThat(taskFromDb)
+            .usingRecursiveComparison()
+            .isEqualTo(task);
 
         optionalTaskFromDb = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId("123");
         assertThat(optionalTaskFromDb).isEmpty();
@@ -455,6 +455,130 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(assignmentHeaders).isEmpty();
     }
 
+    /**
+     * Tests the creation of a task group
+     */
+    @Test
+    public void testCreateTaskGroupWithAllFields() throws TaskGroupAlreadyExistentException {
+        var name = "TestGroup1";
+        var description = "TestDescription";
+        var fileUrl = "TestURL";
+        var createSt = "TestCreate";
+        var insertSub = "TestInsertSubmission";
+        var insertDia = "TestInsertDiagnose";
+        var diagnoseXML = "TestDiagnoseXML";
+        var subXML = "TestSubmissionXML";
+        var newTaskGroupDTO = new NewTaskGroupDTO();
+        newTaskGroupDTO.setName(name);
+        newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.XQueryTypeTaskGroup.toString());
+        newTaskGroupDTO.setDescription(description);
+        newTaskGroupDTO.setSqlCreateStatements(createSt);
+        newTaskGroupDTO.setSqlInsertStatementsDiagnose(insertDia);
+        newTaskGroupDTO.setSqlInsertStatementsSubmission(insertSub);
+        newTaskGroupDTO.setxQueryDiagnoseXML(diagnoseXML);
+        newTaskGroupDTO.setxQuerySubmissionXML(subXML);
+
+
+        var taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin");
+        assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileUrl);
+
+        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).isPresent());
+
+
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+        assertThat(fetchedGroup.getName().equals(name));
+        assertThat(fetchedGroup.getDescription().equals(description));
+        assertThat(fetchedGroup.getSqlCreateStatements().equals(createSt));
+        assertThat(fetchedGroup.getSqlInsertStatementsDiagnose().equals(insertDia));
+        assertThat(fetchedGroup.getSqlInsertStatementsSubmission().equals(insertSub));
+        assertThat(fetchedGroup.getxQueryDiagnoseXML().equals(diagnoseXML));
+        assertThat(fetchedGroup.getxQuerySubmissionXML().equals(subXML));
+        assertThat(fetchedGroup.getFileUrl().equals(fileUrl));
+        assertThat(fetchedGroup.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()));
+    }
+
+    /**
+     * Tests the deletion of a task group
+     * @throws TaskGroupAlreadyExistentException
+     */
+    @Test
+    public void testDeleteTaskGroup() throws TaskGroupAlreadyExistentException {
+        var name = "TestGroup";
+        var newTaskGroupDTO = new NewTaskGroupDTO();
+        newTaskGroupDTO.setName(name);
+        newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.SQLTypeTaskGroup.toString());
+
+        assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin");
+        assignmentSPARQLEndpointService.deleteTaskGroup(name);
+        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).isEmpty());
+    }
+
+    /**
+     * Tests modifying the task-groups description
+     * @throws TaskGroupAlreadyExistentException if task group already exists
+     */
+    @Test
+    public void testModifyTaskGroup() throws TaskGroupAlreadyExistentException {
+        var name = "TestGroup";
+        var newTaskGroupDTO = new NewTaskGroupDTO();
+        newTaskGroupDTO.setName(name);
+        newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.NoTypeTaskGroup.toString());
+        newTaskGroupDTO.setDescription("TestDescription1");
+
+        var taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin");
+
+        taskGroupDTO.setDescription("TestDescription2");
+        assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
+        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).isPresent());
+        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).get().getDescription().equals("TestDescription2"));
+    }
+
+    @Test
+    public void testModifySQLTaskGroup() throws TaskGroupAlreadyExistentException {
+        var name = "TestGroup";
+        var create = "TestCreate";
+        var insert1 = "TestInsert1";
+        var insert2 = "TestInsert2";
+        var newTaskGroupDTO = new NewTaskGroupDTO();
+        newTaskGroupDTO.setName(name);
+        newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.SQLTypeTaskGroup.toString());
+
+        var taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin");
+        taskGroupDTO.setSqlCreateStatements(create);
+        taskGroupDTO.setSqlInsertStatementsDiagnose(insert1);
+        taskGroupDTO.setSqlInsertStatementsSubmission(insert2);
+
+        assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTO);
+
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+
+        assertThat(fetchedGroup.getSqlCreateStatements().equals(create));
+        assertThat(fetchedGroup.getSqlInsertStatementsDiagnose().equals(insert1));
+        assertThat(fetchedGroup.getSqlInsertStatementsSubmission().equals(insert2));
+        assertThat(fetchedGroup.getSqlInsertStatementsSubmission().equals(insert2));
+    }
+
+    @Test
+    public void testModifyXQTaskGroup() throws TaskGroupAlreadyExistentException {
+        var name = "TestGroup";
+        var xml1 = "TestXML1";
+        var xml2 = "TestXML2";
+        var newTaskGroupDTO = new NewTaskGroupDTO();
+        newTaskGroupDTO.setName(name);
+        newTaskGroupDTO.setTaskGroupTypeId(ETutorVocabulary.XQueryTypeTaskGroup.toString());
+
+        var taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, "admin");
+        taskGroupDTO.setxQueryDiagnoseXML(xml1);
+        taskGroupDTO.setxQuerySubmissionXML(xml2);
+
+        assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTO);
+
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+
+        assertThat(fetchedGroup.getxQueryDiagnoseXML().equals(xml1));
+        assertThat(fetchedGroup.getxQuerySubmissionXML().equals(xml2));
+    }
+
     //region Private methods
 
     /**
@@ -486,5 +610,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, OWNER);
     }
+
+
     //endregion
 }

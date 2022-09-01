@@ -5,6 +5,9 @@
       "notCorrect": "Ihre Lösung ist leider nicht korrekt!",
       "diagnoseLevelPlaceholder": "Wählen Sie das Feedback-Level:",
       "yourSolution": "Ihre Lösung:",
+      "editorInfo": "Mit strg+leertaste können Sie auf einige Vorlagen zugreifen",
+      "feedbackLabel": "Feedback-Level: ",
+      "feedbackInfo": "Sie können das Feedback-Level hier einstellen (default= kein Feedback). Ein höheres Level kann zu Punkteabzügen führen.",
       "diagnoseLevel": {
         "none": "Kein Feedback",
         "little": "Wenig Feedback",

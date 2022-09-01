@@ -36,7 +36,7 @@ management:
       liveness:
         include: livenessState
       readiness:
-        include: readinessState,datasource
+        include: readinessState,db
     mail:
       enabled: false # When using the MailService, configure an SMTP server and set this to true
   metrics:
@@ -196,4 +196,8 @@ application:
     organisation_unit: DKE
     task_assignment_type: http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask # http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask
 
-
+  dispatcher:
+    url: http://localhost:8081
+    xqueryXmlFileUrlPrefix: /XML?id=
+    sqlTableUrlPrefix: /sql-tables/
+    datalogFactsUrlPrefix: /datalog-facts/

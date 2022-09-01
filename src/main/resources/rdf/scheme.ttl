@@ -125,10 +125,10 @@ etutor:hasStudent
     rdfs:domain etutor:CourseInstance ;
     rdfs:range  etutor:Student .
 
-etutor:hasExerciseSheet
+etutor:hasExerciseSheetAssignment
     rdf:type    rdf:Property ;
     rdfs:domain etutor:CourseInstance ;
-    rdfs:range  etutor:ExerciseSheet .
+    rdfs:range  etutor:ExerciseSheetAssignment .
 
 # Instances
 etutor-term:Winter
@@ -138,6 +138,32 @@ etutor-term:Winter
 etutor-term:Summer
     a          etutor:Term ;
     rdfs:label "Sommersemester" .
+
+## ExerciseSheetAssignment
+# Classes
+etutor:ExerciseSheetAssignment
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:isExerciseSheetClosed
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:boolean .
+
+etutor:hasExerciseSheet
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  etutor:ExerciseSheet .
+
+etutor:hasExerciseSheetOpenDateTime
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:dateTime .
+
+etutor:hasExerciseSheetCloseDateTime
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheetAssignment ;
+    rdfs:range  xsd:dateTime .
 
 ## Students
 # Classes
@@ -351,7 +377,7 @@ etutor:ExerciseSheet
 # Properties
 etutor:containsLearningGoal
     rdf:type    rdf:Property ;
-    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:domain etutor:LearningGoalAssignment ;
     rdfs:range  etutor:Goal .
 
 etutor:hasExerciseSheetDifficulty
@@ -373,3 +399,24 @@ etutor:hasExerciseSheetTaskCount
     rdf:type    rdf:Property ;
     rdfs:domain etutor:ExerciseSheet ;
     rdfs:range  xsd:int .
+
+etutor:isGenerateWholeExerciseSheet
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  xsd:boolean .
+
+## Learning goal assignment
+# Classes
+etutor:LearningGoalAssignment
+    rdf:type rdfs:Class .
+
+# Properties
+etutor:containsLearningGoalAssignment
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:ExerciseSheet ;
+    rdfs:range  etutor:LearningGoalAssignment .
+
+etutor:hasPriority
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:LearningGoalAssignment ;
+    rdfs:range  xsd:unsignedInt .

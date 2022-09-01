@@ -1,19 +1,20 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.jena.rdfconnection.RDFConnection;
+
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.jena.rdfconnection.RDFConnection;
 
 /**
  * Abstract base class of all SPARQL endpoint services.
  *
  * @author fne
  */
-public abstract class AbstractSPARQLEndpointService {
+public abstract sealed class AbstractSPARQLEndpointService permits AssignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService, ExerciseSheetSPARQLEndpointService, LecturerOverviewService, LecturerSPARQLEndpointService, SPARQLEndpointService, StudentService {
 
     private final RDFConnectionFactory rdfConnectionFactory;
 
@@ -33,6 +34,28 @@ public abstract class AbstractSPARQLEndpointService {
      */
     protected RDFConnection getConnection() {
         return rdfConnectionFactory.getRDFConnection();
+    }
+
+    /**
+     * Returns whether a hashtag replacement is needed or not.
+     *
+     * @return {@code true} if a hashtag replacement is needed, otherwise {@code false}
+     */
+    protected boolean needsHashtagReplacement() {
+        return rdfConnectionFactory.needsHashtagReplacement();
+    }
+
+    /**
+     * Replaces the hashtag in graph url, if necessary.
+     *
+     * @param graphUrl the graph url
+     * @return the encoded graph url
+     */
+    protected String replaceHashtagInGraphUrlIfNeeded(String graphUrl) {
+        if (needsHashtagReplacement()) {
+            return graphUrl.replace("#", "%23");
+        }
+        return graphUrl;
     }
 
     /**

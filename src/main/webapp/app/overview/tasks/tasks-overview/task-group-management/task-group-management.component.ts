@@ -8,7 +8,6 @@ import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-gro
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SqlExerciseService } from '../../../dispatcher/services/sql-exercise.service';
 
 /**
  * Component for managing task groups.
@@ -43,8 +42,7 @@ export class TaskGroupManagementComponent implements OnInit {
     private taskGroupService: TaskGroupManagementService,
     private activeModal: NgbActiveModal,
     private modalService: NgbModal,
-    private translatePipe: TranslatePipe,
-    private sqlExerciseService: SqlExerciseService
+    private translatePipe: TranslatePipe
   ) {
     this.itemsPerPage = ITEMS_PER_PAGE;
   }
@@ -96,14 +94,6 @@ export class TaskGroupManagementComponent implements OnInit {
    * @param selectedGroup the task group to remove
    */
   public deleteTaskGroup(selectedGroup: ITaskGroupDisplayDTO): void {
-    const taskGroupName = selectedGroup.id.substring(selectedGroup.id.indexOf('#') + 1);
-    this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroup => {
-      if (taskGroup.sqlCreateStatements) {
-        this.sqlExerciseService.deleteSchema(taskGroupName).subscribe();
-        this.sqlExerciseService.deleteConnection(taskGroupName).subscribe();
-      }
-    });
-
     this.taskGroupService.deleteTaskGroup(selectedGroup.name).subscribe(() => {
       if ((this.totalItems - 1) % this.itemsPerPage < this.page) {
         this.page = (this.totalItems - 1) % this.itemsPerPage;

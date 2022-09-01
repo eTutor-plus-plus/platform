@@ -1,18 +1,14 @@
 package at.jku.dke.etutor.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.LocalRDFConnectionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import java.text.ParseException;
-import java.util.Optional;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -22,6 +18,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+
+import java.text.ParseException;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for the {@code ExerciseSheetSPARQLEndpointService} class.
@@ -82,7 +84,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
@@ -97,7 +102,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         assertThat(optionalExerciseSheetFromKG).isPresent();
 
         var exerciseSheetFromKG = optionalExerciseSheetFromKG.get();
-        assertThat(exerciseSheetFromKG).isEqualToIgnoringGivenFields(exerciseSheetDTO, "learningGoals");
+        assertThat(exerciseSheetFromKG)
+            .usingRecursiveComparison()
+            .ignoringFields("learningGoals")
+            .isEqualTo(exerciseSheetDTO);
         assertThat(exerciseSheetFromKG.getLearningGoals()).hasSize(2);
     }
 
@@ -140,12 +148,18 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
         ExerciseSheetDTO exerciseSheetDTO = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(newExerciseSheetDTO, OWNER);
         exerciseSheetDTO.setName("Newtest");
+        exerciseSheetDTO.setLearningGoals(StreamEx.of(exerciseSheetDTO.getLearningGoals())
+            .map(x -> new LearningGoalAssignmentDTO(x.getLearningGoal(), 2))
+            .toList());
 
         exerciseSheetSPARQLEndpointService.updateExerciseSheet(exerciseSheetDTO);
 
@@ -153,8 +167,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         Optional<ExerciseSheetDTO> optionalExerciseSheetFromDb = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         assertThat(optionalExerciseSheetFromDb).isPresent();
         ExerciseSheetDTO exerciseSheetFromDb = optionalExerciseSheetFromDb.get();
-
-        assertThat(exerciseSheetFromDb).isEqualToIgnoringGivenFields(exerciseSheetDTO, "learningGoals");
+        assertThat(exerciseSheetFromDb)
+            .usingRecursiveComparison()
+            .ignoringFields("learningGoals")
+            .isEqualTo(exerciseSheetDTO);
         assertThat(exerciseSheetFromDb.getLearningGoals()).containsExactlyInAnyOrderElementsOf(exerciseSheetDTO.getLearningGoals());
     }
 
@@ -163,7 +179,8 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
      */
     @Test
     public void testDeleteExerciseSheetNull() {
-        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> exerciseSheetSPARQLEndpointService.deleteExerciseSheetById(null))
+            .isInstanceOf(NullPointerException.class);
     }
 
     /**
@@ -177,7 +194,10 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         newExerciseSheetDTO.setName("Testname");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(OWNER, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals)
+            .map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName()))
+            .map(x -> new LearningGoalAssignmentDTO(x, 1))
+            .toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
@@ -187,12 +207,12 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
 
         final String askQry =
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            ASK {
-              ?exerciseSheet a etutor:ExerciseSheet.
-            }
-            """;
+                ASK {
+                  ?exerciseSheet a etutor:ExerciseSheet.
+                }
+                """;
 
         ParameterizedSparqlString qry = new ParameterizedSparqlString(askQry);
         qry.setIri("?exerciseSheet", exerciseSheetDTO.getId());

@@ -1,10 +1,5 @@
 package at.jku.dke.etutor.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -15,10 +10,9 @@ import at.jku.dke.etutor.service.SPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.NewLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
-import java.text.ParseException;
-import java.util.List;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +23,21 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.ParseException;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * Test class for the exercise sheet resource endpoint.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
+@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -91,7 +93,7 @@ public class ExerciseSheetResourceIT {
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         newExerciseSheetDTO.setTaskCount(1);
         var goals = sparqlEndpointService.getVisibleLearningGoalsForUser(USERNAME, false);
-        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList();
+        var displayGoals = StreamEx.of(goals).map(x -> new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO(x.getId(), x.getName()), 1)).toList();
 
         newExerciseSheetDTO.setLearningGoals(displayGoals);
 
@@ -123,7 +125,10 @@ public class ExerciseSheetResourceIT {
             ExerciseSheetDTO.class
         );
 
-        assertThat(exerciseSheetDTOFromEndpoint).isEqualToIgnoringGivenFields(exerciseSheetDTO, "learningGoals");
+        assertThat(exerciseSheetDTOFromEndpoint)
+            .usingRecursiveComparison()
+            .ignoringFields("learningGoals")
+            .isEqualTo(exerciseSheetDTO);
     }
 
     /**
@@ -171,7 +176,9 @@ public class ExerciseSheetResourceIT {
             ExerciseSheetDTO.class
         );
 
-        assertThat(exerciseSheetDTOFromEndpoint).isEqualToComparingFieldByField(exerciseSheetDTO);
+        assertThat(exerciseSheetDTOFromEndpoint)
+            .usingRecursiveComparison()
+            .isEqualTo(exerciseSheetDTO);
     }
 
     /**

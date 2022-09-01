@@ -19,8 +19,16 @@
       <dt *ngIf="taskModel?.url"><span jhiTranslate="overview.student.tasks.link">Link</span></dt>
       <dd *ngIf="taskModel?.url">{{ taskModel?.url?.toString() }}</dd>
 
+      <dt *ngIf="taskGroup?.description"><span jhiTranslate="overview.student.tasks.groupInstruction">Group-Instructions</span></dt>
+      <dd *ngIf="taskGroup?.description"><span [innerHTML]="taskGroup?.description"></span></dd>
+
       <dt *ngIf="taskModel?.instruction"><span jhiTranslate="overview.student.tasks.instructions">Instructions</span></dt>
       <dd *ngIf="taskModel?.instruction"><span [innerHTML]="taskModel?.instruction"></span></dd>
+
+      <dt *ngIf="uploadFileId !== -1"><span jhiTranslate="overview.student.tasks.file">File</span></dt>
+      <dd *ngIf="uploadFileId !== -1">
+        <jhi-file-download [fileId]="uploadFileId"> </jhi-file-download>
+      </dd>
 
       <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
@@ -37,7 +45,22 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-
+    <p></p>
+    <div class="assignment-component">
+      <jhi-assignment
+        *ngIf="isDispatcherTask"
+        (submissionUUIDReceived)="handleDispatcherUUID($event)"
+        [exercise_id]="exercise_id"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [task_type]="task_type"
+        [submission]="submission"
+        [points]="dispatcherPoints"
+        [maxPoints]="maxPoints"
+        [highestDiagnoseLevel]="diagnoseLevel"
+        [showSubmitButton]="!exerciseSheetAlreadyClosed"
+      >
+      </jhi-assignment>
+    </div>
     <jhi-file-upload
       *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"
@@ -47,21 +70,6 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
-    <jhi-assignment
-      *ngIf="isDispatcherTask"
-      (diagnoseLevelIncreased)="handleDiagnoseLevelIncreasedAsync($event)"
-      (submissionAdded)="handleSubmissionAddedAsync($event)"
-      (solutionCorrect)="handleSolutionCorrectAsync($event)"
-      [exercise_id]="exercise_id"
-      [diagnoseLevelWeighting]="diagnoseLevelWeighting"
-      [task_type]="task_type"
-      [submission]="submission"
-      [points]="dispatcherPoints"
-      [maxPoints]="maxPoints"
-      [highestDiagnoseLevel]="diagnoseLevel"
-    >
-    </jhi-assignment>
-
     <button
       *ngIf="!isDispatcherTask"
       type="button"
@@ -76,5 +84,6 @@
       >
       <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
     </button>
+    <br />
   </div>
 </div>

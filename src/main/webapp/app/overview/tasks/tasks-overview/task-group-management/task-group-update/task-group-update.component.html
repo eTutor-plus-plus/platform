@@ -12,6 +12,12 @@
     <jhi-alert-error></jhi-alert-error>
     <div class="form-group">
       <label class="form-control-label" for="name" jhiTranslate="taskManagement.taskGroup.update.nameField">Name:</label>
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlNameInfo' | translate }}"
+        placement="right"
+        *ngIf="isSQLGroup"
+      ></fa-icon>
       <input [disabled]="!isNew" [readOnly]="!isNew" type="text" id="name" formControlName="name" class="form-control" />
 
       <div *ngIf="taskGroup.get('name')!.invalid">
@@ -44,26 +50,33 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask">
-      <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.taskGroup.update.sqlCreateStatements"
-        >SQL: Create-Table-Statements</label
-      >
+    <div class="form-group" *ngIf="isSQLGroup">
+      <label class="form-control-label" for="sqlCreateStatements">
+        {{ 'taskManagement.taskGroup.update.sqlCreateStatements' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlCreateStatementsInfo' | translate }}"
+          placement="right"
+        ></fa-icon>
+      </label>
       <ngx-monaco-editor [options]="editorOptions" id="sqlCreateStatements" formControlName="sqlCreateStatements"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask">
-      <label
-        class="form-control-label"
-        for="sqlInsertStatementsSubmission"
-        jhiTranslate="taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmission"
-        >SQL: Insert-Into-Statements (Submission)</label
-      >
+    <div class="form-group" *ngIf="isSQLGroup">
+      <label class="form-control-label" for="sqlInsertStatementsSubmission">
+        {{ 'taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmission' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'taskManagement.taskGroup.update.sqlInsertIntoStatementsSubmissionInfo' | translate }}"
+          placement="right"
+        ></fa-icon>
+      </label>
       <ngx-monaco-editor
         [options]="editorOptions"
         id="sqlInsertStatementsSubmission"
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask">
+    <div class="form-group" *ngIf="isSQLGroup">
       <label
         class="form-control-label"
         for="sqlInsertStatementsDiagnose"
@@ -75,6 +88,34 @@
         id="sqlInsertStatementsDiagnose"
         formControlName="sqlInsertStatementsDiagnose"
       ></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryGroup">
+      <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.diagnoseXML"
+        >XQuery: XML for diagnose</label
+      >
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.taskGroup.update.diagnoseXMLInfo' | translate }}"
+        placement="right"
+      ></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsXML" id="diagnoseXML" formControlName="diagnoseXML"></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isXQueryGroup">
+      <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.submissionXML"
+        >XQuery: XML for submit</label
+      >
+      <ngx-monaco-editor [options]="editorOptionsXML" id="submissionXML" formControlName="submissionXML"></ngx-monaco-editor>
+    </div>
+    <div class="form-group" *ngIf="isDLGGroup">
+      <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.taskGroup.update.datalogFacts"
+        >Datalog: Facts</label
+      >
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.taskGroup.update.datalogFactsInfo' | translate }}"
+        placement="right"
+      ></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="close()">

@@ -8,6 +8,8 @@
         <th jhiTranslate="overview.student.term">Term</th>
         <th jhiTranslate="overview.student.year">Year</th>
         <th jhiTranslate="overview.student.instructor">Instructor</th>
+        <th jhiTranslate="overview.student.exerciseSheetTaskOverview.fields.learningGoals">Goals</th>
+        <th>Reached Goals</th>
         <th>&nbsp;</th>
       </tr>
     </thead>
@@ -17,6 +19,22 @@
         <td>{{ getTermI18NStringFromURL(course.termId) | translate }}</td>
         <td>{{ course.year }}</td>
         <td>{{ course.instructor }}</td>
+        <td>
+          <a
+            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: course.courseName } }}"
+            (click)="viewGoalAssignments(course)"
+          >
+            <fa-icon icon="bullseye"></fa-icon>
+          </a>
+        </td>
+        <td>
+          <a
+            ngbTooltip="{{ 'overview.student.exerciseSheetTaskOverview.goalAssignmentTooltip' | translate: { entity: loginName } }}"
+            (click)="viewReachedGoals(course)"
+          >
+            <fa-icon icon="check"></fa-icon>
+          </a>
+        </td>
         <td class="text-right">
           <div class="btn-group">
             <button

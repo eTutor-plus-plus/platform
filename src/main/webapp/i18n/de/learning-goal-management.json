@@ -4,6 +4,7 @@
     "createSubGoal": "Teilziel erstellen",
     "createGoal": "Ziel erstellen",
     "editGoal": "Ziel bearbeiten",
+    "needVerificationInfo": "Wenn diese Option gewählt wird, reicht die Erreichung etwaiiger Teilziele nicht zur Erreichung dieses Lernziels. Stattdessen müssen explizite Aufgaben dieses Lernziels absolviert werden.",
     "entity": {
       "name": "Name:",
       "description": "Beschreibung:",
@@ -19,6 +20,8 @@
     "dependencies": "Abhängigkeiten",
     "manageDependencies": "Abhängigkeiten verwalten",
     "manageDependenciesHeader": "Abhängigkeiten vom Lernziel '{{goalName}}' verwalten",
+    "addAsSubGoal": "Als Teilziel hinzufügen",
+    "addAsSubGoalHeader": "Lernziel '{{goalName}}' als Teilziel hinzufügen: ",
     "filter": {
       "filter": "Filter:",
       "onlyShowOwnGoals": "Nur die eigenen Lernziele anzeigen?"

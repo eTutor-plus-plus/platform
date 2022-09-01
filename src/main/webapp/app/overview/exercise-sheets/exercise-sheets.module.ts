@@ -6,6 +6,7 @@ import { exerciseSheetRoutes } from './exercise-sheets.route';
 import { ExerciseSheetUpdateComponent } from './exercise-sheet-update/exercise-sheet-update.component';
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { SharedModule } from 'app/shared/shared.module';
+import { ExerciseSheetContextMenuComponent } from './exercise-sheet-context-menu/exercise-sheet-context-menu.component';
 
 /**
  * Module for exercise related modules.
@@ -21,6 +22,6 @@ import { SharedModule } from 'app/shared/shared.module';
       appendToBody: true,
     }),
   ],
-  declarations: [ExerciseSheetsOverviewComponent, ExerciseSheetUpdateComponent],
+  declarations: [ExerciseSheetsOverviewComponent, ExerciseSheetUpdateComponent, ExerciseSheetContextMenuComponent],
 })
 export class ExerciseSheetsModule {}

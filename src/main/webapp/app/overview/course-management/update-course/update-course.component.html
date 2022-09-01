@@ -27,9 +27,9 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="type" jhiTranslate="courseManagement.form.type">Type:</label>
-      <select class="form-control" name="type" id="type" #type>
+      <select class="form-control" name="type" id="type" formControlName="type">
         <option value="" disabled>{{ 'courseManagement.form.typePlaceholder' | translate }}</option>
-        <option *ngFor="let courseType of courseTypes" [value]="courseType">{{ courseType }}</option>
+        <option *ngFor="let courseType of courseTypes" [ngValue]="courseType">{{ courseType }}</option>
       </select>
 
       <div *ngIf="updateForm.get('type')!.invalid">

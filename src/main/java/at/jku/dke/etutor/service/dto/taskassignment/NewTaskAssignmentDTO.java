@@ -24,12 +24,21 @@ public class NewTaskAssignmentDTO {
     @NotBlank
     private String header;
 
+    private int uploadFileId;
+
     private String taskIdForDispatcher;
     private String sqlSolution;
     private String maxPoints;
     private String diagnoseLevelWeighting;
+    private String xQuerySolution;
+    private String xQueryXPathSorting;
+    private String datalogSolution;
+    private String datalogQuery;
+    private String datalogUncheckedTerms;
 
     private String processingTime;
+
+    private String bpmnTestConfig;
 
     @NotBlank
     @DifficultyRankingConstraint
@@ -336,5 +345,61 @@ public class NewTaskAssignmentDTO {
      */
     public void setTaskGroupId(String taskGroupId) {
         this.taskGroupId = taskGroupId;
+    }
+
+    public String getxQuerySolution() {
+        return xQuerySolution;
+    }
+
+    public void setxQuerySolution(String xQuerySolution) {
+        this.xQuerySolution = xQuerySolution;
+    }
+
+    public String getxQueryXPathSorting() {
+        return xQueryXPathSorting;
+    }
+
+    public void setxQueryXPathSorting(String xQueryXPathSorting) {
+        this.xQueryXPathSorting = xQueryXPathSorting;
+    }
+
+    public String getDatalogSolution() {
+        return datalogSolution;
+    }
+
+    public void setDatalogSolution(String datalogSolution) {
+        this.datalogSolution = datalogSolution;
+    }
+
+    public String getDatalogQuery() {
+        return datalogQuery;
+    }
+
+    public void setDatalogQuery(String datalogQuery) {
+        this.datalogQuery = datalogQuery;
+    }
+
+    public String getDatalogUncheckedTerms() {
+        return datalogUncheckedTerms;
+    }
+
+    public void setDatalogUncheckedTerms(String datalogUncheckedTerms) {
+        this.datalogUncheckedTerms = datalogUncheckedTerms;
+    }
+
+    public int getUploadFileId() {
+        return uploadFileId;
+    }
+
+    public void setUploadFileId(int uploadFileId) {
+        this.uploadFileId = uploadFileId;
+    }
+
+    public String getBpmnTestConfig() {
+        return bpmnTestConfig;
+    }
+
+    public void setBpmnTestConfig(String bpmnTestConfig) {
+        this.bpmnTestConfig = bpmnTestConfig;
     }
 }

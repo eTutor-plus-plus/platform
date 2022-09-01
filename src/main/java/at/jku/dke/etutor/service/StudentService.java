@@ -6,12 +6,19 @@ import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
+import at.jku.dke.etutor.service.dto.MultipartFileImpl;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.*;
@@ -22,13 +29,27 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
+import java.io.*;
+import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing students.
@@ -36,8 +57,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class StudentService extends AbstractSPARQLEndpointService {
-
+public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_STUDENTS_COURSES =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -64,12 +84,15 @@ public class StudentService extends AbstractSPARQLEndpointService {
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed
+        SELECT (STR(?exerciseSheet) AS ?exerciseSheetId) ?exerciseSheetName (STR(?difficulty) AS ?difficultyURI) ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed ?wholeSheetClosed
         WHERE {
           {
             ?instance a etutor:CourseInstance.
             ?instance etutor:hasStudent ?student.
-            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?instance etutor:hasExerciseSheetAssignment [
+            	etutor:hasExerciseSheet ?exerciseSheet;
+             	etutor:isExerciseSheetClosed ?wholeSheetClosed
+            ].
             ?exerciseSheet rdfs:label ?exerciseSheetName.
             ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
             ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
@@ -79,7 +102,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                                   etutor:fromCourseInstance ?instance;
                                   etutor:hasIndividualTask ?individualTask;
                                   etutor:isClosed ?closed.
-            {
+
               OPTIONAL {
                 SELECT ?exerciseSheet (COUNT(?individualTask) AS ?actualCount)
                 WHERE {
@@ -90,8 +113,8 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }
                 GROUP BY ?exerciseSheet
               }
-            }
-            {
+
+
               OPTIONAL {
                 SELECT ?exerciseSheet (COUNT(?submitted) AS ?submissionCount)
                 WHERE {
@@ -104,9 +127,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }
                 GROUP BY ?exerciseSheet
               }
-            }
+
             BIND(?shouldTaskCount = ?actualCount && ?actualCount = ?submissionCount AS ?completed).
-            {
+
               OPTIONAL {
                 SELECT ?exerciseSheet (COUNT(?graded) AS ?gradedCount)
                 WHERE {
@@ -119,20 +142,23 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }
                 GROUP BY ?exerciseSheet
               }
-            }
+
           } UNION {
             ?instance a etutor:CourseInstance.
             ?instance etutor:hasStudent ?student.
-            ?instance etutor:hasExerciseSheet ?exerciseSheet.
+            ?instance etutor:hasExerciseSheetAssignment [
+            	etutor:hasExerciseSheet ?exerciseSheet;
+             	etutor:isExerciseSheetClosed ?wholeSheetClosed
+            ].
             ?exerciseSheet rdfs:label ?exerciseSheetName.
             ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
             ?exerciseSheet etutor:hasExerciseSheetTaskCount ?shouldTaskCount.
             FILTER(NOT EXISTS{
-              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-              ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
-                                    etutor:fromCourseInstance ?instance;
-                                    etutor:hasIndividualTask ?individualTask.
-            }).
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                      etutor:fromCourseInstance ?instance;
+                                      etutor:hasIndividualTask ?individualTask.
+              }).
             BIND(false AS ?completed).
             BIND(0 AS ?actualCount).
             BIND(0 AS ?submissionCount).
@@ -140,6 +166,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
             BIND(false as ?closed).
           }
         }
+        GROUP BY ?exerciseSheet ?exerciseSheetName ?difficulty ?completed ?shouldTaskCount ?actualCount ?submissionCount ?gradedCount ?closed ?wholeSheetClosed
         ORDER BY (LCASE(?exerciseSheetName))
         """;
 
@@ -284,6 +311,57 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+    private static final String QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+          ?individualTask etutor:hasIndividualTaskSubmission [
+            a etutor:IndividualTaskSubmission;
+            etutor:hasSubmission ?submission;
+            etutor:hasInstant ?instant;
+            etutor:isSubmitted ?isSubmitted;
+            etutor:isSolved ?isSolved;
+            etutor:hasDispatcherId ?dispatcherId;
+            etutor:hasTaskType ?taskType;
+          ].
+        }
+        WHERE {
+          ?courseInstance a etutor:CourseInstance.
+          ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                etutor:fromCourseInstance ?courseInstance.
+          ?individualAssignment etutor:hasIndividualTask ?individualTask.
+          ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+    private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT ?instant ?submission ?taskInstruction ?isSubmitted ?isSolved ?dispatcherId ?taskType
+        WHERE{
+        	?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+          	?individualAssignment a etutor:IndividualTaskAssignment.
+          	?individualAssignment etutor:fromExerciseSheet ?exerciseSheet;
+                                 etutor:fromCourseInstance ?courseInstance.
+          	?individualAssignment etutor:hasIndividualTask ?individualTask.
+          	?individualTask a etutor:IndividualTask;
+                           etutor:hasOrderNo ?orderNo;
+                           etutor:refersToTask ?taskAssignment;
+                           etutor:hasIndividualTaskSubmission ?taskSubmission.
+          	?taskSubmission etutor:hasSubmission ?submission;
+                            etutor:hasInstant ?instant;
+                            etutor:isSubmitted ?isSubmitted;
+                            etutor:isSolved ?isSolved;
+                            etutor:hasDispatcherId ?dispatcherId;
+                            etutor:hasTaskType ?taskType.
+
+          	OPTIONAL{
+            	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
+          	}
+        }
+        """;
+
     private static final String QRY_ASK_EXERCISE_SHEET_OPENED = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
@@ -295,11 +373,24 @@ public class StudentService extends AbstractSPARQLEndpointService {
         }
         """;
 
+    private static final String QRY_SELECT_EXERCISE_SHEET_HAS_TO_BE_GENERATED_AT_ONCE = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        SELECT ?isGenerateWhole
+        WHERE {
+                ?sheet etutor:isGenerateWholeExerciseSheet ?isGenerateWhole.
+        }
+        """;
+
+
     private final Logger log = LoggerFactory.getLogger(StudentService.class);
 
     private final UserService userService;
     private final StudentRepository studentRepository;
     private final Random random;
+    private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final UploadFileService uploadFileService;
+    private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
 
     /**
      * Constructor.
@@ -308,10 +399,15 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param studentRepository    the injected student repository
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public StudentService(UserService userService, StudentRepository studentRepository, RDFConnectionFactory rdfConnectionFactory) {
+    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository,
+                          AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
+        , UploadFileService uploadFileService) {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
+        this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.uploadFileService = uploadFileService;
+        this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
 
         random = new Random();
     }
@@ -504,6 +600,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
         exerciseSheetOpenedQry.setIri("?student", studentURL);
         exerciseSheetOpenedQry.setIri("?sheet", exerciseSheetURL);
 
+        ParameterizedSparqlString exerciseSheetGenerateWholeQry = new ParameterizedSparqlString(QRY_SELECT_EXERCISE_SHEET_HAS_TO_BE_GENERATED_AT_ONCE);
+        exerciseSheetGenerateWholeQry.setIri("?sheet", exerciseSheetURL);
+
         try (RDFConnection connection = getConnection()) {
             boolean result = connection.queryAsk(exerciseSheetOpenedQry.asQuery());
 
@@ -522,6 +621,25 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
             studentResource.addProperty(ETutorVocabulary.hasIndividualTaskAssignment, individualTaskAssignmentResource);
             connection.load(model);
+
+            try (QueryExecution execution = connection.query(exerciseSheetGenerateWholeQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    boolean isGenerateWhole = solution.getLiteral("?isGenerateWhole").getBoolean();
+
+                    if (isGenerateWhole) {
+                        try {
+                            assignAllTasks(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, connection);
+                        } catch (AllTasksAlreadyAssignedException e) {
+                            //Ignore, must not happen -> warn
+                            log.warn("When creating all individual assignments of an exercise sheet, no tasks can be individually assigned!", e);
+                        }
+
+                        return;
+                    }
+                }
+            }
 
             try {
                 assignNextTask(courseInstanceUUID, exerciseSheetUUID, matriculationNumber, connection);
@@ -565,7 +683,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
         qry.setIri("?student", studentUri);
 
         try (RDFConnection connection = getConnection()) {
-            connection.load(courseInstanceUri.replace("#", "%23"), model);
+            connection.load(replaceHashtagInGraphUrlIfNeeded(courseInstanceUri), model);
 
             connection.update(qry.asUpdate());
         }
@@ -715,7 +833,35 @@ public class StudentService extends AbstractSPARQLEndpointService {
         alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
         alreadyAssignedTaskQuery.setIri("?student", studentUrl);
 
+        ParameterizedSparqlString isClosedTaskQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?closed
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:isClosed ?closed.
+            }
+            """);
+        isClosedTaskQry.setIri("?instance", courseInstanceId);
+        isClosedTaskQry.setIri("?sheet", sheetId);
+        isClosedTaskQry.setIri("?student", studentUrl);
+
         try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(isClosedTaskQry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal closedLiteral = solution.getLiteral("?closed");
+                    if (closedLiteral != null && closedLiteral.getBoolean()) {
+                        return false;
+                    }
+                }
+            }
+
             try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
                 ResultSet set = execution.execSelect();
                 if (!set.hasNext()) {
@@ -841,7 +987,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString typeAskQuery = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
+            PREFIX etutor-task-assignment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
 
             ASK {
               ?instance a etutor:CourseInstance.
@@ -851,7 +997,9 @@ public class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
                               etutor:refersToTask ?task.
-              ?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.
+              ?task etutor:hasTaskAssignmentType ?type.
+
+              FILTER (?type IN ( etutor-task-assignment-type:UploadTask, etutor-task-assignment-type:DLGTask, etutor-task-assignment-type:XQTask, etutor-task-assignment-type:SQLTask) )
             }
             """);
 
@@ -900,7 +1048,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Return the file id of an assignment.
+     * Return the file id of an individual task.
      *
      * @param courseInstanceUUID the course instance UUID
      * @param exerciseSheetUUID  the exercise sheet UUID
@@ -908,7 +1056,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task no
      * @return {@link Optional} containing the file id
      */
-    public Optional<Integer> getFileIdOfAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer> getFileIdOfIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -957,15 +1105,16 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Sets the submission for an individual task
-     * @param courseInstanceUUID the course instance UUID
-     *      * @param exerciseSheetUUID  the exercise sheet UUID
-     *      * @param matriculationNo    the matriculation no
-     *      * @param taskNo             the task no
-     *      * @param submission         the submission
+     * Handles a submission for an individual task
+     *
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation number
+     * @param taskNo             the task number
+     * @param submission         the submission
      */
-
-    public void setLastSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, String submission){
+    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, DispatcherSubmissionDTO submission, boolean hasBeenSolved) {
+        Objects.requireNonNull(submission);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -974,6 +1123,35 @@ public class StudentService extends AbstractSPARQLEndpointService {
         String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
 
+        ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
+        insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getPassedAttributes().get("submission"));
+        insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
+        insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.getPassedAttributes().get("action").equals("submit"));
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", hasBeenSolved);
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?dispatcherId", submission.getExerciseId());
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?taskType", submission.getTaskType());
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
+        }
+
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getPassedAttributes().get("submission"));
+    }
+
+    /**
+     * Updates the latest submission for an individual task
+     *
+     * @param courseInstanceId the course instance
+     * @param exerciseSheetId  the exercise sheet
+     * @param studentId        the student id
+     * @param taskNo           the task number
+     * @param submission       the submission
+     */
+    public void setLatestSubmissionForIndividualTask(String courseInstanceId, String exerciseSheetId, String studentId, int taskNo, String submission) {
         ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
@@ -1009,14 +1187,70 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Returns the submission for an individual task assignment
+     * Returns all submissions for an individual task
+     *
      * @param courseInstanceUUID the course instance
-     * @param exerciseSheetUUID the exercise sheet
-     * @param matriculationNo the matriculation number
-     * @param taskNo the task number
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation number
+     * @param taskNo             the task number
+     * @return a list containing the submissions
+     */
+    public Optional<List<IndividualTaskSubmissionDTO>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheet", sheetId);
+        query.setIri("?courseInstance", courseInstanceId);
+        query.setLiteral("?orderNo", taskNo);
+
+        List<IndividualTaskSubmissionDTO> submissions = new ArrayList<>();
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+                while (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal submissionLiteral = solution.getLiteral("?submission");
+                    Literal instantLiteral = solution.getLiteral("?instant");
+                    Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
+                    Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+                    Literal taskTypeLiteral = solution.getLiteral("?taskType");
+
+                    submissions.add(new IndividualTaskSubmissionDTO(
+                        instantFromRDFString(instantLiteral.getString()),
+                        submissionLiteral.getString(),
+                        hasBeenSubmittedLiteral.getBoolean(),
+                        hasBeenSolvedLiteral.getBoolean(),
+                        dispatcherIdLiteral.getInt(),
+                        taskTypeLiteral.getString()
+                    ));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if (submissions.isEmpty()) return Optional.empty();
+        return Optional.of(submissions);
+    }
+
+    /**
+     * Returns the latest/current submission for an individual task assignment
+     *
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation number
+     * @param taskNo             the task number
      * @return {@link Optional} containing the submission
      */
-    public Optional<String> getSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<String> getLatestSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1064,15 +1298,15 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Sets the points for an individual task that are assigned by the dispatcher
+     * Sets the points for an individual task
+     *
      * @param courseInstanceUUID the course instance UUID
-     *      * @param exerciseSheetUUID  the exercise sheet UUID
-     *      * @param matriculationNo    the matriculation no
-     *      * @param taskNo             the task no
-     *      * @param points             the points
+     *                           * @param exerciseSheetUUID  the exercise sheet UUID
+     *                           * @param matriculationNo    the matriculation no
+     *                           * @param taskNo             the task no
+     *                           * @param points             the points
      */
-
-    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int points){
+    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1118,13 +1352,14 @@ public class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Returns the points for an individual task assignment
+     *
      * @param courseInstanceUUID the course instance
-     * @param exerciseSheetUUID the exercise sheet
-     * @param matriculationNo the matriculation number
-     * @param taskNo the task number
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation number
+     * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1170,16 +1405,18 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
+
     /**
      * Sets the (highest) chosen diagnose level for an individual task
+     *
      * @param courseInstanceUUID the course instance UUID
-     *      * @param exerciseSheetUUID  the exercise sheet UUID
-     *      * @param matriculationNo    the matriculation no
-     *      * @param taskNo             the task no
-     *      * @param points             the diagnose level
+     *                           * @param exerciseSheetUUID  the exercise sheet UUID
+     *                           * @param matriculationNo    the matriculation no
+     *                           * @param taskNo             the task no
+     *                           * @param points             the diagnose level
      */
 
-    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel){
+    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1223,14 +1460,15 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
-     * Returns the highest chosen diagnose level an individual task assignment
+     * Returns the highest chosen diagnose level of an individual task assignment
+     *
      * @param courseInstanceUUID the course instance
-     * @param exerciseSheetUUID the exercise sheet
-     * @param matriculationNo the matriculation number
-     * @param taskNo the task number
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation number
+     * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo){
+    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1266,7 +1504,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                     QuerySolution solution = set.nextSolution();
                     Literal diagnoseLevelLiteral = solution.getLiteral("?diagnoseLevel");
 
-                    if (diagnoseLevelLiteral== null) {
+                    if (diagnoseLevelLiteral == null) {
                         return Optional.empty();
                     }
                     return Optional.of(diagnoseLevelLiteral.getInt());
@@ -1276,8 +1514,93 @@ public class StudentService extends AbstractSPARQLEndpointService {
             }
         }
     }
-    //region Private methods
 
+    /**
+     * Returns the weighting of the diagnose level and the max points of a task assignment to which an individual task refers to
+     *
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID  the exercise sheet
+     * @param matriculationNo    the matriculation no
+     * @param taskNo             the task no
+     * @return an Optional Double[] containing both values
+     */
+    public Optional<Double[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+                    SELECT ?diagnoseLevelWeighting ?maxPoints ?dispatcherId
+                    WHERE{
+                         ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+
+                         ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
+                                               etutor:fromCourseInstance ?courseInstanceId;
+                                               etutor:hasIndividualTask ?individualTask.
+
+                         ?individualTask etutor:hasOrderNo ?orderNo;
+                                         etutor:refersToTask ?taskAssignment.
+
+                         ?taskAssignment etutor:hasMaxPoints ?maxPoints;
+                                         etutor:hasTaskIdForDispatcher ?dispatcherId.
+
+                         OPTIONAL{
+                            ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
+                         }
+                    }
+            """);
+
+        query.setIri("?courseInstanceId", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?exerciseSheetId", sheetId);
+        query.setLiteral("?orderNo", taskNo);
+
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal diagnoseLevelWeightingLiteral = solution.getLiteral("?diagnoseLevelWeighting");
+                    Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
+
+                    var result = new Double[3];
+                    result[0] = diagnoseLevelWeightingLiteral != null ? diagnoseLevelWeightingLiteral.getDouble() : 0.0;
+                    result[1] = maxPointsLiteral != null ? maxPointsLiteral.getDouble() : 0.0;
+                    result[2] = dispatcherIdLiteral != null ? dispatcherIdLiteral.getDouble() : -1.0;
+                    return Optional.of(result);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the reached goal ids of a student from a given course instance.
+     *
+     * @param courseInstanceUrl   the course instance URL
+     * @param matriculationNumber the student's matriculation number
+     * @return {@link List} containing the reached goals' ids
+     */
+    public @NotNull List<String> getReachedGoalsOfStudentAndCourseInstance(@NotNull String courseInstanceUrl, @NotNull String matriculationNumber) {
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        try (RDFConnection connection = getConnection()) {
+            return getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
+        }
+    }
+
+    //region Private methods
 
     /**
      * Assigns the next available task according to the student's current learning curve.
@@ -1331,6 +1654,300 @@ public class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
+     * Assigns all available tasks according to the student's current learning curve.
+     * Generates a pdf-exercise sheet that can be downloaded by the student (only for no-type tasks, excluding SQL-Tasks etc.)
+     * @param courseInstanceUUID  the course instance uuid
+     * @param exerciseSheetUUID   the exercise sheet uuid
+     * @param matriculationNumber the student's matriculation number
+     * @param connection          the RDF connection to the fuseki instance
+     * @throws AllTasksAlreadyAssignedException if all available tasks are already assigned,
+     *                                          i.e. exercise sheet task count = assigned task count
+     * @throws NoFurtherTasksAvailableException if no further tasks are available for assignment
+     */
+    private void assignAllTasks(String courseInstanceUUID, String exerciseSheetUUID, String
+        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException, NoFurtherTasksAvailableException {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNumber);
+
+        long pdfFileId = -1;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString alreadyAssignedTaskQuery = new ParameterizedSparqlString(QRY_SELECT_TOTAL_AND_ASSIGNED_TASK_COUNT);
+        alreadyAssignedTaskQuery.setIri("?courseInstance", courseInstanceId);
+        alreadyAssignedTaskQuery.setIri("?sheet", sheetId);
+        alreadyAssignedTaskQuery.setIri("?student", studentUrl);
+
+        try (QueryExecution execution = connection.query(alreadyAssignedTaskQuery.asQuery())) {
+            ResultSet set = execution.execSelect();
+            if (!set.hasNext()) {
+                log.warn("Task assignment on an exercise sheet which does not exist!");
+                throw new IllegalStateException("No exercise sheet assigned!");
+            }
+            QuerySolution querySolution = set.nextSolution();
+
+            int taskCount = querySolution.getLiteral("?taskCount").getInt();
+            int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
+
+            if (taskCount == assignedCount) {
+                throw new AllTasksAlreadyAssignedException();
+            }
+            int availableForAssignmentCount = taskCount-assignedCount;
+
+            var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, availableForAssignmentCount);
+
+            var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
+            var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
+
+            if (tasksToAssign != null) {
+                int i = 0;
+                boolean allAssigned = false;
+                for (String taskToAssign : tasksToAssign) {
+                    if (allAssigned) break;
+
+                    insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+
+                    // Adding task to collection for pdf creation
+                    var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
+                    if(taskOpt.isPresent()){
+                        var task = taskOpt.get();
+                        Optional<TaskGroupDTO> taskGroupOpt;
+                        if(task.getTaskGroupId() != null) taskGroupOpt = assignmentSPARQLEndpointService.getTaskGroupByName(task.getTaskGroupId().substring(task.getTaskGroupId().indexOf("#")+1));
+                        else taskGroupOpt = Optional.empty();
+                        if(taskGroupOpt.isPresent()){
+                            var taskGroup = taskGroupOpt.get();
+                            if(taskGroupToTaskListMap.get(taskGroup) != null){
+                                taskGroupToTaskListMap.get(taskGroup).add(task);
+                            }else{
+                                var taskList = new ArrayList<TaskAssignmentDTO>();
+                                taskList.add(task);
+                                taskGroupToTaskListMap.put(taskGroup, taskList);
+                            }
+                        }else{
+                            assignedTasksWithoutGroup.add(task);
+                        }
+                    }
+
+                    i++;
+                    if (i == availableForAssignmentCount) {
+                        allAssigned = true;
+                    }
+                }
+                pdfFileId = generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasksWithoutGroup, taskGroupToTaskListMap);
+            } else {
+                throw new NoFurtherTasksAvailableException();
+            }
+        }
+        if(pdfFileId != -1) setFileForIndividualAssignment(matriculationNumber, courseInstanceUUID, exerciseSheetUUID, pdfFileId);
+    }
+
+    /**
+     * Sets the file id for an individual assignment (an assigned exercise sheet)
+     * @param matriculationNumber the matriculation number
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param fileId the file id to set
+     */
+    private void setFileForIndividualAssignment(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, long fileId) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNumber);
+
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString insertQry = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            DELETE {
+              ?individualAssignment etutor:hasFileAttachmentId ?attachmentId.
+            } INSERT {
+              ?individualAssignment etutor:hasFileAttachmentId ?newAttachmentId.
+            } WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasIndividualTask ?individualTask.
+
+              OPTIONAL {
+                ?individualAssignment etutor:hasFileAttachmentId ?attachmentId.
+              }
+            }
+            """);
+
+        insertQry.setIri("?instance", courseInstanceId);
+        insertQry.setIri("?sheet", sheetId);
+        insertQry.setIri("?student", studentUrl);
+        insertQry.setLiteral("?newAttachmentId", fileId);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQry.asUpdate());
+        }
+    }
+
+    /**
+     * Returns the file id of an individual task assignment (an assigned exercise sheet)
+     * @param matriculationNo the matriculation number
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise-sheet - all required to identify the IndividualTaskAssignment
+     * @return an {@link Optional<Integer>} wrapping the file-id, if found
+     */
+    public Optional<Integer> getFileIdOfIndividualTaskAssignment(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID){
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?attachmentId
+            WHERE {
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+              ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                                    etutor:fromCourseInstance ?instance;
+                                    etutor:hasFileAttachmentId ?attachmentId.
+            }
+            """);
+
+        query.setIri("?instance", courseInstanceId);
+        query.setIri("?student", studentId);
+        query.setIri("?sheet", sheetId);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal attachmentIdLiteral = solution.getLiteral("?attachmentId");
+
+                    if (attachmentIdLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(attachmentIdLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates a pdf exercise sheet.
+     * Uploads the pdf file and returns the file-id.
+     * @param matriculationNo the matriculation number
+     * @param assignedTasks a list of tasks
+     * @return the file id
+     */
+    public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
+        // Replace links
+        String hrefToBeReplaced = "href=\"/";
+        String hrefToReplaceWith = "href=\"https://etutor.dke.uni-linz.ac.at/etutorpp/";
+        assignedTasks.forEach(t -> {
+            if(t.getInstruction() != null) {
+                t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith));
+            }
+        });
+        taskGroupDTOTaskListMap.forEach((key, value) -> {
+            if(key.getDescription() != null){
+                key.setDescription(key.getDescription().replace(hrefToBeReplaced, hrefToReplaceWith));
+            }
+            value.forEach(t -> {
+                if(t.getInstruction() != null){
+                    t.setInstruction(t.getInstruction().replace(hrefToBeReplaced, hrefToReplaceWith));
+                }
+            });
+        });
+
+        // Set locale according to user
+        AtomicReference<Locale> locale = new AtomicReference<>(Locale.ENGLISH);
+        var optionalUser = userService.getUserWithAuthoritiesByLogin(matriculationNo);
+        optionalUser.ifPresent(x -> locale.set(Locale.forLanguageTag(x.getLangKey())));
+
+        //Get Exercise Sheet for PDF-Heading
+        Optional<ExerciseSheetDTO> optionalExerciseSheet = Optional.empty();
+        final String[] sheetName = {""};
+        try {
+            optionalExerciseSheet = exerciseSheetSPARQLEndpointService.getExerciseSheetById(exerciseSheetId);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        //Get number of tasks with task group
+        var numberOfTasksWithGroup = 0;
+        numberOfTasksWithGroup = (int) taskGroupDTOTaskListMap.entrySet().stream().flatMap(e -> e.getValue().stream()).count();
+
+
+        // Initialize Context for template engine
+        Context ct = new Context();
+        ct.setLocale(locale.get());
+        ct.setVariable("tasks", assignedTasks);
+        ct.setVariable("matriculationNumber", matriculationNo);
+        ct.setVariable("tasksWithGroup", taskGroupDTOTaskListMap);
+        ct.setVariable("nTasksWithGroup", numberOfTasksWithGroup);
+        optionalUser.ifPresent(u -> ct.setVariable("studentName", u.getFirstName() + " " +u.getLastName()));
+        optionalExerciseSheet.ifPresent(e -> {
+            sheetName[0] = e.getName();
+            ct.setVariable("exerciseSheetHeader", e.getName());
+        });
+
+        //Initialize Thymeleaf template engine
+        TemplateEngine templateEngine = new SpringTemplateEngine();
+
+        //Initialize and set template-resolver
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("/templates/exercise-sheet/");
+        resolver.setSuffix(".html");
+        resolver.setCharacterEncoding("UTF-8");
+        resolver.setTemplateMode(TemplateMode.HTML); // HTML5 option was deprecated in 3.0.0
+        templateEngine.setTemplateResolver(resolver);
+
+        // Process template to retrieve HTML-String
+        String inputHTML = templateEngine.process("exercise-sheet.html", ct);
+
+        // Parse JSoup document from HTML-String (required for rendering pdf)
+        Document document = Jsoup.parse(inputHTML, "UTF-8");
+        document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
+
+        // Convert Jsoup-Document to PDF
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            // Get base uri for HTML related resources (css, etc) (Running from jar requires different approach, therefore the following if-block)
+            var baseUrl = this.getClass().getResource("/templates/exercise-sheet/");
+            if(baseUrl == null){
+                baseUrl = this.getClass().getClassLoader().getResource("/templates/exercise-sheet/");
+            }
+            String baseUri = baseUrl != null ? baseUrl.toURI().toString() : "/";
+
+            // Initialize and run renderer
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.toStream(outputStream);
+            builder.withW3cDocument(new W3CDom().fromJsoup(document), baseUri);
+            builder.run();
+
+            // Convert PDF-Outputstream to Multipart-File
+            MultipartFile multipartFile = new MultipartFileImpl(outputStream, "pdf");
+
+            // Upload Multipart PDF-file and return file id
+            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, sheetName[0] + "_" + matriculationNo + ".pdf");
+
+        } catch (IOException | StudentNotExistsException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
      * Method which is looking for the best fitting assignment for the current exercise sheet
      * based on the student's current knowledge.
      *
@@ -1356,7 +1973,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 ?courseInstance a etutor:CourseInstance.
                 ?courseInstance etutor:hasCourse ?course.
                 ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
-                ?sheet etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
+                ?sheet etutor:containsLearningGoalAssignment/etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
                 ?sheet etutor:hasExerciseSheetDifficulty/rdf:value ?sheetDifficultyValue.
 
                 ?task a etutor:TaskAssignment.
@@ -1378,7 +1995,7 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 }).
                 FILTER (NOT EXISTS {
                     ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                    ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                    ?individualAssignment etutor:fromExerciseSheet ?anySheet;
                                           etutor:fromCourseInstance ?courseInstance;
                                           etutor:hasIndividualTask ?individualTask.
                     ?individualTask etutor:refersToTask ?task.
@@ -1415,6 +2032,89 @@ public class StudentService extends AbstractSPARQLEndpointService {
                 } else { // taskSheets.size() == 1
                     return taskSheets.get(0);
                 }
+            } else {
+                return null;
+            }
+        }
+    }
+
+
+    /**
+     * Method which is looking for all fitting assignment for the current exercise sheet,
+     * depending on the goals already reached by the student and limiting to the task-count.
+     *
+     * @param courseInstanceUrl the course instance URL
+     * @param exerciseSheetUrl  the exercise sheet URL
+     * @param studentUrl        the student URL
+     * @param connection        the RDF connection to the fuseki instance
+     * @param taskCount         the number of tasks that can be assigned to the exercise sheet
+     * @return resource as string of the the task assignment which should be allocated.
+     */
+    private List<String> getAllTaskAssignmentsForAllocation(@NotNull String courseInstanceUrl, @NotNull String exerciseSheetUrl,
+                                                            @NotNull String studentUrl, @NotNull RDFConnection connection, int taskCount) {
+
+        List<String> reachedGoals = getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
+
+        ParameterizedSparqlString getPossibleAssignmentsQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+
+            SELECT ?task
+            WHERE{
+            SELECT ?goalOfCourse ?task ?distance
+            WHERE {
+              SELECT ?goalOfCourse ?task (COUNT(DISTINCT ?mid) AS ?distance)
+              WHERE {
+                ?courseInstance a etutor:CourseInstance.
+                ?courseInstance etutor:hasCourse ?course.
+                ?course etutor:hasGoal/etutor:hasSubGoal* ?goalOfCourse.
+                ?sheet etutor:containsLearningGoalAssignment/etutor:containsLearningGoal/etutor:hasSubGoal*/etutor:dependsOn* ?goalOfCourse.
+                ?sheet etutor:hasExerciseSheetDifficulty/rdf:value ?sheetDifficultyValue.
+
+                ?task a etutor:TaskAssignment.
+                ?task etutor:hasTaskDifficulty/rdf:value ?taskDifficultyValue.
+
+                ?goalOfCourse (^etutor:hasSubGoal|^etutor:dependsOn)? ?mid.
+                ?mid (^etutor:hasSubGoal|^etutor:dependsOn)* ?endGoal.
+                ?endGoal etutor:hasTaskAssignment ?task.
+
+                FILTER(?goalOfCourse NOT IN (?reachedGoals))
+                FILTER(?taskDifficultyValue <= ?sheetDifficultyValue)
+
+                FILTER (NOT EXISTS {
+                    ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                    ?individualAssignment etutor:fromExerciseSheet ?anySheet;
+                                          etutor:fromCourseInstance ?courseInstance;
+                                          etutor:hasIndividualTask ?individualTask.
+                    ?individualTask etutor:refersToTask ?task.
+                }).
+              }
+              GROUP BY ?goalOfCourse ?task
+            }
+            ORDER BY ?distance
+            }
+            GROUP BY ?task
+            LIMIT ?taskCount
+            """);
+        getPossibleAssignmentsQuery.setIri("?courseInstance", courseInstanceUrl);
+        getPossibleAssignmentsQuery.setIri("?sheet", exerciseSheetUrl);
+        getPossibleAssignmentsQuery.setIri("?student", studentUrl);
+        getPossibleAssignmentsQuery.setLiteral("?taskCount", taskCount);
+        String query = getPossibleAssignmentsQuery.toString();
+        query = query.replace("?reachedGoals", StreamEx.of(reachedGoals).map(x -> String.format("<%s>", x)).joining(", "));
+
+        try (QueryExecution execution = connection.query(query)) {
+            ResultSet set = execution.execSelect();
+            List<String> taskSheets = new ArrayList<>();
+
+            if (set.hasNext()) {
+                do {
+                    QuerySolution solution = set.nextSolution();
+                    taskSheets.add(solution.getResource("?task").getURI());
+                } while (set.hasNext());
+
+                return taskSheets;
             } else {
                 return null;
             }

@@ -1,9 +1,13 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
-  <div class="assignment-points">
-    <fa-icon *ngIf="isSolved()" icon="check"></fa-icon>
+  <div class="assignment-points" *ngIf="showPoints">
+    <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
-  <div>
+  <div *ngIf="showDiagnoseBar && !isBpmnTask">
+    <label class="form-control-label">
+      {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}" placement="right"></fa-icon>
+    </label>
     <select class="form-control" [(ngModel)]="diagnoseLevelText">
       <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
       <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">
@@ -13,19 +17,29 @@
   </div>
   <br />
   <div>
+    <strong
+      ><label>
+        {{ 'dispatcherAssignment.assignment.yourSolution' | translate }}
+        <fa-icon
+          icon="info-circle"
+          ngbTooltip="{{ 'dispatcherAssignment.assignment.editorInfo' | translate }}"
+          placement="right"
+        ></fa-icon> </label
+    ></strong>
+  </div>
+  <div class="editor" style="height: 500px">
+    <ngx-monaco-editor
+      style="height: 100%"
+      [options]="editorOptions"
+      name="submission"
+      id="submission"
+      [(ngModel)]="submission"
+    ></ngx-monaco-editor>
+    <!--    TODO add BPMN Webeditor instead of monaco editor -->
+    <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
+  </div>
+  <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="onSubmit()">
-      <div>
-        <strong><label jhiTranslate="dispatcherAssignment.assignment.yourSolution">Your Solution:></label></strong>
-      </div>
-      <div class="editor" style="height: 500px">
-        <ngx-monaco-editor
-          style="height: 100%"
-          [options]="editorOptions"
-          name="submission"
-          id="submission"
-          [(ngModel)]="submission"
-        ></ngx-monaco-editor>
-      </div>
       <input type="submit" value="Submit" class="btn btn-block" />
     </form>
   </div>
@@ -47,9 +61,14 @@
     </strong>
   </div>
 
-  <div *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.error"></div>
-  <div *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.description"></div>
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.error"></div>
+  <div
+    *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask"
+    [innerHTML]="gradingDto.report.description"
+  ></div>
   <br />
-  <div *ngIf="gradingReceived && hasErrors" [innerHTML]="gradingDto.report.hint"></div>
-  <div *ngIf="gradingReceived" [innerHTML]="gradingDto.result"></div>
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.report.hint"></div>
+  <div *ngIf="gradingReceived && hasErrors && isBpmnTask" [innerHTML]="gradingDto.report.description"></div>
+  <div *ngIf="gradingReceived && (isXQueryTask || isDatalogTask) && !isBpmnTask" [innerHTML]="gradingDto.result | safeHtml"></div>
+  <div *ngIf="gradingReceived && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.result"></div>
 </div>

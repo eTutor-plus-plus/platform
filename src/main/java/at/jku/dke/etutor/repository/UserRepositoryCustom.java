@@ -12,4 +12,11 @@ public interface UserRepositoryCustom {
      * @return the count of removed users
      */
     int removeDeactivatedUsers();
+
+    /**
+     * Removes a user by its login.
+     *
+     * @param login the login
+     */
+    void removeByLogin(String login);
 }

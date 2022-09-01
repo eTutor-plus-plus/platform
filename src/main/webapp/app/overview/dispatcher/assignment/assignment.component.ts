@@ -14,33 +14,103 @@ import { AssignmentService } from 'app/overview/dispatcher/services/assignment.s
   styleUrls: ['./assignment.component.scss'],
 })
 export class AssignmentComponent implements AfterContentChecked {
+  /**
+   * The diagnose levels that can be chosen by the student
+   */
   public diagnoseLevels = [
     'dispatcherAssignment.assignment.diagnoseLevel.none',
     'dispatcherAssignment.assignment.diagnoseLevel.little',
     'dispatcherAssignment.assignment.diagnoseLevel.some',
     'dispatcherAssignment.assignment.diagnoseLevel.much',
   ];
+  /**
+   * The id of the exercise
+   */
   @Input() public exercise_id: string | undefined;
+  /**
+   * The task type {@see TaskAssignmentType}
+   */
   @Input() public task_type: string | undefined;
+  /**
+   * The optional, stored submission
+   */
   @Input() public submission: string | undefined;
+  /**
+   * The highest-diagnose level that has been chosen so far
+   */
   @Input() public highestDiagnoseLevel!: number;
+  /**
+   * The points that have been achieved
+   */
   @Input() public points!: number;
+  /**
+   * The maximum points for this exercise
+   */
   @Input() public maxPoints = '';
+  /**
+   * The weighting of the diagnose level used to calculate the achieved points
+   */
   @Input() public diagnoseLevelWeighting = '';
-
-  @Output() public solutionCorrect: EventEmitter<number> = new EventEmitter<number>();
-  @Output() public submissionAdded: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public diagnoseLevelIncreased: EventEmitter<number> = new EventEmitter<number>();
+  /**
+   * Flag indicating if the points should be displayed
+   */
+  @Input() public showPoints = true;
+  /**
+   * Flag indicating if the diagnose-option should be displayed
+   */
+  @Input() public showDiagnoseBar = true;
+  /**
+   * Flag indicating if the submit-option should be displayed
+   */
+  @Input() public showSubmitButton = true;
+  /**
+   * Output that notifies components if the submission has been sent to the dispatcher and the UUID for the submission has been received
+   */
+  @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
   public diagnoseLevelText = '';
-
+  /**
+   * Indicates if a {@link GradingDTO} grading has been received
+   */
   public gradingReceived = false;
+  /**
+   * Indicates if the submission contained errors according to the grading
+   */
   public hasErrors = true;
+  /**
+   * The {@link GradingDTO} wrapping information about the graded submission
+   */
   public gradingDto!: GradingDTO;
+  /**
+   * The default editor options
+   */
   public editorOptions = { theme: 'vs-dark', language: '' };
 
+  /**
+   * Indicates the task type
+   */
+  public isXQueryTask = false;
+  public isDatalogTask = false;
+  public isBpmnTask = false;
+
+  /**
+   *
+   * @private
+   */
+  /**
+   * The current diagnose level
+   * @private
+   */
   private diagnoseLevel = 0;
+  /**
+   * the {@link SubmissionDTO} wrapping all the information required by the dispatcher for evaluation
+   * @private
+   */
   private submissionDto!: SubmissionDTO;
+  /**
+   * Wraps the ID of the SubmissionDTO, needed to request the grading
+   * @private
+   */
   private submissionIdDto!: SubmissionIdDTO;
   private action!: string;
 
@@ -57,9 +127,17 @@ export class AssignmentComponent implements AfterContentChecked {
   public static mapEditorLanguage(taskType: string): string {
     switch (taskType) {
       case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
-        return 'sql';
+        return 'pgsql';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+        return 'relationalAlgebra';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+        return 'datalog';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+        return 'xquery';
+      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+        return 'bpmn';
       default:
-        return 'sql';
+        return 'pgsql';
     }
   }
   /**
@@ -82,12 +160,26 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Lyfecycle method that sets the language for the editor in accordance to the task type
-   * and the diagnose-level in the dropdown according to the highest chosen diagnose level
+   * Lifecycle method that sets the language for the editor in accordance to the {@link task_type},
+   * and the diagnose-level in the dropdown according to the {@link highestDiagnoseLevel}
    */
   public ngAfterContentChecked(): void {
     if (!this.editorOptions.language && this.task_type) {
-      this.editorOptions = { theme: 'vs-dark', language: AssignmentComponent.mapEditorLanguage(this.task_type) };
+      const lang = AssignmentComponent.mapEditorLanguage(this.task_type);
+      let the = 'vs-dark';
+      if (lang === 'relationalAlgebra') {
+        the = 'relationalAlgebra-light';
+      } else if (lang === 'xquery') {
+        this.isXQueryTask = true;
+        the = 'xquery-light';
+      } else if (lang === 'datalog') {
+        this.isDatalogTask = true;
+        the = 'datalog-light';
+      } else if (lang === 'bpmn') {
+        this.isBpmnTask = true;
+      }
+
+      this.editorOptions = { theme: the, language: lang };
     }
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
       this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
@@ -111,19 +203,11 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Returns whether this assignment has already been solved by the student
-   */
-  public isSolved(): boolean {
-    return this.points !== 0;
-  }
-
-  /**
-   * Creates a SubmissionDTO and uses the assignment service to send it to the dispatcher
+   * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    *
    */
   private processSubmission(): void {
-    this.emitSubmissionEvents();
-
+    this.diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
     const submissionDto = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
@@ -136,24 +220,26 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Requests the grading for the submission identified by this.submissionIdDto from the assignment service
+   * Requests the {@link GradingDTO} for the {@link submissionIdDto} using the {@link assignmentService}
    */
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
+      // eslint-disable-next-line no-console
+      console.log(this.gradingDto);
       this.gradingReceived = true;
 
-      this.hasError();
-      this.emitGrading();
+      this.setHasErrors();
+      this.emitSubmissionEvents();
     });
   }
 
   /**
    * Verifies if the submission has been evaluated as correct by the dispatcher
-   * and sets this.hasErrors accordingly
+   * and sets {@link hasErrors} accordingly
    * @private
    */
-  private hasError(): void {
+  private setHasErrors(): void {
     this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
       ? (this.hasErrors = true)
       : (this.hasErrors = false);
@@ -161,27 +247,22 @@ export class AssignmentComponent implements AfterContentChecked {
 
   /**
    * Emits the events in the course of a submission,
-   * namely adjusting the highest diagnose level if needed and updating the latest submission
+   * namely adjusting the {@link highestDiagnoseLevel} if needed and emitting the submission UUID {@see submissionUUIDReceived}
    * @private
    */
   private emitSubmissionEvents(): void {
-    const diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
-    this.diagnoseLevel = diagnoseLevel;
-    if (diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
-      this.diagnoseLevelIncreased.emit(diagnoseLevel);
-      this.highestDiagnoseLevel = diagnoseLevel;
+    if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
+      this.highestDiagnoseLevel = this.diagnoseLevel;
     }
-    this.submissionAdded.emit(this.submission);
-  }
 
-  /**
-   * Emits the points if the assignment has been submitted and solved but not previously solved
-   * @private
-   */
-  private emitGrading(): void {
-    if (!this.isSolved() && !this.hasErrors && this.action === 'submit') {
-      const grading = this.caluclatePoints();
-      this.solutionCorrect.emit(grading);
+    if (this.submissionIdDto.submissionId) {
+      !this.submissionIdDto.isBpmnTask
+        ? this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId)
+        : this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId + '#BpmnTask');
+    }
+
+    if (this.points === 0 && !this.hasErrors && this.action === 'submit') {
+      const grading = this.calculatePoints();
       this.points = grading;
     }
   }
@@ -191,15 +272,16 @@ export class AssignmentComponent implements AfterContentChecked {
    * the highest chosen diagnose level and the weighting of the diagnose level.
    * @private
    */
-  private caluclatePoints(): number {
-    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * parseInt(this.diagnoseLevelWeighting, 10);
+  private calculatePoints(): number {
+    const weighting = this.diagnoseLevelWeighting ? parseInt(this.diagnoseLevelWeighting, 10) : 0;
+    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * weighting;
     if (points > 1) {
       return points;
     }
     return 1;
   }
   /**
-   * Initializes the SubmissionDTO as required by the dispatcher
+   * Initializes the {@link SubmissionDTO} as required by the dispatcher
    * @private
    */
   private initializeSubmissionDTO(): SubmissionDTO {
@@ -226,7 +308,7 @@ export class AssignmentComponent implements AfterContentChecked {
   }
 
   /**
-   * Maps the diagnose level text to its number representation
+   * Maps the diagnose level text to its numeric representation
    * @param text
    * @private
    */

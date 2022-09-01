@@ -1,0 +1,82 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      {{ 'lecturerOverview.gradingWindow.modalHeader' | translate: { student: lecturerStudentInfoModel.matriculationNo } }}
+    </h4>
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <h5>
+      Aufgabe
+      {{
+        'lecturerOverview.gradingWindow.windowHeader'
+          | translate
+            : {
+                currTask: selectedGradingInfo?.orderNo,
+                taskCount: availableGradingInfos.length,
+                student: lecturerStudentInfoModel.matriculationNo
+              }
+      }}
+    </h5>
+
+    <div class="form-group">
+      <label for="assignmentText" jhiTranslate="lecturerOverview.gradingWindow.form.task">Task:</label>
+      <input readonly type="text" value="{{ selectedGradingInfo?.taskTitle }}" id="assignmentText" class="form-control" />
+    </div>
+    <div class="form-group" *ngIf="currentFile >= 0">
+      <h5>Abgabe:</h5>
+      <jhi-file-download [fileId]="currentFile"> </jhi-file-download>
+    </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="completedChb"
+        [checked]="selectedGradingInfo?.completed"
+        (change)="selectedGradingInfo!.completed = !selectedGradingInfo!.completed"
+      />
+      <label class="form-check-label" for="completedChb" jhiTranslate="lecturerOverview.gradingWindow.form.goalReached">
+        Has the task's learning goal already been reached?
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="gradedChb" [checked]="selectedGradingInfo?.graded" disabled />
+      <label class="form-check-label" for="gradedChb" jhiTranslate="lecturerOverview.gradingWindow.form.taskGraded">
+        Has this task already been graded?
+      </label>
+    </div>
+
+    <br />
+    <button *ngIf="isDispatcherTask()" class="btn btn-secondary" (click)="openSubmissions()">See submissions</button>
+    <button
+      class="btn btn-primary"
+      (click)="saveCurrentAssessment()"
+      [disabled]="!selectedGradingInfo || isSaving || !selectedGradingInfo?.submitted"
+    >
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+      <span jhiTranslate="lecturerOverview.gradingWindow.form.saveEvaluation">Save evaluation</span>
+    </button>
+
+    <br />
+    <div class="d-flex justify-content-between">
+      <div>
+        <button class="btn" [disabled]="!isPreviousGradingInfoAvailable()" (click)="selectPreviousGradingInfo()">
+          <fa-icon icon="angle-left"></fa-icon>
+        </button>
+      </div>
+      <div>
+        <button class="btn" [disabled]="!isNextGradingInfoAvailable()" (click)="selectNextGradingInfo()">
+          <fa-icon icon="angle-right"></fa-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="lecturerOverview.footerClose">Close</span>
+    </button>
+  </div>
+</div>

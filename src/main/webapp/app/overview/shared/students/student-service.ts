@@ -10,6 +10,8 @@ import {
   IStudentTaskListInfoDTO,
 } from './students.model';
 import { map } from 'rxjs/operators';
+import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
+import { SubmissionEvent } from '../../dispatcher/entities/SubmissionEvent';
 
 /**
  * Service for managing students.
@@ -75,6 +77,16 @@ export class StudentService {
   }
 
   /**
+   * Returns the reached goals of the student for a course instance
+   * @param courseInstanceId
+   */
+  public getReachedGoalsOfCourseInstance(courseInstanceId: string): Observable<HttpResponse<string[]>> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<string[]>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/goals/reached`, { observe: 'response' });
+  }
+
+  /**
    * Marks the given task as submitted.
    *
    * @param courseInstanceId the course instance id
@@ -85,7 +97,7 @@ export class StudentService {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.post(
-      `${SERVER_API_URL}/api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submit`,
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submit`,
       null
     );
   }
@@ -101,7 +113,7 @@ export class StudentService {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.get<boolean>(
-      `${SERVER_API_URL}/api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submitted`
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submitted`
     );
   }
 
@@ -195,6 +207,18 @@ export class StudentService {
   }
 
   /**
+   * Returns the file attachment id for an assigned exercise sheet.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   */
+  public getFileAttachmentIdForExerciseSheet(courseInstanceId: string, exerciseSheetUUID: string): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/file-attachment`);
+  }
+
+  /**
    * Sets the submitted solution for the task
    * @param courseInstanceId the course instance
    * @param exerciseSheetUUID the exercise sheet
@@ -205,7 +229,7 @@ export class StudentService {
     courseInstanceId: string,
     exerciseSheetUUID: string,
     taskNo: number,
-    submission: string
+    submission: SubmissionEvent
   ): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
@@ -215,6 +239,12 @@ export class StudentService {
     );
   }
 
+  /**
+   * Returns the latest submission for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
   public getSubmissionForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
@@ -222,6 +252,26 @@ export class StudentService {
       responseType: 'text' as 'json',
     });
   }
+
+  /**
+   * Returns all submissions for a given assignment/individual task
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   */
+  public getAllSubmissionsForAssignment(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: string,
+    matriculationNo: string
+  ): Observable<TaskSubmissionsModel[]> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<TaskSubmissionsModel[]>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/student/${matriculationNo}/submissions`
+    );
+  }
+
   /**
    * Sets the points assigned by the dispatcher.
    *
@@ -237,6 +287,24 @@ export class StudentService {
       `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${points}`,
       undefined
     );
+  }
+
+  public handleDispatcherUUID(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    dispatcherUUID: string
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    let url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`;
+
+    if (dispatcherUUID.includes('#BpmnTask')) {
+      dispatcherUUID.replace('#BpmnTask', '');
+      url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/bpmn/${dispatcherUUID}`;
+    }
+
+    return this.http.put(url, undefined);
   }
 
   /**

@@ -47,6 +47,10 @@ export interface INewTaskModel {
    */
   taskDifficultyId: string;
   /**
+   * The optional id of an uploaded file representing the solution or addition information for students
+   */
+  uploadFileId?: number;
+  /**
    * The optional  task id for the dispatcher.
    */
   taskIdForDispatcher?: string;
@@ -55,9 +59,29 @@ export interface INewTaskModel {
    */
   diagnoseLevelWeighting?: string;
   /**
-   * Optional solution for an SQL-Exercise
+   * Optional solution for a SQL-assignment
    */
   sqlSolution?: string;
+  /**
+   * Optional solution for a XQuery-assignment
+   */
+  xQuerySolution?: string;
+  /**
+   * Optional XPath-expression defining the sorting of an XQuery-assignment
+   */
+  xQueryXPathSorting?: string;
+  /**
+   * Optional solution for a datalog task
+   */
+  datalogSolution?: string;
+  /**
+   * Optional query for a datalog task
+   */
+  datalogQuery?: string;
+  /**
+   * Optional unchecked terms for a datalog task
+   */
+  datalogUncheckedTerms?: string;
   /**
    * Optional max points
    */
@@ -86,6 +110,10 @@ export interface INewTaskModel {
    * The optional task group id.
    */
   taskGroupId?: string;
+  /**
+   * The optional Bpmn Testconfig
+   */
+  bpmnTestConfig?: string;
 }
 
 /**
@@ -134,7 +162,34 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.sqlTask'
   );
 
-  public static readonly Values = [TaskAssignmentType.NoType, TaskAssignmentType.UploadTask, TaskAssignmentType.SQLTask];
+  public static readonly RATask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask',
+    'taskManagement.taskTypes.raTask'
+  );
+
+  public static readonly XQueryTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
+    'taskManagement.taskTypes.xqTask'
+  );
+
+  public static readonly DatalogTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask',
+    'taskManagement.taskTypes.dlgTask'
+  );
+  public static readonly BpmnTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask',
+    'taskManagement.taskTypes.bpmnTask'
+  );
+
+  public static readonly Values = [
+    TaskAssignmentType.NoType,
+    TaskAssignmentType.UploadTask,
+    TaskAssignmentType.SQLTask,
+    TaskAssignmentType.RATask,
+    TaskAssignmentType.XQueryTask,
+    TaskAssignmentType.DatalogTask,
+    TaskAssignmentType.BpmnTask,
+  ];
 
   private readonly _value: string;
   private readonly _text: string;

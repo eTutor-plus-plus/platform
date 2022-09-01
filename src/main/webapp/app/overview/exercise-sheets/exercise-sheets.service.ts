@@ -4,6 +4,7 @@ import { IExerciseSheetDisplayDTO, IExerciseSheetDTO, INewExerciseSheetDTO } fro
 import { Observable } from 'rxjs';
 import { Pagination } from 'app/core/request/request.model';
 import { createRequestOption } from 'app/core/request/request-util';
+import { SERVER_API_URL } from '../../app.constants';
 
 type ExerciseSheetResult = HttpResponse<IExerciseSheetDTO>;
 type ExerciseSheetDisplayArrayResult = HttpResponse<IExerciseSheetDisplayDTO[]>;
@@ -28,7 +29,7 @@ export class ExerciseSheetsService {
    * @param newExerciseSheet the exercise sheet to insert
    */
   public insertExerciseSheet(newExerciseSheet: INewExerciseSheetDTO): Observable<ExerciseSheetResult> {
-    return this.http.post<IExerciseSheetDTO>('/api/exercise-sheet', newExerciseSheet, { observe: 'response' });
+    return this.http.post<IExerciseSheetDTO>(`${SERVER_API_URL}api/exercise-sheet`, newExerciseSheet, { observe: 'response' });
   }
 
   /**
@@ -39,7 +40,7 @@ export class ExerciseSheetsService {
    */
   public getExerciseSheetPage(page: Pagination, nameFilter?: string): Observable<ExerciseSheetDisplayArrayResult> {
     const options = createRequestOption(page);
-    let url = '/api/exercise-sheet/display/sliced';
+    let url = `${SERVER_API_URL}api/exercise-sheet/display/sliced`;
 
     if (nameFilter && nameFilter.trim().length > 0) {
       url += `?name=${nameFilter.trim()}`;
@@ -56,7 +57,7 @@ export class ExerciseSheetsService {
    */
   public getPagedExerciseSheetPage(page: Pagination, nameFilter?: string): Observable<ExerciseSheetDisplayArrayResult> {
     const options = createRequestOption(page);
-    let url = '/api/exercise-sheet/display/paged';
+    let url = `${SERVER_API_URL}api/exercise-sheet/display/paged`;
 
     if (nameFilter && nameFilter.trim().length > 0) {
       url += `?name=${nameFilter.trim()}`;
@@ -80,7 +81,7 @@ export class ExerciseSheetsService {
       internalId = exerciseSheetId;
     }
 
-    return this.http.get<IExerciseSheetDTO>(`/api/exercise-sheet/${internalId}`, { observe: 'response' });
+    return this.http.get<IExerciseSheetDTO>(`${SERVER_API_URL}api/exercise-sheet/${internalId}`, { observe: 'response' });
   }
 
   /**
@@ -90,7 +91,7 @@ export class ExerciseSheetsService {
    */
   public deleteExerciseSheetById(exerciseSheetId: string): Observable<HttpResponse<any>> {
     const internalId = exerciseSheetId.substring(exerciseSheetId.lastIndexOf('#') + 1);
-    return this.http.delete(`/api/exercise-sheet/${internalId}`, { observe: 'response' });
+    return this.http.delete(`${SERVER_API_URL}api/exercise-sheet/${internalId}`, { observe: 'response' });
   }
 
   /**
@@ -99,6 +100,6 @@ export class ExerciseSheetsService {
    * @param exerciseSheet the exercise sheet to update
    */
   public updateExerciseSheet(exerciseSheet: IExerciseSheetDTO): Observable<HttpResponse<any>> {
-    return this.http.put('/api/exercise-sheet', exerciseSheet, { observe: 'response' });
+    return this.http.put(`${SERVER_API_URL}api/exercise-sheet`, exerciseSheet, { observe: 'response' });
   }
 }

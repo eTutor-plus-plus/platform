@@ -138,6 +138,7 @@ public class LearningGoalResource {
      * @return {@link ResponseEntity} with no content
      */
     @PutMapping("/learninggoals/{owner}/{goalName}/dependencies")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> setDependencies(@PathVariable String owner, @PathVariable String goalName, @RequestBody JSONArray goalIds) {
         sparqlEndpointService.setDependencies(owner, goalName, StreamEx.of(goalIds).map(String.class::cast).toList());
 
@@ -184,6 +185,7 @@ public class LearningGoalResource {
      *                                                                              already exist
      */
     @PostMapping("/learninggoals/{owner}/{parentGoalName}/subGoal")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<LearningGoalDTO> createSubGoal(
         @Valid @RequestBody NewLearningGoalDTO newLearningGoalDTO,
         @PathVariable("owner") String owner,
@@ -214,6 +216,45 @@ public class LearningGoalResource {
         }
     }
 
+    @PostMapping("/learninggoals/{parentGoalOwner}/parentGoal/{parentGoalName}/{subGoalOwner}/subGoal/{subGoalName}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> addSubGoal(
+        @PathVariable("subGoalName") String subGoalName,
+        @PathVariable("parentGoalOwner") String parentGoalOwner,
+        @PathVariable("parentGoalName") String parentGoalName,
+        @PathVariable("subGoalOwner") String subGoalOwner
+
+    ) {
+        log.debug("REST request to add a sub goal: {} for parent: {}", subGoalName, parentGoalName);
+
+        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!StringUtils.equals(subGoalOwner, currentLogin) || !StringUtils.equals(parentGoalOwner, subGoalOwner)) {
+        throw new BadRequestAlertException(
+            "Only the creator is allowed to edit the learning goal!",
+            "learningGoalManagement",
+            "learningGoalNotOwner"
+        );
+        }else if (parentGoalName.trim().equals(subGoalName.trim())){
+            throw new BadRequestAlertException(
+                "Parent-goal and sub-goal must not be equal!",
+                "learningGoalManagement",
+                "goalsNotEqual"
+            );
+        }
+
+
+        try {
+            sparqlEndpointService.insertExistingGoalAsSubgoal(subGoalOwner, subGoalName, parentGoalName);
+
+           return ResponseEntity.ok().build();
+
+        } catch (LearningGoalNotExistsException e) {
+            throw new LearningGoalNotFoundException();
+        } catch(IllegalArgumentException e){
+            throw new BadRequestAlertException("Cannot construct cyclic sub-goal relation!", "learningGoalManagement", "cyclicSubGoalRelation");
+        }
+    }
     /**
      * {@code GET /learninggoals}
      *

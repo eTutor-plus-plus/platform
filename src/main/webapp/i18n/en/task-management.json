@@ -6,6 +6,17 @@
     "noItems": "There are no items existent!",
     "difficultyPlaceholder": "Select difficulty",
     "taskTypePlaceholder": "Select task type",
+    "diagnoseLevelWeightingInfo": "The weighting will be multiplied by the highest diagnose level the student has chosen and substracted from the max-points to calculate the achieved points.",
+    "dispatcherIdInfo": "If you want to reference an existing exercise, enter the id here. Otherwise choose a task-group below and leave this field blank",
+    "datalogQueryInfo": "If you want to consider more than one query for evaluation, seperate them by a semicolon e.g: hasSon(X,Y)? ; hasDaughter(X,Y)?",
+    "datalogUncheckedTermInfo": "In order to exclude certain terms contained in the facts from manipulation in the course of the submit mode, declare them here again. For higher arity predicates define the terms that should not be excluded from manipulation with underscores e.g: 'hasSon(peter, _).' (To exclude only the term 'peter' from manipulation, if it occurs at position 1 in the predicate 'hasSon')",
+    "datalogFactsInfo": "Facts have to be defined for a task group. The facts will be manipulated if a submission is evaluated in submit-mode. You can exclude certain terms from manipulation in the field 'Datalog unchecked terms', if they are required for the rules",
+    "datalogSolutionInfo": "Here the rules that represent the solution can be defined. Do not define queries in this field. ",
+    "trySolutionInfo": "You can test the evaluation of the entered solution after initially saving the task by clicking the button 'Try' below",
+    "sqlStatementsInfo": "Statements can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
+    "xqueryXMLInfo": "XMLs can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
+    "xqFileUrlInfo": "The file URL can be used in the doc() function of the query to reference the corresponding XML-Files",
+    "fileUploadInfo": "The uploaded file can be downloaded by students who working on the task",
     "difficulties": {
       "easy": "Easy",
       "medium": "Medium",
@@ -15,7 +26,10 @@
     "taskTypes": {
       "noType": "No type",
       "uploadTask": "Upload task",
-      "sqlTask": "SQL Task"
+      "sqlTask": "SQL Task",
+      "raTask": "Relational algebra task",
+      "xqTask": "XQuery task",
+      "dlgTask": "Datalog task"
     },
     "fields": {
       "header": "Header:",
@@ -25,7 +39,7 @@
       "taskDifficulty": "Task difficulty:",
       "taskIdForDispatcher": "Dispatcher: Exercise ID Reference",
       "sqlSchema": "SQL: schema:",
-      "sqlCreateStatements": "SQL: Create-Cable-Statements:",
+      "sqlCreateStatements": "SQL: Create-Table-Statements:",
       "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Solution:",
@@ -36,7 +50,16 @@
       "instruction": "Task instruction:",
       "taskType": "Task type:",
       "taskGroup": "Task group:",
-      "taskGroupPlaceHolder": "--No group selected--"
+      "taskGroupPlaceHolder": "--No group selected--",
+      "xQueryDiagnoseXML": "XQuery- XML (diagnose)",
+      "xQuerySubmissionXML": "XQuery- XML (submit)",
+      "xQuerySorting": "XQuery- XPath (sorting):",
+      "xQuerySolution": "XQuery solution",
+      "xQueryFileURL": "XQuery- file url:",
+      "datalogSolution": "Datalog solution:",
+      "datalogQuery": "Datalog query:",
+      "datalogFacts": "Datalog facts:",
+      "datalogUncheckedTerms": "Datalog unchecked terms"
     },
     "error": {
       "required": "This field is required!",
@@ -71,17 +94,27 @@
       "manage": "Manage task groups",
       "groupTypePlaceholder": "Typ auswählen",
       "update": {
+        "sqlNameInfo": "Name of SQL task group is used as schema-name and must begin with a letter (a-zA-Z), but also letters with diacritical marks and non-Latin letters) or an underscore (_). Subsequent characters in an identifier or key word can be letters, underscores, digits (0-9), or dollar signs ($). Spaces are allowed",
         "newHeader": "Create new task group",
         "editHeader": "Edit task group '{{name}}'",
         "nameField": "Name:",
         "sqlCreateStatements": "SQL: Create-Table-Statements",
+        "sqlCreateStatementsInfo": "Enter the DDL for the task-group here. Links to the tables will be added to the description automatically when creating the group for the first time.",
         "sqlInsertIntoStatementsSubmission": "SQL: Insert-Into-Statements (Submission)",
         "sqlInsertIntoStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose)",
+        "sqlInsertIntoStatementsSubmissionInfo": "Queries that are submitted by the student will be evaluated against this data",
+        "diagnoseXML": "XQuery: XML for diagnose- evaluation",
+        "diagnoseXMLInfo": "Link to the XML will be added to the description automatically.",
+        "submissionXML": "XQuery: XML for submit- evaluation",
+        "datalogFacts": "Datalog: Facts",
+        "datalogFactsInfo": "Link to the facts will be added to the description automatically.",
         "descriptionField": "Description:",
         "taskGroupType": "Type:",
         "types": {
           "noType": "No Type",
-          "sqlType": "SQL Group"
+          "sqlType": "SQL Group",
+          "xQueryType": "XQuery Group",
+          "datalogType": "Datalog Group"
         }
       }
     }

@@ -9,6 +9,11 @@
   color: red;
 }
 
+.assignment-component {
+  width: 85%;
+  margin: 0 auto;
+}
+
 @media screen and (min-width: 768px) {
   .row-md.task-details > {
     dt {

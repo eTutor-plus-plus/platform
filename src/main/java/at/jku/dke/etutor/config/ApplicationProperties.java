@@ -13,6 +13,10 @@ public class ApplicationProperties {
 
     private final Fuseki fuseki = new Fuseki();
     private final CmdRunnerConfig cmd_runner = new CmdRunnerConfig();
+    private final Dispatcher dispatcher = new Dispatcher();
+
+    private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
+
     /**
      * Getter for the field <code>fuseki</code>
      *
@@ -24,6 +28,24 @@ public class ApplicationProperties {
 
     public CmdRunnerConfig getCmd_runner() {
         return cmd_runner;
+    }
+
+    /**
+     * Getter for the field <code>dispatcher</code>
+     *
+     * @return a {@link ApplicationProperties.Dispatcher} object
+     */
+    public Dispatcher getDispatcher() {
+        return dispatcher;
+    }
+
+    /**
+     * Getter for the field <code>dispatcher</code>
+     *
+     * @return a {@link ApplicationProperties.Dispatcher} object
+     */
+    public BpmnDispatcher getBpmnDispatcher() {
+        return bpmnDispatcher;
     }
 
     /**
@@ -81,10 +103,29 @@ public class ApplicationProperties {
             this.etutor_pw = etutor_pw;
         }
 
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class Dispatcher{
+        private String url = "http://localhost:8081";
+        private String xqueryXmlFileUrlPrefix;
+        private String sqlTableUrlPrefix;
+        private String datalogFactsUrlPrefix;
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
         public String getUrl() {
             return url;
         }
 
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
         public void setUrl(String url) {
             this.url = url;
         }
@@ -151,6 +192,52 @@ public class ApplicationProperties {
 
         public void setTask_assignment_type(String task_assignment_type) {
             this.task_assignment_type = task_assignment_type;
+        public String getXqueryXmlFileUrlPrefix() {
+            return xqueryXmlFileUrlPrefix;
+        }
+
+        public void setXqueryXmlFileUrlPrefix(String xqueryXmlFileUrlPrefix) {
+            this.xqueryXmlFileUrlPrefix = xqueryXmlFileUrlPrefix;
+        }
+
+        public String getSqlTableUrlPrefix() {
+            return sqlTableUrlPrefix;
+        }
+
+        public void setSqlTableUrlPrefix(String sqlTableUrlPrefix) {
+            this.sqlTableUrlPrefix = sqlTableUrlPrefix;
+        }
+
+        public String getDatalogFactsUrlPrefix() {
+            return datalogFactsUrlPrefix;
+        }
+
+        public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
+            this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
+        }
+    }
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class BpmnDispatcher {
+        private String url = "http://localhost:8084";
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

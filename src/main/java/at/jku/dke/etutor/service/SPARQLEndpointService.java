@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.*;
 import at.jku.dke.etutor.service.exception.*;
+import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -19,6 +20,7 @@ import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.tags.Param;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +37,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
+public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String SCHEME_PATH = "/rdf/scheme.ttl";
 
@@ -149,6 +151,15 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
               OPTIONAL {
                 ?parent etutor:hasSubGoal ?goal.
               }
+            }
+            """;
+
+    private final String ASK_IS_SUBGOAL_TRANS =
+            """
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            ASK {
+              %s etutor:hasSubGoal* %s.
             }
             """;
     //endregion
@@ -393,6 +404,63 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         }
     }
 
+
+    /**
+     * Adds an existing goal as sub-goal of another existing goal
+     * @param subGoalName the name of the sub-goal
+     * @param parentGoalName the name of the parent-goal
+     * @throws LearningGoalNotExistsException     if one of the goals could not be found
+     */
+    public void insertExistingGoalAsSubgoal(String owner, String subGoalName, String parentGoalName) throws LearningGoalNotExistsException, IllegalArgumentException {
+        Model model = ModelFactory.createDefaultModel();
+
+        try (RDFConnection conn = getConnection()) {
+            String escapedParentGoalName = URLEncoder.encode(parentGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
+            String escapedSubGoalName = URLEncoder.encode(subGoalName.replace(' ', '_'), StandardCharsets.UTF_8);
+
+
+            Boolean superGoalPrivate = isLearningGoalPrivate(conn, owner, escapedParentGoalName);
+            Boolean subGoalPrivate = isLearningGoalPrivate(conn, owner, escapedSubGoalName);
+
+            if (superGoalPrivate == null || subGoalPrivate == null) {
+                throw new LearningGoalNotExistsException();
+            }
+            String parentGoalURL = ETutorVocabulary.createGoalUrl(owner, escapedParentGoalName);
+            String parentGoalIRI = "<" + parentGoalURL + ">";
+            String subGoalURL = ETutorVocabulary.createGoalUrl(owner, escapedSubGoalName);
+            String subGoalIRI = "<" + subGoalURL + ">";
+
+            String query = String.format(ASK_IS_SUBGOAL_TRANS, subGoalIRI, parentGoalIRI);
+            if(!conn.queryAsk(query)){
+                ParameterizedSparqlString updateQry = new ParameterizedSparqlString(
+                    """
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+                        DELETE {
+                          ?goal etutor:hasSubGoal ?subGoal .
+                        }
+                        WHERE{
+                          ?goal a etutor:Goal.
+                          OPTIONAL {
+                            ?goal etutor:hasSubGoal ?subGoal .
+                          }
+                        }
+                        """
+                );
+                updateQry.setIri("?subGoal", subGoalURL);
+                conn.update(updateQry.asUpdate());
+
+                Resource parentGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedParentGoalName, model);
+                Resource subGoalResource = ETutorVocabulary.createUserGoalResourceOfModel(owner, escapedSubGoalName, model);
+
+                parentGoalResource.addProperty(ETutorVocabulary.hasSubGoal, subGoalResource);
+
+                conn.load(model);
+            }else{
+                throw new IllegalArgumentException();
+            }
+        }
+    }
     /**
      * Returns all learning goals which are visible for the given owner.
      *
@@ -449,48 +517,87 @@ public class SPARQLEndpointService extends AbstractSPARQLEndpointService {
         } else {
             queryStr =
                 """
-                    PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-                    CONSTRUCT {
-                      ?subject ?predicate ?object.
-                      ?subject etutor:hasReferenceCnt ?cnt.
-                      ?subject etutor:hasRoot ?root
-                    } WHERE {
-                      {
-                        ?subject ?predicate ?object.
-                        ?subject a etutor:Goal.
-                        ?subject rdfs:label ?lbl
-                        {
-                          ?subject etutor:isPrivate false.
-                        }
-                        UNION
-                        {
-                          ?subject etutor:isPrivate true.
-                          ?subject etutor:hasOwner ?currentUser.
-                        }
-                      } UNION {
-                        BIND(rdf:type AS ?predicate)
-                        BIND(etutor:SubGoal AS ?object)
-                        ?goal etutor:hasSubGoal ?subject .
-                      } {
-                        SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
-                          ?subject a etutor:Goal.
-                          OPTIONAL { ?course etutor:hasGoal ?subject }
-                        }
-                        GROUP BY ?subject
-                      } {
-                        SELECT ?subject ?root WHERE {
-                          ?root etutor:hasSubGoal* ?subject.
-                          FILTER (
-                            !EXISTS {
-                              ?otherGoal etutor:hasSubGoal ?root.
+                        CONSTRUCT {
+                          ?subject ?predicate ?object.
+                          ?subject etutor:hasReferenceCnt ?cnt.
+                          ?subject etutor:hasRoot ?root.
+                          ?subject etutor:hasSubGoal ?subGoalFromSubject.
+                        } WHERE {
+                          {
+                            ?subject a etutor:Goal.
+                            ?subject ?predicate ?object.
+                            ?subject !etutor:hasSubGoal ?object.
+                            ?subject rdfs:label ?lbl
+                            {
+                              ?subject etutor:isPrivate false.
                             }
-                          )
+                            UNION
+                            {
+                              ?subject etutor:isPrivate true.
+                              ?subject etutor:hasOwner ?currentUser.
+                            }
+                            OPTIONAL {
+                              ?subject etutor:hasSubGoal ?subGoalFromSubject.
+                              {
+                                ?subGoalFromSubject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subGoalFromSubject etutor:isPrivate true.
+                                ?subGoalFromSubject etutor:hasOwner ?currentUser.
+                              }
+                            }
+                          } UNION {
+                            BIND(rdf:type AS ?predicate)
+                            BIND(etutor:SubGoal AS ?object)
+                            ?goal etutor:hasSubGoal ?subject .
+                            {
+                              ?subject etutor:isPrivate false.
+                            }
+                            UNION
+                            {
+                              ?subject etutor:isPrivate true.
+                              ?subject etutor:hasOwner "admin".
+                            }
+                          } {
+                            SELECT (COUNT(?course) as ?cnt) ?subject WHERE {
+                              ?subject a etutor:Goal.
+                              {
+                              	?subject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subject etutor:isPrivate true.
+                                ?subject etutor:hasOwner ?currentUser.
+                              }
+                              OPTIONAL { ?course etutor:hasGoal ?subject }
+                            }
+                            GROUP BY ?subject
+                          } {
+                            SELECT ?subject ?root WHERE {
+                              ?root etutor:hasSubGoal* ?subject.
+                              {
+                                ?subject etutor:isPrivate false.
+                              }
+                              UNION
+                              {
+                                ?subject etutor:isPrivate true.
+                                ?subject etutor:hasOwner ?currentUser.
+                              }
+                              FILTER (
+                                !EXISTS {
+                                  ?otherGoal etutor:hasSubGoal ?root.
+                                }
+                              )
+                            }
+                          }
                         }
-                      }
-                    }
+
+
                     """;
         }
 

@@ -1,11 +1,13 @@
 package at.jku.dke.etutor.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.PriorityOrdered;
+import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
@@ -54,10 +56,10 @@ public class MvcConfigurationPostProcessor implements BeanPostProcessor, Priorit
      * @see InitializingBean#afterPropertiesSet
      */
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    @Nullable
+    public Object postProcessBeforeInitialization(@NotNull Object bean, @NotNull String beanName) throws BeansException {
         if (bean instanceof RequestMappingHandlerMapping requestMappingHandlerMapping) {
 
-            requestMappingHandlerMapping.setUseSuffixPatternMatch(false);
             requestMappingHandlerMapping.setUseTrailingSlashMatch(true);
 
             // URL decode after request mapping, not before.
@@ -92,7 +94,8 @@ public class MvcConfigurationPostProcessor implements BeanPostProcessor, Priorit
      * @see FactoryBean
      */
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    @Nullable
+    public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName) throws BeansException {
         return bean;
     }
 }

@@ -26,6 +26,23 @@ export interface INewTaskGroupDTO {
    * Optional insert-into-statements for an SQL-Task Group for diagnose
    */
   sqlInsertStatementsDiagnose?: string;
+  /**
+   * Optional XML document for an XQuery task group(diagnose-version)
+   */
+  xQueryDiagnoseXML?: string;
+  /**
+   * Optional XML document for an XQuery task group(submit-version)
+   */
+  xQuerySubmissionXML?: string;
+  /**
+   * Optional facts for a Datalog task group
+   */
+  datalogFacts?: string;
+
+  /**
+   * Optional file url for a task group
+   */
+  fileUrl?: string;
 }
 
 /**
@@ -74,7 +91,17 @@ export class TaskGroupType {
     'taskManagement.taskGroup.update.types.sqlType'
   );
 
-  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType];
+  public static readonly XQueryType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#XQueryType',
+    'taskManagement.taskGroup.update.types.xQueryType'
+  );
+
+  public static readonly DatalogType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#DatalogType',
+    'taskManagement.taskGroup.update.types.datalogType'
+  );
+
+  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType, TaskGroupType.DatalogType];
 
   private readonly _value: string;
   private readonly _text: string;

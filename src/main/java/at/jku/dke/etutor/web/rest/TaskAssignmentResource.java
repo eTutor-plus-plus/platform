@@ -8,8 +8,12 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
+import at.jku.dke.etutor.service.exception.MissingParameterException;
+import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
+import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -37,14 +41,18 @@ import java.util.SortedSet;
 public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment sparql endoinpoint service
+     * @param dispatcherProxyService  the injected dispatcher proxy service
      */
-    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
+    public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
+                                  DispatcherProxyService dispatcherProxyService) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
     }
 
     /**
@@ -57,9 +65,18 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> createNewTaskAssignment(@Valid @RequestBody NewTaskAssignmentDTO newTaskAssignmentDTO) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        TaskAssignmentDTO assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
-        return ResponseEntity.ok(assignment);
+        TaskAssignmentDTO assignment = null;
+        try {
+            newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
+            assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
+            return ResponseEntity.ok(assignment);
+        } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+            throw new DispatcherRequestFailedException(e);
+        } catch (MissingParameterException mpe) {
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch(NotAValidTaskGroupException navtge){
+            throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
+        }
     }
 
     /**
@@ -93,7 +110,17 @@ public class TaskAssignmentResource {
     @DeleteMapping("tasks/assignments/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
+        var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
+        if(taskAssignmentDTOOptional.isPresent()){
+            try {
+                dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTOOptional.get());
+            } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+                e.printStackTrace();
+            }
+        }
+
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -114,9 +141,15 @@ public class TaskAssignmentResource {
 
         try {
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            dispatcherProxyService.updateTask(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
+
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();
+        } catch(MissingParameterException mpe){
+            throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
+            throw new DispatcherRequestFailedException(drfe);
         }
     }
 
@@ -206,7 +239,7 @@ public class TaskAssignmentResource {
      * @return the {@link ResponseEntity} containing the list of associated learning goal ids
      */
     @GetMapping("tasks/assignments/{assignmentId}/learninggoals")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<List<String>> getAssignedLearningGoalsOfAssignment(@PathVariable String assignmentId) {
         List<String> learningGoalIds = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(assignmentId);
         return ResponseEntity.ok(learningGoalIds);

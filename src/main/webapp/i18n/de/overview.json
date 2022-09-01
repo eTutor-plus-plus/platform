@@ -10,6 +10,8 @@
       "showAssignments": "Aufgaben anzeigen",
       "showSelfAssessment": "Selbstüberprüfung durchführen",
       "exerciseSheetOverviewHeader": "Übungszettelübersicht von '{{courseName}}'",
+      "goalDescriptionHeader": "Beschreibung des Lernziels '{{goalName}}'",
+      "goalDescriptionTooltip": "Klicken Sie das Ziel um die Beschreibung zu sehen.",
       "back": "Zurück",
       "difficulty": "Schwierigkeit",
       "completed": "Abgeschlossen",
@@ -28,12 +30,16 @@
         "header": "Aufgaben des Übungszettels '{{name}}'",
         "sheetClosedText": "Der Übungszettel wurde bereits geschlossen!",
         "sheetOfTaskClosedText": "Der Übungszettel dieser Aufgabe wurde bereits geschlossen!",
+        "openLearningGoals": "Lernziele anzeigen",
+        "learningGoalHeader": "Lernziele von '{{entity}}'",
+        "goalAssignmentTooltip": "Lernzielzuordnung von '{{entity}}' anzeigen",
         "fields": {
           "taskNo": "Aufgabennummer",
           "name": "Name",
           "assessed": "Beurteilt",
           "learningGoalReached": "Lernziel erreicht",
-          "submitted": "Eingereicht"
+          "submitted": "Eingereicht",
+          "learningGoals": "Lernziele"
         }
       },
       "tasks": {
@@ -41,11 +47,13 @@
         "header": "Überschrift",
         "link": "Link",
         "instructions": "Aufgabenstellung",
+        "groupInstruction": "Gruppen-Beschreibung",
         "difficulty": "Schwierigkeit",
         "processingTime": "Geschätzte Bearbeitungszeit",
         "creator": "Ersteller",
         "submit": "Einreichen",
-        "submitted": "Eingereicht"
+        "submitted": "Eingereicht",
+        "file": "Datei-Anhang"
       }
     }
   }

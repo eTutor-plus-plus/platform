@@ -1,0 +1,35 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="lecturerOverview.submissionWindow.modalHeader">
+      {{ 'lecturerOverview.submissionWindow.modalHeader' | translate: { student: matriculationNo } }}
+    </h4>
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="table-responsive" *ngIf="submissions">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th jhiTranslate="lecturerOverview.overviewTable.submissionTime">Time</th>
+          <th jhiTranslate="lecturerOverview.overviewTable.solved">Solved</th>
+          <th jhiTranslate="lecturerOverview.overviewTable.submission">Submission</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of submittedSubmissions">
+          <td>{{ entry.instant }}</td>
+          <td [ngSwitch]="entry.hasBeenSolved">
+            <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
+            <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
+          </td>
+          <td>{{ entry.submission }}</td>
+          <td>
+            <button class="btn btn-secondary" (click)="openEditor(entry)">Run</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,10 +1,5 @@
 package at.jku.dke.etutor.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import at.jku.dke.etutor.EtutorPlusPlusApp;
 import at.jku.dke.etutor.config.RDFConnectionTestConfiguration;
 import at.jku.dke.etutor.domain.User;
@@ -19,14 +14,12 @@ import at.jku.dke.etutor.service.dto.courseinstance.NewCourseInstanceDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradingInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
+import at.jku.dke.etutor.service.dto.exercisesheet.LearningGoalAssignmentDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.web.rest.vm.GradingInfoVM;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -41,13 +34,22 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * Test class for the lecturer resource endpoint.
  *
  * @author fne
  */
 @AutoConfigureMockMvc
-@WithMockUser(authorities = { AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN }, username = "admin")
+@WithMockUser(authorities = {AuthoritiesConstants.INSTRUCTOR, AuthoritiesConstants.ADMIN}, username = "admin")
 @ContextConfiguration(classes = RDFConnectionTestConfiguration.class)
 @SpringBootTest(classes = EtutorPlusPlusApp.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -151,7 +153,7 @@ public class LecturerResourceIT {
         newExerciseSheetDTO.setName("Test exercise sheet");
         newExerciseSheetDTO.setDifficultyId(ETutorVocabulary.Medium.getURI());
         newExerciseSheetDTO.setLearningGoals(
-            StreamEx.of(goal1, goal2).map(x -> new LearningGoalDisplayDTO(x.getId(), x.getName())).toList()
+            StreamEx.of(goal1, goal2).map(x -> new LearningGoalAssignmentDTO(new LearningGoalDisplayDTO(x.getId(), x.getName()), 1)).toList()
         );
         newExerciseSheetDTO.setTaskCount(1);
 
@@ -168,22 +170,22 @@ public class LecturerResourceIT {
         // Setup demo assignment
         ParameterizedSparqlString demoAssignmentUpdate = new ParameterizedSparqlString(
             """
-            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            INSERT DATA {
-              ?student etutor:hasIndividualTaskAssignment [
-              	etutor:fromExerciseSheet ?sheet ;
-                etutor:fromCourseInstance ?courseInstance;
-                etutor:hasIndividualTask [
-              		etutor:isGraded false;
-                	etutor:refersToTask ?task;
-                    etutor:hasOrderNo 1;
-                    etutor:isLearningGoalCompleted false;
-                    etutor:isSubmitted true
-              	]
-              ]
-            }
-            """
+                INSERT DATA {
+                  ?student etutor:hasIndividualTaskAssignment [
+                  	etutor:fromExerciseSheet ?sheet ;
+                    etutor:fromCourseInstance ?courseInstance;
+                    etutor:hasIndividualTask [
+                  		etutor:isGraded false;
+                    	etutor:refersToTask ?task;
+                        etutor:hasOrderNo 1;
+                        etutor:isLearningGoalCompleted false;
+                        etutor:isSubmitted true
+                  	]
+                  ]
+                }
+                """
         );
 
         demoAssignmentUpdate.setIri("?student", ETutorVocabulary.getStudentURLFromMatriculationNumber(student.getLogin()));

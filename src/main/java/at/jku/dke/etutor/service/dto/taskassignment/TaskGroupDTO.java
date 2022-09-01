@@ -8,6 +8,7 @@ import org.apache.jena.rdf.model.Statement;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  * DTO class which represents an already existent task group.
@@ -29,8 +30,8 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -57,6 +58,10 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement sqlCreateStatement = resource.getProperty(ETutorVocabulary.hasSQLCreateStatements);
         Statement sqlInsertSubmissionStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsSubmission);
         Statement sqlInsertDiagnoseStatement = resource.getProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose);
+        Statement diagnoseXMLFileStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseXMLFile);
+        Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
+        Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
+        Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -70,6 +75,19 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         if (sqlInsertDiagnoseStatement!= null) {
            setSqlInsertStatementsDiagnose(sqlInsertDiagnoseStatement.getString());
         }
+        if(diagnoseXMLFileStatement != null){
+            setxQueryDiagnoseXML(diagnoseXMLFileStatement.getString());
+        }
+        if(submissionXMLFileStatement != null){
+            setxQuerySubmissionXML(submissionXMLFileStatement.getString());
+        }
+        if(fileUrlStatement != null){
+            setFileUrl(fileUrlStatement.getString());
+        }
+        if(datalogFactsStatement != null){
+            setDatalogFacts(datalogFactsStatement.getString());
+        }
+
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());
         try {
             setChangeDate((DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(
@@ -131,5 +149,18 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      */
     public void setChangeDate(Instant changeDate) {
         this.changeDate = changeDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TaskGroupDTO that = (TaskGroupDTO) o;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

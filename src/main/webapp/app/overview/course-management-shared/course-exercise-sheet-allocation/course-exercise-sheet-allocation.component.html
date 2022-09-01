@@ -1,0 +1,73 @@
+<form role="form" [formGroup]="allocationGroup" (ngSubmit)="save()">
+  <div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="courseManagement.instances.overview.assignExerciseSheetHeader">
+      Adjust exercise sheet allocation
+    </h4>
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+  </div>
+
+  <div class="modal-body">
+    <h5 jhiTranslate="courseManagement.instances.overview.exerciseSheetsHeader">Exercise sheets</h5>
+
+    <div class="table-responsive" *ngIf="exerciseSheets">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th jhiTranslate="courseManagement.instances.overview.designation">Designation</th>
+            <th jhiTranslate="courseManagement.instances.overview.selected">Selected</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of exerciseSheets; trackBy: trackIdentity">
+            <td>{{ item.name }}</td>
+            <td><span class="bold-span" *ngIf="isSelected(item)">X</span></td>
+            <td class="text-right">
+              <div class="btn-group">
+                <button [disabled]="isSelected(item)" (click)="markAsSelected(item)" class="btn btn-secondary">Zuordnen</button>
+                <button [disabled]="!isSelected(item)" (click)="openLecturerAssignmentOverview(item)" class="btn btn-info">
+                  Open the course instructor's view
+                </button>
+                <button [disabled]="!isSelected(item)" (click)="exportPointsForExerciseSheet(item)" class="btn btn-info">
+                  Export points
+                </button>
+                <button [disabled]="!isSelected(item)" (click)="openOrCloseExerciseSheet(item)" class="btn btn-danger">
+                  {{ isClosed(item) ? 'Open exercise sheet' : 'Close exercise sheet' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="exerciseSheets">
+      <div class="row justify-content-center">
+        <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+      </div>
+
+      <div class="row justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [(page)]="page"
+          [pageSize]="itemsPerPage"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="transition()"
+        ></ngb-pagination>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
+    </button>
+
+    <button type="submit" [disabled]="allocationGroup.invalid || isSaving" class="btn btn-primary">
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+    </button>
+  </div>
+</form>

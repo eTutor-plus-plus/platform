@@ -26,7 +26,9 @@ public final class ETutorVocabulary {
     private static final String CLASS_STUDENT = "Student";
     private static final String CLASS_INDIVIDUAL_TASK_ASSIGNMENT = "IndividualTaskAssignment";
     private static final String CLASS_INDIVIDUAL_TASK = "IndividualTask";
+    private static final String CLASS_INDIVIDUAL_TASK_SUBMISSION = "IndividualTaskSubmission";
     private static final String CLASS_TASK_GROUP = "TaskGroup";
+    private static final String CLASS_LEARNING_GOAL_ASSIGNMENT = "LearningGoalAssignment";
 
     private static final String PROP_IS_PRIVATE = "isPrivate";
     private static final String PROP_DEPENDS_ON = "dependsOn";
@@ -55,6 +57,7 @@ public final class ETutorVocabulary {
     private static final String PROP_FROM_COURSE_INSTANCE = "fromCourseInstance";
     private static final String PROP_FROM_EXERCISE_SHEET = "fromExerciseSheet";
     private static final String PROP_HAS_INDIVIDUAL_TASK = "hasIndividualTask";
+    private static final String PROP_HAS_INDIVIDUAL_TASK_SUBMISSION = "hasIndividualTaskSubmission";
     private static final String PROP_IS_CLOSED = "isClosed";
     private static final String PROP_IS_GRADED = "isGraded";
     private static final String PROP_IS_SUBMITTED = "isSubmitted";
@@ -72,14 +75,23 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
+    private static final String PROP_HAS_UPLOAD_FILE_ID = "hasUploadFileId";
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
     private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE = "hasSQLInsertStatementsDiagnose";
+    private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
+    private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
+    private static final String PROP_HAS_XQUERY_SOLUTION = "hasXQuerySolution";
+    private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
+    private static final String PROP_HAS_DLG_SOLUTION = "hasDLGSolution";
+    private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
+    private static final String PROP_HAS_BPMN_CONFIG = "hasBpmnConfig";
+    private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -91,12 +103,17 @@ public final class ETutorVocabulary {
     private static final String PROP_IS_ASSIGNMENT_OF = "isAssignmentOf";
 
     private static final String PROP_IS_COMPLETED_FROM = "isCompletedFrom";
+    private static final String PROP_HAS_FAILED_COUNT = "hasFailedCount";
 
     private static final String PROP_CONTAINS_LEARNING_GOAL = "containsLearningGoal";
     private static final String PROP_HAS_EXERCISE_SHEET_DIFFICULTY = "hasExerciseSheetDifficulty";
     private static final String PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR = "hasInternalExerciseSheetCreator";
     private static final String PROP_HAS_EXERCISE_SHEET_CREATION_TIME = "hasExerciseSheetCreationTime";
     private static final String PROP_HAS_EXERCISE_SHEET_TASK_COUNT = "hasExerciseSheetTaskCount";
+    private static final String PROP_IS_GENERATE_WHOLE_EXERCISE_SHEET = "isGenerateWholeExerciseSheet";
+
+    private static final String PROP_CONTAINS_LEARNING_GOAL_ASSIGNMENT = "containsLearningGoalAssignment";
+    private static final String PROP_HAS_PRIORITY = "hasPriority";
 
     private static final String PROP_HAS_TASK_GROUP_NAME = "hasTaskGroupName";
     private static final String PROP_HAS_TASK_GROUP_DESCRIPTION = "hasTaskGroupDescription";
@@ -105,13 +122,23 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
+    private static final String PROP_HAS_FILE_URL = "hasFileURL";
+    private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_RA_TASK = "RATask";
+    private static final String INSTANCE_XQ_TASK = "XQTask";
+    private static final String INSTANCE_DLG_TASK = "DLGTask";
+
+    private static final String INSTANCE_BPMN_TASK = "BpmnTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
+    private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
+    private static final String INSTANCE_DATALOG_TASK_GROUP = "DatalogType";
+
 
     private static final String INSTANCE_EASY = "Easy";
     private static final String INSTANCE_MEDIUM = "Medium";
@@ -183,7 +210,8 @@ public final class ETutorVocabulary {
     /**
      * The needsVerificationBeforeCompletion property.
      */
-    public static final Property needsVerificationBeforeCompletion = m.createProperty(URI + PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION);
+    public static final Property needsVerificationBeforeCompletion =
+        m.createProperty(URI + PROP_NEEDS_VERIFICATION_BEFORE_COMPLETION);
     /**
      * The hasCourseDescription property.
      */
@@ -235,7 +263,8 @@ public final class ETutorVocabulary {
     /**
      * The hasIndividualTaskAssignment property.
      */
-    public static final Property hasIndividualTaskAssignment = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT);
+    public static final Property hasIndividualTaskAssignment =
+        m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK_ASSIGNMENT);
     /**
      * The fromCourseInstance property.
      */
@@ -265,6 +294,10 @@ public final class ETutorVocabulary {
      */
     public static final Property hasTaskCreationDate = m.createProperty(URI + PROP_HAS_TASK_CREATION_DATE);
     /**
+     * the hasUploadFileId property-
+     */
+    public static final Property hasUploadFileId = m.createProperty(URI + PROP_HAS_UPLOAD_FILE_ID);
+    /**
      * The hasTypicalProcessingTime property.
      */
     public static final Property hasTypicalProcessingTime = m.createProperty(URI + PROP_HAS_TYPICAL_PROCESSING_TIME);
@@ -289,9 +322,42 @@ public final class ETutorVocabulary {
      */
     public static final Property hasSQLInsertStatementsDiagnose = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE);
     /**
+     * The hasDiagnoseXMLFile property
+     */
+    public static final Property hasDiagnoseXMLFile = m.createProperty(URI+PROP_HAS_DIAGNOSE_XML_FILE);
+    /**
+     * The hasSubmissionXMLFile property
+     */
+    public static final Property hasSubmissionXMLFile = m.createProperty(URI+PROP_HAS_SUBMISSION_XML_FILE);
+    /**
      * The hasSQLSolution property.
      */
-    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);    /**
+    public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
+    /**
+     * The hasXQuerySolution property.
+     */
+    public static final Property hasXQuerySolution = m.createProperty(URI+PROP_HAS_XQUERY_SOLUTION);
+    /**
+     * The hasXqueryXPathSorting property.
+     */
+    public static final Property hasXQueryXPathSorting = m.createProperty(URI+PROP_HAS_XPATH_SORTING);
+    /**
+     * The hasDLGSolution property.
+     */
+    public static final Property hasDLGSolution = m.createProperty(URI+PROP_HAS_DLG_SOLUTION);
+    /**
+     * The hasDLGQuery property.
+     */
+    public static final Property hasDLGQuery = m.createProperty(URI+PROP_HAS_DLG_QUERY);
+
+    /**
+     * The hasBpmn property.
+     */
+    public static final Property hasBpmnConfig = m.createProperty(URI+PROP_HAS_BPMN_CONFIG);
+    /**
+     * The hasUncheckedDLGTerm property.
+     */
+    public static final Property hasUncheckedDLGTerm = m.createProperty(URI+PROP_HAS_UNCHECKED_DLG_TERM);
      /* *
      *The hasMaxPoints property
      */
@@ -333,6 +399,10 @@ public final class ETutorVocabulary {
      * The isCompletedFrom property.
      */
     public static final Property isCompletedFrom = m.createProperty(URI + PROP_IS_COMPLETED_FROM);
+    /**
+     * The hasFailedCount property.
+     */
+    public static final Property hasFailedCount = m.createProperty(URI + PROP_HAS_FAILED_COUNT);
 
     /**
      * The containsLearningGoal property.
@@ -341,23 +411,42 @@ public final class ETutorVocabulary {
     /**
      * The hasExerciseSheetDifficulty property.
      */
-    public static final Property hasExerciseSheetDifficulty = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
+    public static final Property hasExerciseSheetDifficulty =
+        m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_DIFFICULTY);
     /**
      * The hasInternalExerciseSheetCreator property.
      */
-    public static final Property hasInternalExerciseSheetCreator = m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
+    public static final Property hasInternalExerciseSheetCreator =
+        m.createProperty(URI + PROP_HAS_INTERNAL_EXERCISE_SHEET_CREATOR);
     /**
      * The hasExerciseSheetCreationTime property.
      */
-    public static final Property hasExerciseSheetCreationTime = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
+    public static final Property hasExerciseSheetCreationTime =
+        m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_CREATION_TIME);
     /**
      * The hasExerciseSheetTaskCount property.
      */
     public static final Property hasExerciseSheetTaskCount = m.createProperty(URI + PROP_HAS_EXERCISE_SHEET_TASK_COUNT);
     /**
+     * The isGenerateWholeExerciseSheet property.
+     */
+    public static final Property isGenerateWholeExerciseSheet = m.createProperty(URI + PROP_IS_GENERATE_WHOLE_EXERCISE_SHEET);
+    /**
+     * The containsLearningGoalAssignment property.
+     */
+    public static final Property containsLearningGoalAssignment = m.createProperty(URI + PROP_CONTAINS_LEARNING_GOAL_ASSIGNMENT);
+    /**
+     * The hasPriority property.
+     */
+    public static final Property hasPriority = m.createProperty(URI + PROP_HAS_PRIORITY);
+    /**
      * The hasIndividualTask property.
      */
     public static final Property hasIndividualTask = m.createProperty(URI + PROP_HAS_INDIVIDUAL_TASK);
+    /**
+     * The hasIndividualTaskSubmission property
+     */
+    public static final Property hasIndividualTaskSubmission = m.createProperty(URI+PROP_HAS_INDIVIDUAL_TASK_SUBMISSION);
     /**
      * The isClosed property.
      */
@@ -415,6 +504,15 @@ public final class ETutorVocabulary {
      */
     public static final Property hasTaskGroupType = m.createProperty(URI+PROP_HAS_TASK_GROUP_TYPE);
     /**
+     * The hasFileUrl property
+     */
+    public static final Property hasFileUrl = m.createProperty(URI+PROP_HAS_FILE_URL);
+    /**
+     * The hasDatalogFacts property
+     */
+    public static final Property hasDatalogFacts = m.createProperty(URI+PROP_HAS_DATALOG_FACTS);
+
+    /**
      * The hasTask property.
      */
     public static final Property hasTask = m.createProperty(URI + PROP_HAS_TASK);
@@ -456,6 +554,10 @@ public final class ETutorVocabulary {
      */
     public static final Resource ExerciseSheet = m.createResource(URI + CLASS_EXERCISE_SHEET);
     /**
+     * The learning goal assignment resource.
+     */
+    public static final Resource LearningGoalAssignment = m.createResource(URI + CLASS_LEARNING_GOAL_ASSIGNMENT);
+    /**
      * The course instance resource.
      */
     public static final Resource CourseInstance = m.createResource(URI + CLASS_COURSE_INSTANCE);
@@ -476,6 +578,10 @@ public final class ETutorVocabulary {
      */
     public static final Resource IndividualTask = m.createResource(URI + CLASS_INDIVIDUAL_TASK);
     /**
+     * The individual task submission resource.
+     */
+    public static final Resource IndividualTaskSubmission = m.createResource(URI + CLASS_INDIVIDUAL_TASK_SUBMISSION);
+    /**
      * The task group resource.
      */
     public static final Resource TaskGroup = m.createResource(URI + CLASS_TASK_GROUP);
@@ -492,14 +598,40 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
+    /***
+     * The relational algebra type instance
+     */
+    public static final Resource RATask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_RA_TASK);
+    /**
+     * The XQuery type instance
+     */
+    public static final Resource XQueryTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_XQ_TASK);
+    /**
+     * The Datalog type instance
+     */
+    public static final Resource DatalogTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DLG_TASK);
+
+    /**
+     * The Bpmn type instance
+     */
+    public static final Resource BpmnTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_BPMN_TASK);
     /**
      * The no type task group type
      */
     public static final Resource NoTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_NO_TYPE_TASK_GROUP);
     /**
-     * The SQL type task group type
+     * The SQL task group type
      */
     public static final Resource SQLTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_SQL_TYPE_TASK_GROUP);
+    /**
+     * The XQuery task group type
+     */
+    public static final Resource XQueryTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_XQUERY_TASK_GROUP);
+    /**
+     * The Datalog task group type
+     */
+    public static final Resource DatalogTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_DATALOG_TASK_GROUP);
+
     /**
      * The easy difficulty instance.
      */
@@ -530,6 +662,17 @@ public final class ETutorVocabulary {
     public static final Resource Summer = m.createResource(TERM_SUMMER_URI);
 
     /**
+     * Creates the URL of an individual user goal.
+     *
+     * @param userLogin the goal's creator
+     * @param goalName  the goal's name
+     * @return unique goal URL
+     */
+    public static String createGoalUrl(String userLogin, String goalName) {
+        return URI + userLogin + "/" + CLASS_GOAL + "#" + goalName;
+    }
+
+    /**
      * Creates an individual goal resource from a given model.
      *
      * @param userLogin the login of the user
@@ -538,7 +681,7 @@ public final class ETutorVocabulary {
      * @return the individual goal resource
      */
     public static Resource createUserGoalResourceOfModel(String userLogin, String goalName, Model model) {
-        return model.createResource(URI + userLogin + "/" + CLASS_GOAL + "#" + goalName);
+        return model.createResource(createGoalUrl(userLogin, goalName));
     }
 
     /**

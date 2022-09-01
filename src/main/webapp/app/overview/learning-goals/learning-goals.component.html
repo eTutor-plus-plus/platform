@@ -43,6 +43,10 @@
     <span jhiTranslate="learningGoalManagement.createSubGoal">Create sub goal</span>
   </ng-template>
   <ng-template contextMenuItem [divider]="true"></ng-template>
+  <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onManageSuperGoalRequested($event.item)">
+    <span jhiTranslate="learningGoalManagement.addAsSubGoal">Add as sub goal</span>
+  </ng-template>
+  <ng-template contextMenuItem [divider]="true"></ng-template>
   <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onEditGoalRequested($event.item)">
     <span jhiTranslate="learningGoalManagement.editGoal">Edit goal</span>
   </ng-template>
@@ -50,6 +54,7 @@
   <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onManageDependentGoalsRequested($event.item)">
     <span jhiTranslate="learningGoalManagement.manageDependencies">Manage dependencies</span>
   </ng-template>
+
   <ng-template contextMenuItem [divider]="true"></ng-template>
   <ng-template contextMenuItem [enabled]="canGoalBeRemoved" (execute)="onDelete($event.item)">
     <span jhiTranslate="learningGoalManagement.delete">Delete</span>
