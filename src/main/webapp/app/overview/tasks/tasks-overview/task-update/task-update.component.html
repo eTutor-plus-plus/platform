@@ -218,6 +218,7 @@
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
+      <button type="button" class="btn btn-secondary" *ngIf="!isNew && isRATask" (click)="openSolutionRunnerWindow(true)">Try - SQL</button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">

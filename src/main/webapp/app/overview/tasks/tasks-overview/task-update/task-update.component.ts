@@ -406,10 +406,12 @@ export class TaskUpdateComponent implements OnInit {
   /**
    * Opens a lecturer-run-submission modal window to test a solution
    */
-  public openSolutionRunnerWindow(): void {
+  public openSolutionRunnerWindow(asSql = false): void {
     const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
     let subm = '';
-    const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    const taskT = asSql
+      ? TaskAssignmentType.SQLTask.value
+      : (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskT === TaskAssignmentType.SQLTask.value) {
       subm = this.updateForm.get(['sqlSolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
