@@ -362,6 +362,7 @@ export class TaskUpdateComponent implements OnInit {
       this.isRATask = true;
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
+      this.setMaxPointsRequired();
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
