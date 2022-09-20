@@ -57,6 +57,17 @@
         <span jhiTranslate="taskManagement.fields.privateTask">Private task</span>
       </label>
     </div>
+    <!-- Opaque ID interpreter -->
+    <div class="form-group">
+      <p></p>
+      <label class="form-control-label" for="id">Moodle-ID:</label>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="id" id="id" disabled #moodleId value="{{ createMoodleId(taskModel?.id) }}" />
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" (click)="copyInputMessage(moodleId)" value="click to copy">Copy</button>
+        </div>
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-control-label" for="taskDifficulty" jhiTranslate="taskManagement.fields.taskDifficulty">Task difficulty:</label>
       <select class="form-control" name="taskDifficulty" id="taskDifficulty" formControlName="taskDifficulty">

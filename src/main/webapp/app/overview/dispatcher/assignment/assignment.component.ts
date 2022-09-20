@@ -84,7 +84,7 @@ export class AssignmentComponent implements AfterContentChecked {
   /**
    * The default editor options
    */
-  public editorOptions = { theme: 'vs-dark', language: '' };
+  public editorOptions = { theme: 'vs-light', language: '' };
 
   /**
    * Indicates the task type
@@ -165,8 +165,8 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   public ngAfterContentChecked(): void {
     if (!this.editorOptions.language && this.task_type) {
-      const lang = AssignmentComponent.mapEditorLanguage(this.task_type);
-      let the = 'vs-dark';
+      let lang = AssignmentComponent.mapEditorLanguage(this.task_type);
+      let the = 'vs-light';
       if (lang === 'relationalAlgebra') {
         the = 'relationalAlgebra-light';
       } else if (lang === 'xquery') {
@@ -177,6 +177,7 @@ export class AssignmentComponent implements AfterContentChecked {
         the = 'datalog-light';
       } else if (lang === 'bpmn') {
         this.isBpmnTask = true;
+        lang = 'xml';
       }
 
       this.editorOptions = { theme: the, language: lang };

@@ -478,6 +478,25 @@ export class TaskUpdateComponent implements OnInit {
     }
   }
 
+  /*
+  Opaque ID transformation. Thomas Hollin
+   */
+  public createMoodleId(id: string | undefined): string {
+    let moodleId = '';
+    if (id) {
+      const tempId = id.substring(id.indexOf('#') + 1);
+      moodleId = tempId.replace(/-/gi, '_');
+      moodleId = 'moodle'.concat(moodleId);
+    }
+    return moodleId;
+  }
+
+  public copyInputMessage(inputElement: { select: () => void; setSelectionRange: (arg0: number, arg1: number) => void }): void {
+    inputElement.select();
+    document.execCommand('copy');
+    inputElement.setSelectionRange(0, 0);
+  }
+
   /**
    * Patches the values from an XQ-Task group in the update form
    * @param taskGroupId the task-group-id
