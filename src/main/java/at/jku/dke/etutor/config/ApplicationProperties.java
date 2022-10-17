@@ -13,16 +13,26 @@ public class ApplicationProperties {
 
     private final Fuseki fuseki = new Fuseki();
     private final Dispatcher dispatcher = new Dispatcher();
+    private final SPARQLEndpointConfiguration sparqlEndpointConfiguration = new SPARQLEndpointConfiguration();
 
     private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
 
     /**
-     * Getter for the field <code>fuseki</code>
+     * Getter for the field <code>fuseki</code>.
      *
      * @return a {@link ApplicationProperties.Fuseki} object
      */
     public Fuseki getFuseki() {
         return fuseki;
+    }
+
+    /**
+     * Getter for the field <code>sparqlEndpointConfiguration</code>.
+     *
+     * @return a {@link ApplicationProperties.SPARQLEndpointConfiguration} object
+     */
+    public SPARQLEndpointConfiguration getSPARQLEndpointConfiguration() {
+        return sparqlEndpointConfiguration;
     }
 
     /**
@@ -47,7 +57,6 @@ public class ApplicationProperties {
      * Configuration class for the fuseki connection.
      */
     public static class Fuseki {
-
         private String baseUrl = "http://localhost:3030/etutorpp-database";
 
         /**
@@ -70,9 +79,48 @@ public class ApplicationProperties {
     }
 
     /**
+     * Configuration class for the SPARQL endpoint configuration.
+     */
+    public static class SPARQLEndpointConfiguration {
+        private SPARQLEndpointType sparqlEndpointType = SPARQLEndpointType.FUSEKI;
+
+        /**
+         * Returns the endpoint's type.
+         *
+         * @return the endpoint's type
+         */
+        public SPARQLEndpointType getSparqlEndpointType() {
+            return sparqlEndpointType;
+        }
+
+        /**
+         * Set's the endpoint's type.
+         *
+         * @param sparqlEndpointType the endpoint type to set
+         */
+        public void setSparqlEndpointType(SPARQLEndpointType sparqlEndpointType) {
+            this.sparqlEndpointType = sparqlEndpointType;
+        }
+    }
+
+    /**
+     * Indicates the configures endpoint type.
+     */
+    public enum SPARQLEndpointType {
+        /**
+         * The Fuseki endpoint.
+         */
+        FUSEKI,
+        /**
+         * The Graph DB endpoint.
+         */
+        GRAPHDB
+    }
+
+    /**
      * Configuration class for the dispatcher connection
      */
-    public static class Dispatcher{
+    public static class Dispatcher {
         private String url = "http://localhost:8081";
         private String xqueryXmlFileUrlPrefix;
         private String sqlTableUrlPrefix;
