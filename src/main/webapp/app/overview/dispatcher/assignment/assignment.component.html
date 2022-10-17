@@ -3,7 +3,7 @@
     <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
     <label>{{ points }}/{{ maxPoints }}</label>
   </div>
-  <div *ngIf="showDiagnoseBar">
+  <div *ngIf="showDiagnoseBar && !isBpmnTask">
     <label class="form-control-label">
       {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
       <fa-icon icon="info-circle" ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}" placement="right"></fa-icon>
@@ -35,6 +35,8 @@
       id="submission"
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
+    <!--    TODO add BPMN Webeditor instead of monaco editor -->
+    <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
   </div>
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="onSubmit()">
@@ -60,9 +62,13 @@
   </div>
 
   <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.error"></div>
-  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.description"></div>
+  <div
+    *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask"
+    [innerHTML]="gradingDto.report.description"
+  ></div>
   <br />
-  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.hint"></div>
-  <div *ngIf="gradingReceived && (isXQueryTask || isDatalogTask)" [innerHTML]="gradingDto.result | safeHtml"></div>
-  <div *ngIf="gradingReceived && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.result"></div>
+  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.report.hint"></div>
+  <div *ngIf="gradingReceived && hasErrors && isBpmnTask" [innerHTML]="gradingDto.report.description"></div>
+  <div *ngIf="gradingReceived && (isXQueryTask || isDatalogTask) && !isBpmnTask" [innerHTML]="gradingDto.result | safeHtml"></div>
+  <div *ngIf="gradingReceived && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.result"></div>
 </div>

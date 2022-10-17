@@ -71,7 +71,7 @@ public class TaskAssignmentResource {
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(e);
         } catch (MissingParameterException mpe) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(NotAValidTaskGroupException navtge){
@@ -140,8 +140,8 @@ public class TaskAssignmentResource {
         }
 
         try {
-            assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             dispatcherProxyService.updateTask(taskAssignmentDTO);
+            assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
 
         } catch (InternalTaskAssignmentNonexistentException e) {
@@ -149,7 +149,7 @@ public class TaskAssignmentResource {
         } catch(MissingParameterException mpe){
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         }
     }
 

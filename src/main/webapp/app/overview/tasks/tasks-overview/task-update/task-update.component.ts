@@ -32,6 +32,7 @@ export class TaskUpdateComponent implements OnInit {
   public isRATask = false;
   public isXQueryTask = false;
   public isDLQTask = false;
+  public isBpmnTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
 
@@ -62,6 +63,7 @@ export class TaskUpdateComponent implements OnInit {
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
     taskGroup: ['', []],
+    bpmnTestConfig: [''],
   });
 
   private _taskModel?: ITaskModel;
@@ -181,6 +183,10 @@ export class TaskUpdateComponent implements OnInit {
     if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
     }
+    const bpmnTestConfig: string = this.updateForm.get('bpmnTestConfig')!.value;
+    if (bpmnTestConfig) {
+      newTask.bpmnTestConfig = bpmnTestConfig;
+    }
 
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
@@ -207,6 +213,7 @@ export class TaskUpdateComponent implements OnInit {
         maxPoints: newTask.maxPoints,
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
+        bpmnTestConfig: newTask.bpmnTestConfig,
         url: newTask.url,
         instruction: newTask.instruction,
         privateTask: newTask.privateTask,
@@ -249,6 +256,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
+      const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
       const xQuerySolution = value.xQuerySolution;
       const xQueryXPathSorting = value.xQueryXPathSorting;
@@ -290,6 +298,7 @@ export class TaskUpdateComponent implements OnInit {
         url,
         instruction,
         taskGroup: value.taskGroupId ?? '',
+        bpmnTestConfig,
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -339,50 +348,31 @@ export class TaskUpdateComponent implements OnInit {
    */
   public taskTypeChanged(): void {
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-    if (
-      this.isSqlOrRaTask(taskAssignmentTypeId) ||
-      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value
-    ) {
-      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-        this.isSQLTask = true;
-        this.isXQueryTask = false;
-        this.isRATask = false;
-        this.isDLQTask = false;
-      } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
-        this.isXQueryTask = true;
-        this.isSQLTask = false;
-        this.isRATask = false;
-        this.isDLQTask = false;
-      } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
-        this.isDLQTask = true;
-        this.isXQueryTask = false;
-        this.isSQLTask = false;
-        this.isRATask = false;
-      } else {
-        this.isRATask = true;
-        this.isSQLTask = false;
-        this.isXQueryTask = false;
-        this.isDLQTask = false;
-      }
-      this.updateForm.get('maxPoints')!.setValidators(Validators.required);
-      this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
-      if (!this.updateForm.get('taskIdForDispatcher')) {
-        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-        this.updateForm.get('taskGroup')!.updateValueAndValidity();
-      }
-      this.updateForm.updateValueAndValidity();
-    } else {
-      this.isSQLTask = false;
-      this.isRATask = false;
-      this.isXQueryTask = false;
-      this.isDLQTask = false;
-      this.updateForm.get('taskGroup')!.clearValidators();
-      this.updateForm.get('taskGroup')!.updateValueAndValidity();
-      this.updateForm.get('maxPoints')!.clearValidators();
-      this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
-      this.updateForm.updateValueAndValidity();
+
+    this.setAllTaskTypeFlagsToFalse();
+    this.clearAllTaskTypeDependentValidators();
+
+    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
+      this.isSQLTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
+      this.isXQueryTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
+      this.isDLQTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.RATask.value) {
+      this.isRATask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
+      this.isBpmnTask = true;
+      this.setMaxPointsRequired();
     }
+
+    if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
+      if (!this.updateForm.get('taskIdForDispatcher')!.value) {
+        this.setTaskGroupRequired();
+      }
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
+    }
+    this.updateForm.updateValueAndValidity();
   }
   /**
    * Reacts to a change of the taskGroup by patching the relevant data from the group in the update form
@@ -403,7 +393,7 @@ export class TaskUpdateComponent implements OnInit {
    * Reacts to the input of a task-id for the dispatcher
    */
   public taskIdForDispatcherEntered(): void {
-    if (this.updateForm.get('taskIdForDispatcher')) {
+    if (this.updateForm.get('taskIdForDispatcher')!.value) {
       this.updateForm.get('taskGroup')?.clearValidators();
       this.updateForm.get('taskGroup')?.updateValueAndValidity();
       this.updateForm.updateValueAndValidity();
@@ -417,10 +407,12 @@ export class TaskUpdateComponent implements OnInit {
   /**
    * Opens a lecturer-run-submission modal window to test a solution
    */
-  public openSolutionRunnerWindow(): void {
+  public openSolutionRunnerWindow(asSql = false): void {
     const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
     let subm = '';
-    const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    const taskT = asSql
+      ? TaskAssignmentType.SQLTask.value
+      : (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskT === TaskAssignmentType.SQLTask.value) {
       subm = this.updateForm.get(['sqlSolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
@@ -486,6 +478,25 @@ export class TaskUpdateComponent implements OnInit {
     }
   }
 
+  /*
+  Opaque ID transformation. Thomas Hollin
+   */
+  public createMoodleId(id: string | undefined): string {
+    let moodleId = '';
+    if (id) {
+      const tempId = id.substring(id.indexOf('#') + 1);
+      moodleId = tempId.replace(/-/gi, '_');
+      moodleId = 'moodle'.concat(moodleId);
+    }
+    return moodleId;
+  }
+
+  public copyInputMessage(inputElement: { select: () => void; setSelectionRange: (arg0: number, arg1: number) => void }): void {
+    inputElement.select();
+    document.execCommand('copy');
+    inputElement.setSelectionRange(0, 0);
+  }
+
   /**
    * Patches the values from an XQ-Task group in the update form
    * @param taskGroupId the task-group-id
@@ -522,5 +533,54 @@ export class TaskUpdateComponent implements OnInit {
   }
   private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
+  }
+
+  /**
+   * Sets all booleans indicating the task-type to false
+   * @private
+   */
+  private setAllTaskTypeFlagsToFalse(): void {
+    this.isSQLTask = false;
+    this.isXQueryTask = false;
+    this.isRATask = false;
+    this.isDLQTask = false;
+    this.isBpmnTask = false;
+  }
+
+  private clearAllTaskTypeDependentValidators(): void {
+    this.updateForm.get('taskGroup')!.clearValidators();
+    this.updateForm.get('taskGroup')!.updateValueAndValidity();
+    this.updateForm.get('maxPoints')!.clearValidators();
+    this.updateForm.get('maxPoints')!.updateValueAndValidity();
+    this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
+    this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setMaxPointsRequired(): void {
+    this.updateForm.get('maxPoints')!.setValidators(Validators.required);
+    this.updateForm.get('maxPoints')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setDiagnoseLevelWeightingRequired(): void {
+    this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
+    this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setTaskGroupRequired(): void {
+    this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+    this.updateForm.get('taskGroup')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private isDkeDispatcherTask(taskAssignmentType: string): boolean {
+    return (
+      taskAssignmentType === TaskAssignmentType.RATask.value ||
+      taskAssignmentType === TaskAssignmentType.SQLTask.value ||
+      taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
+      taskAssignmentType === TaskAssignmentType.XQueryTask.value
+    );
   }
 }

@@ -13,6 +13,7 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,6 +50,17 @@ public class DispatcherProxyService {
     }
 
     /**
+     * Returns the {@link DispatcherSubmissionDTO} for a given id, which represents a submission for an individual task
+     *
+     * @param UUID the UUID
+     * @return the Bpmn submission
+     * @throws JsonProcessingException if the returned value cannot be deserialized
+     */
+    public DispatcherSubmissionDTO getBpmnSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+    }
+
+    /**
      * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
      *
      * @param UUID the UUID
@@ -57,6 +69,17 @@ public class DispatcherProxyService {
      */
     public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
         return mapper.readValue(proxyResource.getGrading(UUID).getBody(), DispatcherGradingDTO.class);
+    }
+
+    /**
+     * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
+     *
+     * @param UUID the UUID
+     * @return the grading
+     * @throws JsonProcessingException if the returned value cannot be parsed
+     */
+    public DispatcherGradingDTO getBpmnGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnGrading(UUID).getBody(), DispatcherGradingDTO.class);
     }
 
     /**
@@ -319,7 +342,9 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         if(!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
 
-        if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) { // XQuery task
+        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())){
+            handleBPMNTaskCreation(newTaskAssignmentDTO);
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) { // XQuery task
             handleXQTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
             handleSQLTaskCreation(newTaskAssignmentDTO);
@@ -327,6 +352,22 @@ public class DispatcherProxyService {
             handleDLGTaskCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
+    }
+
+    private void handleBPMNTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) return;
+
+        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getBpmnTestConfig())){
+
+            // Create task
+            int id = this.createBpmnTask(newTaskAssignmentDTO);
+
+            // Set the returned id of the task
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+        }else{ // Creation failed, either because no id and no group has been set or, in the case of the creation of a new task, not enough info has been provided
+            throw new MissingParameterException();
+        }
+
     }
 
     /**
@@ -419,7 +460,9 @@ public class DispatcherProxyService {
      * @throws MissingParameterException if not enough parameters have been provided to create the task
      */
     private void handleSQLTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())) return;
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())
+            && !newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString()))
+            return;
 
         // Check wheter we are creating a new task or referencing an existing task in the dispatcher
         if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
@@ -461,6 +504,13 @@ public class DispatcherProxyService {
     private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         var exerciseDTO = getDatalogExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
         var response = proxyResource.createDLGExercise(exerciseDTO);
+        if(response.getBody() != null) return response.getBody();
+        else return -1;
+    }
+
+    private int createBpmnTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+        String bpmnExercise = newTaskAssignmentDTO.getBpmnTestConfig();
+        ResponseEntity<Integer> response = proxyResource.createBpmnExercise(bpmnExercise);
         if(response.getBody() != null) return response.getBody();
         else return -1;
     }
@@ -625,6 +675,7 @@ public class DispatcherProxyService {
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
         if(!isDispatcherTaskAssignment(taskAssignmentDTO)) return;
 
+
         if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
             throw new MissingParameterException();
         }
@@ -647,6 +698,12 @@ public class DispatcherProxyService {
             }else{
                 throw new MissingParameterException();
             }
+        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) {
+            if (StringUtils.isNotBlank(taskAssignmentDTO.getBpmnTestConfig())) {
+                updateBpmnExercise(taskAssignmentDTO);
+            } else {
+                throw new MissingParameterException();
+            }
         }
     }
 
@@ -660,7 +717,8 @@ public class DispatcherProxyService {
         return type.equals(ETutorVocabulary.SQLTask.toString()) ||
             type.equals(ETutorVocabulary.DatalogTask.toString()) ||
             type.equals(ETutorVocabulary.RATask.toString()) ||
-            type.equals(ETutorVocabulary.XQueryTask.toString());
+            type.equals(ETutorVocabulary.XQueryTask.toString())||
+            type.equals(ETutorVocabulary.BpmnTask.toString());
     }
 
 
@@ -675,6 +733,16 @@ public class DispatcherProxyService {
         // Proxy request to dispatcher
         proxyResource.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
     }
+    /**
+     * Updates the dispatcher resources for a Bpmn-type task-assignment
+     * @param taskAssignmentDTO the {@link TaskAssignmentDTO} to be updated
+     */
+    private void updateBpmnExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        String exercise = taskAssignmentDTO.getBpmnTestConfig();
+
+        proxyResource.modifyBpmnExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
+    }
+
 
     /**
      * Updates an SQL Exercise
@@ -733,7 +801,9 @@ public class DispatcherProxyService {
         }
 
         // Proxy request according to task type
-        if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
+        if (taskType.equals(ETutorVocabulary.BpmnTask.toString())) {
+            proxyResource.deleteBpmnExercise(id);
+        } else if (taskType.equals(ETutorVocabulary.XQueryTask.toString())) {
             proxyResource.deleteXQExercise(id);
         } else if (taskType.equals(ETutorVocabulary.SQLTask.toString())) {
             proxyResource.deleteSQLExercise(id);

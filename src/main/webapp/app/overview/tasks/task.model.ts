@@ -110,6 +110,10 @@ export interface INewTaskModel {
    * The optional task group id.
    */
   taskGroupId?: string;
+  /**
+   * The optional Bpmn Testconfig
+   */
+  bpmnTestConfig?: string;
 }
 
 /**
@@ -172,6 +176,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask',
     'taskManagement.taskTypes.dlgTask'
   );
+  public static readonly BpmnTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask',
+    'taskManagement.taskTypes.bpmnTask'
+  );
 
   public static readonly Values = [
     TaskAssignmentType.NoType,
@@ -180,6 +188,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,
+    TaskAssignmentType.BpmnTask,
   ];
 
   private readonly _value: string;

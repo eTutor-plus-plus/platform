@@ -59,14 +59,14 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
-            taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
             dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
+            taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
@@ -114,25 +114,31 @@ public class TaskGroupResource {
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
-        TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
-
         try{
+            // Update task group in dispatcher if applicable
+            if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()) ||
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()) ||
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
+            }
+
+            // Update task group in RDF
+            TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
             if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
             }
+
+            return ResponseEntity.ok(taskGroupDTOFromService);
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
-        return ResponseEntity.ok(taskGroupDTOFromService);
+
     }
 
     /**
