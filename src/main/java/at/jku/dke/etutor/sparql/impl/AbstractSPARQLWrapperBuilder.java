@@ -101,6 +101,7 @@ public abstract sealed class AbstractSPARQLWrapperBuilder implements SPARQLWrapp
 
                 body = body.replace(entry.getKey(), substitutedQuery);
             }
+            builder.append(body);
         }
 
         return builder.toString();

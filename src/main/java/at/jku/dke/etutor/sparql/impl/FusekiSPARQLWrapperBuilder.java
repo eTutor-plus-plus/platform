@@ -40,7 +40,7 @@ public final class FusekiSPARQLWrapperBuilder extends AbstractSPARQLWrapperBuild
             queryPredicate = "rdfs:label";
         }
 
-        return String.format("%s text:query (%s \"*%s*\")", queryParameter.querySubject(), queryPredicate,
+        return String.format("%s text:query (%s \"*%s*\").", queryParameter.querySubject(), queryPredicate,
             queryParameter.queryText());
     }
 }

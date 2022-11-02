@@ -18,6 +18,6 @@ public class GraphDBSPARQLWrapperFactory implements SPARQLWrapperFactory {
      */
     @Override
     public SPARQLWrapperBuilder createBuilder() {
-        return null;
+        return new GraphDBSPARQLWrapperBuilder();
     }
 }

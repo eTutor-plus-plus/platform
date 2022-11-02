@@ -17,6 +17,6 @@ public class FusekiSPARQLWrapperFactory implements SPARQLWrapperFactory {
      */
     @Override
     public SPARQLWrapperBuilder createBuilder() {
-        return null;
+        return new FusekiSPARQLWrapperBuilder();
     }
 }
