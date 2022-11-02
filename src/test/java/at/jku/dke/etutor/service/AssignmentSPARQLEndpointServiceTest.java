@@ -10,6 +10,8 @@ import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.LearningGoalAlreadyExistsException;
 import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
+import at.jku.dke.etutor.sparql.SPARQLWrapperFactory;
+import at.jku.dke.etutor.sparql.impl.FusekiSPARQLWrapperFactory;
 import one.util.streamex.StreamEx;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -40,6 +42,7 @@ public class AssignmentSPARQLEndpointServiceTest {
     private AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private SPARQLEndpointService sparqlEndpointService;
     private RDFConnectionFactory rdfConnectionFactory;
+    private SPARQLWrapperFactory sparqlWrapperFactory;
 
     /**
      * Method which initializes the dataset and endpoint service before each run.
@@ -51,7 +54,8 @@ public class AssignmentSPARQLEndpointServiceTest {
         Dataset dataset = DatasetFactory.createTxnMem();
         rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
-        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
+        sparqlWrapperFactory = new FusekiSPARQLWrapperFactory();
+        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory, sparqlWrapperFactory);
 
         sparqlEndpointService.insertScheme();
 
@@ -499,6 +503,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
     /**
      * Tests the deletion of a task group
+     *
      * @throws TaskGroupAlreadyExistentException
      */
     @Test
@@ -515,6 +520,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
     /**
      * Tests modifying the task-groups description
+     *
      * @throws TaskGroupAlreadyExistentException if task group already exists
      */
     @Test

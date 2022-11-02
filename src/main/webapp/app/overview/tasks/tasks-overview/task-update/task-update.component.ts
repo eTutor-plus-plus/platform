@@ -461,25 +461,8 @@ export class TaskUpdateComponent implements OnInit {
     this.uploadFileId = newFileId;
   }
 
-  /**
-   * Patches the values from an SQL-Task group in the update form
-   * @param taskGroupId the task-group-id
-   */
-  private patchSqlTaskGroupValues(taskGroupId: string | undefined): void {
-    if (taskGroupId) {
-      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
-      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
-        this.updateForm.patchValue({
-          sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
-          sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
-          sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
-        });
-      });
-    }
-  }
-
   /*
-  Opaque ID transformation. Thomas Hollin
+   Opaque ID transformation. Thomas Hollin
    */
   public createMoodleId(id: string | undefined): string {
     let moodleId = '';
@@ -495,6 +478,23 @@ export class TaskUpdateComponent implements OnInit {
     inputElement.select();
     document.execCommand('copy');
     inputElement.setSelectionRange(0, 0);
+  }
+
+  /**
+   * Patches the values from an SQL-Task group in the update form
+   * @param taskGroupId the task-group-id
+   */
+  private patchSqlTaskGroupValues(taskGroupId: string | undefined): void {
+    if (taskGroupId) {
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
+      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+        this.updateForm.patchValue({
+          sqlCreateStatements: taskGroupDTO.sqlCreateStatements,
+          sqlInsertStatementsDiagnose: taskGroupDTO.sqlInsertStatementsDiagnose,
+          sqlInsertStatementsSubmission: taskGroupDTO.sqlInsertStatementsSubmission,
+        });
+      });
+    }
   }
 
   /**

@@ -16,6 +16,8 @@ import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
+import at.jku.dke.etutor.sparql.SPARQLWrapperFactory;
+import at.jku.dke.etutor.sparql.impl.FusekiSPARQLWrapperFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import one.util.streamex.StreamEx;
 import org.apache.commons.collections4.ListUtils;
@@ -39,7 +41,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +82,7 @@ public class LecturerSPARQLEndpointServiceTest {
     private String courseInstanceUrl;
     private ExerciseSheetDTO exerciseSheetDTO;
     private RDFConnectionFactory rdfConnectionFactory;
+    private SPARQLWrapperFactory sparqlWrapperFactory;
 
     /**
      * Initializes the test class.
@@ -116,7 +118,8 @@ public class LecturerSPARQLEndpointServiceTest {
             rdfConnectionFactory,
             userService
         );
-        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
+        sparqlWrapperFactory = new FusekiSPARQLWrapperFactory();
+        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory, sparqlWrapperFactory);
         exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(
             rdfConnectionFactory
         );

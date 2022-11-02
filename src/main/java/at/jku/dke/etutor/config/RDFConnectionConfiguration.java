@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * q
+ * Configuration class of the RDF connection factory bean.
  *
  * @author fne
  */
@@ -25,9 +25,9 @@ public class RDFConnectionConfiguration {
     }
 
     /**
+     * Returns the RDF connection factory.
      *
-     *
-     * @return
+     * @return the RDF connection factory
      */
     @Bean
     public RDFConnectionFactory getRDFConnection() {
