@@ -183,7 +183,8 @@ public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointServ
             Model model = ModelFactory.createDefaultModel();
             model.read(schemeStream, null, "TTL");
 
-            Txn.executeWrite(conn, () -> conn.load(model));
+            //Txn.executeWrite(conn, () -> conn.load(model));
+            //conn.load(model);
         } catch (IOException ex) {
             log.error("Internal error! Must not occur!", ex);
         }

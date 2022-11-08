@@ -57,7 +57,7 @@ public class ApplicationProperties {
      * Configuration class for the fuseki connection.
      */
     public static class Fuseki {
-        private String baseUrl = "http://localhost:3030/etutorpp-database";
+        private String baseUrl = "http://localhost:7200/repositories/etutor";
 
         /**
          * Returns the base url for the fuseki connection
@@ -82,7 +82,7 @@ public class ApplicationProperties {
      * Configuration class for the SPARQL endpoint configuration.
      */
     public static class SPARQLEndpointConfiguration {
-        private SPARQLEndpointType sparqlEndpointType = SPARQLEndpointType.FUSEKI;
+        private SPARQLEndpointType sparqlEndpointType = SPARQLEndpointType.GRAPHDB;
 
         /**
          * Returns the endpoint's type.
