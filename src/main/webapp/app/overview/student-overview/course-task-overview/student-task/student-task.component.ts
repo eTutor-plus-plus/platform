@@ -23,7 +23,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
-  public isDispatcherTask = true;
+  public isDispatcherTask = false;
   public uploadTaskFileId = -1;
 
   public exercise_id = '';
@@ -108,7 +108,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           }
 
           this._taskModel.taskGroupId;
-
+          // Todo: make this in the assignment-component directly
           this.submission = await this.studentService
             .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
