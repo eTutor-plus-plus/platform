@@ -1,13 +1,8 @@
-# etutorPlusPlus
+# eTutor++: Platform
 
-<<<<<<< HEAD
 This application was generated using JHipster 7.2.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.2.0](https://www.jhipster.tech/documentation-archive/v7.2.0).
 =======
 Fuseki cmd: fuseki-server --config config_etutor_fulltext.ttl
-
-This application was generated using JHipster 6.10.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.10.1](https://www.jhipster.tech/documentation-archive/v6.10.1).
-
-> > > > > > > 089f823533aa793d2c06797fb38e8191e9548b8d
 
 ## Development
 
