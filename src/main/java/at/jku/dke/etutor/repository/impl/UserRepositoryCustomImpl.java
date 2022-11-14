@@ -73,11 +73,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public Page<User> findAllPagedWithFilter(Pageable pageable, String filter) {
         TypedQuery<Long> countQuery = entityManager.createQuery("""
             SELECT COUNT(u) FROM User u
-            WHERE u.login LIKE :qry OR u.firstName LIKE :qry or u.lastName LIKE :qry
+            WHERE lower(u.login) LIKE :qry OR lower(u.firstName) LIKE :qry or lower(u.lastName) LIKE :qry
             """, Long.class);
         TypedQuery<User> userQuery = entityManager.createQuery("""
             SELECT u FROM User u
-            WHERE u.login LIKE :qry OR u.firstName LIKE :qry or u.lastName LIKE :qry
+            WHERE lower(u.login) LIKE :qry OR lower(u.firstName) LIKE :qry or lower(u.lastName) LIKE :qry
             ORDER BY u.id
             """, User.class);
 
@@ -86,8 +86,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
             userQuery.setMaxResults(pageable.getPageSize());
         }
 
-        countQuery.setParameter("qry", String.format("%%%s%%", filter.trim()));
-        userQuery.setParameter("qry", String.format("%%%s%%", filter.trim()));
+        var qryParam = String.format("%%%s%%", filter.toLowerCase().trim());
+        countQuery.setParameter("qry", qryParam);
+        userQuery.setParameter("qry", qryParam);
 
         long count = countQuery.getSingleResult();
 

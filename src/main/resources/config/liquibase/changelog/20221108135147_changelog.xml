@@ -3,19 +3,19 @@
     <changeSet author="fne" id="20221108135147-1">
         <comment>For the fulltext index, the following command must be executed in psql command prompt: create extension pg_trgm;</comment>
         <sql dbms="postgresql">
-            CREATE INDEX trgm_idx_jhi_user_first_name ON jhi_user USING gin (first_name gin_trgm_ops)
+            CREATE INDEX trgm_idx_jhi_user_first_name ON jhi_user USING gin (lower(first_name) gin_trgm_ops)
             <comment>Index creation on user's fist_name</comment>
         </sql>
     </changeSet>
     <changeSet author="fne" id="20221108135147-2">
         <sql dbms="postgresql">
-            CREATE INDEX trgm_idx_jhi_user_last_name ON jhi_user USING gin (last_name gin_trgm_ops)
+            CREATE INDEX trgm_idx_jhi_user_last_name ON jhi_user USING gin (lower(last_name) gin_trgm_ops)
             <comment>Index creation on user's last_name</comment>
         </sql>
     </changeSet>
     <changeSet author="fne" id="20221108135147-3">
         <sql dbms="postgresql">
-            CREATE INDEX trgm_idx_jhi_user_login ON jhi_user USING gin (login gin_trgm_ops)
+            CREATE INDEX trgm_idx_jhi_user_login ON jhi_user USING gin (lower(login) gin_trgm_ops)
             <comment>Index creation on user's login</comment>
         </sql>
     </changeSet>
