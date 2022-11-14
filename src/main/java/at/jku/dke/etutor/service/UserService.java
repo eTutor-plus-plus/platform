@@ -384,6 +384,18 @@ public class UserService {
         return userRepository.findAll(pageable).map(AdminUserDTO::new);
     }
 
+    /**
+     * Returns all users filtered by the given filter.
+     *
+     * @param filter the filter
+     * @param pageable the pageable object
+     * @return list of {@code AdminUserDTO}s
+     */
+    @Transactional(readOnly = true)
+    public Page<AdminUserDTO> getAllManagedUsersFiltered(String filter, Pageable pageable) {
+        return userRepository.findAllPagedWithFilter(pageable, filter).map(AdminUserDTO::new);
+    }
+
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
         return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);

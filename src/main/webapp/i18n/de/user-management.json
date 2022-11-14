@@ -5,7 +5,8 @@
       "refreshListLabel": "Refresh list",
       "createLabel": "Neuen Benutzer erstellen",
       "createOrEditLabel": "Benutzer erstellen oder bearbeiten",
-      "removeAllInactive": "Alle inaktiven Benutzer löschen"
+      "removeAllInactive": "Alle inaktiven Benutzer löschen",
+      "fulltextSearch": "Volltextsuche..."
     },
     "created": "Ein neuer Benutzer wurde mit ID {{ param }} erstellt",
     "updated": "Ein Benutzer mit ID {{ param }} wurde geändert",
