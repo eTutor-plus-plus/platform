@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/config/pagination.constants';
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { UserManagementService } from '../service/user-management.service';
-import { User } from '../user-management.model';
+import { IUser, User } from '../user-management.model';
 import { UserManagementDeleteDialogComponent } from '../delete/user-management-delete-dialog.component';
 import { AlertService } from '../../../core/util/alert.service';
 
@@ -27,6 +27,8 @@ export class UserManagementComponent implements OnInit {
   ascending!: boolean;
 
   isRemovingUsers = false;
+  searchString = '';
+  appliedSearchString?: string = undefined;
 
   constructor(
     private userService: UserManagementService,
@@ -63,19 +65,39 @@ export class UserManagementComponent implements OnInit {
 
   loadAll(): void {
     this.isLoading = true;
-    this.userService
-      .query({
+
+    let userObservable: Observable<HttpResponse<IUser[]>>;
+
+    if (this.searchString !== this.appliedSearchString) {
+      // Reset page when there has been a change since the last query.
+      this.page = 1;
+    }
+
+    if (this.searchString === '') {
+      this.appliedSearchString = undefined;
+
+      userObservable = this.userService.query({
         page: this.page - 1,
         size: this.itemsPerPage,
         sort: this.sort(),
-      })
-      .subscribe(
-        (res: HttpResponse<User[]>) => {
-          this.isLoading = false;
-          this.onSuccess(res.body, res.headers);
-        },
-        () => (this.isLoading = false)
-      );
+      });
+    } else {
+      this.appliedSearchString = this.searchString.trim();
+
+      userObservable = this.userService.queryFiltered(this.appliedSearchString, {
+        page: this.page - 1,
+        size: this.itemsPerPage,
+        sort: this.sort(),
+      });
+    }
+
+    userObservable.subscribe(
+      (res: HttpResponse<User[]>) => {
+        this.isLoading = false;
+        this.onSuccess(res.body, res.headers);
+      },
+      () => (this.isLoading = false)
+    );
   }
 
   transition(): void {
