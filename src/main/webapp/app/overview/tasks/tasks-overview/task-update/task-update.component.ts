@@ -33,6 +33,7 @@ export class TaskUpdateComponent implements OnInit {
   public isXQueryTask = false;
   public isDLQTask = false;
   public isBpmnTask = false;
+  public isPmTask = false; // boolean flag
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
 
@@ -64,6 +65,12 @@ export class TaskUpdateComponent implements OnInit {
     instruction: [''],
     taskGroup: ['', []],
     bpmnTestConfig: [''],
+    // PM related variables:
+    maxActivity: [''],
+    minActivity: [''],
+    maxLogSize: [''],
+    minLogSize: [''],
+    configNum: [''],
   });
 
   private _taskModel?: ITaskModel;
@@ -188,6 +195,28 @@ export class TaskUpdateComponent implements OnInit {
       newTask.bpmnTestConfig = bpmnTestConfig;
     }
 
+    // variables related to PM Task
+    const maxActivity: number = this.updateForm.get('maxActivity')!.value;
+    if (maxActivity) {
+      newTask.maxActivity = maxActivity;
+    }
+    const minActivity: number = this.updateForm.get('minActivity')!.value;
+    if (minActivity) {
+      newTask.minActivity = minActivity;
+    }
+    const maxLogSize: number = this.updateForm.get('maxLogSize')!.value;
+    if (maxLogSize) {
+      newTask.maxLogSize = maxLogSize;
+    }
+    const minLogSize: number = this.updateForm.get('minLogSize')!.value;
+    if (minLogSize) {
+      newTask.minLogSize = minLogSize;
+    }
+    const configNum: string = this.updateForm.get('configNum')!.value;
+    if (configNum) {
+      newTask.configNum = configNum;
+    }
+
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -214,6 +243,11 @@ export class TaskUpdateComponent implements OnInit {
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
         bpmnTestConfig: newTask.bpmnTestConfig,
+        maxActivity: newTask.maxActivity,
+        minActivity: newTask.minActivity,
+        maxLogSize: newTask.maxLogSize,
+        minLogSize: newTask.minLogSize,
+        configNum: newTask.configNum,
         url: newTask.url,
         instruction: newTask.instruction,
         privateTask: newTask.privateTask,
@@ -270,6 +304,12 @@ export class TaskUpdateComponent implements OnInit {
       const instruction = value.instruction ?? '';
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
+      // PM related variables
+      const maxActivity = value.maxActivity;
+      const minActivity = value.minActivity;
+      const maxLogSize = value.maxLogSize;
+      const minLogSize = value.minLogSize;
+      const configNum = value.configNum;
 
       if (taskIdForDispatcher) {
         this.updateForm.get('taskIdForDispatcher')!.disable();
@@ -299,6 +339,12 @@ export class TaskUpdateComponent implements OnInit {
         instruction,
         taskGroup: value.taskGroupId ?? '',
         bpmnTestConfig,
+        // PM related variables
+        maxActivity,
+        minActivity,
+        maxLogSize,
+        minLogSize,
+        configNum,
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -362,6 +408,8 @@ export class TaskUpdateComponent implements OnInit {
       this.isRATask = true;
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
+      this.isPmTask = true;
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
@@ -392,14 +440,26 @@ export class TaskUpdateComponent implements OnInit {
    * Reacts to the input of a task-id for the dispatcher
    */
   public taskIdForDispatcherEntered(): void {
-    if (this.updateForm.get('taskIdForDispatcher')!.value) {
-      this.updateForm.get('taskGroup')?.clearValidators();
-      this.updateForm.get('taskGroup')?.updateValueAndValidity();
-      this.updateForm.updateValueAndValidity();
+    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+
+    if (
+      taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value
+    ) {
+      if (this.updateForm.get('taskIdForDispatcher')!.value) {
+        this.updateForm.get('taskGroup')?.clearValidators();
+        this.updateForm.get('taskGroup')?.updateValueAndValidity();
+        this.updateForm.updateValueAndValidity();
+      } else {
+        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+        this.updateForm.get('taskGroup')!.updateValueAndValidity();
+        this.updateForm.updateValueAndValidity();
+      }
     } else {
-      this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-      this.updateForm.get('taskGroup')!.updateValueAndValidity();
-      this.updateForm.updateValueAndValidity();
+      // === PmTask
     }
   }
 
@@ -523,6 +583,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isRATask = false;
     this.isDLQTask = false;
     this.isBpmnTask = false;
+    this.isPmTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -559,6 +620,7 @@ export class TaskUpdateComponent implements OnInit {
       taskAssignmentType === TaskAssignmentType.SQLTask.value ||
       taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
       taskAssignmentType === TaskAssignmentType.XQueryTask.value
+      //taskAssignmentType === TaskAssignmentType.PmTask.value
     );
   }
 }

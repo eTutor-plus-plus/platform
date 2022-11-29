@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherGradingDTO;
 import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.PmExerciseLogDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -19,6 +20,7 @@ import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import liquibase.pro.packaged.E;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -433,19 +435,55 @@ public class StudentResource {
         if(grading == null) return ResponseEntity.ok().build();
 
         double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        if(points == 0
-            && submission.getPassedAttributes().get("action").equals("submit")
-            && grading.getMaxPoints() == grading.getPoints()
-            && grading.getMaxPoints() != 0
-        ){
-            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
-            var maxPoints = weightingAndMaxPointsIdArr[1];
 
-            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+        // note: status as of 23.11.22
+        if(!submission.getPassedAttributes().containsKey("isPmTask")){
+            if(points == 0
+                && submission.getPassedAttributes().get("action").equals("submit")
+                && grading.getMaxPoints() == grading.getPoints()
+                && grading.getMaxPoints() != 0
+            ){
+                var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+                var maxPoints = weightingAndMaxPointsIdArr[1];
 
-            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
-            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+                points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
+
+                studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+                studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+            }
+        }else{  // isPmTask
+            if(points == 0
+                && (!studentService.isTaskSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo))
+                && submission.getPassedAttributes().get("action").equals("submit")
+                && grading.getMaxPoints() != 0
+            ){
+                var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+
+                if(highestDiagnoseLevel == 3){
+                    points = grading.getPoints() - (2 * highestDiagnoseLevel * diagnoseLevelWeighting);
+                    if(points < 0){
+                        points = 0;
+                    }
+                }else if(highestDiagnoseLevel == 2){
+                    points = grading.getPoints() - (highestDiagnoseLevel * diagnoseLevelWeighting);
+                    if(points < 0){
+                        points = 0;
+                    }
+                }else if(highestDiagnoseLevel == 1){
+                    points = grading.getPoints() - (highestDiagnoseLevel * diagnoseLevelWeighting);
+                    if(points < 0){
+                        points = 0;
+                    }
+                }else{
+                    points = grading.getPoints();   // full points
+                }
+
+
+                studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+                studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+            }
         }
+
         return ResponseEntity.ok().build();
     }
 
@@ -580,5 +618,31 @@ public class StudentResource {
         int id = optionalId.orElse(-1);
 
         return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo}
+     * Returns the log corresponding to the given exercise
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the log of the exercise
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/pmlog")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo){
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        PmExerciseLogDTO pmExerciseLogDTO = null;
+
+        // fetches the dispatcher exercise id corresponding to the assigned exercise
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+
+        try{
+            // fetches the log information corresponding to exercise, wrapped in DTO
+            pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElse(-1));
+        }catch(DispatcherRequestFailedException e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(pmExerciseLogDTO);
     }
 }

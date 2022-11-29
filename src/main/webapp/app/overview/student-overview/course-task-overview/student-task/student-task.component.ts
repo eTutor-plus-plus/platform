@@ -24,6 +24,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
   public isDispatcherTask = true;
+  public isPmTask = false;
   public uploadTaskFileId = -1;
 
   public exercise_id = '';
@@ -36,11 +37,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public taskGroup: ITaskGroupDTO | undefined;
   public uploadFileId = -1;
 
-  private readonly _instance?: ICourseInstanceInformationDTO;
-  private _paramMapSubscription?: Subscription;
-  private _exerciseSheetUUID = '';
+  public readonly _instance?: ICourseInstanceInformationDTO;
+  public _taskNo = 0;
+  public _exerciseSheetUUID = '';
   private _taskUUID = '';
-  private _taskNo = 0;
+  private _paramMapSubscription?: Subscription;
   private _taskModel?: ITaskModel;
 
   /**
@@ -92,7 +93,10 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value;
 
-        if (this.isDispatcherTask) {
+        this.isPmTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.PmTask.value;
+
+        // really this.isPmTask?
+        if (this.isDispatcherTask || this.isPmTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
 
           if (this._taskModel.taskIdForDispatcher) {

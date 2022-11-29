@@ -301,6 +301,7 @@ export class AssignmentComponent implements AfterContentChecked {
       passedAttributes: jsonAttributes,
       taskType: this.task_type ?? '',
       passedParameters: new Map<string, string>(),
+      maxPoints: this.maxPoints,
     };
     this.submissionDto = submissionDto;
 
