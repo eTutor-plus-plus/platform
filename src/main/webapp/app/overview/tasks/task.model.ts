@@ -20,6 +20,11 @@ export interface ITaskDisplayModel {
    * Indicates whether this task is a private task or not.
    */
   privateTask: boolean;
+
+  /**
+   * Indicates whether the current user is allowed to edit this task or not.
+   */
+  currentUserAllowedToEdit: boolean;
 }
 
 /**
@@ -133,6 +138,10 @@ export interface ITaskModel extends INewTaskModel {
    * The task's internal creator.
    */
   internalCreator: string;
+  /**
+   * Indicates whether the current user is allowed to edit this task or not.
+   */
+  currentUserAllowedToEdit: boolean;
 }
 
 /**

@@ -18,6 +18,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Tests for the {@code AssignmentSPARQLEndpointService} class.
@@ -51,8 +54,10 @@ public class AssignmentSPARQLEndpointServiceTest {
         Dataset dataset = DatasetFactory.createTxnMem();
         rdfConnectionFactory = new LocalRDFConnectionFactory(dataset);
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
-        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
 
+        var mockedPermissionManager = Mockito.mock(PermissionManager.class);
+        doReturn(true).when(mockedPermissionManager).isUserAllowedToEditTaskAssignment(anyString(), anyString());
+        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory, mockedPermissionManager);
         sparqlEndpointService.insertScheme();
 
         NewLearningGoalDTO newLearningGoalDTO = new NewLearningGoalDTO();

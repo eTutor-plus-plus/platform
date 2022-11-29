@@ -39,7 +39,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +75,9 @@ public class LecturerSPARQLEndpointServiceTest {
 
     @Autowired
     private SpringLiquibase springLiquibase;
+
+    @Autowired
+    private PermissionManager permissionManager;
 
     private User student;
     private String courseInstanceUrl;
@@ -116,7 +118,7 @@ public class LecturerSPARQLEndpointServiceTest {
             rdfConnectionFactory,
             userService
         );
-        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory);
+        assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory, permissionManager);
         exerciseSheetSPARQLEndpointService = new ExerciseSheetSPARQLEndpointService(
             rdfConnectionFactory
         );

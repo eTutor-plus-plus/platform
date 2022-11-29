@@ -32,6 +32,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     @NotEmpty
     private String internalCreator;
 
+    private boolean currentUserAllowedToEdit;
+
     /**
      * Default constructor.
      */
@@ -42,12 +44,13 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     /**
      * Constructor.
      *
-     * @param newTaskAssignmentDTO the new task assignment
-     * @param id                   the created id
-     * @param creationDate         the creation date
-     * @param internalCreator      the internal creator
+     * @param newTaskAssignmentDTO     the new task assignment
+     * @param id                       the created id
+     * @param creationDate             the creation date
+     * @param internalCreator          the internal creator
+     * @param currentUserAllowedToEdit indicates whether the current user is allowed to edit the task.
      */
-    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator) {
+    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator, boolean currentUserAllowedToEdit) {
         super();
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
@@ -75,6 +78,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
+        setCurrentUserAllowedToEdit(currentUserAllowedToEdit);
     }
 
     /**
@@ -109,9 +113,9 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setHeader(resource.getProperty(ETutorVocabulary.hasTaskHeader).getString());
 
         Statement uploadFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadFileId);
-        if(uploadFileIdStatement != null){
+        if (uploadFileIdStatement != null) {
             setUploadFileId(uploadFileIdStatement.getInt());
-        }else{
+        } else {
             setUploadFileId(-1);
         }
 
@@ -120,15 +124,15 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
-        if(sqlSolutionStatement != null){
+        if (sqlSolutionStatement != null) {
             setSqlSolution(sqlSolutionStatement.getString());
         }
         Statement maxPointsStatement = resource.getProperty(ETutorVocabulary.hasMaxPoints);
-        if(maxPointsStatement != null){
+        if (maxPointsStatement != null) {
             setMaxPoints(maxPointsStatement.getString());
         }
         Statement diagnoseLevelWeightingStatement = resource.getProperty(ETutorVocabulary.hasDiagnoseLevelWeighting);
-        if(diagnoseLevelWeightingStatement != null){
+        if (diagnoseLevelWeightingStatement != null) {
             setDiagnoseLevelWeighting(diagnoseLevelWeightingStatement.getString());
         }
         Statement processingTimeStatement = resource.getProperty(ETutorVocabulary.hasTypicalProcessingTime);
@@ -136,31 +140,31 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setProcessingTime(processingTimeStatement.getString());
         }
         Statement xQuerySolutionStatement = resource.getProperty(ETutorVocabulary.hasXQuerySolution);
-        if(xQuerySolutionStatement != null){
+        if (xQuerySolutionStatement != null) {
             setxQuerySolution(xQuerySolutionStatement.getString());
         }
         Statement xPathSortingStatement = resource.getProperty(ETutorVocabulary.hasXQueryXPathSorting);
-        if(xPathSortingStatement != null){
+        if (xPathSortingStatement != null) {
             setxQueryXPathSorting(xPathSortingStatement.getString());
         }
 
         Statement datalogSolutionStatement = resource.getProperty(ETutorVocabulary.hasDLGSolution);
-        if(datalogSolutionStatement != null){
+        if (datalogSolutionStatement != null) {
             setDatalogSolution(datalogSolutionStatement.getString());
         }
 
         Statement datalogQueryStatment = resource.getProperty(ETutorVocabulary.hasDLGQuery);
-        if(datalogQueryStatment != null){
+        if (datalogQueryStatment != null) {
             setDatalogQuery(datalogQueryStatment.getString());
         }
 
         Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
-        if(datalogUncheckedTermsStatement != null){
+        if (datalogUncheckedTermsStatement != null) {
             setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
         }
 
         Statement bpmnConfig = resource.getProperty(ETutorVocabulary.hasBpmnConfig);
-        if(bpmnConfig != null){
+        if (bpmnConfig != null) {
             setBpmnTestConfig(bpmnConfig.getString());
         }
 
@@ -169,6 +173,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());
         setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalTaskCreator).getString());
+        setCurrentUserAllowedToEdit(false);
 
         Statement urlStatement = resource.getProperty(ETutorVocabulary.hasTaskUrl);
         if (urlStatement != null) {
@@ -242,6 +247,24 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
      */
     public void setInternalCreator(String internalCreator) {
         this.internalCreator = internalCreator;
+    }
+
+    /**
+     * Returns whether the current user is allowed to edit this task or not.
+     *
+     * @return {@code true} if the user is allowed to edit, otherwise {@code false}
+     */
+    public boolean isCurrentUserAllowedToEdit() {
+        return currentUserAllowedToEdit;
+    }
+
+    /**
+     * Sets whether the current user is allowed to edit or not.
+     *
+     * @param currentUserAllowedToEdit the value to set
+     */
+    public void setCurrentUserAllowedToEdit(boolean currentUserAllowedToEdit) {
+        this.currentUserAllowedToEdit = currentUserAllowedToEdit;
     }
 
     /**

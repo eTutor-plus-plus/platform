@@ -94,6 +94,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
               privateTask: response.body.privateTask,
               header: response.body.header,
               internalCreator: response.body.internalCreator,
+              currentUserAllowedToEdit: response.body.currentUserAllowedToEdit,
             });
             this.singleEntryDisplay = true;
           }
@@ -222,6 +223,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param currentModel the current task model
    */
   public isCurrentUserAllowedToEdit(currentModel: ITaskDisplayModel): boolean {
+    //TODO: Adapt based on general allowance.
     return currentModel.internalCreator === this.userLogin;
   }
 

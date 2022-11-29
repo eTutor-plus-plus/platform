@@ -224,6 +224,7 @@ export class TaskUpdateComponent implements OnInit {
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
+        currentUserAllowedToEdit: this.taskModel!.currentUserAllowedToEdit,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
