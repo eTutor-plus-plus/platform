@@ -269,7 +269,7 @@ public class TaskAssignmentResourceIT {
         var assignmentFromDB = assignmentsFromDB.first();
         assertThat(assignmentFromDB)
             .usingRecursiveComparison()
-            .ignoringFields("creationDate")
+            .ignoringFields("creationDate", "currentUserAllowedToEdit")
             .isEqualTo(assignment);
     }
 
