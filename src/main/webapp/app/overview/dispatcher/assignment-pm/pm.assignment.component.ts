@@ -207,16 +207,15 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
       this.log = DTO.log;
       this.dispatcherExerciseID = DTO.exerciseId;
     });
+    // reassign submission in form of JSON to variables
+    if (this.submission) {
+      this.getSubmissionFromJson();
+    }
   }
 
   public ngAfterContentChecked(): void {
     if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
       this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
-    }
-
-    // reassign submission in form of JSON to variables
-    if (this.submission) {
-      this.getSubmissionFromJson();
     }
   }
 
@@ -276,9 +275,11 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
     attributes.set('aaI5', this.aaI5);
     attributes.set('aaI6', this.aaI6);
     attributes.set('aaI7', this.aaI7);
-    attributes.set('diagnoseLevel', this.diagnoseLevel.toFixed());
+    const diagnoseLevel = this.diagnoseLevel ? this.diagnoseLevel.toFixed() : '';
+    attributes.set('diagnoseLevel', diagnoseLevel);
     attributes.set('isPmTask', 'true');
-    attributes.set('exerciseId', this.dispatcherExerciseID.toFixed());
+    const exerciseId = this.dispatcherExerciseID ? this.dispatcherExerciseID.toFixed() : '';
+    attributes.set('exerciseId', exerciseId);
 
     const jsonAttributes: { [k: string]: any } = {};
     attributes.forEach((key, value) => {
