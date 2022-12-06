@@ -1,4 +1,5 @@
 import { ILearningGoalDisplayModel } from '../shared/learning-goal-model';
+import { IPermission } from '../shared/permissions/permission.model';
 
 /**
  * Interface for a task display model.
@@ -20,11 +21,10 @@ export interface ITaskDisplayModel {
    * Indicates whether this task is a private task or not.
    */
   privateTask: boolean;
-
   /**
-   * Indicates whether the current user is allowed to edit this task or not.
+   * Contains the permissions for this task display.
    */
-  currentUserAllowedToEdit: boolean;
+  permissions: IPermission;
 }
 
 /**
@@ -139,9 +139,9 @@ export interface ITaskModel extends INewTaskModel {
    */
   internalCreator: string;
   /**
-   * Indicates whether the current user is allowed to edit this task or not.
+   * Contains the permissions for this task model.
    */
-  currentUserAllowedToEdit: boolean;
+  permissions: IPermission;
 }
 
 /**

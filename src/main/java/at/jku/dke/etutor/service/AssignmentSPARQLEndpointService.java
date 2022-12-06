@@ -1,8 +1,10 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.factory.PermissionFactory;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
+import at.jku.dke.etutor.service.dto.permission.PermissionDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
@@ -188,7 +190,8 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         // current user allowed to edit can be set to true because the current user
         // is also the creator
-        return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator, true);
+        var permissions = PermissionFactory.getPermissionsForOwner();
+        return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator, permissions);
     }
 
     /**
@@ -687,8 +690,8 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
                     String internalCreator = querySolution.getLiteral("?internalCreator").getString();
                     boolean privateTask = querySolution.getLiteral("?privateTask").getBoolean();
                     boolean userAllowedToEdit = permissionManager.isUserAllowedToEditTaskAssignment(user, assignmentId);
-
-                    resultList.add(new TaskDisplayDTO(assignmentId, header, internalCreator, privateTask, userAllowedToEdit));
+                    var permissions = new PermissionDTO(userAllowedToEdit);
+                    resultList.add(new TaskDisplayDTO(assignmentId, header, internalCreator, privateTask, permissions));
                 }
 
                 boolean hasNext = pageable.isPaged() && resultList.size() > pageable.getPageSize();

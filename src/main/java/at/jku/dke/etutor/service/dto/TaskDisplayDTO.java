@@ -1,5 +1,7 @@
 package at.jku.dke.etutor.service.dto;
 
+import at.jku.dke.etutor.service.dto.permission.PermissionDTO;
+
 /**
  * DTO of a task display i.e. task header + id.
  *
@@ -11,7 +13,7 @@ public class TaskDisplayDTO {
     private String header;
     private String internalCreator;
     private boolean privateTask;
-    private boolean currentUserAllowedToEdit;
+    private PermissionDTO permissions;
 
     /**
      * Constructor.
@@ -23,18 +25,18 @@ public class TaskDisplayDTO {
     /**
      * Constructor.
      *
-     * @param taskId                   the task's id
-     * @param header                   the task's header
-     * @param internalCreator          the task's internal creator
-     * @param privateTask              the private task indicator
-     * @param currentUserAllowedToEdit indicates whether the current user is allowed to edit the displayed task
+     * @param taskId          the task's id
+     * @param header          the task's header
+     * @param internalCreator the task's internal creator
+     * @param privateTask     the private task indicator
+     * @param permissions     the permission object
      */
-    public TaskDisplayDTO(String taskId, String header, String internalCreator, boolean privateTask, boolean currentUserAllowedToEdit) {
+    public TaskDisplayDTO(String taskId, String header, String internalCreator, boolean privateTask, PermissionDTO permissions) {
         this.taskId = taskId;
         this.header = header;
         this.internalCreator = internalCreator;
         this.privateTask = privateTask;
-        this.currentUserAllowedToEdit = currentUserAllowedToEdit;
+        this.permissions = permissions.clone();
     }
 
     /**
@@ -110,20 +112,20 @@ public class TaskDisplayDTO {
     }
 
     /**
-     * Returns whether the current user is allowed to edit this task or not.
+     * Returns this task display's permissions.
      *
-     * @return {@code true}, if the current user is allowed to edit this task, otherwise {@code false}
+     * @return the permissions
      */
-    public boolean isCurrentUserAllowedToEdit() {
-        return currentUserAllowedToEdit;
+    public PermissionDTO getPermissions() {
+        return permissions;
     }
 
     /**
-     * Sets whether the current user is allowed to edit this task or not.
+     * Sets this task display's permissions.
      *
-     * @param currentUserAllowedToEdit the value to set
+     * @param permissions the permission to set
      */
-    public void setCurrentUserAllowedToEdit(boolean currentUserAllowedToEdit) {
-        this.currentUserAllowedToEdit = currentUserAllowedToEdit;
+    public void setPermissions(PermissionDTO permissions) {
+        this.permissions = permissions.clone();
     }
 }

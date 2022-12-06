@@ -10,6 +10,7 @@ import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-gro
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 import { LecturerRunSubmissionComponent } from '../../../dispatcher/lecturer-run-submission/lecturer-run-submission.component';
+import { cloneDeep } from 'lodash';
 
 /**
  * Component for creating / updating tasks.
@@ -224,7 +225,7 @@ export class TaskUpdateComponent implements OnInit {
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
-        currentUserAllowedToEdit: this.taskModel!.currentUserAllowedToEdit,
+        permissions: cloneDeep(this.taskModel!.permissions),
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -448,6 +449,7 @@ export class TaskUpdateComponent implements OnInit {
    *
    * @param fileId the file to remove
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public handleFileRemoved(fileId: number): void {
     this.uploadFileId = -1;
   }

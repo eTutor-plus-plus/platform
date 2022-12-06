@@ -14,6 +14,7 @@ import { EventManager } from 'app/core/util/event-manager.service';
 import { ITEMS_PER_SLICE } from 'app/config/pagination.constants';
 import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.component';
 import { SqlExerciseService } from '../../dispatcher/services/sql-exercise.service';
+import { cloneDeep } from 'lodash';
 
 /**
  * Component which provides an overview of the tasks.
@@ -94,7 +95,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
               privateTask: response.body.privateTask,
               header: response.body.header,
               internalCreator: response.body.internalCreator,
-              currentUserAllowedToEdit: response.body.currentUserAllowedToEdit,
+              permissions: cloneDeep(response.body.permissions),
             });
             this.singleEntryDisplay = true;
           }
@@ -223,7 +224,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param currentModel the current task model
    */
   public isCurrentUserAllowedToEdit(currentModel: ITaskDisplayModel): boolean {
-    //TODO: Adapt based on general allowance.
+    // TODO: Adapt based on general allowance.
     return currentModel.internalCreator === this.userLogin;
   }
 

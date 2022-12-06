@@ -1,6 +1,8 @@
 package at.jku.dke.etutor.service.dto.taskassignment;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.factory.PermissionFactory;
+import at.jku.dke.etutor.service.dto.permission.PermissionDTO;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -32,7 +34,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     @NotEmpty
     private String internalCreator;
 
-    private boolean currentUserAllowedToEdit;
+    private PermissionDTO permissions;
 
     /**
      * Default constructor.
@@ -44,13 +46,14 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     /**
      * Constructor.
      *
-     * @param newTaskAssignmentDTO     the new task assignment
-     * @param id                       the created id
-     * @param creationDate             the creation date
-     * @param internalCreator          the internal creator
-     * @param currentUserAllowedToEdit indicates whether the current user is allowed to edit the task.
+     * @param newTaskAssignmentDTO the new task assignment
+     * @param id                   the created id
+     * @param creationDate         the creation date
+     * @param internalCreator      the internal creator
+     * @param permissions          the permissions of this task
      */
-    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator, boolean currentUserAllowedToEdit) {
+    public TaskAssignmentDTO(NewTaskAssignmentDTO newTaskAssignmentDTO, String id, Instant creationDate, String internalCreator,
+                             PermissionDTO permissions) {
         super();
         setLearningGoalIds(newTaskAssignmentDTO.getLearningGoalIds());
         setCreator(newTaskAssignmentDTO.getCreator());
@@ -78,7 +81,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        setCurrentUserAllowedToEdit(currentUserAllowedToEdit);
+        setPermissions(permissions);
     }
 
     /**
@@ -173,7 +176,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setTaskAssignmentTypeId(resource.getProperty(ETutorVocabulary.hasTaskAssignmentType).getObject().asResource().getURI());
         setOrganisationUnit(resource.getProperty(ETutorVocabulary.hasTaskOrganisationUnit).getString());
         setInternalCreator(resource.getProperty(ETutorVocabulary.hasInternalTaskCreator).getString());
-        setCurrentUserAllowedToEdit(false);
+        setPermissions(PermissionFactory.getDefaultPermissions());
 
         Statement urlStatement = resource.getProperty(ETutorVocabulary.hasTaskUrl);
         if (urlStatement != null) {
@@ -250,21 +253,21 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
     }
 
     /**
-     * Returns whether the current user is allowed to edit this task or not.
+     * Returns this object's permissions.
      *
-     * @return {@code true} if the user is allowed to edit, otherwise {@code false}
+     * @return the permissions
      */
-    public boolean isCurrentUserAllowedToEdit() {
-        return currentUserAllowedToEdit;
+    public PermissionDTO getPermissions() {
+        return permissions;
     }
 
     /**
-     * Sets whether the current user is allowed to edit or not.
+     * Sets this object's permissions.
      *
-     * @param currentUserAllowedToEdit the value to set
+     * @param permissions the permissions to set
      */
-    public void setCurrentUserAllowedToEdit(boolean currentUserAllowedToEdit) {
-        this.currentUserAllowedToEdit = currentUserAllowedToEdit;
+    public void setPermissions(PermissionDTO permissions) {
+        this.permissions = permissions;
     }
 
     /**
