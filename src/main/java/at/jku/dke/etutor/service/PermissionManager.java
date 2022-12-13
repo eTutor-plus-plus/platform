@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.Authority;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.event.TaskOwnerProvider;
 import one.util.streamex.StreamEx;
 import org.springframework.stereotype.Service;
 
@@ -33,11 +34,12 @@ public class PermissionManager {
     /**
      * Returns whether the given user is allowed to edit the given task.
      *
-     * @param user   the user's name
-     * @param taskId the task assignment id
+     * @param user              the user's name
+     * @param taskId            the task assignment id
+     * @param taskOwnerProvider the task owner provider
      * @return {@code true} if the user is allowed to edit the task, otherwise {@code false}
      */
-    public boolean isUserAllowedToEditTaskAssignment(String user, String taskId) {
+    public boolean isUserAllowedToEditTaskAssignment(String user, String taskId, TaskOwnerProvider taskOwnerProvider) {
         if (!userCache.containsKey(user)) {
             var userWithAuthorities = userService.getUserWithAuthoritiesByLogin(user).get();
             var newAuthoritiesSet = StreamEx.of(userWithAuthorities.getAuthorities())
@@ -47,7 +49,15 @@ public class PermissionManager {
         }
 
         Set<String> userAuthorities = userCache.get(user);
-        return userAuthorities.contains(AuthoritiesConstants.ADMIN);
+
+        boolean isAdmin = userAuthorities.contains(AuthoritiesConstants.ADMIN);
+
+        if (!isAdmin) {
+            // Test if the current user is the author of the task.
+            return user.equals(taskOwnerProvider.getTaskOwner());
+        }
+
+        return true;
     }
 }
 

@@ -164,7 +164,8 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> setTaskAssignment(@PathVariable String assignmentId, @RequestBody List<String> goalIds) {
         try {
-            assignmentSPARQLEndpointService.setTaskAssignment(assignmentId, goalIds);
+            String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+            assignmentSPARQLEndpointService.setTaskAssignment(assignmentId, goalIds, currentLogin);
             return ResponseEntity.noContent().build();
         } catch (InternalTaskAssignmentNonexistentException e) {
             throw new TaskAssignmentNonexistentException();

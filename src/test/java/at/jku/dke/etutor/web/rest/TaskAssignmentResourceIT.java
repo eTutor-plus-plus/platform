@@ -468,7 +468,7 @@ public class TaskAssignmentResourceIT {
         String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
         List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
 
-        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds, USERNAME);
 
         var result = restTaskAssignmentMockMvc
             .perform(get("/api/tasks/assignments/{id}/learninggoals", id))

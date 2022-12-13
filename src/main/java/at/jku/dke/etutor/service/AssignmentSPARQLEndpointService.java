@@ -417,11 +417,22 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
      *
      * @param taskAssignmentId the id of the initial task assignment.
      * @param goalIds          the list of goals which should be associated with the given task
-     * @throws InternalTaskAssignmentNonexistentException if the initial task assignment can not be found
+     * @param user             the username
+     * @throws InternalTaskAssignmentNonexistentException if the initial task assignment can not be found which might
+     *                                                    occur if a user is not allowed to edit a certain task
      */
-    public void setTaskAssignment(String taskAssignmentId, List<String> goalIds) throws InternalTaskAssignmentNonexistentException {
+    public void setTaskAssignment(String taskAssignmentId, List<String> goalIds, String user) throws InternalTaskAssignmentNonexistentException {
         Objects.requireNonNull(taskAssignmentId);
         Objects.requireNonNull(goalIds);
+
+        var optionalOriginalTaskAssignment = getTaskAssignmentByInternalId(taskAssignmentId);
+        if (optionalOriginalTaskAssignment.isEmpty()) {
+            throw new InternalTaskAssignmentNonexistentException();
+        }
+        var originalTaskAssignment = optionalOriginalTaskAssignment.get();
+        if (!permissionManager.isUserAllowedToEditTaskAssignment(user, taskAssignmentId, () -> originalTaskAssignment.getInternalCreator())) {
+            throw new InternalTaskAssignmentNonexistentException();
+        }
 
         ParameterizedSparqlString existQuery = new ParameterizedSparqlString(QRY_ASK_ASSIGNMENT_EXISTS);
         String assignment = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", taskAssignmentId);
@@ -689,7 +700,7 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
                     String header = querySolution.getLiteral("?header").getString();
                     String internalCreator = querySolution.getLiteral("?internalCreator").getString();
                     boolean privateTask = querySolution.getLiteral("?privateTask").getBoolean();
-                    boolean userAllowedToEdit = permissionManager.isUserAllowedToEditTaskAssignment(user, assignmentId);
+                    boolean userAllowedToEdit = permissionManager.isUserAllowedToEditTaskAssignment(user, assignmentId, () -> null);
                     var permissions = new PermissionDTO(userAllowedToEdit);
                     resultList.add(new TaskDisplayDTO(assignmentId, header, internalCreator, privateTask, permissions));
                 }

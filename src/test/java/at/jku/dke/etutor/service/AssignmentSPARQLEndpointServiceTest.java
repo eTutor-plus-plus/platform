@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
@@ -56,7 +57,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         sparqlEndpointService = new SPARQLEndpointService(rdfConnectionFactory);
 
         var mockedPermissionManager = Mockito.mock(PermissionManager.class);
-        doReturn(true).when(mockedPermissionManager).isUserAllowedToEditTaskAssignment(anyString(), anyString());
+        doReturn(true).when(mockedPermissionManager).isUserAllowedToEditTaskAssignment(anyString(), anyString(), any());
         assignmentSPARQLEndpointService = new AssignmentSPARQLEndpointService(rdfConnectionFactory, mockedPermissionManager);
         sparqlEndpointService.insertScheme();
 
@@ -265,9 +266,10 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testSetAssignmentWithNullValues() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment(null, null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment(null, null, OWNER))
+            .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("testid", null))
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("testid", null, OWNER))
             .isInstanceOf(NullPointerException.class);
     }
 
@@ -276,7 +278,7 @@ public class AssignmentSPARQLEndpointServiceTest {
      */
     @Test
     public void testSetAssignmentWithNonexistentTaskAssignment() {
-        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("12345", new ArrayList<>()))
+        assertThatThrownBy(() -> assignmentSPARQLEndpointService.setTaskAssignment("12345", new ArrayList<>(), OWNER))
             .isInstanceOf(InternalTaskAssignmentNonexistentException.class);
     }
 
@@ -303,7 +305,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         String taskId = assignment.getId().substring(assignment.getId().lastIndexOf('#') + 1);
 
-        assignmentSPARQLEndpointService.setTaskAssignment(taskId, testGoalIds);
+        assignmentSPARQLEndpointService.setTaskAssignment(taskId, testGoalIds, OWNER);
 
         try (RDFConnection connection = rdfConnectionFactory.getRDFConnection()) {
             String cntQuery =
@@ -422,7 +424,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         String id = task.getId().substring(task.getId().lastIndexOf('#') + 1);
         List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
 
-        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds, OWNER);
 
         List<String> goalIdsFromDb = assignmentSPARQLEndpointService.getAssignedLearningGoalIdsOfTaskAssignment(id);
 
@@ -445,7 +447,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         List<String> goalIds = StreamEx.of(goals).map(LearningGoalDTO::getId).toList();
         var firstGoal = goals.first();
 
-        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds);
+        assignmentSPARQLEndpointService.setTaskAssignment(id, goalIds, OWNER);
 
         List<TaskAssignmentDisplayDTO> assignmentHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(
             firstGoal.getName(),
@@ -504,6 +506,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
     /**
      * Tests the deletion of a task group
+     *
      * @throws TaskGroupAlreadyExistentException
      */
     @Test
@@ -520,6 +523,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
     /**
      * Tests modifying the task-groups description
+     *
      * @throws TaskGroupAlreadyExistentException if task group already exists
      */
     @Test
