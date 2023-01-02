@@ -29,7 +29,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public exercise_id = '';
   public task_type = '';
   public submission = '';
-  public diagnoseLevel = 0;
+  public diagnoseLevel = -1;
   public dispatcherPoints = 0;
   public maxPoints = '';
   public diagnoseLevelWeighting = '';
