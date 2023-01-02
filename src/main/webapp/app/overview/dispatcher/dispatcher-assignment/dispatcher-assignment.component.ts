@@ -1,4 +1,4 @@
-import { AfterContentChecked, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
@@ -126,9 +126,13 @@ export class DispatcherAssignmentComponent implements OnInit {
    * and the diagnose-level in the dropdown according to the {@link highestDiagnoseLevel}
    */
   public ngOnInit(): void {
-    if (this.task_type) this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
+    if (this.task_type) {
+      this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
+    }
 
-    if (this.highestDiagnoseLevel) this.diagnoseLevelText = this.diagnoseLevels[this.highestDiagnoseLevel];
+    if (this.highestDiagnoseLevel) {
+      this.diagnoseLevelText = this.diagnoseLevels[this.highestDiagnoseLevel];
+    }
   }
   /**
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
@@ -136,7 +140,11 @@ export class DispatcherAssignmentComponent implements OnInit {
    */
   public processSubmission(action = 'diagnose'): void {
     this.action = action;
-    this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText);
+    if (this.diagnoseLevels.includes(this.diagnoseLevelText)) {
+      this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText);
+    } else {
+      this.diagnoseLevel = 0;
+    }
     const submissionDto = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
@@ -180,7 +188,7 @@ export class DispatcherAssignmentComponent implements OnInit {
    */
   private emitSubmissionEvents(): void {
     if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
-      this.highestDiagnoseLevel = this.diagnoseLevel; //TODO: only required for point calculation
+      this.highestDiagnoseLevel = this.diagnoseLevel; // TODO: only required for point calculation
     }
 
     if (this.submissionIdDto.submissionId) {

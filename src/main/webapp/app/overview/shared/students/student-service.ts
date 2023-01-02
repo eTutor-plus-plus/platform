@@ -11,7 +11,6 @@ import {
 } from './students.model';
 import { map } from 'rxjs/operators';
 import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
-import { SubmissionEvent } from '../../dispatcher/entities/SubmissionEvent';
 
 /**
  * Service for managing students.

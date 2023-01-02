@@ -2,9 +2,9 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.dto.dispatcher.DatalogExerciseDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DatalogTaskGroupDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.SQLExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

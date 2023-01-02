@@ -451,7 +451,7 @@ export function getEditorOptionsForTaskTypeUrl(
   return {
     theme: getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl),
     language: getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl),
-    readOnly: readOnly,
+    readOnly,
   };
 }
 

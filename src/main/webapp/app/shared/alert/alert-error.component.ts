@@ -6,7 +6,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { AlertError } from './alert-error.model';
 import { Alert, AlertService } from 'app/core/util/alert.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
-import { timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-alert-error',
