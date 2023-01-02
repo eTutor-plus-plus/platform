@@ -47,7 +47,7 @@
     </dl>
     <p></p>
     <div class="assignment-component">
-      <jhi-assignment
+      <jhi-dispatcher-assignment
         *ngIf="isDispatcherTask"
         (submissionUUIDReceived)="handleDispatcherUUID($event)"
         [exercise_id]="exercise_id"
@@ -59,7 +59,7 @@
         [highestDiagnoseLevel]="diagnoseLevel"
         [showSubmitButton]="!exerciseSheetAlreadyClosed"
       >
-      </jhi-assignment>
+      </jhi-dispatcher-assignment>
     </div>
     <jhi-file-upload
       *ngIf="isUploadTask || isDispatcherTask"

@@ -443,3 +443,48 @@ export function myMonacoLoad(): void {
     }),
   });
 }
+
+export function getEditorOptionsForTaskTypeUrl(
+  taskTypeUrl: string,
+  readOnly: boolean
+): { theme: string; language: string; readOnly: boolean } {
+  return {
+    theme: getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl),
+    language: getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl),
+    readOnly: readOnly,
+  };
+}
+
+function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
+  switch (taskTypeUrl) {
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
+      return 'pgsql';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+      return 'relationalAlgebra';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+      return 'datalog';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+      return 'xquery';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+      return 'bpmn';
+    default:
+      return 'pgsql';
+  }
+}
+
+function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
+  switch (taskTypeUrl) {
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
+      return 'pgsql';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+      return 'relationalAlgebra-light';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+      return 'datalog-light';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+      return 'xquery-light';
+    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+      return 'xml';
+    default:
+      return 'vs-light';
+  }
+}

@@ -110,7 +110,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._taskModel.taskGroupId;
           // Todo: make this in the assignment-component directly
           this.submission = await this.studentService
-            .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .getDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
           this.dispatcherPoints = await this.studentService
@@ -233,6 +233,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * @param $event the UUID
    */
   public handleDispatcherUUID($event: string): void {
-    this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
+    this.studentService
+      .processDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event)
+      .subscribe();
   }
 }

@@ -1,19 +1,20 @@
-import { AfterContentChecked, Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterContentChecked, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
-import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
+import { DispatcherAssignmentService } from 'app/overview/dispatcher/services/dispatcher-assignment.service';
+import { getEditorOptionsForTaskTypeUrl } from '../monaco-config';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
  */
 
 @Component({
-  selector: 'jhi-assignment',
-  templateUrl: './assignment.component.html',
-  styleUrls: ['./assignment.component.scss'],
+  selector: 'jhi-dispatcher-assignment',
+  templateUrl: './dispatcher-assignment.component.html',
+  styleUrls: ['./dispatcher-assignment.component.scss'],
 })
-export class AssignmentComponent implements AfterContentChecked {
+export class DispatcherAssignmentComponent implements OnInit {
   /**
    * The diagnose levels that can be chosen by the student
    */
@@ -84,7 +85,7 @@ export class AssignmentComponent implements AfterContentChecked {
   /**
    * The default editor options
    */
-  public editorOptions = { theme: 'vs-light', language: '' };
+  public editorOptions = { theme: 'vs-light', language: 'pgsql', readOnly: false };
 
   /**
    * Indicates the task type
@@ -118,97 +119,24 @@ export class AssignmentComponent implements AfterContentChecked {
    * The constructor
    * @param assignmentService service for communicating with the dispatcher
    */
-  constructor(private assignmentService: AssignmentService) {}
-
-  /**
-   * Maps the task type to the language for the editor
-   * @param taskType the task type
-   */
-  public static mapEditorLanguage(taskType: string): string {
-    switch (taskType) {
-      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
-        return 'pgsql';
-      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
-        return 'relationalAlgebra';
-      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
-        return 'datalog';
-      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
-        return 'xquery';
-      case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
-        return 'bpmn';
-      default:
-        return 'pgsql';
-    }
-  }
-  /**
-   * Maps the diagnose level to the text representation
-   * @param number the diagnose level as number
-   */
-  public mapDiagnoseLevel(number: number): string {
-    switch (number) {
-      case 0:
-        return this.diagnoseLevels[0];
-      case 1:
-        return this.diagnoseLevels[1];
-      case 2:
-        return this.diagnoseLevels[2];
-      case 3:
-        return this.diagnoseLevels[3];
-      default:
-        return this.diagnoseLevels[0];
-    }
-  }
+  constructor(private assignmentService: DispatcherAssignmentService) {}
 
   /**
    * Lifecycle method that sets the language for the editor in accordance to the {@link task_type},
    * and the diagnose-level in the dropdown according to the {@link highestDiagnoseLevel}
    */
-  public ngAfterContentChecked(): void {
-    if (!this.editorOptions.language && this.task_type) {
-      let lang = AssignmentComponent.mapEditorLanguage(this.task_type);
-      let the = 'vs-light';
-      if (lang === 'relationalAlgebra') {
-        the = 'relationalAlgebra-light';
-      } else if (lang === 'xquery') {
-        this.isXQueryTask = true;
-        the = 'xquery-light';
-      } else if (lang === 'datalog') {
-        this.isDatalogTask = true;
-        the = 'datalog-light';
-      } else if (lang === 'bpmn') {
-        this.isBpmnTask = true;
-        lang = 'xml';
-      }
+  public ngOnInit(): void {
+    if (this.task_type) this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
 
-      this.editorOptions = { theme: the, language: lang };
-    }
-    if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
-      this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
-    }
+    if (this.highestDiagnoseLevel) this.diagnoseLevelText = this.diagnoseLevels[this.highestDiagnoseLevel];
   }
-
-  /**
-   * Handles a click on the diagnose Button
-   */
-  public onDiagnose(): void {
-    this.action = 'diagnose';
-    this.processSubmission();
-  }
-
-  /**
-   * Handles a click on the submit Button
-   */
-  public onSubmit(): void {
-    this.action = 'submit';
-    this.processSubmission();
-  }
-
   /**
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    *
    */
-  private processSubmission(): void {
-    this.diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
+  public processSubmission(action = 'diagnose'): void {
+    this.action = action;
+    this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText);
     const submissionDto = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
@@ -226,8 +154,6 @@ export class AssignmentComponent implements AfterContentChecked {
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
-      // eslint-disable-next-line no-console
-      console.log(this.gradingDto);
       this.gradingReceived = true;
 
       this.setHasErrors();
@@ -241,6 +167,7 @@ export class AssignmentComponent implements AfterContentChecked {
    * @private
    */
   private setHasErrors(): void {
+    // TODO: should be returned by the server
     this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
       ? (this.hasErrors = true)
       : (this.hasErrors = false);
@@ -253,7 +180,7 @@ export class AssignmentComponent implements AfterContentChecked {
    */
   private emitSubmissionEvents(): void {
     if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
-      this.highestDiagnoseLevel = this.diagnoseLevel;
+      this.highestDiagnoseLevel = this.diagnoseLevel; //TODO: only required for point calculation
     }
 
     if (this.submissionIdDto.submissionId) {
@@ -263,6 +190,7 @@ export class AssignmentComponent implements AfterContentChecked {
     }
 
     if (this.points === 0 && !this.hasErrors && this.action === 'submit') {
+      // TODO: do not calculate points client-side (here), it is redundant. Return points from server and return old points for diagnose
       const grading = this.calculatePoints();
       this.points = grading;
     }
@@ -274,6 +202,7 @@ export class AssignmentComponent implements AfterContentChecked {
    * @private
    */
   private calculatePoints(): number {
+    // TODO: remove
     const weighting = this.diagnoseLevelWeighting ? parseInt(this.diagnoseLevelWeighting, 10) : 0;
     const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * weighting;
     if (points > 1) {
@@ -306,25 +235,5 @@ export class AssignmentComponent implements AfterContentChecked {
     this.submissionDto = submissionDto;
 
     return submissionDto;
-  }
-
-  /**
-   * Maps the diagnose level text to its numeric representation
-   * @param text
-   * @private
-   */
-  private mapDiagnoseText(text: string): number {
-    switch (text) {
-      case this.diagnoseLevels[0]:
-        return 0;
-      case this.diagnoseLevels[1]:
-        return 1;
-      case this.diagnoseLevels[2]:
-        return 2;
-      case this.diagnoseLevels[3]:
-        return 3;
-      default:
-        return 0;
-    }
   }
 }

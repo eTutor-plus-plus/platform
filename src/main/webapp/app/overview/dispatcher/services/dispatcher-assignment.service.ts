@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SERVER_API_URL } from '../../../app.constants';
 
 /**
- * Service for posting submissions and requesting gradings from the dispatcher
+ * Service for posting submissions and requesting gradings from the dispatcher, using the proxy of the platform.
  */
 const httpOptions = {
   headers: new HttpHeaders({
@@ -19,7 +19,7 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root',
 })
-export class AssignmentService {
+export class DispatcherAssignmentService {
   constructor(private http: HttpClient, private translateService: TranslateService) {}
 
   /**

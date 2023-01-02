@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentService } from '../../shared/students/student-service';
 import { TaskSubmissionsModel } from './task-submissions.model';
-import { LecturerRunSubmissionComponent } from '../lecturer-run-submission/lecturer-run-submission.component';
+import { DispatcherAssignmentModal } from '../dispatcher-assignment-modal/dispatcher-assignment-modal';
 
 /**
  * Modal window component for displaying submissions made by a student for an individual task
@@ -55,12 +55,12 @@ export class TaskSubmissionsComponent implements OnInit {
   }
 
   /**
-   * Opens a {@link LecturerRunSubmissionComponent} with attributes from a given submission {@see TaskSubmissionsModel}
+   * Opens a {@link DispatcherAssignmentModal} with attributes from a given submission {@see TaskSubmissionsModel}
    * @param entry
    */
   openEditor(entry: TaskSubmissionsModel): void {
-    const modalRef = this.modalService.open(LecturerRunSubmissionComponent, { backdrop: 'static', size: 'xl' });
-    (modalRef.componentInstance as LecturerRunSubmissionComponent).submissionEntry = entry;
-    (modalRef.componentInstance as LecturerRunSubmissionComponent).matriculationNo = this.matriculationNo!;
+    const modalRef = this.modalService.open(DispatcherAssignmentModal, { backdrop: 'static', size: 'xl' });
+    (modalRef.componentInstance as DispatcherAssignmentModal).submissionEntry = entry;
+    (modalRef.componentInstance as DispatcherAssignmentModal).matriculationNo = this.matriculationNo!;
   }
 }

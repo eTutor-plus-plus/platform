@@ -39,13 +39,13 @@
     <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
   </div>
   <div *ngIf="showSubmitButton">
-    <form class="add-form" (ngSubmit)="onSubmit()">
+    <form class="add-form" (ngSubmit)="processSubmission('submit')">
       <input type="submit" value="Submit" class="btn btn-block" />
     </form>
   </div>
 
   <div>
-    <form class="add-form" (ngSubmit)="onDiagnose()">
+    <form class="add-form" (ngSubmit)="processSubmission('diagnose')">
       <input type="submit" value="Diagnose" class="btn btn-block" />
     </form>
   </div>

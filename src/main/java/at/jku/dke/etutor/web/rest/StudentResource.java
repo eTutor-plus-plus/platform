@@ -392,8 +392,14 @@ public class StudentResource {
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> handleDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+    public ResponseEntity<Void> processDispatcherSubmissionForIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+        // TODO: refactor
+        // Evaluation
+        // Set points
+        // Set submission
+        // return points +/ hasErrors
+
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
         DispatcherSubmissionDTO submission = null;
         DispatcherGradingDTO grading = null;
@@ -408,11 +414,8 @@ public class StudentResource {
         // comparing excercise-id of assignment and submission
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
-
         if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
         int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
-
         if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         // persisting the submission

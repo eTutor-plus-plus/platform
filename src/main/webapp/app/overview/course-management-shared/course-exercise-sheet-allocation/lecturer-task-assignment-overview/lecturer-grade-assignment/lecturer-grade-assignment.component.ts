@@ -165,7 +165,7 @@ export class LecturerGradeAssignmentComponent {
     let submissions: TaskSubmissionsModel[] = [];
     if (orderNo) {
       submissions = await this.studentService
-        .getAllSubmissionsForAssignment(courseInstanceId, exerciseSheetUUID, orderNo.toString(), matriculationNo)
+        .getAllDispatcherSubmissionsForIndividualTask(courseInstanceId, exerciseSheetUUID, orderNo.toString(), matriculationNo)
         .toPromise();
     }
 
