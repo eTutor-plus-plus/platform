@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { TaskSubmissionsModel } from '../task-submissions/task-submissions.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -9,9 +9,9 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'jhi-lecturer-run-submission',
   templateUrl: './dispatcher-assignment-modal.component.html',
-  styleUrls: ['./dispatcher-assignment-modal.scss'],
+  styleUrls: ['./dispatcher-assignment-modal.component.scss'],
 })
-export class DispatcherAssignmentModal {
+export class DispatcherAssignmentModalComponent {
   /**
    * Wraps information about the submission to be evaluated
    */

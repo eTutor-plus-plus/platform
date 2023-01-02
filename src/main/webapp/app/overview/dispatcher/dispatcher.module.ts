@@ -2,7 +2,7 @@ import { SharedModule } from 'app/shared/shared.module';
 import { NgModule } from '@angular/core';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 import { DispatcherAssignmentComponent } from 'app/overview/dispatcher/dispatcher-assignment/dispatcher-assignment.component';
-import { DispatcherAssignmentModal } from './dispatcher-assignment-modal/dispatcher-assignment-modal';
+import { DispatcherAssignmentModalComponent } from './dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { SafeHtmlPipe } from './dispatcher-assignment/safe-html-pipe';
 import { myMonacoLoad } from './monaco-config';
 
@@ -16,7 +16,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
 
 @NgModule({
   imports: [SharedModule, MonacoEditorModule.forRoot(monacoConfig)],
-  declarations: [DispatcherAssignmentComponent, DispatcherAssignmentModal, SafeHtmlPipe],
+  declarations: [DispatcherAssignmentComponent, DispatcherAssignmentModalComponent, SafeHtmlPipe],
   exports: [DispatcherAssignmentComponent],
 })
 export class DispatcherModule {}

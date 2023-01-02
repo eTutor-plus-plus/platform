@@ -135,6 +135,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>at.jku.dke.etutor</groupId>
+            <artifactId>etutor-objects</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!-- Custom dependencies - Utils -->
         <dependency>
             <groupId>one.util</groupId>

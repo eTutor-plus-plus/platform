@@ -9,8 +9,8 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherGradingDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
+import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -401,8 +401,8 @@ public class StudentResource {
         // return points +/ hasErrors
 
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-        DispatcherSubmissionDTO submission = null;
-        DispatcherGradingDTO grading = null;
+        SubmissionDTO submission = null;
+        GradingDTO grading = null;
         try {
             submission = dispatcherProxyService.getSubmission(dispatcherUUID);
             grading = dispatcherProxyService.getGrading(dispatcherUUID);
@@ -467,8 +467,8 @@ public class StudentResource {
     public ResponseEntity<Void> handleBpmnDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                      @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-        DispatcherSubmissionDTO submission = null;
-        DispatcherGradingDTO grading = null;
+        SubmissionDTO submission = null;
+        GradingDTO grading = null;
         try {
             submission = dispatcherProxyService.getBpmnSubmission(dispatcherUUID);
             grading = dispatcherProxyService.getBpmnGrading(dispatcherUUID);

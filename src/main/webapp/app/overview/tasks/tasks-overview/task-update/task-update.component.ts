@@ -9,7 +9,7 @@ import { EventManager } from 'app/core/util/event-manager.service';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
-import { DispatcherAssignmentModal } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal';
+import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 
 /**
  * Component for creating / updating tasks.
@@ -408,7 +408,7 @@ export class TaskUpdateComponent implements OnInit {
    * Opens a lecturer-run-submission modal window to test a solution
    */
   public openSolutionRunnerWindow(asSql = false): void {
-    const modalRef = this.modalService.open(DispatcherAssignmentModal, { backdrop: 'static', size: 'xl' });
+    const modalRef = this.modalService.open(DispatcherAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
     let subm = '';
     const taskT = asSql
       ? TaskAssignmentType.SQLTask.value
@@ -421,7 +421,7 @@ export class TaskUpdateComponent implements OnInit {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
     }
     const id = this.updateForm.get(['taskIdForDispatcher'])!.value;
-    (modalRef.componentInstance as DispatcherAssignmentModal).submissionEntry = {
+    (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
       isSubmitted: false,
       instant: '',
@@ -429,8 +429,8 @@ export class TaskUpdateComponent implements OnInit {
       dispatcherId: id,
       taskType: taskT,
     };
-    (modalRef.componentInstance as DispatcherAssignmentModal).showHeader = false;
-    (modalRef.componentInstance as DispatcherAssignmentModal).showSubmitButton = true;
+    (modalRef.componentInstance as DispatcherAssignmentModalComponent).showHeader = false;
+    (modalRef.componentInstance as DispatcherAssignmentModalComponent).showSubmitButton = true;
   }
 
   /**

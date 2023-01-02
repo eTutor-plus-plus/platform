@@ -2,9 +2,17 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.objects.dispatcher.*;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTermDescriptionDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
+import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
+import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.dto.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -39,47 +47,47 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Returns the {@link DispatcherSubmissionDTO} for a given id, which represents a submission for an individual task
+     * Returns the {@link SubmissionDTO} for a given id, which represents a submission for an individual task
      *
      * @param UUID the UUID
      * @return the submission
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
-    public DispatcherSubmissionDTO getSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(proxyResource.getSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+    public SubmissionDTO getSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getSubmission(UUID).getBody(), SubmissionDTO.class);
     }
 
     /**
-     * Returns the {@link DispatcherSubmissionDTO} for a given id, which represents a submission for an individual task
+     * Returns the {@link SubmissionDTO} for a given id, which represents a submission for an individual task
      *
      * @param UUID the UUID
      * @return the Bpmn submission
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
-    public DispatcherSubmissionDTO getBpmnSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(proxyResource.getBpmnSubmission(UUID).getBody(), DispatcherSubmissionDTO.class);
+    public SubmissionDTO getBpmnSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnSubmission(UUID).getBody(), SubmissionDTO.class);
     }
 
     /**
-     * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
+     * Returns the {@link GradingDTO} for a given id, representing a graded submission for an individual task
      *
      * @param UUID the UUID
      * @return the grading
      * @throws JsonProcessingException if the returned value cannot be parsed
      */
-    public DispatcherGradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(proxyResource.getGrading(UUID).getBody(), DispatcherGradingDTO.class);
+    public GradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getGrading(UUID).getBody(), GradingDTO.class);
     }
 
     /**
-     * Returns the {@link DispatcherGradingDTO} for a given id, representing a graded submission for an individual task
+     * Returns the {@link GradingDTO} for a given id, representing a graded submission for an individual task
      *
      * @param UUID the UUID
      * @return the grading
      * @throws JsonProcessingException if the returned value cannot be parsed
      */
-    public DispatcherGradingDTO getBpmnGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(proxyResource.getBpmnGrading(UUID).getBody(), DispatcherGradingDTO.class);
+    public GradingDTO getBpmnGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
+        return mapper.readValue(proxyResource.getBpmnGrading(UUID).getBody(), GradingDTO.class);
     }
 
     /**
@@ -275,7 +283,7 @@ public class DispatcherProxyService {
         // Initialize DTO
         String diagnoseXML = taskGroupDTO.getxQueryDiagnoseXML();
         String submissionXML = taskGroupDTO.getxQuerySubmissionXML();
-        DispatcherXMLDTO body = new DispatcherXMLDTO(diagnoseXML, submissionXML);
+        XMLDefinitionDTO body = new XMLDefinitionDTO(diagnoseXML, submissionXML);
         ObjectMapper mapper = new ObjectMapper();
         String jsonBody = "";
         try {
@@ -441,7 +449,7 @@ public class DispatcherProxyService {
             if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
         } else if(newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Dispatcher ID set to reference existing task
             // Fetch info about the exercise from dispatcher
-            XQueryExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
+            XQExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
 
             // Set the solution and optional sorted nodes
             newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
@@ -593,7 +601,7 @@ public class DispatcherProxyService {
         Objects.requireNonNull(newTaskAssignmentDTO.getxQuerySolution());
 
         // Initialize DTO
-        XQueryExerciseDTO body = new XQueryExerciseDTO();
+        XQExerciseDTO body = new XQExerciseDTO();
 
         List<String> sortings = new ArrayList<>();
         String dtoSorting = newTaskAssignmentDTO.getxQueryXPathSorting();
@@ -625,10 +633,10 @@ public class DispatcherProxyService {
      * @param taskIdForDispatcher the task id
      * @return an XQueryExerciseDTO
      */
-    private XQueryExerciseDTO getXQExerciseInfo(String taskIdForDispatcher) throws JsonProcessingException, DispatcherRequestFailedException {
+    private XQExerciseDTO getXQExerciseInfo(String taskIdForDispatcher) throws JsonProcessingException, DispatcherRequestFailedException {
         var response = proxyResource.getXQExerciseInfo(Integer.parseInt(taskIdForDispatcher));
         if(response != null){
-            return mapper.readValue(response.getBody(), XQueryExerciseDTO.class);
+            return mapper.readValue(response.getBody(), XQExerciseDTO.class);
         }
         throw new DispatcherRequestFailedException();
     }
@@ -762,7 +770,7 @@ public class DispatcherProxyService {
      */
     private void updateXQExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         // Initialize DTO
-        XQueryExerciseDTO body = new XQueryExerciseDTO();
+        XQExerciseDTO body = new XQExerciseDTO();
 
 
         List<String> sortings = new ArrayList<>();

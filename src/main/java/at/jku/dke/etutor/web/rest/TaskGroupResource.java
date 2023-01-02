@@ -59,8 +59,8 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
-            dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
             taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
+            dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();

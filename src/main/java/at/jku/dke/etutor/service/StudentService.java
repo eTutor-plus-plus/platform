@@ -11,7 +11,7 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
@@ -49,7 +49,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing students.
@@ -1113,7 +1112,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @param submission         the submission
      */
-    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, DispatcherSubmissionDTO submission, boolean hasBeenSolved) {
+    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, boolean hasBeenSolved) {
         Objects.requireNonNull(submission);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
