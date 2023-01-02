@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentChecked, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
@@ -14,7 +14,7 @@ import { getEditorOptionsForTaskTypeUrl } from '../monaco-config';
   templateUrl: './dispatcher-assignment.component.html',
   styleUrls: ['./dispatcher-assignment.component.scss'],
 })
-export class DispatcherAssignmentComponent implements OnInit {
+export class DispatcherAssignmentComponent implements OnInit, AfterContentChecked {
   /**
    * The diagnose levels that can be chosen by the student
    */
@@ -70,6 +70,7 @@ export class DispatcherAssignmentComponent implements OnInit {
   @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
   public diagnoseLevelText = '';
+  public isDiagnoseLevelTextInitialized = false;
   /**
    * Indicates if a {@link GradingDTO} grading has been received
    */
@@ -129,9 +130,12 @@ export class DispatcherAssignmentComponent implements OnInit {
     if (this.task_type) {
       this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
     }
+  }
 
-    if (this.highestDiagnoseLevel) {
+  public ngAfterContentChecked(): void {
+    if (this.highestDiagnoseLevel !== -1 && !this.isDiagnoseLevelTextInitialized) {
       this.diagnoseLevelText = this.diagnoseLevels[this.highestDiagnoseLevel];
+      this.isDiagnoseLevelTextInitialized = true;
     }
   }
   /**
@@ -163,22 +167,9 @@ export class DispatcherAssignmentComponent implements OnInit {
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
       this.gradingReceived = true;
-
-      this.setHasErrors();
+      this.hasErrors = !grading.submissionSuitsSolution;
       this.emitSubmissionEvents();
     });
-  }
-
-  /**
-   * Verifies if the submission has been evaluated as correct by the dispatcher
-   * and sets {@link hasErrors} accordingly
-   * @private
-   */
-  private setHasErrors(): void {
-    // TODO: should be returned by the server
-    this.gradingDto.maxPoints > this.gradingDto.points || this.gradingDto.maxPoints === 0
-      ? (this.hasErrors = true)
-      : (this.hasErrors = false);
   }
 
   /**
