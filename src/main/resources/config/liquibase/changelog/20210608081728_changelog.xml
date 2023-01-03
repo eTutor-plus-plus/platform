@@ -1,0 +1,41 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet author="fnern (generated)" id="1623140259060-3">
+        <createSequence incrementBy="20" sequenceName="file_entity_sequence_generator" startValue="1"/>
+    </changeSet>
+    <changeSet author="fnern (generated)" id="1623140259060-4">
+        <createTable tableName="file">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="filePK"/>
+            </column>
+            <column name="content" type="${blobType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="submit_time" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="student_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="fnern (generated)" id="1623140259060-5">
+        <addForeignKeyConstraint baseColumnNames="student_id" baseTableName="file" constraintName="FKpxaxf9sf8moyu0nrkpo6kr2j8" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="student" validate="true"/>
+    </changeSet>
+    <changeSet author="fnern (generated)" id="1623140259060-6">
+        <dropForeignKeyConstraint baseTableName="jhi_persistent_audit_evt_data" constraintName="FK2ehnyx2si4tjd2nt4q7y40v8m"/>
+    </changeSet>
+    <changeSet author="fnern (generated)" id="1623140259060-7">
+        <dropTable tableName="jhi_persistent_audit_event"/>
+    </changeSet>
+    <changeSet author="fnern (generated)" id="1623140259060-8">
+        <dropTable tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+</databaseChangeLog>

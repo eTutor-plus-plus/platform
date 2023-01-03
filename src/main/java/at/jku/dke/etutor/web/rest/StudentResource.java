@@ -373,7 +373,7 @@ public class StudentResource {
                                                 @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<Integer> optionalPoints = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalPoints = studentService.getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         int points = optionalPoints.orElse(0);
 
@@ -392,64 +392,43 @@ public class StudentResource {
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> processDispatcherSubmissionForIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+    public ResponseEntity<Integer> processDispatcherSubmissionForIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                                      @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
-        // TODO: refactor
-        // Evaluation
-        // Set points
-        // Set submission
-        // return points +/ hasErrors
-
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
-        SubmissionDTO submission = null;
-        GradingDTO grading = null;
+        SubmissionDTO submission;
+        GradingDTO grading;
+        int diagnoseLevelWeighting;
+        int maxPoints;
+        int dispatcherId;
+
+        // Get submission and grading according to UUID from dispatcher
         try {
             submission = dispatcherProxyService.getSubmission(dispatcherUUID);
+            Objects.requireNonNull(submission);
             grading = dispatcherProxyService.getGrading(dispatcherUUID);
-        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
+        } catch (JsonProcessingException | DispatcherRequestFailedException | NullPointerException e) {
             e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
-        Objects.requireNonNull(submission);
 
-        // comparing excercise-id of assignment and submission
+        // Get required information about task assignment
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
-        if(weightingAndMaxPointsIdArr == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        int dispatcherId = weightingAndMaxPointsIdArr[2].intValue();
-        if(submission.getExerciseId() != dispatcherId) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(weightingAndMaxPointsIdArr == null)
+            return ResponseEntity.internalServerError().build();
 
-        // persisting the submission
-        boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
-        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+        dispatcherId = weightingAndMaxPointsIdArr[2];
+        diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
+        maxPoints = weightingAndMaxPointsIdArr[1];
 
-        // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
-        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
-        int highestDiagnoseLevel = oldDiagnoseLevel;
+        if(submission.getExerciseId() != dispatcherId)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
-            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
-            highestDiagnoseLevel = currDiagnoseLevel;
-        }
+        // Process
+        var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
+            submission, grading, maxPoints, diagnoseLevelWeighting);
 
-        // calculating and setting the points if submission has been solved but not previously solved
-        if(grading == null) return ResponseEntity.ok().build();
-
-        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        if(points == 0
-            && submission.getPassedAttributes().get("action").equals("submit")
-            && grading.getMaxPoints() == grading.getPoints()
-            && grading.getMaxPoints() != 0
-        ){
-            var diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
-            var maxPoints = weightingAndMaxPointsIdArr[1];
-
-            points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
-
-            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
-            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
-        }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(achievedPoints);
     }
 
     /**
@@ -489,10 +468,10 @@ public class StudentResource {
 
         // persisting the submission
         boolean hasBeenSolved = grading != null && (grading.getPoints() == grading.getMaxPoints()) && grading.getMaxPoints() != 0;
-        studentService.addSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
+        studentService.addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, submission, hasBeenSolved);
 
         // eventually setting a new highest diagnose-level (if current is higher and action not submit and not previously solved)
-        var oldDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var oldDiagnoseLevel = studentService.getHighestEverChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
         int highestDiagnoseLevel = oldDiagnoseLevel;
 
@@ -504,7 +483,7 @@ public class StudentResource {
         // calculating and setting the points if submission has been solved but not previously solved
         if(grading == null) return ResponseEntity.ok().build();
 
-        double points = studentService.getDispatcherPoints(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        double points = studentService.getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         if(points == 0
             && submission.getPassedAttributes().get("action").equals("submit")
             && grading.getMaxPoints() == grading.getPoints()
@@ -515,7 +494,7 @@ public class StudentResource {
 
             points = maxPoints - (highestDiagnoseLevel * diagnoseLevelWeighting);
 
-            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
         return ResponseEntity.ok().build();
@@ -536,7 +515,7 @@ public class StudentResource {
                                                        @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<Integer> optionalDiagnoseLevel = studentService.getDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<Integer> optionalDiagnoseLevel = studentService.getHighestEverChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         int diagnoseLevel = optionalDiagnoseLevel.orElse(0);
 
