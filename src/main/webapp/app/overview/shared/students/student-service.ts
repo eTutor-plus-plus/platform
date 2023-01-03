@@ -255,7 +255,7 @@ export class StudentService {
     exerciseSheetUUID: string,
     taskNo: number,
     dispatcherUUID: string
-  ): Observable<any> {
+  ): Observable<number> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     let url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`;
@@ -265,7 +265,7 @@ export class StudentService {
       url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/bpmn/${dispatcherUUID}`;
     }
 
-    return this.http.put(url, undefined);
+    return this.http.put<number>(url, undefined);
   }
 
   /**

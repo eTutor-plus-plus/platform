@@ -30,7 +30,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public task_type = '';
   public submission = '';
   public diagnoseLevel = -1;
-  public dispatcherPoints = 0;
+  public achievedDispatcherPoints = 0;
   public maxPoints = '';
   public diagnoseLevelWeighting = '';
   public taskGroup: ITaskGroupDTO | undefined;
@@ -108,12 +108,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           }
 
           this._taskModel.taskGroupId;
-          // Todo: make this in the assignment-component directly
           this.submission = await this.studentService
             .getDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
-          this.dispatcherPoints = await this.studentService
+          this.achievedDispatcherPoints = await this.studentService
             .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
@@ -235,6 +234,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public handleDispatcherUUID($event: string): void {
     this.studentService
       .processDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event)
-      .subscribe();
+      .subscribe(n => (this.achievedDispatcherPoints = n));
   }
 }

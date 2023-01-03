@@ -178,37 +178,13 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
    * @private
    */
   private emitSubmissionEvents(): void {
-    if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
-      this.highestDiagnoseLevel = this.diagnoseLevel; // TODO: only required for point calculation
-    }
-
     if (this.submissionIdDto.submissionId) {
       !this.submissionIdDto.isBpmnTask
         ? this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId)
         : this.submissionUUIDReceived.emit(this.submissionIdDto.submissionId + '#BpmnTask');
     }
-
-    if (this.points === 0 && !this.hasErrors && this.action === 'submit') {
-      // TODO: do not calculate points client-side (here), it is redundant. Return points from server and return old points for diagnose
-      const grading = this.calculatePoints();
-      this.points = grading;
-    }
   }
 
-  /**
-   * Calculates the achieved points with regards to the max-points,
-   * the highest chosen diagnose level and the weighting of the diagnose level.
-   * @private
-   */
-  private calculatePoints(): number {
-    // TODO: remove
-    const weighting = this.diagnoseLevelWeighting ? parseInt(this.diagnoseLevelWeighting, 10) : 0;
-    const points = parseInt(this.maxPoints, 10) - this.highestDiagnoseLevel * weighting;
-    if (points > 1) {
-      return points;
-    }
-    return 1;
-  }
   /**
    * Initializes the {@link SubmissionDTO} as required by the dispatcher
    * @private

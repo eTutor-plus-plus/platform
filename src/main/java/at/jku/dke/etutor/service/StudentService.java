@@ -3,6 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.CSVHelper;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
@@ -1112,7 +1113,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @param submission         the submission
      */
-    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, boolean hasBeenSolved) {
+    public void addSubmissionForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, boolean hasBeenSolved) {
         Objects.requireNonNull(submission);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
@@ -1305,7 +1306,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      *                           * @param taskNo             the task no
      *                           * @param points             the points
      */
-    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points) {
+    public void setDispatcherPointsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1358,7 +1359,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer> getAchievedDispatcherPointsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1467,7 +1468,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer> getHighestEverChosenDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1523,7 +1524,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task no
      * @return an Optional Double[] containing both values
      */
-    public Optional<Double[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1572,10 +1573,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
                     Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
 
-                    var result = new Double[3];
-                    result[0] = diagnoseLevelWeightingLiteral != null ? diagnoseLevelWeightingLiteral.getDouble() : 0.0;
-                    result[1] = maxPointsLiteral != null ? maxPointsLiteral.getDouble() : 0.0;
-                    result[2] = dispatcherIdLiteral != null ? dispatcherIdLiteral.getDouble() : -1.0;
+                    var result = new Integer[3];
+                    result[0] = diagnoseLevelWeightingLiteral != null ? diagnoseLevelWeightingLiteral.getInt() : 0;
+                    result[1] = maxPointsLiteral != null ? maxPointsLiteral.getInt() : 0;
+                    result[2] = dispatcherIdLiteral != null ? dispatcherIdLiteral.getInt() : -1;
                     return Optional.of(result);
                 } else {
                     return Optional.empty();
@@ -1944,6 +1945,85 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             e.printStackTrace();
         }
         return -1;
+    }
+
+
+    /**
+     * Processes a submission of a dispatcher related task assignment for an individual task.
+     * @param matriculationNo the matriculation number of the student
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task no
+     * @param submission the submission from the dispatcher
+     * @param grading the grading from the dispatcher
+     * @param maxPoints the maximum points of the task assignment
+     * @param diagnoseLevelWeighting the weighting of the diagnose level
+     * @return the points that have been achieved by the student
+     */
+    public int processDispatcherSubmissionForIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting) {
+        addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+            submission,grading != null && grading.isSubmissionSuitsSolution());
+        if(grading == null)
+            return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        int highestDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID,
+            matriculationNo, taskNo, submission);
+        return updateAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+            submission, grading, maxPoints, diagnoseLevelWeighting, highestDiagnoseLevel);
+    }
+
+    /**
+     * Updates the points that have been achieved for an individual task according to the submission to the dispatcher.
+     * @param courseInstanceUUID -
+     * @param exerciseSheetUUID -
+     * @param matriculationNo -
+     * @param taskNo -
+     * @param submission the submission from the dispatcher
+     * @param grading the grading from the dispatcher
+     * @param maxPoints the max points of the task assignment
+     * @param diagnoseLevelWeighting the weighting of the highest chosen diagnose level
+     * @param highestDiagnoseLevel the highest chosen diagnose level
+     * @return the current achieved points for the individual task
+     */
+    private int updateAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel) {
+        int achievedPointsOld = getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        int achievedPointsNew = achievedPointsOld;
+        if(submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() > 0 // maxPoints = 0 may indicate a syntax error in the assignment itself
+            && grading.getPoints() > 0){
+
+            double achievedPercent = grading.getPoints() / grading.getMaxPoints();
+            achievedPointsNew = (int) (maxPoints * achievedPercent - highestDiagnoseLevel * diagnoseLevelWeighting);
+            if(achievedPointsNew < 0)
+                achievedPointsNew = 0;
+            if(achievedPointsNew > achievedPointsOld) // only improving the achieved points is possible
+                setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, achievedPointsNew);
+
+            markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        return achievedPointsNew;
+    }
+
+    /**
+     * Updates the highest chosen diagnose level for an individual task in the course of
+     * the submission to the dispatcher.
+     * @param courseInstanceUUID -
+     * @param exerciseSheetUUID -
+     * @param matriculationNo -
+     * @param taskNo -
+     * @param submission the submission for an individual task, holding the diagnose level.
+     * @return the current highest chosen diagnose level for the individual task.
+     */
+    private int updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo,
+                                                                                  int taskNo, SubmissionDTO submission) {
+        var oldDiagnoseLevel = getHighestEverChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+        return highestDiagnoseLevel;
     }
 
     /**
