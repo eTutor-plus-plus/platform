@@ -428,6 +428,7 @@ public class StudentResource {
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting);
 
+
         return ResponseEntity.ok(achievedPoints);
     }
 
