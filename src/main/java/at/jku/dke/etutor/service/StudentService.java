@@ -1975,7 +1975,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID,
             matriculationNo, taskNo, submission);
-        int achievedPoints =  updateAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+        int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
         if(submission.getPassedAttributes().get("action").equals("submit"))
             markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
@@ -1995,7 +1995,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param highestDiagnoseLevel the highest chosen diagnose level
      * @return the current achieved points for the individual task
      */
-    private int updateAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel) {
+    private int updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel) {
         int achievedPointsOld = getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         int achievedPointsNew = achievedPointsOld;
         if(submission.getPassedAttributes().get("action").equals("submit")
