@@ -184,7 +184,49 @@ etutor:IndividualTaskAssignment
 etutor:IndividualTask
     rdf:type rdfs:Class .
 
+etutor:IndividualTaskSubmission
+    rdf:type rdfs:Class .
+
 # Properties
+etutor:hasIndividualTaskSubmission
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  etutor:IndividualTaskSubmission .
+
+etutor:hasDispatcherPoints
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:int ;
+    rdfs:comment "The achieved points for an IndividualTask that has been evaluated by the dispatcher." .
+
+etutor:hasDiagnoseLevel
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:int ;
+    rdfs:comment "The highest chosen diagnose level (dispatcher tasks only)." .
+
+etutor:isSolved
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskSubmission;
+    rdfs:range  xsd:boolean .
+
+etutor:hasSubmission
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskSubmission;
+    rdfs:range  xsd:string ;
+    rdfs:comment "The submission UUID from the dispatcher." .
+
+etutor:isSubmitted
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTaskSubmission;
+    rdfs:range  xsd:boolean .
+
+etutor:hasSubmission
+    rdf:type    rdf:Property ;
+    rdfs:domain etutor:IndividualTask ;
+    rdfs:range  xsd:string ;
+    rdfs:comment "The submission UUID from the dispatcher." .
+
 etutor:fromCourseInstance
     rdf:type    rdf:Property ;
     rdfs:domain etutor:IndividualTaskAssignment ;
@@ -368,6 +410,26 @@ etutor-task-assingment-type:UploadTask
 etutor-task-assingment-type:NoType
     a          etutor:TaskAssignmentType ;
     rdfs:label "No Type" .
+
+etutor-task-assingment-type:BpmnTask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "BPMN Task" .
+
+etutor-task-assingment-type:SQLTask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "SQL Task" .
+
+etutor-task-assingment-type:XQTask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "XQuery Task" .
+
+etutor-task-assingment-type:RATask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "Relational Algebra Task" .
+
+etutor-task-assingment-type:DLGTask
+    a          etutor:TaskAssignmentType ;
+    rdfs:label "Datalog Task" .
 
 ## Exercise sheets
 # Classes
