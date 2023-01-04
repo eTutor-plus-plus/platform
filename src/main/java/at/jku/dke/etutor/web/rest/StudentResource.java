@@ -329,7 +329,7 @@ public class StudentResource {
     public ResponseEntity<List<IndividualTaskSubmissionDTO>> getAllSubmissionsOfStudent(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                                         @PathVariable int taskNo, @PathVariable String matriculationNo){
 
-        Optional<List<IndividualTaskSubmissionDTO>> optionalSubmissions = studentService.getAllSubmissionsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<List<IndividualTaskSubmissionDTO>> optionalSubmissions = studentService.getAllDispatcherSubmissionsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         List<IndividualTaskSubmissionDTO> submissions = optionalSubmissions.orElse(null);
 
         return ResponseEntity.ok(submissions);
@@ -350,7 +350,7 @@ public class StudentResource {
                                                        @PathVariable int taskNo) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
 
-        Optional<String> optionalSubmission = studentService.getLatestSubmissionForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        Optional<String> optionalSubmission = studentService.getLatestDispatcherSubmissionForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
 
         String submission = optionalSubmission.orElse("");
 

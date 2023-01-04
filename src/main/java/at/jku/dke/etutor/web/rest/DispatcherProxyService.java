@@ -12,7 +12,6 @@ import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -24,10 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Service to proxy requests to the dispatcher
@@ -817,6 +813,45 @@ public class DispatcherProxyService {
             proxyResource.deleteSQLExercise(id);
         } else if (taskType.equals(ETutorVocabulary.DatalogTask.toString())){
             proxyResource.deleteDLGExercise(id);
+        }
+    }
+
+    /**
+     * Returns the submission string for a submission UUID.
+     * Also checks if the passed UUID is an actual UUID.
+     * @param submissionUUID the UUID (dispatcher) for the submission
+     * @param taskAssignmentTypeId the task assignment type
+     * @return the submission string
+     */
+    public Optional<String> getSubmissionStringFromSubmissionUUID(String submissionUUID, String taskAssignmentTypeId) {
+        String taskAssignmentType = taskAssignmentTypeId.substring(taskAssignmentTypeId.indexOf("#")+1);
+        try {
+            UUID.fromString(submissionUUID); // check if submission is valid UUID; throws Exception if not (legacy requirement)
+            var submissionDTO = taskAssignmentType.equals("BpmnTask") ?
+                getBpmnSubmission(submissionUUID) :
+                getSubmission(submissionUUID);
+
+            var submissionString = getSubmissionStringFromSubmissionDTO(Objects.requireNonNull(submissionDTO), taskAssignmentType);
+            return Optional.of(submissionString);
+        } catch (IllegalArgumentException | JsonProcessingException | DispatcherRequestFailedException ex) {
+            // Todo: handle exceptions
+        }
+        return Optional.of(submissionUUID); //legacy requirement; some persisted submissions might not be UUIDs, but actual submission strings
+    }
+
+    /**
+     * Returns, for a given submission-dto, the submission-string (e.g. the SQL-Query)
+     * @param submissionDTO the dto
+     * @param taskAssignmentType the taskassignment-type, to determine how the submission-string has to be extracted from the DTO
+     * @return the submission-string
+     */
+    private String getSubmissionStringFromSubmissionDTO(SubmissionDTO submissionDTO, String taskAssignmentType){
+        if(taskAssignmentType.equals("PmTask")){
+            // prepared but PmTask not yet integrated
+            // Note: has to be finalized when PM-Module is integrated
+            return "";
+        }else{
+            return submissionDTO.getPassedAttributes().get("submission");
         }
     }
 }

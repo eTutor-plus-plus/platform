@@ -19,6 +19,7 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
+import at.jku.dke.etutor.web.rest.DispatcherProxyService;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -320,9 +321,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             etutor:hasSubmission ?submission;
             etutor:hasInstant ?instant;
             etutor:isSubmitted ?isSubmitted;
-            etutor:isSolved ?isSolved;
-            etutor:hasDispatcherId ?dispatcherId;
-            etutor:hasTaskType ?taskType;
+            etutor:isSolved ?isSolved
           ].
         }
         WHERE {
@@ -348,13 +347,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
           	?individualTask a etutor:IndividualTask;
                            etutor:hasOrderNo ?orderNo;
                            etutor:refersToTask ?taskAssignment;
-                           etutor:hasIndividualTaskSubmission ?taskSubmission.
+                           etutor:hasIndividualTaskSubmission ?taskSubmission;
+                           etutor:refersToTask ?taskAssignment.
+            ?taskAssignment etutor:hasTaskIdForDispatcher ?dispatcherId;
+                            etutor:hasTaskAssignmentType ?taskType.
           	?taskSubmission etutor:hasSubmission ?submission;
                             etutor:hasInstant ?instant;
                             etutor:isSubmitted ?isSubmitted;
-                            etutor:isSolved ?isSolved;
-                            etutor:hasDispatcherId ?dispatcherId;
-                            etutor:hasTaskType ?taskType.
+                            etutor:isSolved ?isSolved.
 
           	OPTIONAL{
             	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
@@ -391,6 +391,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
     private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
@@ -401,13 +402,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      */
     public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository,
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
-        , UploadFileService uploadFileService) {
+        , UploadFileService uploadFileService, DispatcherProxyService dispatcherProxyService) {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
         this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
 
         random = new Random();
     }
@@ -1125,21 +1127,19 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
         insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getPassedAttributes().get("submission"));
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getSubmissionId());
         insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
         insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.getPassedAttributes().get("action").equals("submit"));
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", hasBeenSolved);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?dispatcherId", submission.getExerciseId());
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?taskType", submission.getTaskType());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
         }
 
-        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getPassedAttributes().get("submission"));
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getSubmissionId());
     }
 
     /**
@@ -1195,7 +1195,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return a list containing the submissions
      */
-    public Optional<List<IndividualTaskSubmissionDTO>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<List<IndividualTaskSubmissionDTO>> getAllDispatcherSubmissionsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1222,15 +1222,15 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
                     Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
                     Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
-                    Literal taskTypeLiteral = solution.getLiteral("?taskType");
+                    String taskTypeUri = solution.getResource("?taskType").getURI();
 
                     submissions.add(new IndividualTaskSubmissionDTO(
                         instantFromRDFString(instantLiteral.getString()),
-                        submissionLiteral.getString(),
+                        dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
                         hasBeenSubmittedLiteral.getBoolean(),
                         hasBeenSolvedLiteral.getBoolean(),
                         dispatcherIdLiteral.getInt(),
-                        taskTypeLiteral.getString()
+                        taskTypeUri
                     ));
                 }
             } catch (ParseException e) {
@@ -1250,7 +1250,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the submission
      */
-    public Optional<String> getLatestSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<String> getLatestDispatcherSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1262,7 +1262,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT ?submission
+            SELECT ?submission ?taskAssignmentType
             WHERE {
               ?instance a etutor:CourseInstance.
               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
@@ -1270,7 +1270,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:fromCourseInstance ?instance;
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
-                              etutor:hasSubmission ?submission.
+                              etutor:hasSubmission ?submission;
+                              etutor:refersToTask ?taskAssignment.
+              ?taskAssignment etutor:hasTaskAssignmentType ?taskAssignmentType.
             }
             """);
         query.setIri("?instance", courseInstanceId);
@@ -1285,11 +1287,13 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                 if (set.hasNext()) {
                     QuerySolution solution = set.nextSolution();
                     Literal submissionLiteral = solution.getLiteral("?submission");
+                    var taskAssignmentTypeURI = solution.getResource("?taskAssignmentType").getURI();
 
                     if (submissionLiteral == null) {
                         return Optional.empty();
                     }
-                    return Optional.of(submissionLiteral.getString());
+                    return dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
+                        taskAssignmentTypeURI);
                 } else {
                     return Optional.empty();
                 }
