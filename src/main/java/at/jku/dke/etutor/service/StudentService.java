@@ -1977,7 +1977,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             matriculationNo, taskNo, submission);
         int achievedPoints =  updateAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
-        if(achievedPoints > 0 && submission.getPassedAttributes().get("action").equals("submit"))
+        if(submission.getPassedAttributes().get("action").equals("submit"))
             markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         return achievedPoints;
     }
