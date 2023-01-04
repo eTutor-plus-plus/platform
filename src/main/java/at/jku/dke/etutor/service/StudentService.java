@@ -1121,9 +1121,15 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
 
+
         String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getSubmissionId());
+
+        if(!submission.getPassedAttributes().get("action").equals("submit"))
+            return;
 
         ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
         insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
@@ -1139,7 +1145,6 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
         }
 
-        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getSubmissionId());
     }
 
     /**
