@@ -1950,6 +1950,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Processes a submission of a dispatcher related task assignment for an individual task.
+     * - persists the submission
+     * - updates the highest chosen diagnose level for the individual task, if necessary
+     * - updates the achieved points for the individual task, if necessary
+     * - marks the task assignment as submitted, if necessary
      * @param matriculationNo the matriculation number of the student
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
@@ -1965,10 +1969,13 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             submission,grading != null && grading.isSubmissionSuitsSolution());
         if(grading == null)
             return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        int highestDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID,
+        int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID,
             matriculationNo, taskNo, submission);
-        return updateAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
-            submission, grading, maxPoints, diagnoseLevelWeighting, highestDiagnoseLevel);
+        int achievedPoints =  updateAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+            submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
+        if(achievedPoints > 0 && submission.getPassedAttributes().get("action").equals("submit"))
+            markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        return achievedPoints;
     }
 
     /**
@@ -1993,12 +2000,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
             double achievedPercent = grading.getPoints() / grading.getMaxPoints();
             achievedPointsNew = (int) (maxPoints * achievedPercent - highestDiagnoseLevel * diagnoseLevelWeighting);
-            if(achievedPointsNew < 0)
-                achievedPointsNew = 0;
             if(achievedPointsNew > achievedPointsOld) // only improving the achieved points is possible
                 setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, achievedPointsNew);
-
-            markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
         return achievedPointsNew;
     }
