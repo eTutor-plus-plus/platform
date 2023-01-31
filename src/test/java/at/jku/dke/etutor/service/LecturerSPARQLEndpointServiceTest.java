@@ -39,7 +39,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -122,7 +121,7 @@ public class LecturerSPARQLEndpointServiceTest {
         );
 
         //TODO: change to not null
-        studentService = new StudentService(null, userService, studentRepository, null, rdfConnectionFactory, null);
+        studentService = new StudentService(null, userService, studentRepository, null, rdfConnectionFactory, null, null);
 
         sparqlEndpointService.insertScheme();
 
