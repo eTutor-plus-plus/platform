@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/config/pagination.constants';
+import { ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import { ASC, DESC, SORT } from 'app/config/navigation.constants';
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { UserManagementService } from '../service/user-management.service';
@@ -42,7 +43,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.update({ ...user, activated: isActivated }).subscribe(() => this.loadAll());
   }
 
-  trackIdentity(index: number, item: User): number {
+  trackIdentity(_index: number, item: User): number {
     return item.id!;
   }
 
@@ -65,13 +66,13 @@ export class UserManagementComponent implements OnInit {
         size: this.itemsPerPage,
         sort: this.sort(),
       })
-      .subscribe(
-        (res: HttpResponse<User[]>) => {
+      .subscribe({
+        next: (res: HttpResponse<User[]>) => {
           this.isLoading = false;
           this.onSuccess(res.body, res.headers);
         },
-        () => (this.isLoading = false)
-      );
+        error: () => (this.isLoading = false),
+      });
   }
 
   transition(): void {

@@ -1,14 +1,14 @@
 <div>
   <h2>
-    <span id="user-management-page-heading" jhiTranslate="userManagement.home.title" data-cy="userManagementPageHeading">Users</span>
+    <span id="user-management-page-heading" jhiTranslate="userManagement.home.title" data-cy="userManagementPageHeading">Benutzer</span>
 
     <div class="d-flex justify-content-end">
-      <button class="btn btn-info mr-2" (click)="loadAll()" [disabled]="isLoading">
+      <button class="btn btn-info me-2" (click)="loadAll()" [disabled]="isLoading">
         <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="userManagement.home.refreshListLabel">Refresh List</span>
+        <span jhiTranslate="userManagement.home.refreshListLabel">Refresh list</span>
       </button>
       <button class="btn btn-primary jh-create-entity" [routerLink]="['./new']">
-        <fa-icon icon="plus"></fa-icon> <span jhiTranslate="userManagement.home.createLabel">Create a new User</span>
+        <fa-icon icon="plus"></fa-icon> <span jhiTranslate="userManagement.home.createLabel">Neuen Benutzer erstellen</span>
       </button>
     </div>
   </h2>
@@ -26,17 +26,17 @@
           <th scope="col" jhiSortBy="email"><span jhiTranslate="userManagement.email">Email</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
           <th scope="col" jhiSortBy="langKey">
-            <span jhiTranslate="userManagement.langKey">Lang Key</span> <fa-icon icon="sort"></fa-icon>
+            <span jhiTranslate="userManagement.langKey">Sprache</span> <fa-icon icon="sort"></fa-icon>
           </th>
-          <th scope="col"><span jhiTranslate="userManagement.profiles">Profiles</span></th>
+          <th scope="col"><span jhiTranslate="userManagement.profiles">Profile</span></th>
           <th scope="col" jhiSortBy="createdDate">
-            <span jhiTranslate="userManagement.createdDate">Created Date</span> <fa-icon icon="sort"></fa-icon>
+            <span jhiTranslate="userManagement.createdDate">Erstellt am</span> <fa-icon icon="sort"></fa-icon>
           </th>
           <th scope="col" jhiSortBy="lastModifiedBy">
-            <span jhiTranslate="userManagement.lastModifiedBy">Last Modified By</span> <fa-icon icon="sort"></fa-icon>
+            <span jhiTranslate="userManagement.lastModifiedBy">Bearbeitet von</span> <fa-icon icon="sort"></fa-icon>
           </th>
           <th scope="col" jhiSortBy="lastModifiedDate">
-            <span jhiTranslate="userManagement.lastModifiedDate">Last Modified Date</span> <fa-icon icon="sort"></fa-icon>
+            <span jhiTranslate="userManagement.lastModifiedDate">Zuletzt bearbeitet</span> <fa-icon icon="sort"></fa-icon>
           </th>
           <th scope="col"></th>
         </tr>
@@ -55,7 +55,7 @@
               *ngIf="!user.activated"
               jhiTranslate="userManagement.deactivated"
             >
-              Deactivated
+              Deaktiviert
             </button>
             <button
               class="btn btn-success btn-sm"
@@ -64,28 +64,28 @@
               [disabled]="!currentAccount || currentAccount.login === user.login"
               jhiTranslate="userManagement.activated"
             >
-              Activated
+              Aktiv
             </button>
           </td>
           <td>{{ user.langKey }}</td>
           <td>
             <div *ngFor="let authority of user.authorities">
-              <span class="badge badge-info">{{ authority }}</span>
+              <span class="badge bg-info">{{ authority }}</span>
             </div>
           </td>
           <td>{{ user.createdDate | date: 'dd/MM/yy HH:mm' }}</td>
           <td>{{ user.lastModifiedBy }}</td>
           <td>{{ user.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</td>
-          <td class="text-right">
+          <td class="text-end">
             <div class="btn-group">
               <button type="submit" [routerLink]="['./', user.login, 'view']" class="btn btn-info btn-sm">
                 <fa-icon icon="eye"></fa-icon>
-                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Details</span>
               </button>
 
               <button type="submit" [routerLink]="['./', user.login, 'edit']" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                 <fa-icon icon="pencil-alt"></fa-icon>
-                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Bearbeiten</span>
               </button>
 
               <button
@@ -95,7 +95,7 @@
                 [disabled]="!currentAccount || currentAccount.login === user.login"
               >
                 <fa-icon icon="times"></fa-icon>
-                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Löschen</span>
               </button>
             </div>
           </td>
@@ -105,11 +105,11 @@
   </div>
 
   <div *ngIf="users">
-    <div class="row justify-content-center">
+    <div class="d-flex justify-content-center">
       <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
     </div>
 
-    <div class="row justify-content-center">
+    <div class="d-flex justify-content-center">
       <ngb-pagination
         [collectionSize]="totalItems"
         [(page)]="page"

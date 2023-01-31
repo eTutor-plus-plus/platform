@@ -35,7 +35,7 @@ import tech.jhipster.web.util.ResponseUtil;
 /**
  * REST controller for managing users.
  * <p>
- * This class accesses the {@link User} entity, and needs to fetch its collection of authorities.
+ * This class accesses the {@link at.jku.dke.etutor.domain.User} entity, and needs to fetch its collection of authorities.
  * <p>
  * For a normal use-case, it would be better to have an eager relationship between User and Authority,
  * and send everything to the client side: there would be no View Model and DTO, a lot less code, and an outer-join
@@ -163,7 +163,7 @@ public class UserResource {
      */
     @GetMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers(Pageable pageable) {
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get all User for an admin");
         if (!onlyContainsAllowedProperties(pageable)) {
             return ResponseEntity.badRequest().build();
