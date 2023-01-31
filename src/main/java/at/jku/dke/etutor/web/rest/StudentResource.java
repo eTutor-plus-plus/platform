@@ -411,7 +411,7 @@ public class StudentResource {
             return ResponseEntity.internalServerError().build();
         }
 
-        // Get required information about task assignment
+        // Get required information about task assignment, diagnose-level-weighting, max-points, dispatcher id
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
         if(weightingAndMaxPointsIdArr == null)
@@ -427,7 +427,6 @@ public class StudentResource {
         // Process
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting);
-
 
         return ResponseEntity.ok(achievedPoints);
     }
@@ -477,7 +476,7 @@ public class StudentResource {
         int highestDiagnoseLevel = oldDiagnoseLevel;
 
         if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
-            studentService.setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            studentService.setHighestChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
             highestDiagnoseLevel = currDiagnoseLevel;
         }
 
