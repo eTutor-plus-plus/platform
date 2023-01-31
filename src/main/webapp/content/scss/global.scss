@@ -1,7 +1,3 @@
-@import '~quill/dist/quill.core.css';
-@import '~quill/dist/quill.bubble.css';
-@import '~quill/dist/quill.snow.css';
-
 @import 'bootstrap-variables';
 @import '~bootstrap/scss/functions';
 @import '~bootswatch/dist/simplex/variables';
@@ -83,6 +79,10 @@ Generic styles
   word-break: break-all;
 }
 
+.form-control {
+  background-color: #fff;
+}
+
 .readonly {
   background-color: #eee;
   opacity: 1;
@@ -151,6 +151,14 @@ Custom alerts for notification
   .alerts .jhi-toast {
     width: 50%;
   }
+}
+
+/* ==========================================================================
+entity list page css
+========================================================================== */
+
+.table-entities thead th .d-flex > * {
+  margin: auto 0;
 }
 
 /* ==========================================================================

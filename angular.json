@@ -110,6 +110,11 @@
   },
   "defaultProject": "etutor-plus-plus",
   "cli": {
+    "cache": {
+      "enabled": true,
+      "path": "./target/angular/",
+      "environment": "all"
+    },
     "packageManager": "npm"
   }
 }

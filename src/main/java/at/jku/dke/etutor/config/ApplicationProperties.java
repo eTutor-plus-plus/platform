@@ -144,4 +144,8 @@ public class ApplicationProperties {
             this.url = url;
         }
     }
+    
+    // jhipster-needle-application-properties-property
+    // jhipster-needle-application-properties-property-getter
+    // jhipster-needle-application-properties-property-class
 }

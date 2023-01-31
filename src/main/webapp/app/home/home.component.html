@@ -1,15 +1,6 @@
 <div class="row">
-  <div class="col-md-8 offset-md-2 text-center">
-    <h1 class="display-4" jhiTranslate="home.welcome.firstHeader">Welcome to eTutor++</h1>
-    <p class="lead" jhiTranslate="home.welcome.secondHeader">An interactive studying assistant</p>
-    <div class="lead" jhiTranslate="home.welcome.thirdHeader">Please sign in with your JKU account!</div>
-  </div>
-</div>
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="alert alert-danger" *ngIf="authenticationError" jhiTranslate="login.messages.error.authentication">
-      <strong>Failed to sign in!</strong> Please check your credentials and try again.
-    </div>
+  <div class="col-md-3">
+    <span class="hipster img-fluid rounded"></span>
   </div>
 
   <div class="col-md-8 d-flex justify-content-center">
@@ -39,7 +30,7 @@
             class="form-text text-danger"
             *ngIf="loginForm.get('username')!.errors?.pattern && !loginForm.get('username')!.errors?.required"
             jhiTranslate="error.loginPatternFailed"
-          >
+        >
             The given login is not a valid JKU employee or matriculation number.
           </small>
         </div>
@@ -61,7 +52,7 @@
             class="form-text text-danger"
             *ngIf="loginForm.get('password')?.errors?.required"
             jhiTranslate="entity.validation.required"
-          >
+        >
             This field is required
           </small>
         </div>
@@ -72,7 +63,7 @@
           <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" formControlName="rememberMe" />
           <span jhiTranslate="login.form.rememberme">Remember me</span>
         </label>
-      </div>
+    </div>
 
       <br />
 

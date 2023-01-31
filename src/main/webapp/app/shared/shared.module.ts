@@ -15,6 +15,7 @@ import { FormatMediumDatePipe } from './date/format-medium-date.pipe';
 import { SortByDirective } from './sort/sort-by.directive';
 import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
+import { FilterComponent } from './filter/filter.component';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 import { TreeviewModule } from './ngx-treeview/treeview.module';
 import { myMonacoLoad } from '../overview/dispatcher/monaco-config';
@@ -58,6 +59,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     SortByDirective,
     SortDirective,
     ItemCountComponent,
+    FilterComponent,
   ],
   exports: [
     SharedLibsModule,
@@ -77,6 +79,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     SortDirective,
     ItemCountComponent,
     MonacoEditorModule,
+    FilterComponent,
   ],
 })
 export class SharedModule {}

@@ -8,8 +8,6 @@ import { Authority } from 'app/config/authority.constants';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 
-const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
-
 @NgModule({
   imports: [
     RouterModule.forRoot(
@@ -46,7 +44,12 @@ const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
           path: 'XML',
           loadChildren: () => import('./overview/xml-files/xml-files.module').then(m => m.XmlFilesModule),
         },
-        ...LAYOUT_ROUTES,
+        {
+          path: '',
+          loadChildren: () => import(`./entities/entity-routing.module`).then(m => m.EntityRoutingModule),
+        },
+        navbarRoute,
+        ...errorRoute,
       ],
       { enableTracing: DEBUG_INFO_ENABLED }
     ),
