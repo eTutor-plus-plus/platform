@@ -1294,14 +1294,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal submissionLiteral = solution.getLiteral("?submission");
                     var taskAssignmentTypeURI = solution.getResource("?taskAssignmentType").getURI();
 
-                    if (submissionLiteral == null) {
-                        return Optional.empty();
+                    if (submissionLiteral != null) {
+                        return dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
+                            taskAssignmentTypeURI);
                     }
-                    return dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
-                        taskAssignmentTypeURI);
-                } else {
-                    return Optional.empty();
                 }
+                return Optional.empty();
             }
         }
     }
@@ -1425,7 +1423,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      *                           * @param points             the diagnose level
      */
 
-    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel) {
+    public void setHighestChosenDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1974,11 +1972,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @return the points that have been achieved by the student
      */
     public int processDispatcherSubmissionForIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting) {
+
         addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission,grading != null && grading.isSubmissionSuitsSolution());
         if(grading == null)
             return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID,
+        int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID,
             matriculationNo, taskNo, submission);
         int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
@@ -2025,14 +2024,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param submission the submission for an individual task, holding the diagnose level.
      * @return the current highest chosen diagnose level for the individual task.
      */
-    private int updateHighestDiagnoseLevelForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo,
-                                                                                  int taskNo, SubmissionDTO submission) {
+    private int updateHighestDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo,
+                                                            int taskNo, SubmissionDTO submission) {
         var oldDiagnoseLevel = getHighestEverChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
         int highestDiagnoseLevel = oldDiagnoseLevel;
 
         if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
-            setHighestDiagnoseLevel(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            setHighestChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
             highestDiagnoseLevel = currDiagnoseLevel;
         }
         return highestDiagnoseLevel;
