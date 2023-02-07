@@ -3,6 +3,7 @@
  * registers custom languages, themes and token-providers for the Monaco text editor,
  * currently for Relational Algebra, XQuery and Datalog
  */
+import { TaskAssignmentType } from '../tasks/task.model';
 
 export function myMonacoLoad(): void {
   // Register a tokens provider for the language
@@ -457,15 +458,15 @@ export function getEditorOptionsForTaskTypeUrl(
 
 function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
   switch (taskTypeUrl) {
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
+    case TaskAssignmentType.SQLTask.value:
       return 'pgsql';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+    case TaskAssignmentType.RATask.value:
       return 'relationalAlgebra';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+    case TaskAssignmentType.DatalogTask.value:
       return 'datalog';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+    case TaskAssignmentType.XQueryTask.value:
       return 'xquery';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+    case TaskAssignmentType.BpmnTask.value:
       return 'bpmn';
     default:
       return 'pgsql';
@@ -474,15 +475,15 @@ function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string 
 
 function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
   switch (taskTypeUrl) {
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask':
+    case TaskAssignmentType.SQLTask.value:
       return 'pgsql';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask':
+    case TaskAssignmentType.RATask.value:
       return 'relationalAlgebra-light';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DLGTask':
+    case TaskAssignmentType.DatalogTask.value:
       return 'datalog-light';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask':
+    case TaskAssignmentType.XQueryTask.value:
       return 'xquery-light';
-    case 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask':
+    case TaskAssignmentType.BpmnTask.value:
       return 'xml';
     default:
       return 'vs-light';
