@@ -23,6 +23,8 @@
     <!-- jhipster-needle-distribution-management -->
 
     <properties>
+        <!-- Objects library of etutor++ -->
+        <objects.version>1.1</objects.version>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>17</java.version>
@@ -121,7 +123,7 @@
         <dependency>
             <groupId>at.jku.dke.etutor</groupId>
             <artifactId>etutor-objects</artifactId>
-            <version>1.0</version>
+            <version>${objects.version}</version>
         </dependency>
         <!-- Custom dependencies - Utils -->
         <dependency>

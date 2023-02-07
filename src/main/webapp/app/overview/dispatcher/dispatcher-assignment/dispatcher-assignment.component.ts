@@ -4,6 +4,7 @@ import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { DispatcherAssignmentService } from 'app/overview/dispatcher/services/dispatcher-assignment.service';
 import { getEditorOptionsForTaskTypeUrl } from '../monaco-config';
+import { TaskAssignmentType } from '../../tasks/task.model';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -88,9 +89,6 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
    */
   public editorOptions = { theme: 'vs-light', language: 'pgsql', readOnly: false };
 
-  /**
-   * Indicates the task type
-   */
   public isXQueryTask = false;
   public isDatalogTask = false;
   public isBpmnTask = false;
@@ -167,6 +165,7 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
     this.assignmentService.getGrading(this.submissionIdDto).subscribe(grading => {
       this.gradingDto = grading;
       this.gradingReceived = true;
+      this.setTaskTypeFlags();
       this.hasErrors = !grading.submissionSuitsSolution;
       this.emitSubmissionEvents();
     });
@@ -210,5 +209,14 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
     this.submissionDto = submissionDto;
 
     return submissionDto;
+  }
+
+  /**
+   * Helper methods identifying the current task by the task_type field.
+   */
+  private setTaskTypeFlags(): void {
+    this.isXQueryTask = this.task_type === TaskAssignmentType.XQueryTask.value;
+    this.isDatalogTask = this.task_type === TaskAssignmentType.DatalogTask.value;
+    this.isBpmnTask = this.task_type === TaskAssignmentType.BpmnTask.value;
   }
 }

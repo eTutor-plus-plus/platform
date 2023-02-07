@@ -1,26 +1,10 @@
-# etutorPlusPlus
+# eTutor++: Platform
 
-This application was generated using JHipster 7.9.3, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.9.3](https://www.jhipster.tech/documentation-archive/v7.9.3).
-
-## Project Structure
-
-Node is required for generation and recommended for development. `package.json` is always generated for a better development experience with prettier, commit hooks, scripts and so on.
-
-In the project root, JHipster generates configuration files for tools like git, prettier, eslint, husky, and others that are well known and you can find references in the web.
-
-`/src/*` structure follows default Java structure.
-
-- `.yo-rc.json` - Yeoman configuration file
-  JHipster configuration is stored in this file at `generator-jhipster` key. You may find `generator-jhipster-*` for specific blueprints configuration.
-- `.yo-resolve` (optional) - Yeoman conflict resolver
-  Allows to use a specific action when conflicts are found skipping prompts for files that matches a pattern. Each line should match `[pattern] [action]` with pattern been a [Minimatch](https://github.com/isaacs/minimatch#minimatch) pattern and action been one of skip (default if ommited) or force. Lines starting with `#` are considered comments and are ignored.
-- `.jhipster/*.json` - JHipster entity configuration files
-
-- `npmw` - wrapper to use locally installed npm.
-  JHipster installs Node and npm locally using the build tool by default. This wrapper makes sure npm is installed locally and uses it avoiding some differences different versions can cause. By using `./npmw` instead of the traditional `npm` you can configure a Node-less environment to develop or test your application.
-- `/src/main/docker` - Docker configurations for the application and services that the application depends on
+#### This application was generated using JHipster 7.2.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.2.0](https://www.jhipster.tech/documentation-archive/v7.2.0).
 
 ## Development
+
+### Dependencies
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
@@ -31,91 +15,61 @@ After installing Node, you should be able to run the following command to instal
 You will only need to run this command when dependencies change in [package.json](package.json).
 
 ```
-npm install
+yarn install
 ```
 
-We use npm scripts and [Angular CLI][] with [Webpack][] as our build system.
+We use yarn scripts and [Angular CLI][] with [Webpack][] as our build system.
 
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
 
 ```
 ./mvnw
-npm start
+yarn start
 ```
 
 Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `npm help update`.
+specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
+Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
 
-The `npm run` command will list all of the scripts available to run for this project.
+The `yarn run` command will list all of the scripts available to run for this project.
 
-### PWA Support
+2. [eTutor++-Objects](https://github.com/eTutor-plus-plus/objects): Objects common to different service of the etutor++ ecosystem are maintained in the [objects-project](https://github.com/eTutor-plus-plus/objects).
+   To run a service depending on this project (like this one), you have to clone the repository and build the project with Maven:
 
-JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the main components of a PWA is a service worker.
-
-The service worker initialization code is disabled by default. To enable it, uncomment the following code in `src/main/webapp/app/app.module.ts`:
-
-```typescript
-ServiceWorkerModule.register('ngsw-worker.js', { enabled: false }),
+```shell
+git clone  https://github.com/eTutor-plus-plus/objects
+cd objects
+mvn clean install
 ```
 
-### Managing dependencies
+3. Other dependencies include:
 
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
+- Java
+- Maven
+- Docker (optional but recommended)
 
-```
-npm install --save --save-exact leaflet
-```
+### Setup
 
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
+This application requires a [PostgreSQL](https://www.postgresql.org/)-database and a [Apache Jena Fuseki]() RDF graph database.
+Connection details can be configured in the [properties](./src/main/java/at/jku/dke/etutor/config/ApplicationProperties.java).
 
-```
-npm install --save-dev --save-exact @types/leaflet
-```
+To spin-up the necessary databases in Docker containers with configurations matching the default development settings, execute [this script](./src/main/docker/local-deploy/setup_databases.bat).
+The script executes two commands:
 
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
-Edit [src/main/webapp/app/app.module.ts](src/main/webapp/app/app.module.ts) file:
-
-```
-import 'leaflet/dist/leaflet.js';
+```shell
+docker-compose build
+docker-compose up -d
 ```
 
-Edit [src/main/webapp/content/scss/vendor.scss](src/main/webapp/content/scss/vendor.scss) file:
+The first command builds a custom image with an Apache Jena Fuseki server and the necessary configuration.
+The second command starts three containers:
 
-```
-@import '~leaflet/dist/leaflet.css';
-```
+1. Fuseki
+2. PostgreSQL
+3. PGAdmin
 
-Note: There are still a few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
-
-### Using Angular CLI
-
-You can also use [Angular CLI][] to generate some custom client code.
-
-For example, the following command:
-
-```
-ng generate component my-component
-```
-
-will generate few files:
-
-```
-create src/main/webapp/app/my-component/my-component.component.html
-create src/main/webapp/app/my-component/my-component.component.ts
-update src/main/webapp/app/app.module.ts
-```
-
-### JHipster Control Center
-
-JHipster Control Center can help you manage and control your application(s). You can start a local control center server (accessible on http://localhost:7419) with:
-
-```
-docker-compose -f src/main/docker/jhipster-control-center.yml up
-```
+The whole process may take some minutes, especially on first execution.
 
 ## Building for production
 
@@ -137,110 +91,54 @@ java -jar target/*.jar
 Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
 
 Refer to [Using JHipster in production][] for more details.
+After building for production, delete the [/target](./target)-folder if you want to proceed developing locally.
 
-### Packaging as war
+## Updating
 
-To package your application as a war in order to deploy it to an application server, run:
+This section describes relevant update-procedures for components of the etutorplusplus.
 
-```
-./mvnw -Pprod,war clean verify
-```
+### Apache Jena Fuseki
 
-## Testing
-
-To launch your application's tests, run:
+To update the RDF-database, you have to backup the data, start the new Fuseki-server using the [configuration file](./src/main/docker/local-deploy/config_etutor_fulltext.ttl) with the following command:
 
 ```
-./mvnw verify
+fuseki-server --config config_etutor_fulltext.ttl
 ```
 
-### Client tests
+Afterwards, navigate to localhost:3030 and add the backup file to the /etutorpp-database.
 
-Unit tests are run by [Jest][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
+Refer to [this](https://jena.apache.org/documentation/fuseki2/fuseki-server-protocol.html) official documentation on how to control a Fuseki server with HTTP requests.
 
-```
-npm test
-```
+### JHipster
 
-For more information, refer to the [Running tests page][].
-
-### Code quality
-
-Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:
+To update JHipster, install the JHipster-Client with
 
 ```
-docker-compose -f src/main/docker/sonar.yml up -d
+npm install -g jhipster
 ```
 
-Note: we have turned off authentication in [src/main/docker/sonar.yml](src/main/docker/sonar.yml) for out of the box experience while trying out SonarQube, for real use cases turn it back on.
-
-You can run a Sonar analysis with using the [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) or by using the maven plugin.
-
-Then, run a Sonar analysis:
+Then, copy your local repository for safety reasons, and after commiting all changes,
+execute the following command in the root of the project:
 
 ```
-./mvnw -Pprod clean verify sonar:sonar
+jhipster upgrade
 ```
 
-If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase since Sonar properties are loaded from the sonar-project.properties file.
+This will create a new JHipster-application in a branch that diverges from your current branch
+and integrate the etutorplusplus, which will require solving various merge conflicts.
 
-```
-./mvnw initialize sonar:sonar
-```
+### PostgreSQL
 
-For more information, refer to the [Code quality page][].
-
-## Using Docker to simplify development (optional)
-
-You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
-
-For example, to start a postgresql database in a docker container, run:
-
-```
-docker-compose -f src/main/docker/postgresql.yml up -d
-```
-
-To stop it and remove the container, run:
-
-```
-docker-compose -f src/main/docker/postgresql.yml down
-```
-
-You can also fully dockerize your application and all the services that it depends on.
-To achieve this, first build a docker image of your app by running:
-
-```
-npm run java:docker
-```
-
-Or build a arm64 docker image when using an arm64 processor os like MacOS with M1 processor family running:
-
-```
-npm run java:docker:arm64
-```
-
-Then run:
-
-```
-docker-compose -f src/main/docker/app.yml up -d
-```
-
-When running Docker Desktop on MacOS Big Sur or later, consider enabling experimental `Use the new Virtualization framework` for better processing performance ([disk access performance is worse](https://github.com/docker/roadmap/issues/7)).
-
-For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
-
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
+[pgupgrade](https://www.postgresql.org/docs/current/pgupgrade.html)
 
 [jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 7.9.3 archive]: https://www.jhipster.tech/documentation-archive/v7.9.3
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.9.3/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.9.3/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.9.3/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v7.9.3/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v7.9.3/code-quality/
-[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.9.3/setting-up-ci/
+[jhipster 7.2.0 archive]: https://www.jhipster.tech/documentation-archive/v7.2.0
+[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.2.0/development/
+[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.2.0/docker-compose
+[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.2.0/production/
+[running tests page]: https://www.jhipster.tech/documentation-archive/v7.2.0/running-tests/
+[code quality page]: https://www.jhipster.tech/documentation-archive/v7.2.0/code-quality/
+[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.2.0/setting-up-ci/
 [node.js]: https://nodejs.org/
 [npm]: https://www.npmjs.com/
 [webpack]: https://webpack.github.io/
