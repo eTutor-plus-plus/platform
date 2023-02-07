@@ -57,15 +57,15 @@ export class TaskGroupUpdateComponent {
       this.taskGroupToEdit = await this.taskGroupService.getTaskGroup(name).toPromise();
 
       this.taskGroup.patchValue({
-        name: this.taskGroupToEdit.name,
-        description: this.taskGroupToEdit.description,
-        sqlCreateStatements: this.taskGroupToEdit.sqlCreateStatements,
-        sqlInsertStatementsSubmission: this.taskGroupToEdit.sqlInsertStatementsSubmission,
-        sqlInsertStatementsDiagnose: this.taskGroupToEdit.sqlInsertStatementsDiagnose,
-        diagnoseXML: this.taskGroupToEdit.xQueryDiagnoseXML,
-        submissionXML: this.taskGroupToEdit.xQuerySubmissionXML,
-        datalogFacts: this.taskGroupToEdit.datalogFacts,
-        taskGroupType: this.taskGroupToEdit.taskGroupTypeId,
+        name: this.taskGroupToEdit!.name,
+        description: this.taskGroupToEdit!.description,
+        sqlCreateStatements: this.taskGroupToEdit!.sqlCreateStatements,
+        sqlInsertStatementsSubmission: this.taskGroupToEdit!.sqlInsertStatementsSubmission,
+        sqlInsertStatementsDiagnose: this.taskGroupToEdit!.sqlInsertStatementsDiagnose,
+        diagnoseXML: this.taskGroupToEdit!.xQueryDiagnoseXML,
+        submissionXML: this.taskGroupToEdit!.xQuerySubmissionXML,
+        datalogFacts: this.taskGroupToEdit!.datalogFacts,
+        taskGroupType: this.taskGroupToEdit!.taskGroupTypeId,
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
         this.adjustFormForSQLType();

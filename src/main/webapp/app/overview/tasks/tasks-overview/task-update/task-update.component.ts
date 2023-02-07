@@ -119,71 +119,71 @@ export class TaskUpdateComponent implements OnInit {
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
       taskAssignmentTypeId,
-      privateTask: this.updateForm.get('privateTask')!.value,
+      privateTask: this.updateForm.get('privateTask')!.value!,
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
     };
 
-    const urlStr: string = this.updateForm.get('url')!.value;
+    const urlStr: string | null = this.updateForm.get('url')!.value;
     if (urlStr) {
       newTask.url = new URL(urlStr);
     }
 
-    const instructionStr: string = this.updateForm.get('instruction')!.value;
-    if (instructionStr.trim()) {
+    const instructionStr: string | null = this.updateForm.get('instruction')!.value;
+    if (instructionStr?.trim()) {
       newTask.instruction = instructionStr.trim();
     }
 
-    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
+    const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
       newTask.taskIdForDispatcher = taskIdForDispatcher;
     }
 
-    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
+    const sqlSolution: string | null = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
     }
 
-    const xQuerySolution: string = this.updateForm.get('xQuerySolution')!.value;
+    const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
       newTask.xQuerySolution = xQuerySolution;
     }
 
-    const xQueryXPathSorting: string = this.updateForm.get('xQueryXPathSorting')!.value;
+    const xQueryXPathSorting: string | null = this.updateForm.get('xQueryXPathSorting')!.value;
     if (xQueryXPathSorting) {
       newTask.xQueryXPathSorting = xQueryXPathSorting;
     }
 
-    const datalogSolution: string = this.updateForm.get('datalogSolution')!.value;
+    const datalogSolution: string | null = this.updateForm.get('datalogSolution')!.value;
     if (datalogSolution) {
       newTask.datalogSolution = datalogSolution;
     }
 
-    const datalogQuery: string = this.updateForm.get('datalogQuery')!.value;
+    const datalogQuery: string | null = this.updateForm.get('datalogQuery')!.value;
     if (datalogQuery) {
       newTask.datalogQuery = datalogQuery;
     }
 
-    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
+    const datalogUncheckedTerms: string | null = this.updateForm.get('datalogUncheckedTerms')!.value;
     if (datalogUncheckedTerms) {
       newTask.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 
-    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
+    const maxPoints: string | null = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
     }
 
-    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    const diagnoseLevelWeighting: string | null = this.updateForm.get('diagnoseLevelWeighting')!.value;
     if (diagnoseLevelWeighting) {
       newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
-    const processingTime: string = this.updateForm.get('processingTime')!.value;
-    if (processingTime.trim()) {
+    const processingTime: string | null = this.updateForm.get('processingTime')!.value;
+    if (processingTime?.trim()) {
       newTask.processingTime = processingTime.trim();
     }
-    const bpmnTestConfig: string = this.updateForm.get('bpmnTestConfig')!.value;
+    const bpmnTestConfig: string | null = this.updateForm.get('bpmnTestConfig')!.value;
     if (bpmnTestConfig) {
       newTask.bpmnTestConfig = bpmnTestConfig;
     }

@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { PasswordResetFinishService } from './password-reset-finish.service';
 
@@ -60,7 +60,7 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
         error: () => (this.error = true),
       });
     }
-
+  }
   login(): void {
     this.router.navigate(['']);
   }
