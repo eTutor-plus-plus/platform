@@ -8,6 +8,7 @@ import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-gro
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component for managing task groups.
@@ -123,7 +124,7 @@ export class TaskGroupManagementComponent implements OnInit {
    * Asynchronously loads the current page.
    */
   private async loadPageAsync(): Promise<any> {
-    const response = await this.taskGroupService
+    const response = await lastValueFrom(this.taskGroupService
       .getPagedTaskGroups(
         {
           page: this.page - 1,
@@ -131,8 +132,7 @@ export class TaskGroupManagementComponent implements OnInit {
           sort: [],
         },
         this.query
-      )
-      .toPromise();
+      ));
     this.totalItems = Number(response.headers.get(COUNT_HEADER));
     this.taskGroups = response.body ?? [];
   }

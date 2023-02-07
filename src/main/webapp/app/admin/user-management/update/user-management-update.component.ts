@@ -18,14 +18,14 @@ export class UserManagementUpdateComponent implements OnInit {
   isSaving = false;
 
   editForm = this.fb.group({
-    id: [],
+    id: [-1],
     login: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50), Validators.pattern(LOGIN_PATTERN)]],
     firstName: ['', [Validators.maxLength(50)]],
     lastName: ['', [Validators.maxLength(50)]],
     email: ['', [Validators.minLength(5), Validators.maxLength(254), Validators.email]],
-    activated: [],
+    activated: [false],
     langKey: ['', [Validators.required]],
-    authorities: ['', [Validators.required]],
+    authorities: [[''], [Validators.required]],
   });
 
   constructor(private userService: UserManagementService, private route: ActivatedRoute, private fb: FormBuilder) {}
@@ -51,14 +51,16 @@ export class UserManagementUpdateComponent implements OnInit {
     this.isSaving = true;
     this.updateUser(this.user);
     if (this.user.id !== undefined) {
-      this.userService.update(this.user).subscribe(
-        () => this.onSaveSuccess(),
-        () => this.onSaveError()
-      );
+      this.userService.update(this.user).subscribe({
+      next: () => this.onSaveSuccess(),
+      error: () => this.onSaveError()
+    }
+    );
     } else {
-      this.userService.create(this.user).subscribe(
-        () => this.onSaveSuccess(),
-        () => this.onSaveError()
+      this.userService.create(this.user).subscribe({
+          next: () => this.onSaveSuccess(),
+          error: () => this.onSaveError()
+      }
       );
     }
   }
