@@ -61,14 +61,9 @@
     </strong>
   </div>
 
-  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask" [innerHTML]="gradingDto.report.error"></div>
-  <div
-    *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask"
-    [innerHTML]="gradingDto.report.description"
-  ></div>
+  <div [innerHTML]="gradingDto?.report?.error"></div>
+  <div [innerHTML]="gradingDto?.report?.description"></div>
   <br />
-  <div *ngIf="gradingReceived && hasErrors && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.report.hint"></div>
-  <div *ngIf="gradingReceived && hasErrors && isBpmnTask" [innerHTML]="gradingDto.report.description"></div>
-  <div *ngIf="gradingReceived && (isXQueryTask || isDatalogTask) && !isBpmnTask" [innerHTML]="gradingDto.result | safeHtml"></div>
-  <div *ngIf="gradingReceived && !isXQueryTask && !isDatalogTask && !isBpmnTask" [innerHTML]="gradingDto.result"></div>
+  <div [innerHTML]="gradingDto?.report?.hint"></div>
+  <div [innerHTML]="gradingDto?.result | safeHtml"></div>
 </div>
