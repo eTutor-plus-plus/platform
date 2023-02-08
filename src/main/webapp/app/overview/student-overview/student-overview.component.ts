@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentExerciseSheetGoalsComponent } from './course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 import { AccountService } from '../../core/auth/account.service';
+import {lastValueFrom} from "rxjs";
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -98,7 +99,7 @@ export class StudentOverviewComponent implements OnInit {
    * @private
    */
   private async viewReachedGoalsAsync(course: ICourseInstanceInformationDTO): Promise<any> {
-    const reachedGoalsResponse = await this.studentService.getReachedGoalsOfCourseInstance(course.instanceId).toPromise();
+    const reachedGoalsResponse = await lastValueFrom(this.studentService.getReachedGoalsOfCourseInstance(course.instanceId));
     const reachedGoalsUnfiltered = reachedGoalsResponse.body ?? [];
     const reachedGoals = reachedGoalsUnfiltered.map(g => g.substr(g.lastIndexOf('#') + 1));
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });

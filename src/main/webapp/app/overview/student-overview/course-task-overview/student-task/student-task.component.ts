@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
-import { Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { TasksService } from 'app/overview/tasks/tasks.service';
 import { ITaskModel, TaskAssignmentType, TaskDifficulty } from 'app/overview/tasks/task.model';
 import { StudentService } from 'app/overview/shared/students/student-service';
@@ -81,7 +81,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       this._taskNo = Number(paramMap.get('taskNo')!);
 
       (async () => {
-        const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
+        const result = await lastValueFrom(this.taskService.getTaskAssignmentById(this._taskUUID, true));
         this._taskModel = result.body!;
         this.uploadFileId = this._taskModel.uploadFileId ?? -1;
         this.isUploadTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UploadTask.value;
@@ -112,19 +112,16 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
             .getDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
-          this.achievedDispatcherPoints = await this.studentService
-            .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
-            .toPromise();
+          this.achievedDispatcherPoints = await lastValueFrom(this.studentService
+            .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo));
 
-          this.diagnoseLevel = await this.studentService
-            .getDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
-            .toPromise();
+          this.diagnoseLevel = await lastValueFrom(this.studentService
+            .getDiagnoseLevel(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo));
         }
 
         if (this.isUploadTask) {
-          this.uploadTaskFileId = await this.studentService
-            .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
-            .toPromise();
+          this.uploadTaskFileId = await lastValueFrom(this.studentService
+            .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo));
         }
         const taskGroupId = this._taskModel.taskGroupId;
         if (taskGroupId) {
@@ -135,9 +132,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       })();
 
       (async () => {
-        this.isSubmitted = await this.studentService
-          .isTaskSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
-          .toPromise();
+        this.isSubmitted = await lastValueFrom(this.studentService
+          .isTaskSubmitted(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo));
       })();
     });
   }

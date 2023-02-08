@@ -6,6 +6,7 @@ import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-it
 import { LearningGoalsService } from '../../learning-goals/learning-goals.service';
 import { AccountService } from '../../../core/auth/account.service';
 import { cloneDeep } from 'lodash';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component which is used to add learning goals
@@ -352,13 +353,11 @@ export class LearningGoalAssignmentUpdateComponent implements OnInit {
    * Asynchronously loads the assignment from the current course.
    */
   private async loadAssignmentsFromCourseAsync(): Promise<any> {
-    const goalsFromService = await this.courseManagementService
-      .getLearningGoalsFromCourse(this._selectedCourse!, this.loginName)
-      .toPromise();
+    const goalsFromService = await lastValueFrom(this.courseManagementService
+      .getLearningGoalsFromCourse(this._selectedCourse!, this.loginName));
     while (!this.initialLoadingDone) {
       await this.delay(10);
     }
-
     this.selectedLearningGoals = goalsFromService;
 
     for (const goal of goalsFromService) {

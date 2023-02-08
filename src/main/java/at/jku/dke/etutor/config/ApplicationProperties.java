@@ -73,7 +73,7 @@ public class ApplicationProperties {
      * Configuration class for the dispatcher connection
      */
     public static class Dispatcher{
-        private String url = "http://localhost:8081";
+        private String url = "http://localhost:8081"; // System.getEnv()
         private String xqueryXmlFileUrlPrefix;
         private String sqlTableUrlPrefix;
         private String datalogFactsUrlPrefix;
@@ -144,7 +144,7 @@ public class ApplicationProperties {
             this.url = url;
         }
     }
-    
+
     // jhipster-needle-application-properties-property
     // jhipster-needle-application-properties-property-getter
     // jhipster-needle-application-properties-property-class

@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component for adding / manipulation task groups.
@@ -54,7 +55,7 @@ export class TaskGroupUpdateComponent {
     (async () => {
       const name = value.substr(value.lastIndexOf('#') + 1);
 
-      this.taskGroupToEdit = await this.taskGroupService.getTaskGroup(name).toPromise();
+      this.taskGroupToEdit = await lastValueFrom(this.taskGroupService.getTaskGroup(name));
 
       this.taskGroup.patchValue({
         name: this.taskGroupToEdit!.name,
@@ -65,7 +66,7 @@ export class TaskGroupUpdateComponent {
         diagnoseXML: this.taskGroupToEdit!.xQueryDiagnoseXML,
         submissionXML: this.taskGroupToEdit!.xQuerySubmissionXML,
         datalogFacts: this.taskGroupToEdit!.datalogFacts,
-        taskGroupType: this.taskGroupToEdit!.taskGroupTypeId,
+        taskGroupType: TaskGroupType.getTaskGroup(this.taskGroupToEdit!.taskGroupTypeId),
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
         this.adjustFormForSQLType();
@@ -101,7 +102,7 @@ export class TaskGroupUpdateComponent {
     const datalogFacts = this.taskGroup.get(['datalogFacts'])!.value as string | undefined;
     try {
       if (this.isNew) {
-        const newTaskGroup = await this.taskGroupService
+        const newTaskGroup = await lastValueFrom(this.taskGroupService
           .createNewTaskGroup({
             name,
             description,
@@ -112,8 +113,7 @@ export class TaskGroupUpdateComponent {
             xQueryDiagnoseXML,
             xQuerySubmissionXML,
             datalogFacts,
-          })
-          .toPromise();
+          }));
 
         this.isSaving = false;
         this.activeModal.close(newTaskGroup);

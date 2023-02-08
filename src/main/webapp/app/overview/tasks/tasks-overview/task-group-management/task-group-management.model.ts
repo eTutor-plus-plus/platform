@@ -102,6 +102,9 @@ export class TaskGroupType {
   );
 
   public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType, TaskGroupType.DatalogType];
+  public static getTaskGroup(id: string): TaskGroupType | undefined{
+    return TaskGroupType.Values.find(group => group.value === id);
+  }
 
   private readonly _value: string;
   private readonly _text: string;

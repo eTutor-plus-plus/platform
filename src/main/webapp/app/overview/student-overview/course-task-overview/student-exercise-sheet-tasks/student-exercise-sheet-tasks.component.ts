@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StudentService } from '../../../shared/students/student-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ICourseInstanceInformationDTO, IStudentTaskListInfoDTO } from '../../../shared/students/students.model';
-import { Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { Location } from '@angular/common';
 import { ExerciseSheetsService } from 'app/overview/exercise-sheets/exercise-sheets.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -66,7 +66,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
     this._paramMapSubscription = this.activatedRoute.paramMap.subscribe(paramMap => {
       this._exerciseSheetUUID = paramMap.get('exerciseSheetUUID')!;
       (async () => {
-        const result = await this.exerciseSheetService.getExerciseSheetById(this._exerciseSheetUUID).toPromise();
+        const result = await lastValueFrom(this.exerciseSheetService.getExerciseSheetById(this._exerciseSheetUUID));
         if (result.body) {
           this.exerciseSheetName = result.body.name;
         }
@@ -122,7 +122,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    * Asynchronously loads the student's tasks.
    */
   private async loadTasksAsync(): Promise<any> {
-    const result = await this.studentService.getExerciseSheetTasks(this._instance!.instanceId, this._exerciseSheetUUID).toPromise();
+    const result = await lastValueFrom(this.studentService.getExerciseSheetTasks(this._instance!.instanceId, this._exerciseSheetUUID));
     this.entries = result.body ?? [];
   }
 
@@ -131,9 +131,8 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    * @private
    */
   private async loadFileAttachmentAsync(): Promise<any> {
-    this.fileAttachmentId = await this.studentService
-      .getFileAttachmentIdForExerciseSheet(this._instance!.instanceId, this._exerciseSheetUUID)
-      .toPromise();
+    this.fileAttachmentId = await lastValueFrom(this.studentService
+      .getFileAttachmentIdForExerciseSheet(this._instance!.instanceId, this._exerciseSheetUUID));
   }
 
   /**
@@ -141,7 +140,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    * @private
    */
   private async openLearningGoalsForSheetAsync(): Promise<any> {
-    const exerciseSheetResponse = await this.exerciseSheetService.getExerciseSheetById(this._exerciseSheetUUID).toPromise();
+    const exerciseSheetResponse = await lastValueFrom(this.exerciseSheetService.getExerciseSheetById(this._exerciseSheetUUID));
     const exerciseSheet = exerciseSheetResponse.body!;
     const assignedGoalsOfSheet = exerciseSheet.learningGoals.filter(g => g.learningGoal.name).map(g => g.learningGoal.name!);
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });
@@ -159,7 +158,7 @@ export class StudentExerciseSheetTasksComponent implements OnInit, OnDestroy {
    * @private
    */
   private async viewGoalAssignmentsAsync(entry: IStudentTaskListInfoDTO): Promise<any> {
-    const assignedGoalsResponse = await this.taskService.getAssignedLearningGoalsOfAssignment(entry.taskId).toPromise();
+    const assignedGoalsResponse = await lastValueFrom(this.taskService.getAssignedLearningGoalsOfAssignment(entry.taskId));
     const assignedGoalIds = assignedGoalsResponse.body;
     const assignedGoals = assignedGoalIds?.map(t => t.substr(t.lastIndexOf('#') + 1));
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });

@@ -8,7 +8,7 @@ import { TasksService } from '../tasks/tasks.service';
 import { ITaskAssignmentDisplay } from '../tasks/task.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
-import { combineLatest } from 'rxjs';
+import {combineLatest, lastValueFrom} from 'rxjs';
 import { AlertService } from 'app/core/util/alert.service';
 import { TreeviewComponent } from '../../shared/ngx-treeview/components/treeview/treeview.component';
 import { SupergoalManagerWindowComponent } from './supergoal-manager-window/supergoal-manager-window.component';
@@ -69,9 +69,8 @@ export class LearningGoalsComponent implements OnInit {
    */
   public async loadLearningGoalsAsync(): Promise<void> {
     this.learningGoals.length = 0;
-    const list = await this.learningGoalsService
-      .getAllVisibleLearningGoalsAsTreeViewItems(this.username, this.showOnlyUserGoals)
-      .toPromise();
+    const list = await lastValueFrom(this.learningGoalsService
+      .getAllVisibleLearningGoalsAsTreeViewItems(this.username, this.showOnlyUserGoals));
     list.forEach(x => this.learningGoals.push(x));
   }
 

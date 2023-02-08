@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { CourseModel } from './course-mangement.model';
 import { CourseManagementService } from './course-management.service';
-import { Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateCourseComponent } from './update-course/update-course.component';
@@ -213,7 +213,7 @@ export class CourseManagementComponent implements OnInit, OnDestroy {
    * Loads the courses asynchronously from the service.
    */
   private async loadCourses(): Promise<any> {
-    this.courses = await this.courseService.getAllCourses().toPromise();
+    this.courses = await lastValueFrom(this.courseService.getAllCourses());
     this.performFiltering();
   }
 

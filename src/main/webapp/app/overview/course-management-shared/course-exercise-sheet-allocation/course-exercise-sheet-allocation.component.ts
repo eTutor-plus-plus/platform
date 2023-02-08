@@ -5,7 +5,7 @@ import { FormBuilder } from '@angular/forms';
 import { IExerciseSheetDisplayDTO } from '../../exercise-sheets/exercise-sheets.model';
 import { ExerciseSheetsService } from '../../exercise-sheets/exercise-sheets.service';
 import { CourseManagementService } from '../../course-management/course-management.service';
-import { forkJoin } from 'rxjs';
+import {forkJoin, lastValueFrom} from 'rxjs';
 import { LecturerTaskAssignmentOverviewComponent } from './lecturer-task-assignment-overview/lecturer-task-assignment-overview.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { LecturerTaskAssignmentService } from './lecturer-task-assignment-overview/lecturer-task-assignment.service';
@@ -211,7 +211,7 @@ export class CourseExerciseSheetAllocationComponent {
    * Asynchronously loads the exercise sheets page.
    */
   private async loadExerciseSheetsPageAsync(): Promise<any> {
-    const response = await this.exerciseSheetService
+    const response = await lastValueFrom(this.exerciseSheetService
       .getPagedExerciseSheetPage(
         {
           page: this.page - 1,
@@ -219,8 +219,7 @@ export class CourseExerciseSheetAllocationComponent {
           sort: [],
         },
         undefined
-      )
-      .toPromise();
+      ));
 
     this.totalItems = Number(response.headers.get(COUNT_HEADER));
     this.exerciseSheets = response.body ?? [];
