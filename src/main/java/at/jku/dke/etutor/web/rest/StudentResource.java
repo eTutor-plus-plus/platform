@@ -3,6 +3,7 @@ package at.jku.dke.etutor.web.rest;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.StudentService;
 import at.jku.dke.etutor.service.UserService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;

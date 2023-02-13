@@ -33,7 +33,7 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/etutorplusplus
+    url: ${ETUTORPP_DATASOURCE}
     username: etutorplusplus
     password: etutorplusplus
     hikari:
@@ -45,9 +45,9 @@ spring:
   liquibase:
     contexts: prod
   mail:
-    host: localhost
+    host: 10.78.59.17
     port: 25
-    username:
+    username: ernst
     password:
   thymeleaf:
     cache: true
@@ -104,7 +104,7 @@ jhipster:
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://my-server-url-to-change # Modify according to your server's URL
+    base-url: https://etutor.dke.uni-linz.ac.at/etutorpp # Modify according to your server's URL
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -123,11 +123,11 @@ jhipster:
 
 application:
   dispatcher:
-    url: http://localhost:8081
-    xqueryXmlFileUrlPrefix: /XML?id=
-    sqlTableUrlPrefix: /sql-tables/
-    datalogFactsUrlPrefix: /datalog-facts/
+    url: ${DISPATCHER_URL}
+    xqueryXmlFileUrlPrefix: /etutorpp/XML?id=
+    sqlTableUrlPrefix: /etutorpp/sql-tables/
+    datalogFactsUrlPrefix: /etutorpp/datalog-facts/
   fuseki:
-    baseUrl: http://localhost:3030/etutorpp-database
+    baseUrl: ${FUSEKI_BASE_URL}
   bpmnDispatcher:
-    url: http://localhost:8084
+    url: ${BPMN_DISPATCHER_URL}

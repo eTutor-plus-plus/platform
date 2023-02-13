@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.web.rest;
+package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.security.AuthoritiesConstants;

@@ -110,6 +110,7 @@
   },
   "defaultProject": "etutor-plus-plus",
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   }
 }

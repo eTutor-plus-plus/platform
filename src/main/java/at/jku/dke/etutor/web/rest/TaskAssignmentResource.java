@@ -2,6 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
