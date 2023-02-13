@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.web.rest;
+package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
@@ -10,7 +10,6 @@ import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
-import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;

@@ -19,7 +19,6 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
-import at.jku.dke.etutor.web.rest.DispatcherProxyService;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;

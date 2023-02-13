@@ -1,0 +1,61 @@
+#${ETUTORPP_DATASOURCE}
+#${DISPATCHER_URL}
+#fuseki:
+#    baseUrl: ${FUSEKI_BASE_URL}
+#bpmnDispatcher:
+#    url: ${BPMN_DISPATCHER_URL}
+
+version: "3"
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: etutorpp
+        environment:
+            ETUTORPP_DATASOURCE: jdbc:postgresql://postgres:5432/etutorplusplus
+            FUSEKI_BASE_URL: http://fuseki:3030/etutorpp-database
+            DISPATCHER_URL: http://localhost:8081 # DISPATCHER(S) NOT INCLUDED IN THIS SETUP
+            BPMN_DISPATCHER_URL: http://localhost:8084
+        ports:
+            - "9000:9000"
+            - "8080:8080"
+        networks:
+            - local-net
+        depends_on:
+            - fuseki
+            - postgres
+    fuseki:
+        build:
+            context: ./src/main/docker/etutor-databases
+            dockerfile: ./fuseki_dockerfile
+        container_name: fuseki
+        ports:
+            - "3030:3030"
+        networks:
+            - local-net
+    postgres:
+        image: postgres:15.1-bullseye
+        container_name: postgres
+        environment:
+            POSTGRES_USER: etutorplusplus
+            POSTGRES_PASSWORD: etutorplusplus
+        ports:
+            - "5432:5432"
+        networks:
+            - local-net
+    pgAdmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        ports:
+            - "8092:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: etutorplusplus@dke.uni-linz.ac.at
+            PGADMIN_DEFAULT_PASSWORD: etutorplusplus
+        networks:
+            - local-net
+networks:
+    local-net:
+
+
+

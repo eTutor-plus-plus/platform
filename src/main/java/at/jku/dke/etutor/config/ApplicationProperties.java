@@ -48,7 +48,7 @@ public class ApplicationProperties {
      */
     public static class Fuseki {
 
-        private String baseUrl = "http://localhost:3030/etutorpp-database";
+        private String baseUrl; //"http://localhost:3030/etutorpp-database";
 
         /**
          * Returns the base url for the fuseki connection
@@ -73,7 +73,7 @@ public class ApplicationProperties {
      * Configuration class for the dispatcher connection
      */
     public static class Dispatcher{
-        private String url = "http://localhost:8081";
+        private String url; //"http://localhost:8081";
         private String xqueryXmlFileUrlPrefix;
         private String sqlTableUrlPrefix;
         private String datalogFactsUrlPrefix;
@@ -124,7 +124,7 @@ public class ApplicationProperties {
      * Configuration class for the dispatcher connection
      */
     public static class BpmnDispatcher {
-        private String url = "http://localhost:8084";
+        private String url; //"http://localhost:8084";
 
         /**
          * Returns the url for the dispatcher connection
