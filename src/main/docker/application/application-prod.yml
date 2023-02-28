@@ -35,7 +35,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: ${ETUTORPP_DATASOURCE}
     username: etutorplusplus
-    password: etutorplusplus
+    password: ${ETUTORPP_PASSWORD}
     hikari:
       poolName: Hikari
       auto-commit: false
