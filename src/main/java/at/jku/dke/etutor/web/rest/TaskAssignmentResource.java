@@ -69,6 +69,7 @@ public class TaskAssignmentResource {
         TaskAssignmentDTO assignment = null;
         try {
             newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
+            // note: if step before has worked out ->  save task/ config in etutor/ save in RDF
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {

@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOvervi
 import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
+import at.jku.dke.etutor.service.dto.dispatcher.PmExerciseLogDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -20,6 +21,7 @@ import at.jku.dke.etutor.web.rest.errors.ExerciseSheetAlreadyOpenedException;
 import at.jku.dke.etutor.web.rest.errors.NoFurtherTasksAvailableException;
 import at.jku.dke.etutor.web.rest.errors.WrongTaskTypeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import liquibase.pro.packaged.E;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -563,5 +565,31 @@ public class StudentResource {
         int id = optionalId.orElse(-1);
 
         return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo}
+     * Returns the log corresponding to the given exercise
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the log of the exercise
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/pmlog")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo){
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        PmExerciseLogDTO pmExerciseLogDTO = null;
+
+        // fetches the dispatcher exercise id corresponding to the assigned exercise
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+
+        try{
+            // fetches the log information corresponding to exercise, wrapped in DTO
+            pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElse(-1));
+        }catch(DispatcherRequestFailedException e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(pmExerciseLogDTO);
     }
 }

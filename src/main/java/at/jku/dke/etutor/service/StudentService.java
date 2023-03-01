@@ -19,6 +19,9 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
+import at.jku.dke.etutor.web.rest.DispatcherProxyService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
@@ -29,6 +32,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
@@ -57,7 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author fne
  */
 @Service
-public non-sealed class StudentService extends AbstractSPARQLEndpointService {
+public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_STUDENTS_COURSES =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -1146,6 +1150,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     }
 
+    }
+
     /**
      * Updates the latest submission for an individual task
      *
@@ -1605,7 +1611,6 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             return getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
         }
     }
-
     //region Private methods
 
     /**
@@ -2037,6 +2042,63 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     }
 
     /**
+     * PM task:
+     * Method that returns the dispatcher id of a random exercise assigned to a student
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID the course instance UUID
+     * @param matriculationNo the matriculation number
+     * @param orderNo the task number
+     * @return exercise id corresponding to dispatcher
+     */
+    public Optional<Integer> getDispatcherTaskId(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int orderNo){
+        Objects.requireNonNull(matriculationNo);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceUrl = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetUrl = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString selectQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?id
+            WHERE{
+               ?instance a etutor:CourseInstance.
+               ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+               ?individualTaskAssignment etutor:fromExerciseSheet ?sheet;
+               etutor:fromCourseInstance ?instance;
+               etutor:hasIndividualTask ?individualTask.
+               ?individualTask etutor:hasOrderNo ?orderNo;
+               etutor:hasTaskIdForDispatcher ?id.
+            }
+            """);
+
+        selectQuery.setIri("?instance", courseInstanceUrl);
+        selectQuery.setIri("?sheet", exerciseSheetUrl);
+        selectQuery.setIri("?student", studentUrl);
+        selectQuery.setLiteral("?orderNo", orderNo);
+
+        try(RDFConnection connection = getConnection()){
+            try(QueryExecution execution = connection.query(selectQuery.asQuery())){
+                ResultSet rs = execution.execSelect();
+
+                if(rs.hasNext()){
+                    QuerySolution solution = rs.nextSolution();
+                    Literal dispatcherIdLiteral = solution.getLiteral("?id");
+
+                    if(dispatcherIdLiteral == null){
+                        return Optional.empty();
+                    }
+                    return Optional.of(dispatcherIdLiteral.getInt());
+                }else{
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
      * Method which is looking for the best fitting assignment for the current exercise sheet
      * based on the student's current knowledge.
      *
@@ -2250,7 +2312,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Inserts the newly assigned task.
-     *
+     * Process Mining Task:
+     *      * Inserts a newly randomized task based on given configuration
      * @param courseInstanceUrl  the course instance url
      * @param exerciseSheetUrl   the exercise sheet url
      * @param studentUrl         the student's url
@@ -2284,6 +2347,25 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         individualAssignmentInsertQry.setLiteral("?newOrderNo", orderNo);
 
         connection.update(individualAssignmentInsertQry.asUpdate());
+
+        // assign Task of type: PmTask
+        // note: status as of 11.11.22: WORKS as planned
+        if(assignmentSPARQLEndpointService.isPmTask(newTaskResourceUrl)){
+            // fetch configuration ic stored in RDF
+            Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
+            if(id.isPresent()){
+                try{
+                    // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
+                    int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(id.get());
+                    // store id of generated exercise in RDF in IndividualTask
+                    assignmentSPARQLEndpointService.setDispatcherTaskId(courseInstanceUrl, exerciseSheetUrl,
+                        studentUrl, orderNo, dispatcherTaskId);
+                }catch(DispatcherRequestFailedException e){
+                    //throw new DispatcherRequestFailedException(e);
+                }
+            }
+        }
     }
-    //endregion
 }
+    //endregion
+

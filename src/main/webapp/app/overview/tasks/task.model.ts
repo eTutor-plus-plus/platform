@@ -114,11 +114,38 @@ export interface INewTaskModel {
    * The optional Bpmn Testconfig
    */
   bpmnTestConfig?: string;
+
+  /**
+   * PM Task related configuration values
+   * the maximal number of activities in a trace
+   */
+  maxActivity?: number;
+  /**
+   * PM Task related configuration values
+   * the minimal number of activities in a trace
+   */
+  minActivity?: number;
+  /**
+   * PM Task related configuration values
+   * the maximal log size
+   */
+  maxLogSize?: number;
+  /**
+   * PM Task related configuration values
+   * the minimal log size
+   */
+  minLogSize?: number;
+  /**
+   * PM Task related configuration values
+   * the configuration number (either config1, config2, config3, default)
+   */
+  configNum?: string;
 }
 
 /**
  * Interface which extends the new task model interface
  * by adding a task's id and creation date.
+ * //PMTask Model
  */
 export interface ITaskModel extends INewTaskModel {
   /**
@@ -180,6 +207,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask',
     'taskManagement.taskTypes.bpmnTask'
   );
+  public static readonly PmTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#PmTask',
+    'taskManagement.taskTypes.pmTask'
+  );
 
   public static readonly Values = [
     TaskAssignmentType.NoType,
@@ -189,6 +220,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,
     TaskAssignmentType.BpmnTask,
+    TaskAssignmentType.PmTask,
   ];
 
   private readonly _value: string;

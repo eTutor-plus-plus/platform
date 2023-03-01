@@ -205,6 +205,7 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
       passedAttributes: jsonAttributes,
       taskType: this.task_type ?? '',
       passedParameters: new Map<string, string>(),
+      maxPoints: this.maxPoints,
     };
     this.submissionDto = submissionDto;
 

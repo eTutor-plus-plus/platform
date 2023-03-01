@@ -30,7 +30,8 @@
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
       "dlgTask": "Datalog Aufgabe",
-      "bpmnTask": "Bpmn Aufgabe"
+      "bpmnTask": "Bpmn Aufgabe",
+      "pmTask": "ProcessMining Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -61,7 +62,12 @@
       "datalogQuery": "Datalog Query:",
       "datalogFacts": "Datalog Fakten:",
       "datalogUncheckedTerms": "Datalog Terms",
-      "bpmnCreateStatements": "Create Bpmn Json Testkonfiguration"
+      "bpmnCreateStatements": "Create Bpmn Json Testkonfiguration",
+      "maxActivity": "Maximale Anzahl Aktivitäten",
+      "minActivity": "Minimale Anzahl Aktivitäten",
+      "maxLogSize": "Maximale Log Größe",
+      "minLogSize": "Minimale Log Größe",
+      "configNum": "Konfigurationsnummer"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

@@ -5,10 +5,11 @@ import { DispatcherAssignmentComponent } from 'app/overview/dispatcher/dispatche
 import { DispatcherAssignmentModalComponent } from './dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { SafeHtmlPipe } from './dispatcher-assignment/safe-html-pipe';
 import { myMonacoLoad } from './monaco-config';
+import { PmAssignmentComponent } from './assignment-pm/pm.assignment.component';
 
 /**
  * Module that contains "all" components related to the dispatcher, which is a seperate application
- * used to evaluate SQL, XQUery, Datalog and Relational Algebra exercises
+ * used to evaluate SQL, PM, XQUery, Datalog and Relational Algebra exercises
  */
 const monacoConfig: NgxMonacoEditorConfig = {
   onMonacoLoad: myMonacoLoad,
@@ -16,7 +17,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
 
 @NgModule({
   imports: [SharedModule, MonacoEditorModule.forRoot(monacoConfig)],
-  declarations: [DispatcherAssignmentComponent, DispatcherAssignmentModalComponent, SafeHtmlPipe],
-  exports: [DispatcherAssignmentComponent],
+  declarations: [DispatcherAssignmentComponent, DispatcherAssignmentModalComponent, SafeHtmlPipe, PmAssignmentComponent],
+  exports: [DispatcherAssignmentComponent, PmAssignmentComponent],
 })
 export class DispatcherModule {}

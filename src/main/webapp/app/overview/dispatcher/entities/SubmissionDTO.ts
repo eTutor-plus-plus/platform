@@ -7,4 +7,5 @@ export interface SubmissionDTO {
   taskType: string;
   passedAttributes: any;
   passedParameters: Map<string, string>;
+  maxPoints: string;
 }

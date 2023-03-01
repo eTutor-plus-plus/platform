@@ -6,6 +6,8 @@ import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDT
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { TranslateService } from '@ngx-translate/core';
 import { SERVER_API_URL } from '../../../app.constants';
+import { ITaskModel } from '../../tasks/task.model';
+import { PmLogModel } from '../assignment-pm/PmLogDTO';
 
 /**
  * Service for posting submissions and requesting gradings from the dispatcher, using the proxy of the platform.
@@ -52,5 +54,28 @@ export class DispatcherAssignmentService {
       url = `${SERVER_API_URL}api/dispatcher/grading/${submissionId.submissionId}`;
     }
     return this.http.get<GradingDTO>(url);
+  }
+
+  /**
+   * Requests a {@link PmLogModel} from the dispatcher
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task number
+   */
+  public getPmLogForIndividualTask(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<PmLogModel> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<PmLogModel>(`api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/pmlog`);
+  }
+
+  /**
+   * Request exists already in student-service.ts => therefore no use for this request right now
+   * Request the information if a task is already submitted
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUI
+   * @param taskNo the task no
+   */
+  public isTaskSubmitted(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<boolean> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+    return this.http.get<boolean>(`api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/submitted`);
   }
 }

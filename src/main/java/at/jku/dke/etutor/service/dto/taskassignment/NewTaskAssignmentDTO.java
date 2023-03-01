@@ -35,6 +35,12 @@ public class NewTaskAssignmentDTO {
     private String datalogSolution;
     private String datalogQuery;
     private String datalogUncheckedTerms;
+    // Pm task related variables
+    private int maxActivity;
+    private int minActivity;
+    private int maxLogSize;
+    private int minLogSize;
+    private String configNum;
 
     private String processingTime;
 
@@ -385,6 +391,45 @@ public class NewTaskAssignmentDTO {
 
     public void setDatalogUncheckedTerms(String datalogUncheckedTerms) {
         this.datalogUncheckedTerms = datalogUncheckedTerms;
+    }
+
+    // Pm related getter/setter:
+    public int getMaxActivity(){return maxActivity;}
+
+    public void setMaxActivity(int maxActivity){
+        this.maxActivity = maxActivity;
+    }
+
+    public int getMinActivity() {
+        return minActivity;
+    }
+
+    public void setMinActivity(int minActivity) {
+        this.minActivity = minActivity;
+    }
+
+    public int getMaxLogSize() {
+        return maxLogSize;
+    }
+
+    public void setMaxLogSize(int maxLogSize) {
+        this.maxLogSize = maxLogSize;
+    }
+
+    public int getMinLogSize() {
+        return minLogSize;
+    }
+
+    public void setMinLogSize(int minLogSize) {
+        this.minLogSize = minLogSize;
+    }
+
+    public String getConfigNum() {
+        return configNum;
+    }
+
+    public void setConfigNum(String configNum) {
+        this.configNum = configNum;
     }
 
     public int getUploadFileId() {
