@@ -5,7 +5,9 @@
       "notCorrect": "Ihre Lösung ist leider nicht korrekt!",
       "diagnoseLevelPlaceholder": "Wählen Sie das Feedback-Level:",
       "yourSolution": "Ihre Lösung:",
+      "yourAlphaSolution": "Ihre Lösung für den Alpha Algorithmus:",
       "editorInfo": "Mit strg+leertaste können Sie auf einige Vorlagen zugreifen",
+      "editorInfoAlpha": "Bitte lösen Sie zuerst die 'OrderingRelations' (Sie brauchen die #Relation nicht einzugeben). Wenden Sie dann den Algorithmus an.",
       "feedbackLabel": "Feedback-Level: ",
       "feedbackInfo": "Sie können das Feedback-Level hier einstellen (default= kein Feedback). Ein höheres Level kann zu Punkteabzügen führen.",
       "diagnoseLevel": {
@@ -13,6 +15,18 @@
         "little": "Wenig Feedback",
         "some": "Etwas Feedback",
         "much": "Viel Feedback"
+      },
+      "fields": {
+        "orI1": "1. Ordering Relation: 'a > b' - Direkter Nachfolger",
+        "orI2": "2. Ordering Relation: 'a -> b' - Kausale Beziehung",
+        "orI3": "3. Ordering Relation: 'a || b' - Potentielle Parallelität"
+      },
+      "syntax": {
+        "orI": "Bitte geben Sie die Lösung in folgendem Format ein: (x,y), (x,y), (x,y), ...",
+        "aaI123": "Bitte geben Sie die Lösung in folgendem Format ein: X, Y, Z, ...",
+        "aaI45": "Bitte geben Sie die Lösung in folgendem Format ein: ({X},{X,Y}), ({T,G},{Z}), ...",
+        "aaI6": "Bitte geben Sie die Lösung in folgendem Format ein: i,o, p({X},{X,Y}), p({T,G},{Z}), ...",
+        "aaI7": "Bitte geben Sie die Lösung in folgendem Format ein: (i,A), (D,o), (A, p({A},{B,E})), (p({A},{B,E}), B), ..."
       }
     }
   }

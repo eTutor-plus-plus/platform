@@ -1,6 +1,7 @@
 package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.DispatcherProxyService;
@@ -563,5 +564,31 @@ public class StudentResource {
         int id = optionalId.orElse(-1);
 
         return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo}
+     * Returns the log corresponding to the given exercise
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the log of the exercise
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/pmlog")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo){
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        PmExerciseLogDTO pmExerciseLogDTO = null;
+
+        // fetches the dispatcher exercise id corresponding to the assigned exercise
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+
+        try{
+            // fetches the log information corresponding to exercise, wrapped in DTO
+            pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElse(-1));
+        }catch(DispatcherRequestFailedException e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(pmExerciseLogDTO);
     }
 }

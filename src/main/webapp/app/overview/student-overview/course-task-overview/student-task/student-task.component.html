@@ -61,6 +61,25 @@
       >
       </jhi-dispatcher-assignment>
     </div>
+    <div class="assignment-component">
+      <jhi-pm-assignment
+        *ngIf="isPmTask"
+        (submissionUUIDReceived)="handleDispatcherUUID($event)"
+        [exercise_id]="exercise_id"
+        [task_type]="task_type"
+        [submission]="submission"
+        [highestDiagnoseLevel]="diagnoseLevel"
+        [maxPoints]="maxPoints"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [showSubmitButton]="!exerciseSheetAlreadyClosed"
+        [exerciseSheetUUID]="_exerciseSheetUUID"
+        [points]="achievedDispatcherPoints"
+        [taskNo]="_taskNo"
+        [courseInstanceUUID]="_instance!.instanceId"
+        [isSubmitted]="isSubmitted"
+      >
+      </jhi-pm-assignment>
+    </div>
     <jhi-file-upload
       *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"

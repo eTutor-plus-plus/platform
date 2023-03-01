@@ -6,6 +6,8 @@ import at.jku.dke.etutor.objects.dispatcher.*;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTermDescriptionDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
@@ -97,10 +99,10 @@ public class DispatcherProxyService {
             statusCode = proxyXMLtoDispatcher(newTaskGroupDTO);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             statusCode = createSQLTaskGroup(newTaskGroupDTO, isNew);
-        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-            statusCode =  createDLGTaskGroup(newTaskGroupDTO);
+        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) {
+            statusCode = createDLGTaskGroup(newTaskGroupDTO);
         }
-        if(statusCode != 200){
+        if (statusCode != 200) {
             throw new DispatcherRequestFailedException();
         }
 
@@ -111,6 +113,7 @@ public class DispatcherProxyService {
      * Creates/updates a datalog group by sending the fact-base to the dispatcher.
      * Adds the returned id from the dispatcher of the task-group to the task-group (rdf) (only once).
      * Adds the link to view the facts to the task-groups description (only once).
+     *
      * @param newTaskGroupDTO the task group
      */
     private int createDLGTaskGroup(TaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
@@ -137,14 +140,14 @@ public class DispatcherProxyService {
             return 500;
         }
         id = body != null ? body : -1;
-        if(id == -1) return statusCode;
+        if (id == -1) return statusCode;
 
         // Set received id for task group in RDF-graph
         assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
 
         // Update description of task group with link to the facts
-        String link = "<br> <a href='"+properties.getDispatcher().getDatalogFactsUrlPrefix()+id+"' target='_blank'>Facts</a>";
-        newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription()+link : link);
+        String link = "<br> <a href='" + properties.getDispatcher().getDatalogFactsUrlPrefix() + id + "' target='_blank'>Facts</a>";
+        newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() + link : link);
 
         // Update task group in RDF to include the new description
         assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
@@ -162,7 +165,7 @@ public class DispatcherProxyService {
     private int createSQLTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
         // Check if both insert statements are blank (if only one is blank, the dispatcher will use the other)
         if (StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())
-            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())){
+            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
             throw new MissingParameterException();
         }
 
@@ -177,14 +180,14 @@ public class DispatcherProxyService {
 
         List<String> insertStatements;
 
-        if(newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null){
+        if (newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null) {
             insertStatements = Arrays
                 .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
                 .filter(StringUtils::isNotBlank)
                 .toList();
             body.setInsertStatementsDiagnose(insertStatements);
         }
-        if(newTaskGroupDTO.getSqlInsertStatementsSubmission() != null){
+        if (newTaskGroupDTO.getSqlInsertStatementsSubmission() != null) {
             insertStatements = Arrays
                 .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
                 .filter(StringUtils::isNotBlank)
@@ -206,11 +209,12 @@ public class DispatcherProxyService {
         var statusCode = response.getStatusCodeValue();
 
         // Update task group description with links and schema info and set id from dispatcher in RDF-Graph
-        if(statusCode == 200){ // update succesful
+        if (statusCode == 200) { // update succesful
             try {
                 var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
                 updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
-                if(schemaInfo.getDiagnoseConnectionId() != -1)assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
+                if (schemaInfo.getDiagnoseConnectionId() != -1)
+                    assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -221,21 +225,21 @@ public class DispatcherProxyService {
     }
 
     /**
-     *
      * Updates the description of an SQL task group by appending links to the specified tables and information about the schema of the tables
+     *
      * @param newTaskGroupDTO the {@link TaskGroupDTO}
      */
-    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, TaskGroupDTO newTaskGroupDTO,boolean isNew) {
+    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, TaskGroupDTO newTaskGroupDTO, boolean isNew) {
         // Check if schema info or connection id is invalid
-        if(info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
+        if (info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
 
         // Transform the name of the tables into links for group description
         var links = new ArrayList<String>();
 
-        for(String table : info.getTableColumns().keySet()){
-            String link = "<a href='"+properties.getDispatcher().getSqlTableUrlPrefix()+table+"?connId="+info.getDiagnoseConnectionId() +"' target='_blank'>"+table+"</a>";
+        for (String table : info.getTableColumns().keySet()) {
+            String link = "<a href='" + properties.getDispatcher().getSqlTableUrlPrefix() + table + "?connId=" + info.getDiagnoseConnectionId() + "' target='_blank'>" + table + "</a>";
             link += " (";
-            link += String.join(", ",info.getTableColumns().get(table));
+            link += String.join(", ", info.getTableColumns().get(table));
             link += ")";
             links.add(link);
         }
@@ -243,15 +247,15 @@ public class DispatcherProxyService {
         // Update/Set description
         String description = newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() : "";
         String startOfLinks = "<strong>Tables:";
-        if(!isNew){
-            int indexOfTableLinks=description.indexOf(startOfLinks);
-            if(indexOfTableLinks != -1) description=description.substring(0, indexOfTableLinks);
+        if (!isNew) {
+            int indexOfTableLinks = description.indexOf(startOfLinks);
+            if (indexOfTableLinks != -1) description = description.substring(0, indexOfTableLinks);
         }
         description += "<br>";
         description += startOfLinks + "</strong><br>";
 
         StringBuilder sb = new StringBuilder();
-        for (String link : links){
+        for (String link : links) {
             sb.append(link).append("<br>");
         }
         description += sb.toString();
@@ -270,8 +274,8 @@ public class DispatcherProxyService {
      */
     private int proxyXMLtoDispatcher(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException, MissingParameterException {
         // Check if both XML´s are empty (if only one is empty, the dispatcher will use the other)
-        if(StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) &&
-            StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())){
+        if (StringUtils.isBlank(taskGroupDTO.getxQueryDiagnoseXML()) &&
+            StringUtils.isBlank(taskGroupDTO.getxQuerySubmissionXML())) {
             throw new MissingParameterException();
         }
 
@@ -290,20 +294,20 @@ public class DispatcherProxyService {
         var response = proxyResource.addXMLForXQTaskGroup(taskGroupDTO.getName().trim().replace(" ", "_"), jsonBody);
         var fileURL = response.getBody();
 
-        if(fileURL != null && StringUtils.isNotBlank(fileURL)){
+        if (fileURL != null && StringUtils.isNotBlank(fileURL)) {
             // Update file-url in RDF-Graph (can be used in XQuery-queries to reference the group/XML)
             assignmentSPARQLEndpointService.addXMLFileURL(taskGroupDTO, fileURL);
 
             // Update group-description with link to view the diagnose XML
             String oldDescription = taskGroupDTO.getDescription() != null ? taskGroupDTO.getDescription() : "";
             String startOfLinks = "<a href=\"/XML";
-            int indexOfLinks= oldDescription.indexOf(startOfLinks);
-            if(indexOfLinks != -1) oldDescription = oldDescription.substring(0, indexOfLinks);
+            int indexOfLinks = oldDescription.indexOf(startOfLinks);
+            if (indexOfLinks != -1) oldDescription = oldDescription.substring(0, indexOfLinks);
 
-            String link = "<br><br> <a href='"+properties.getDispatcher().getXqueryXmlFileUrlPrefix()+fileURL.substring(fileURL.contains("=") ? fileURL.indexOf("=") +1 : 0)+"' target='_blank'>View XML</a>";
+            String link = "<br><br> <a href='" + properties.getDispatcher().getXqueryXmlFileUrlPrefix() + fileURL.substring(fileURL.contains("=") ? fileURL.indexOf("=") + 1 : 0) + "' target='_blank'>View XML</a>";
             String newDescription = oldDescription + link;
             newDescription += "<br><br> You can include the XML document for this task group using the following function: <br>";
-            newDescription += "<b> let $doc := doc('"+ fileURL + "') </b>";
+            newDescription += "<b> let $doc := doc('" + fileURL + "') </b>";
             taskGroupDTO.setDescription(newDescription);
             assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         }
@@ -328,9 +332,9 @@ public class DispatcherProxyService {
         } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
             proxyResource.deleteSQLSchema(taskGroupName);
             proxyResource.deleteSQLConnection(taskGroupName);
-        } else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+        } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) {
             int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(taskGroupDTO);
-            if(id != -1) proxyResource.deleteDLGTaskGroup(id);
+            if (id != -1) proxyResource.deleteDLGTaskGroup(id);
         }
     }
 
@@ -343,19 +347,47 @@ public class DispatcherProxyService {
     public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
-        if(!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
+        if (!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
 
-        if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())){
+        if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) {
             handleBPMNTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) { // XQuery task
             handleXQTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
             handleSQLTaskCreation(newTaskAssignmentDTO);
-        } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())) {
             handleDLGTaskCreation(newTaskAssignmentDTO);
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())) {
+            handlePmTaskConfigCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
     }
+
+    /**
+     * Handles creation of a Process Mining Task
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws MissingParameterException
+     * @throws DispatcherRequestFailedException if dispatcher returned error
+     */
+    private void handlePmTaskConfigCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())) return;
+
+        // note: getTaskIdForDispatcher() in html rausnehmen (disabled? )
+        if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null && newTaskAssignmentDTO.getMaxActivity() != 0
+            && newTaskAssignmentDTO.getMinActivity() !=0 && newTaskAssignmentDTO.getMaxLogSize() != 0
+            && newTaskAssignmentDTO.getMinLogSize() != 0 && StringUtils.isNotBlank(newTaskAssignmentDTO.getConfigNum())){
+            // creates task and returns dispatcher id
+            int id = this.createPmTaskConfiguration(newTaskAssignmentDTO);
+
+            // set Dispatcher id of configuration
+            if(id != -1){
+                newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
+            }
+        }else{
+            throw new MissingParameterException();
+        }
+    }
+
 
     private void handleBPMNTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) return;
@@ -517,6 +549,73 @@ public class DispatcherProxyService {
         if(response.getBody() != null) return response.getBody();
         else return -1;
     }
+
+    /**
+     * Fetches the configuration parameters for a pm configuration according to its id
+     * @param taskIdForDispatcher the id
+     * @return the {@link PmExerciseConfigDTO} wrapping the informaation
+     * @throws DispatcherRequestFailedException
+     */
+    private PmExerciseConfigDTO fetchPmExerciseConfigInfo (String taskIdForDispatcher) throws DispatcherRequestFailedException{
+        return proxyResource.getPmExerciseConfiguration(Integer.parseInt(taskIdForDispatcher)).getBody();
+    }
+
+
+    /**
+     * Creates a Process Mining Task Configuration in the dispatcher
+     * @param newTaskAssignmentDTO the {@link NewTaskAssignmentDTO} to be created
+     * @return the dispatcher-id of the task configuration
+     * @throws DispatcherRequestFailedException
+     */
+    private int createPmTaskConfiguration(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException{
+        // get PmExerciseConfigDTO required by the dispatcher to create the configuration
+        var pmExerciseConfigDTO = getPmExerciseConfigDTOFromTaskAssignment(newTaskAssignmentDTO);
+        // Proxy request to dispatcher
+        var response = proxyResource.createPmExerciseConfiguration(pmExerciseConfigDTO);
+        // return dispatcher -id of the exercise configuration
+        return response.getBody() != null? response.getBody() : -1;
+    }
+
+    /**
+     * Utility method that takes a task assignment and initializes a {@link PmExerciseConfigDTO} with the required information
+     * @param newTaskAssignmentDTO the {@link NewTaskAssignmentDTO}
+     * @return the {@link PmExerciseConfigDTO}
+     */
+    private PmExerciseConfigDTO getPmExerciseConfigDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO){
+        // initialize DTO
+        PmExerciseConfigDTO exerciseConfigDTO = new PmExerciseConfigDTO();
+        // set variables
+        exerciseConfigDTO.setMaxActivity(newTaskAssignmentDTO.getMaxActivity());
+        exerciseConfigDTO.setMinActivity(newTaskAssignmentDTO.getMinActivity());
+        exerciseConfigDTO.setMaxLogSize(newTaskAssignmentDTO.getMaxLogSize());
+        exerciseConfigDTO.setMinLogSize(newTaskAssignmentDTO.getMinLogSize());
+        exerciseConfigDTO.setConfigNum(newTaskAssignmentDTO.getConfigNum());
+
+        return exerciseConfigDTO;
+    }
+
+    /**
+     * Creates a process mining task in the dispatcher
+     * @param configId the configuration id fetched by RDF graph
+     * @return the dispatcher id of the task
+     */
+    public int createRandomPmTask(int configId) throws DispatcherRequestFailedException{
+        // proxy request to dispatcher
+        var response = proxyResource.createRandomPmExercise(configId);
+        // return dispatcher id of the random exercise
+        return response.getBody() != null? response.getBody() : -1;
+    }
+
+    /**
+     * Fetches the log corresponding to the assigned exercise
+     * @param exerciseId the exercise id
+     * @return the {@link PmExerciseLogDTO} wrapping the information
+     * @throws DispatcherRequestFailedException
+     */
+    public PmExerciseLogDTO getLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
+        return proxyResource.fetchLogToExercise(exerciseId).getBody();
+    }
+
 
     /**
      * Utility method that takes a task assignment and initializes a {@link DatalogExerciseDTO} with the required information
@@ -707,6 +806,13 @@ public class DispatcherProxyService {
             } else {
                 throw new MissingParameterException();
             }
+        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
+            if(StringUtils.isNotBlank(taskAssignmentDTO.getConfigNum()) && taskAssignmentDTO.getMaxActivity() != 0 && taskAssignmentDTO.getMinActivity() != 0 &&
+            taskAssignmentDTO.getMaxLogSize() !=0 && taskAssignmentDTO.getMinLogSize() != 0){
+                updatePmConfiguration(taskAssignmentDTO);
+            }else{
+                throw new MissingParameterException();
+            }
         }
     }
 
@@ -721,7 +827,8 @@ public class DispatcherProxyService {
             type.equals(ETutorVocabulary.DatalogTask.toString()) ||
             type.equals(ETutorVocabulary.RATask.toString()) ||
             type.equals(ETutorVocabulary.XQueryTask.toString())||
-            type.equals(ETutorVocabulary.BpmnTask.toString());
+            type.equals(ETutorVocabulary.BpmnTask.toString()) ||
+            type.equals(ETutorVocabulary.PmTask.toString());
     }
 
 
@@ -786,6 +893,18 @@ public class DispatcherProxyService {
         proxyResource.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), jsonBody);
     }
 
+    private void updatePmConfiguration(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException{
+        //Initialize DTO from TaskAssignment DTO
+        var configDTO = getPmExerciseConfigDTOFromTaskAssignment(taskAssignmentDTO);
+
+        // get id
+        int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
+
+        // Proxy request to dispatcher
+        proxyResource.updatePmExerciseConfiguration(id, configDTO);
+
+    }
+
     /**
      * Deletes a task assignment (exercise) in the dispatcher according to the task-type
      *
@@ -812,6 +931,8 @@ public class DispatcherProxyService {
             proxyResource.deleteSQLExercise(id);
         } else if (taskType.equals(ETutorVocabulary.DatalogTask.toString())){
             proxyResource.deleteDLGExercise(id);
+        } else if (taskType.equals(ETutorVocabulary.PmTask.toString())){
+            proxyResource.deletePmExerciseConfiguration(id);
         }
     }
 
@@ -846,9 +967,13 @@ public class DispatcherProxyService {
      */
     private String getSubmissionStringFromSubmissionDTO(SubmissionDTO submissionDTO, String taskAssignmentType){
         if(taskAssignmentType.equals("PmTask")){
-            // prepared but PmTask not yet integrated
-            // Note: has to be finalized when PM-Module is integrated
-            return "";
+            try {
+                return new ObjectMapper()
+                    .writeValueAsString(submissionDTO.getPassedAttributes());
+            } catch (JsonProcessingException e) {
+                //TODO: Logger
+                return "";
+            }
         }else{
             return submissionDTO.getPassedAttributes().get("submission");
         }

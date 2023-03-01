@@ -15,7 +15,7 @@ import { TaskAssignmentType } from '../../tasks/task.model';
   templateUrl: './dispatcher-assignment.component.html',
   styleUrls: ['./dispatcher-assignment.component.scss'],
 })
-export class DispatcherAssignmentComponent implements OnInit, AfterContentChecked {
+export class DispatcherAssignmentComponent implements OnInit {
   /**
    * The diagnose levels that can be chosen by the student
    */
@@ -40,7 +40,11 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
   /**
    * The highest-diagnose level that has been chosen so far
    */
-  @Input() public highestDiagnoseLevel!: number;
+  public _highestChosenDiagnoseLevel = 0;
+  @Input() set highestDiagnoseLevel(value: number) {
+    this._highestChosenDiagnoseLevel = value;
+    this.diagnoseLevelText = this.diagnoseLevels[value];
+  }
   /**
    * The points that have been achieved
    */
@@ -70,8 +74,8 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
    */
   @Output() public submissionUUIDReceived: EventEmitter<string> = new EventEmitter<string>();
 
-  public diagnoseLevelText = '';
-  public isDiagnoseLevelTextInitialized = false;
+  public diagnoseLevelText = this.diagnoseLevels[0];
+
   /**
    * Indicates if a {@link GradingDTO} grading has been received
    */
@@ -127,13 +131,6 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
   public ngOnInit(): void {
     if (this.task_type) {
       this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
-    }
-  }
-
-  public ngAfterContentChecked(): void {
-    if (this.highestDiagnoseLevel !== -1 && !this.isDiagnoseLevelTextInitialized) {
-      this.diagnoseLevelText = this.diagnoseLevels[this.highestDiagnoseLevel];
-      this.isDiagnoseLevelTextInitialized = true;
     }
   }
   /**
@@ -205,6 +202,7 @@ export class DispatcherAssignmentComponent implements OnInit, AfterContentChecke
       passedAttributes: jsonAttributes,
       taskType: this.task_type ?? '',
       passedParameters: new Map<string, string>(),
+      maxPoints: this.maxPoints,
     };
     this.submissionDto = submissionDto;
 
