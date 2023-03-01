@@ -19,7 +19,6 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
-import at.jku.dke.etutor.web.rest.DispatcherProxyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -1150,7 +1149,6 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
     }
 
-    }
 
     /**
      * Updates the latest submission for an individual task

@@ -2,8 +2,8 @@ import { AfterContentChecked, Component, EventEmitter, Input, OnInit, Output } f
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
-import { AssignmentService } from 'app/overview/dispatcher/services/assignment.service';
 import { FormBuilder } from '@angular/forms';
+import { DispatcherAssignmentService } from '../services/dispatcher-assignment.service';
 
 /**
  * Component for handling an PmTask Assignment which has to be evaluated by the dispatcher
@@ -16,7 +16,7 @@ import { FormBuilder } from '@angular/forms';
   templateUrl: './pm.assignment.component.html',
   styleUrls: ['./pm.assignment.component.scss'],
 })
-export class PmAssignmentComponent implements AfterContentChecked, OnInit {
+export class PmAssignmentComponent implements OnInit {
   /**
    * The diagnose levels that can be chosen by the student
    */
@@ -59,13 +59,21 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
   /**
    * The optional, stored submission
    */
-  @Input() public submission: string | undefined;
+  public _submission = '';
+  @Input() set submission(value: string) {
+    this._submission = value;
+    this.getSubmissionFromJson();
+  }
 
   /**
    * The highest-diagnose level that has been chosen so far
    * Cannot be null or undefined
    */
-  @Input() public highestDiagnoseLevel!: number;
+  public _highestDiagnoseLevel = 0;
+  @Input() set highestDiagnoseLevel(value: number) {
+    this._highestDiagnoseLevel = value;
+    this.diagnoseLevelText = this.diagnoseLevels[value];
+  }
 
   /**
    * The points that have been achieved
@@ -178,45 +186,16 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
    * @param assignmentService service for communicating with the dispatcher
    */
   constructor(
-    private assignmentService: AssignmentService,
+    private assignmentService: DispatcherAssignmentService,
     // added on 29.11
     private fb: FormBuilder
   ) {}
-
-  /**
-   * Maps the diagnose level to the text representation
-   * @param number the diagnose level as a number
-   */
-  public mapDiagnoseLevel(number: number): string {
-    switch (number) {
-      case 0:
-        return this.diagnoseLevels[0];
-      case 1:
-        return this.diagnoseLevels[1];
-      case 2:
-        return this.diagnoseLevels[2];
-      case 3:
-        return this.diagnoseLevels[3];
-      default:
-        return this.diagnoseLevels[0];
-    }
-  }
 
   public ngOnInit(): void {
     this.assignmentService.getPmLogForIndividualTask(this.courseInstanceUUID, this.exerciseSheetUUID, this.taskNo).subscribe(DTO => {
       this.log = DTO.log;
       this.dispatcherExerciseID = DTO.exerciseId;
     });
-    // reassign submission in form of JSON to variables
-    if (this.submission) {
-      this.getSubmissionFromJson();
-    }
-  }
-
-  public ngAfterContentChecked(): void {
-    if (!this.diagnoseLevelText && this.highestDiagnoseLevel) {
-      this.diagnoseLevelText = this.mapDiagnoseLevel(this.highestDiagnoseLevel);
-    }
   }
 
   /**
@@ -241,7 +220,7 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    */
   private processSubmission(): void {
-    this.diagnoseLevel = this.mapDiagnoseText(this.diagnoseLevelText);
+    this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText); //this.mapDiagnoseText(this.diagnoseLevelText);
     const submissionDTO = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDTO).subscribe(submissionId => {
@@ -275,7 +254,7 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
     attributes.set('aaI5', this.aaI5);
     attributes.set('aaI6', this.aaI6);
     attributes.set('aaI7', this.aaI7);
-    const diagnoseLevel = this.diagnoseLevel ? this.diagnoseLevel.toFixed() : '';
+    const diagnoseLevel = this.diagnoseLevel ? this.diagnoseLevel.toFixed() : '0';
     attributes.set('diagnoseLevel', diagnoseLevel);
     attributes.set('isPmTask', 'true');
     const exerciseId = this.dispatcherExerciseID ? this.dispatcherExerciseID.toFixed() : '';
@@ -329,83 +308,17 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
 
   /**
    * Emits the events in the course of a submission,
-   * namely adjusting the {@link highestDiagnoseLevel} if needed and emitting the submission UUID
+   * namely adjusting the {@link _highestDiagnoseLevel} if needed and emitting the submission UUID
    * {@see submissionUUIDReceived}
    * @private
    */
   private emitSubmissionEvents(): void {
-    if (this.diagnoseLevel > this.highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
-      this.highestDiagnoseLevel = this.diagnoseLevel;
+    if (this.diagnoseLevel > this._highestDiagnoseLevel && this.action !== 'submit' && this.points === 0) {
+      this._highestDiagnoseLevel = this.diagnoseLevel;
     }
 
     if (this.submissionIdDTO.submissionId) {
       this.submissionUUIDReceived.emit(this.submissionIdDTO.submissionId);
-    }
-
-    // dont need this anymore since parent component has isSubmitted request
-    /*this.assignmentService.isTaskSubmitted(this.courseInstanceUUID, this.exerciseSheetUUID, this.taskNo).subscribe(isSubmitted =>{
-      this.isSubmitted = isSubmitted;
-    }
-    );*/
-
-    // if action == submit: recalculate points
-    if (this.action === 'submit' && this.points === 0 && !this.isSubmitted) {
-      const grading = this.calculatePoints();
-      this.points = grading;
-      this.isSubmitted = true;
-    }
-  }
-
-  /**
-   * Calculates the achieved points with regard to the max points,
-   * the highest chosen diagnose level and the weighting of the diagnose level
-   * @private
-   */
-  private calculatePoints(): number {
-    const weighting = this.diagnoseLevelWeighting ? parseInt(this.diagnoseLevelWeighting, 10) : 0;
-    const dispatcherPoints = this.gradingDTO.points;
-    let points: number;
-
-    if (this.highestDiagnoseLevel === 3) {
-      points = dispatcherPoints - 2 * this.highestDiagnoseLevel * weighting;
-      if (points > 0) {
-        points = 0;
-      }
-    } else if (this.highestDiagnoseLevel === 2) {
-      points = dispatcherPoints - this.highestDiagnoseLevel * weighting;
-      if (points < 0) {
-        points = 0;
-      }
-    } else if (this.highestDiagnoseLevel === 1) {
-      points = dispatcherPoints - this.highestDiagnoseLevel * weighting;
-      if (points < 0) {
-        points = 0;
-      }
-    } else {
-      points = dispatcherPoints; // full points
-    }
-
-    return points;
-    // note: status as of 23.11.22
-  }
-
-  /**
-   * Maps the diagnose level text to its numeric representation
-   * @param text
-   * @private
-   */
-  private mapDiagnoseText(text: string): number {
-    switch (text) {
-      case this.diagnoseLevels[0]:
-        return 0;
-      case this.diagnoseLevels[1]:
-        return 1;
-      case this.diagnoseLevels[2]:
-        return 2;
-      case this.diagnoseLevels[3]:
-        return 3;
-      default:
-        return 0;
     }
   }
 
@@ -417,7 +330,7 @@ export class PmAssignmentComponent implements AfterContentChecked, OnInit {
    * @private
    */
   private getSubmissionFromJson(): void {
-    const json = this.submission;
+    const json = this._submission;
     if (typeof json === 'string') {
       const map = new Map<string, string>(Object.entries(JSON.parse(json)));
 

@@ -1,6 +1,8 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;

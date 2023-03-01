@@ -6,6 +6,8 @@ import at.jku.dke.etutor.objects.dispatcher.*;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTermDescriptionDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
@@ -965,9 +967,13 @@ public class DispatcherProxyService {
      */
     private String getSubmissionStringFromSubmissionDTO(SubmissionDTO submissionDTO, String taskAssignmentType){
         if(taskAssignmentType.equals("PmTask")){
-            // prepared but PmTask not yet integrated
-            // Note: has to be finalized when PM-Module is integrated
-            return "";
+            try {
+                return new ObjectMapper()
+                    .writeValueAsString(submissionDTO.getPassedAttributes());
+            } catch (JsonProcessingException e) {
+                //TODO: Logger
+                return "";
+            }
         }else{
             return submissionDTO.getPassedAttributes().get("submission");
         }

@@ -6,7 +6,6 @@ import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDT
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { TranslateService } from '@ngx-translate/core';
 import { SERVER_API_URL } from '../../../app.constants';
-import { ITaskModel } from '../../tasks/task.model';
 import { PmLogModel } from '../assignment-pm/PmLogDTO';
 
 /**
