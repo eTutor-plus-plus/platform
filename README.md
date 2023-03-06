@@ -71,6 +71,8 @@ The second command starts three containers:
 
 The whole process may take some minutes, especially on first execution.
 
+You can also manually start the required services or use the [local-deploy project](https://github.com/eTutor-plus-plus/local-deploy)
+
 ## Building for production
 
 ### Packaging as jar
