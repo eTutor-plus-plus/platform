@@ -1,4 +1,4 @@
-FROM openjdk:21-bullseye
+FROM openjdk:21-slim
 
 RUN mkdir /home/app
 WORKDIR /home/app
