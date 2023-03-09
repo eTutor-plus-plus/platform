@@ -123,7 +123,7 @@ public class RandomInstructionCreation {
                         if (cell.getCellFormula().matches(".*" + pattern1 + ".*")) {
                             Pattern pattern3 = Pattern.compile(pattern1);
                             Matcher matcher = pattern3.matcher(cell.getCellFormula());
-                            StringBuffer sb = new StringBuffer();
+                            StringBuilder sb = new StringBuilder();
                             while (matcher.find()) {
                                 char v1 = matcher.group().replaceAll(pattern1, "$1").charAt(0);
                                 v1 = alphabet_list.get(alphabet_list.indexOf(v1) + column_difference);
@@ -139,7 +139,7 @@ public class RandomInstructionCreation {
                         } else if (cell.getCellFormula().matches(".*" + pattern2 + ".*")) {
                             Pattern pattern4 = Pattern.compile(pattern2);
                             Matcher matcher = pattern4.matcher(cell.getCellFormula());
-                            StringBuffer sb = new StringBuffer();
+                            StringBuilder sb = new StringBuilder();
                             while (matcher.find()) {
                                 char v1 = matcher.group().replaceAll(pattern2, "$1").charAt(0);
                                 v1 = alphabet_list.get(alphabet_list.indexOf(v1) + column_difference);
@@ -213,7 +213,7 @@ public class RandomInstructionCreation {
                         if (cell.getCellFormula().matches(".*" + pattern1 + ".*")) {
                             Pattern pattern3 = Pattern.compile(pattern1);
                             Matcher matcher = pattern3.matcher(cell.getCellFormula());
-                            StringBuffer sb = new StringBuffer();
+                            StringBuilder sb = new StringBuilder();
                             while (matcher.find()) {
                                 char v1 = matcher.group().replaceAll(pattern1, "$1").charAt(0);
                                 v1 = alphabet_list.get(alphabet_list.indexOf(v1) + column_difference);
@@ -229,7 +229,7 @@ public class RandomInstructionCreation {
                         } else if (cell.getCellFormula().matches(".*" + pattern2 + ".*")) {
                             Pattern pattern4 = Pattern.compile(pattern2);
                             Matcher matcher = pattern4.matcher(cell.getCellFormula());
-                            StringBuffer sb = new StringBuffer();
+                            StringBuilder sb = new StringBuilder();
                             while (matcher.find()) {
                                 char v1 = matcher.group().replaceAll(pattern2, "$1").charAt(0);
                                 v1 = alphabet_list.get(alphabet_list.indexOf(v1) + column_difference);

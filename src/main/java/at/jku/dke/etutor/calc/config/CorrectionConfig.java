@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 
 public class CorrectionConfig {
 
@@ -24,7 +25,7 @@ public class CorrectionConfig {
                 return new Feedback(false, "Please use the instruction which was generated for you to solve the task!");
             }
 
-            try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(FILE, Charset.defaultCharset()))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     CorrectnessRule correctnessRule = (CorrectnessRule) Class.forName(line).getDeclaredConstructor().newInstance();
