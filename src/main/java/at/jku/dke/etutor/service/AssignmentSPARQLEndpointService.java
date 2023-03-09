@@ -72,6 +72,43 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             }
             """;
 
+
+    private static final String QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?maxPoints WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo;
+                            etutor:refersToTask ?taskAssignment.
+                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
+        }
+        """;
+
+    private static final String QRY_ASK_CALC_INFORMATION = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?maxPoints WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo;
+                            etutor:refersToTask ?taskAssignment.
+                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
+                ?taskAssignment etutor:hasStartTime ?startTime.
+                ?taskAssignment etutor:hasEndTime ?endTime.
+        }
+        """;
+
+
+
     private static final String QRY_DELETE_ASSIGNMENT =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -320,9 +357,36 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.appendLiteral(taskAssignment.getOrganisationUnit());
             query.append(".\n");
 
+
             query.append("?assignment etutor:hasUploadFileId ");
             query.appendLiteral(taskAssignment.getUploadFileId());
             query.append(".\n");
+
+
+            query.append("?assignment etutor:hasCalcSolutionFileId ");
+            query.appendLiteral(taskAssignment.getCalcSolutionFileId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasCalcInstructionFileId ");
+            query.appendLiteral(taskAssignment.getCalcInstructionFileId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasWriterInstructionFileId ");
+            query.appendLiteral(taskAssignment.getWriterInstructionFileId());
+            query.append(".\n");
+
+            if (taskAssignment.getStartTime() != null) {
+                query.append("?assignment etutor:hasStartTime ");
+                query.appendLiteral(taskAssignment.getStartTime().toString());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getEndTime() != null) {
+                query.append("?assignment etutor:hasEndTime ");
+                query.appendLiteral(taskAssignment.getEndTime().toString());
+                query.append(".\n");
+            }
+
 
             if (taskAssignment.getUrl() != null) {
                 query.append("?assignment etutor:hasTaskUrl ");
@@ -617,6 +681,24 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             return Optional.empty();
         }
     }
+
+    //TODO: check if this is needed
+    /**
+     * Returns the id of the calc solution file by its internal id
+     *
+     * @param assignmentId the task's internal id
+     * @return {@link Optional} which contains the id of the calc solution of the task
+     */
+    public Optional<Integer> getFileIdOfCalcSolution (String assignmentId) {
+        Objects.requireNonNull(assignmentId);
+        try {
+            return Optional.of(getTaskAssignmentByInternalId(assignmentId).get().getCalcSolutionFileId());
+        }
+        catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
 
     /**
      * Returns a paged task display (task header + id). An optional header filter may be passed to this method.
@@ -1369,6 +1451,112 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
     }
 
+    public Optional<Integer> getMaxPointsForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal pointsLiteral = solution.getLiteral("?maxPoints");
+
+                    if (pointsLiteral == null) {
+                        return Optional.of(0);
+                    }
+                    return Optional.of(pointsLiteral.getInt());
+                } else {
+                    return Optional.of(0);
+                }
+            }
+        }
+    }
+
+
+    public Optional<String> getStartTimeForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal startTime = solution.getLiteral("?startTime");
+
+                    if (startTime == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(startTime.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    public Optional<String> getEndTimeForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal endTime = solution.getLiteral("?endTime");
+
+                    if (endTime == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(endTime.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
     //region Helper methods
 
     /**
@@ -1436,8 +1624,28 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
 
-        String uploadFileid = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
-        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileid);
+        String uploadFileId = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileId);
+
+
+
+        String calcSolutionFileId = String.valueOf(newTaskAssignmentDTO.getCalcSolutionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcSolutionFileId, calcSolutionFileId);
+
+        String calcInstructionFileId = String.valueOf(newTaskAssignmentDTO.getCalcInstructionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcInstructionFileId, calcInstructionFileId);
+
+        String writerInstructionFileId = String.valueOf(newTaskAssignmentDTO.getWriterInstructionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadWriterInstructionFileId, writerInstructionFileId);
+
+        if (newTaskAssignmentDTO.getStartTime() != null) {
+            resource.addProperty(ETutorVocabulary.hasStartTime, newTaskAssignmentDTO.getStartTime().toString());
+        }
+
+        if (newTaskAssignmentDTO.getEndTime() != null) {
+            resource.addProperty(ETutorVocabulary.hasEndTime, newTaskAssignmentDTO.getEndTime().toString());
+        }
+
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());

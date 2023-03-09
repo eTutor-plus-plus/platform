@@ -53,7 +53,10 @@
         "creator": "Ersteller",
         "submit": "Einreichen",
         "submitted": "Eingereicht",
-        "file": "Datei-Anhang"
+        "file": "Datei-Anhang",
+        "randomWriterInstruction": "Generierte Writer Angabe",
+        "randomCalcInstruction": "Generierte Calc Angabe",
+        "calcTaskPointsDescription": "Erreichte Punkte: "
       }
     }
   }

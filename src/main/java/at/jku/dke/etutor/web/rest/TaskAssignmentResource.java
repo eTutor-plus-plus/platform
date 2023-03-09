@@ -14,6 +14,7 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -78,7 +79,10 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(NotAValidTaskGroupException navtge){
             throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
+        } catch (WrongCalcParametersException wcpe) {
+            throw new at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException();
         }
+
     }
 
     /**
@@ -231,6 +235,20 @@ public class TaskAssignmentResource {
         Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
 
         return ResponseEntity.of(optionalTaskAssignmentDTO);
+    }
+
+    /**
+     * REST endpoint for retrieving the calc solution file id by its
+     * internal id
+     *
+     * @param assignmentId the internal id (path variable)
+     * @return the id of the calc solution file
+     */
+    @GetMapping("tasks/assignments/calc_solution/{assignmentId}")
+    public ResponseEntity<Integer> getFileIdOfCalcSolution (@PathVariable String assignmentId) {
+        Optional<Integer> calc_solution_file_id = assignmentSPARQLEndpointService.getFileIdOfCalcSolution(assignmentId);
+
+        return ResponseEntity.of(calc_solution_file_id);
     }
 
     /**

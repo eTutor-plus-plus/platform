@@ -50,6 +50,18 @@ export interface INewTaskModel {
    * The optional id of an uploaded file representing the solution or addition information for students
    */
   uploadFileId?: number;
+
+  writerInstructionFileId?: number;
+
+  calcSolutionFileId?: number;
+
+  calcInstructionFileId?: number;
+
+  startTime?: string;
+
+  endTime?: string;
+
+  //TODO: starttime und endtime
   /**
    * The optional  task id for the dispatcher.
    */
@@ -212,6 +224,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.pmTask'
   );
 
+  public static readonly CalcTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#CalcTask',
+    'taskManagement.taskTypes.calcTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -219,6 +236,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,
+    TaskAssignmentType.CalcTask,
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
   ];

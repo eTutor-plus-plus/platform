@@ -128,7 +128,7 @@
         formControlName="taskIdForDispatcher"
       />
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isBpmnTask || isPmTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask || isBpmnTask || isPmTask">
       <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
       <input
         type="number"
@@ -362,6 +362,54 @@
       </div>
     </div>
 
+    <div class="form-group" *ngIf="isCalcTask">
+      <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Writer: </label>
+      <jhi-file-upload
+        id="writerInstructionFileUpload"
+        [fileId]="writerInstructionFileId"
+        (fileAdded)="handleWriterInstructionFileAdded($event)"
+        (fileRemoved)="handleWriterInstructionFileRemoved($event)"
+        (fileModified)="handleWriterInstructionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+      <div *ngIf="writerInstructionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
+      <br />
+      <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Calc: </label>
+      <jhi-file-upload
+        id="calcInstructionFileUpload"
+        [fileId]="calcInstructionFileId"
+        (fileAdded)="handleCalcInstructionFileAdded($event)"
+        (fileRemoved)="handleCalcInstructionFileRemoved($event)"
+        (fileModified)="handleCalcInstructionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+      <div *ngIf="calcInstructionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
+
+      <br />
+      <label class="form-control-label" for="calcSolutionFileUpload">Upload Solution Calc: </label>
+      <jhi-file-upload
+        id="calcSolutionFileUpload"
+        [fileId]="calcSolutionFileId"
+        (fileAdded)="handleCalcSolutionFileAdded($event)"
+        (fileRemoved)="handleCalcSolutionFileRemoved($event)"
+        (fileModified)="handleCalcSolutionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+      <div *ngIf="calcSolutionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
+    </div>
+
     <div class="form-group">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
       <input type="text" class="form-control" name="processingTime" id="processingTime" formControlName="processingTime" />
@@ -387,9 +435,10 @@
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>
     </div>
+
     <div class="form-group">
       <label class="form-control-label" for="fileUpload">Upload: </label>
-      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>
+      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->
       <jhi-file-upload
         id="fileUpload"
         [fileId]="uploadFileId"
@@ -405,9 +454,30 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
     </button>
 
-    <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
-      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
-      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
-    </button>
+    <ng-container *ngIf="isCalcTask">
+      <button
+        type="submit"
+        [disabled]="
+          updateForm.invalid ||
+          isSaving ||
+          writerInstructionFileId == -2 ||
+          writerInstructionFileId == -1 ||
+          calcSolutionFileId == -2 ||
+          calcSolutionFileId == -1 ||
+          calcInstructionFileId == -2 ||
+          calcInstructionFileId == -1
+        "
+        class="btn btn-primary"
+      >
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+      </button>
+    </ng-container>
+    <ng-container *ngIf="!isCalcTask">
+      <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
+      </button>
+    </ng-container>
   </div>
 </form>

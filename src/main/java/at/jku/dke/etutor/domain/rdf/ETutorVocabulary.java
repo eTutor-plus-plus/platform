@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.domain.rdf;
 
+import liquibase.pro.packaged.S;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -76,6 +77,18 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
     private static final String PROP_HAS_UPLOAD_FILE_ID = "hasUploadFileId";
+    private static final String PROP_HAS_UPLOAD_CALC_SOLUTION_FILE_ID = "hasCalcSolutionFileId";// Beziehung im RDF Graphen
+    private static final String PROP_HAS_UPLOAD_CALC_INSTRUCTION_FILE_ID = "hasCalcInstructionFileId";// Beziehung im RDF Graphen
+    private static final String PROP_HAS_UPLOAD_WRITER_INSTRUCTION_FILE_ID = "hasWriterInstructionFileId";
+    // TODO: i change now the hasCalcAssignmentFileId to hasCalcInstructionAssignmentFileId and add new ids because of the new implementation
+//    private static final String PROP_HAS_CALC_ASSIGNMENT_FILE_ID = "hasCalcAssignmentFileId";
+    private static final String PROP_HAS_CALC_INSTRUCTION_ASSIGNMENT_FILE_ID = "hasCalcInstructionAssignmentFileId";
+    private static final String PROP_HAS_CALC_SOLUTION_ASSIGNMENT_FILE_ID = "hasCalcSolutionAssignmentFileId";
+    private static final String PROP_HAS_WRITER_INSTRUCTION_ASSIGNMENT_FILE_ID = "hasWriterInstructionAssignmentFileId";
+    private static final String PROP_HAS_START_TIME = "hasStartTime";
+    private static final String PROP_HAS_END_TIME = "hasEndTime";
+
+
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
     private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
@@ -138,6 +151,8 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_DLG_TASK = "DLGTask";
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
+    private static final String INSTANCE_CALC_TASK = "CalcTask";
+
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -302,6 +317,24 @@ public final class ETutorVocabulary {
      * the hasUploadFileId property-
      */
     public static final Property hasUploadFileId = m.createProperty(URI + PROP_HAS_UPLOAD_FILE_ID);
+
+    public static final Property hasUploadCalcSolutionFileId = m.createProperty(URI + PROP_HAS_UPLOAD_CALC_SOLUTION_FILE_ID);
+
+    public static final Property hasUploadCalcInstructionFileId = m.createProperty(URI + PROP_HAS_UPLOAD_CALC_INSTRUCTION_FILE_ID);
+
+    public static final Property hasUploadWriterInstructionFileId = m.createProperty(URI + PROP_HAS_UPLOAD_WRITER_INSTRUCTION_FILE_ID);
+
+    public static final Property hasCalcInstructionAssignmentFileId = m.createProperty(URI + PROP_HAS_CALC_INSTRUCTION_ASSIGNMENT_FILE_ID);
+
+    public static final Property hasCalcSolutionAssignmentFileId = m.createProperty(URI + PROP_HAS_CALC_SOLUTION_ASSIGNMENT_FILE_ID);
+
+    public static final Property hasWriterInstructionAssignmentFileId = m.createProperty(URI + PROP_HAS_WRITER_INSTRUCTION_ASSIGNMENT_FILE_ID);
+
+    public static final Property hasStartTime = m.createProperty(URI + PROP_HAS_START_TIME);
+
+    public static final Property hasEndTime = m.createProperty(URI + PROP_HAS_END_TIME);
+
+
     /**
      * The hasTypicalProcessingTime property.
      */
@@ -363,7 +396,7 @@ public final class ETutorVocabulary {
      * The hasUncheckedDLGTerm property.
      */
     public static final Property hasUncheckedDLGTerm = m.createProperty(URI+PROP_HAS_UNCHECKED_DLG_TERM);
-     /**
+     /* *
      *The hasMaxPoints property
      */
     public static final Property hasMaxPoints = m.createProperty(URI+PROP_HAS_MAX_POINTS);
@@ -617,7 +650,7 @@ public final class ETutorVocabulary {
     public static final Resource TaskGroup = m.createResource(URI + CLASS_TASK_GROUP);
 
     /**
-     * The upload task task assignment type instance.
+     * The upload task assignment type instance.
      */
     public static final Resource UploadTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_UPLOAD_TASK);
     /**
@@ -648,6 +681,12 @@ public final class ETutorVocabulary {
      * The Pm type instance
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
+
+    /**
+     * The Calc type instance
+     */
+    public static final Resource CalcTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_CALC_TASK);
+
     /**
      * The no type task group type
      */

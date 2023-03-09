@@ -30,6 +30,8 @@
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
       "dlgTask": "Datalog Aufgabe",
+      "calcTask": "Calc Aufgabe",
+      "dlgTask": "Datalog Aufgabe",
       "bpmnTask": "Bpmn Aufgabe",
       "pmTask": "ProcessMining Aufgabe"
     },
@@ -71,7 +73,8 @@
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
-      "urlPattern": "Das optionale Feld entspricht nicht dem URL-Standard!"
+      "urlPattern": "Das optionale Feld entspricht nicht dem URL-Standard!",
+      "contentType": "Bitte laden Sie das richtige Dateiformat hoch!"
     },
     "modal": {
       "newHeader": "Neue Aufgabe anlegen",

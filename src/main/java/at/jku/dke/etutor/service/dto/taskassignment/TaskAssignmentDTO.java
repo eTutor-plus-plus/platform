@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,6 +71,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setDatalogQuery(newTaskAssignmentDTO.getDatalogQuery());
         setDatalogUncheckedTerms(newTaskAssignmentDTO.getDatalogUncheckedTerms());
         setUploadFileId(newTaskAssignmentDTO.getUploadFileId());
+        setCalcSolutionFileId(newTaskAssignmentDTO.getCalcSolutionFileId());
+        setCalcInstructionFileId(newTaskAssignmentDTO.getCalcInstructionFileId());
+        setWriterInstructionFileId(newTaskAssignmentDTO.getWriterInstructionFileId());
+        setStartTime(newTaskAssignmentDTO.getStartTime());
+        setEndTime(newTaskAssignmentDTO.getEndTime());
+
         setBpmnTestConfig(newTaskAssignmentDTO.getBpmnTestConfig());
         //PM task related variables
         setMaxActivity(newTaskAssignmentDTO.getMaxActivity());
@@ -120,6 +127,45 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         }else{
             setUploadFileId(-1);
         }
+
+        Statement calcSolutionFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadCalcSolutionFileId);
+        if(calcSolutionFileIdStatement != null){
+            setCalcSolutionFileId(calcSolutionFileIdStatement.getInt());
+        }else{
+            setCalcSolutionFileId(-1);
+        }
+
+        Statement calcInstructionFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadCalcInstructionFileId);
+        if(calcInstructionFileIdStatement != null){
+            setCalcInstructionFileId(calcInstructionFileIdStatement.getInt());
+        }else{
+            setCalcInstructionFileId(-1);
+        }
+
+        Statement writerInstructionFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadWriterInstructionFileId);
+        if (writerInstructionFileIdStatement != null) {
+            setWriterInstructionFileId(writerInstructionFileIdStatement.getInt());
+        } else {
+            setWriterInstructionFileId(-1);
+        }
+
+        // TODO: rdf time format
+        Statement startTimeStatement = resource.getProperty(ETutorVocabulary.hasStartTime);
+        if(startTimeStatement != null){
+            setStartTime(Timestamp.valueOf(startTimeStatement.getString()));
+        }else{
+            setStartTime(null);
+        }
+
+        // TODO: rdf time format
+        Statement endTimeStatement = resource.getProperty(ETutorVocabulary.hasEndTime);
+        if(endTimeStatement != null){
+            setStartTime(Timestamp.valueOf(endTimeStatement.getString()));
+        }else{
+            setEndTime(null);
+        }
+
+
 
         Statement taskIdForDispatcherStatement = resource.getProperty(ETutorVocabulary.hasTaskIdForDispatcher);
         if (taskIdForDispatcherStatement != null) {
