@@ -1,4 +1,4 @@
-import { AfterContentChecked, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
@@ -15,7 +15,7 @@ import { TaskAssignmentType } from '../../tasks/task.model';
   templateUrl: './dispatcher-assignment.component.html',
   styleUrls: ['./dispatcher-assignment.component.scss'],
 })
-export class DispatcherAssignmentComponent implements OnInit {
+export class DispatcherAssignmentComponent {
   /**
    * The diagnose levels that can be chosen by the student
    */
@@ -32,7 +32,11 @@ export class DispatcherAssignmentComponent implements OnInit {
   /**
    * The task type {@see TaskAssignmentType}
    */
-  @Input() public task_type: string | undefined;
+  public _task_type = '';
+  @Input() set task_type(value: string) {
+    this._task_type = value;
+    this.editorOptions = getEditorOptionsForTaskTypeUrl(value, false);
+  }
   /**
    * The optional, stored submission
    */
@@ -125,15 +129,6 @@ export class DispatcherAssignmentComponent implements OnInit {
   constructor(private assignmentService: DispatcherAssignmentService) {}
 
   /**
-   * Lifecycle method that sets the language for the editor in accordance to the {@link task_type},
-   * and the diagnose-level in the dropdown according to the {@link highestDiagnoseLevel}
-   */
-  public ngOnInit(): void {
-    if (this.task_type) {
-      this.editorOptions = getEditorOptionsForTaskTypeUrl(this.task_type, false);
-    }
-  }
-  /**
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    *
    */
@@ -200,7 +195,7 @@ export class DispatcherAssignmentComponent implements OnInit {
       submissionId: '',
       exerciseId: this.exercise_id ?? '',
       passedAttributes: jsonAttributes,
-      taskType: this.task_type ?? '',
+      taskType: this._task_type,
       passedParameters: new Map<string, string>(),
       maxPoints: this.maxPoints,
     };
@@ -213,8 +208,8 @@ export class DispatcherAssignmentComponent implements OnInit {
    * Helper methods identifying the current task by the task_type field.
    */
   private setTaskTypeFlags(): void {
-    this.isXQueryTask = this.task_type === TaskAssignmentType.XQueryTask.value;
-    this.isDatalogTask = this.task_type === TaskAssignmentType.DatalogTask.value;
-    this.isBpmnTask = this.task_type === TaskAssignmentType.BpmnTask.value;
+    this.isXQueryTask = this._task_type === TaskAssignmentType.XQueryTask.value;
+    this.isDatalogTask = this._task_type === TaskAssignmentType.DatalogTask.value;
+    this.isBpmnTask = this._task_type === TaskAssignmentType.BpmnTask.value;
   }
 }
