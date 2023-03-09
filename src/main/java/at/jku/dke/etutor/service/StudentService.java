@@ -1,8 +1,6 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.calc.functions.CalcCorrection;
-import at.jku.dke.etutor.calc.functions.CreateRandomInstruction;
-import at.jku.dke.etutor.calc.functions.DecodeMultipartFile;
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.CSVHelper;
@@ -24,11 +22,8 @@ import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
-import org.apache.jena.base.Sys;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -37,7 +32,6 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
-import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -2092,17 +2086,19 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      * - updates the highest chosen diagnose level for the individual task, if necessary
      * - updates the achieved points for the individual task, if necessary
      * - marks the task assignment as submitted, if necessary
-     * @param matriculationNo the matriculation number of the student
-     * @param courseInstanceUUID the course instance
-     * @param exerciseSheetUUID the exercise sheet
-     * @param taskNo the task no
-     * @param submission the submission from the dispatcher
-     * @param grading the grading from the dispatcher
-     * @param maxPoints the maximum points of the task assignment
+     *
+     * @param matriculationNo        the matriculation number of the student
+     * @param courseInstanceUUID     the course instance
+     * @param exerciseSheetUUID      the exercise sheet
+     * @param taskNo                 the task no
+     * @param submission             the submission from the dispatcher
+     * @param grading                the grading from the dispatcher
+     * @param maxPoints              the maximum points of the task assignment
      * @param diagnoseLevelWeighting the weighting of the diagnose level
+     * @param isExerciseSheetClosed
      * @return the points that have been achieved by the student
      */
-    public int processDispatcherSubmissionForIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting) {
+    public int processDispatcherSubmissionForIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, boolean isExerciseSheetClosed) {
 
         addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission,grading != null && grading.isSubmissionSuitsSolution());
@@ -2111,38 +2107,44 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID,
             matriculationNo, taskNo, submission);
         int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
-            submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
-        if(submission.getPassedAttributes().get("action").equals("submit"))
+            submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel, isExerciseSheetClosed);
+        if(submission.getPassedAttributes().get("action").equals("submit") && !isExerciseSheetClosed)
             markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         return achievedPoints;
     }
 
     /**
      * Updates the points that have been achieved for an individual task according to the submission to the dispatcher.
-     * @param courseInstanceUUID -
-     * @param exerciseSheetUUID -
-     * @param matriculationNo -
-     * @param taskNo -
-     * @param submission the submission from the dispatcher
-     * @param grading the grading from the dispatcher
-     * @param maxPoints the max points of the task assignment
+     *
+     * @param courseInstanceUUID     -
+     * @param exerciseSheetUUID      -
+     * @param matriculationNo        -
+     * @param taskNo                 -
+     * @param submission             the submission from the dispatcher
+     * @param grading                the grading from the dispatcher
+     * @param maxPoints              the max points of the task assignment
      * @param diagnoseLevelWeighting the weighting of the highest chosen diagnose level
-     * @param highestDiagnoseLevel the highest chosen diagnose level
+     * @param highestDiagnoseLevel   the highest chosen diagnose level
+     * @param isExerciseSheetClosed
      * @return the current achieved points for the individual task
      */
-    private int updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel) {
+    private int updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel, boolean isExerciseSheetClosed) {
         int achievedPointsOld = getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
-        int achievedPointsNew = achievedPointsOld;
+        int achievedPointsNew;
         if(submission.getPassedAttributes().get("action").equals("submit")
+            && !isExerciseSheetClosed
             && grading.getMaxPoints() > 0 // maxPoints = 0 may indicate a syntax error in the assignment itself
             && grading.getPoints() > 0){
 
             double achievedPercent = grading.getPoints() / grading.getMaxPoints();
             achievedPointsNew = (int) (maxPoints * achievedPercent - highestDiagnoseLevel * diagnoseLevelWeighting);
-            if(achievedPointsNew > achievedPointsOld) // only improving the achieved points is possible
+            if(achievedPointsNew > achievedPointsOld){
+                // only improving the achieved points is possible
                 setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, achievedPointsNew);
+                return achievedPointsNew;
+            }
         }
-        return achievedPointsNew;
+        return achievedPointsOld;
     }
 
     /**
@@ -2482,7 +2484,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
             return;
         // assign Task of type: PmTask
         // note: status as of 11.11.22: WORKS as planned
-        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()){
+        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
             // fetch configuration ic stored in RDF
             Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
             if(id.isPresent()){

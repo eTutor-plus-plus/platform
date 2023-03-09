@@ -4,10 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
-import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.DispatcherProxyService;
-import at.jku.dke.etutor.service.StudentService;
-import at.jku.dke.etutor.service.UserService;
+import at.jku.dke.etutor.service.*;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
@@ -43,17 +40,20 @@ public class StudentResource {
     private final DispatcherProxyService dispatcherProxyService;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
+    private final CourseInstanceSPARQLEndpointService courseInstanceService;
+
     /**
      * Constructor.
      *
      * @param userService    the injected user service
      * @param studentService the injected student service
      */
-    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService) {
+    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService courseInstanceService) {
         this.userService = userService;
         this.studentService = studentService;
         this.dispatcherProxyService = dispatcherProxyService;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.courseInstanceService = courseInstanceService;
     }
 
     /**
@@ -387,7 +387,7 @@ public class StudentResource {
         String feedback = studentService.correctCalcTask(instructionFileId, solutionFileId, submissionFileId);
         double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
         if (feedback.contains("Congratulation")) {
-            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
         return ResponseEntity.ok().build();
@@ -488,6 +488,8 @@ public class StudentResource {
             return ResponseEntity.internalServerError().build();
         }
 
+        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
+
         // Get required information about task assignment, diagnose-level-weighting, max-points, dispatcher id
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
@@ -503,7 +505,7 @@ public class StudentResource {
 
         // Process
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
-            submission, grading, maxPoints, diagnoseLevelWeighting);
+            submission, grading, maxPoints, diagnoseLevelWeighting, isExerciseSheetClosed);
 
         return ResponseEntity.ok(achievedPoints);
     }
