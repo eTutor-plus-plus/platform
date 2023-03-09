@@ -506,7 +506,7 @@ public class StudentResource {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
         double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
         if (feedback.isCorrect()) {
-            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
         double achievedPoints = maxPoints;

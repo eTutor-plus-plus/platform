@@ -1,6 +1,5 @@
 package at.jku.dke.etutor.service;
 
-import at.jku.dke.etutor.calc.functions.CalcCorrection;
 import at.jku.dke.etutor.calc.models.Feedback;
 import at.jku.dke.etutor.calc.service.CorrectionService;
 import at.jku.dke.etutor.domain.FileEntity;

@@ -15,9 +15,6 @@ import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
 import at.jku.dke.etutor.repository.FileRepository;
-import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.UploadFileService;
-import at.jku.dke.etutor.service.dto.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -27,8 +24,6 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import liquibase.pro.packaged.U;
-import liquibase.pro.packaged.W;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -882,7 +877,7 @@ public class DispatcherProxyService {
             type.equals(ETutorVocabulary.RATask.toString()) ||
             type.equals(ETutorVocabulary.XQueryTask.toString())||
             type.equals(ETutorVocabulary.BpmnTask.toString()) ||
-            type.equals(ETutorVocabulary.PmTask.toString());
+            type.equals(ETutorVocabulary.PmTask.toString()) ||
             type.equals(ETutorVocabulary.XQueryTask.toString()) ||
             type.equals(ETutorVocabulary.CalcTask.toString());
     }
