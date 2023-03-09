@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
@@ -26,14 +26,15 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isUploadTask = false;
   public isCalcTask = false;
   public isDispatcherTask = true;
+  public isPmTask = false;
   public uploadTaskFileId = -1;
   public uploadCalcSubmissionFileId = -1;
 
   public exercise_id = '';
   public task_type = '';
   public submission = '';
-  public diagnoseLevel = 0;
-  public dispatcherPoints = 0;
+  public diagnoseLevel = -1;
+  public achievedDispatcherPoints = 0;
   public maxPoints = '';
   public diagnoseLevelWeighting = '';
   public taskGroup: ITaskGroupDTO | undefined;
@@ -44,11 +45,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public matriculationNumber: string | undefined;
   public calcTaskPoints: number | undefined;
 
-  private readonly _instance?: ICourseInstanceInformationDTO;
-  private _paramMapSubscription?: Subscription;
-  private _exerciseSheetUUID = '';
+  public readonly _instance?: ICourseInstanceInformationDTO;
+  public _taskNo = 0;
+  public _exerciseSheetUUID = '';
   private _taskUUID = '';
-  private _taskNo = 0;
+  private _paramMapSubscription?: Subscription;
   private _taskModel?: ITaskModel;
 
   /**
@@ -100,9 +101,13 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value;
 
-        if (this.isDispatcherTask) {
+        this.isPmTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.PmTask.value;
+
+        // really this.isPmTask?
+        if (this.isDispatcherTask || this.isPmTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
 
           if (this._taskModel.taskIdForDispatcher) {
@@ -118,12 +123,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           }
 
           this._taskModel.taskGroupId;
-
           this.submission = await this.studentService
-            .getSubmissionForAssignment(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
+            .getDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
-          this.dispatcherPoints = await this.studentService
+          this.achievedDispatcherPoints = await this.studentService
             .getDispatcherPoints(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();
 
@@ -351,7 +355,9 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
    * @param $event the UUID
    */
   public handleDispatcherUUID($event: string): void {
-    this.studentService.handleDispatcherUUID(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event).subscribe();
+    this.studentService
+      .processDispatcherSubmissionForIndividualTask(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo, $event)
+      .subscribe(n => (this.achievedDispatcherPoints = n));
   }
 
   /**

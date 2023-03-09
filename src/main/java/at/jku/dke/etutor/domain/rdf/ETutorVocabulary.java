@@ -90,11 +90,17 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
+    private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
+    private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
+    private static final String PROP_HAS_MAX_LOG_SIZE = "hasMaxLogSize";
+    private static final String PROP_HAS_MIN_LOG_SIZE = "hasMinLogSize";
+    private static final String PROP_HAS_CONFIG_NUM = "hasConfigNum";
     private static final String PROP_HAS_DIAGNOSE_LEVEL_WEIGHTING = "hasDiagnoseLevelWeighting";
     private static final String PROP_HAS_XQUERY_SOLUTION = "hasXQuerySolution";
     private static final String PROP_HAS_XPATH_SORTING = "hasXPathSorting";
     private static final String PROP_HAS_DLG_SOLUTION = "hasDLGSolution";
     private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
+    private static final String PROP_HAS_BPMN_CONFIG = "hasBpmnConfig";
     private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
@@ -135,6 +141,8 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
+    private static final String INSTANCE_PM_TASK = "PmTask";
+    private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
 
 
@@ -361,6 +369,11 @@ public final class ETutorVocabulary {
      * The hasDLGQuery property.
      */
     public static final Property hasDLGQuery = m.createProperty(URI+PROP_HAS_DLG_QUERY);
+
+    /**
+     * The hasBpmn property.
+     */
+    public static final Property hasBpmnConfig = m.createProperty(URI+PROP_HAS_BPMN_CONFIG);
     /**
      * The hasUncheckedDLGTerm property.
      */
@@ -369,6 +382,31 @@ public final class ETutorVocabulary {
      *The hasMaxPoints property
      */
     public static final Property hasMaxPoints = m.createProperty(URI+PROP_HAS_MAX_POINTS);
+    /**
+     * PM task related
+     * The hasMaxActivity property
+     */
+    public static final Property hasMaxActivity = m.createProperty(URI+PROP_HAS_MAX_ACTIVITY);
+    /**
+     * PM task related
+     * The hasMinActivity property
+     */
+    public static final Property hasMinActivity = m.createProperty(URI+PROP_HAS_MIN_ACTIVITY);
+    /**
+     * PM task related
+     * The hasMaxLogSize property
+     */
+    public static final Property hasMaxLogSize = m.createProperty(URI+PROP_HAS_MAX_LOG_SIZE);
+    /**
+     * PM task related
+     * The hasMinLogSize property
+     */
+    public static final Property hasMinLogSize = m.createProperty(URI+PROP_HAS_MIN_LOG_SIZE);
+    /**
+     * PM task related
+     * The hasConfigNum property
+     */
+    public static final Property hasConfigNum = m.createProperty(URI+PROP_HAS_CONFIG_NUM);
     /**
      * The hasDiagnoseLevelWeighting property
      */
@@ -617,6 +655,14 @@ public final class ETutorVocabulary {
      * The Datalog type instance
      */
     public static final Resource DatalogTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DLG_TASK);
+    /**
+     * The Bpmn type instance
+     */
+    public static final Resource BpmnTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_BPMN_TASK);
+    /**
+     * The Pm type instance
+     */
+    public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
 
     /**
      * The Calc type instance

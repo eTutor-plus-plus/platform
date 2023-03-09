@@ -8,6 +8,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.CSVHelper;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
 import at.jku.dke.etutor.repository.FileRepository;
+import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
@@ -16,13 +17,15 @@ import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.StudentImportDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DispatcherSubmissionDTO;
+import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDTO;
 import at.jku.dke.etutor.service.dto.student.IndividualTaskSubmissionDTO;
 import at.jku.dke.etutor.service.dto.student.StudentTaskListInfoDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import one.util.streamex.StreamEx;
 import org.apache.jena.base.Sys;
@@ -34,6 +37,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -56,7 +60,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing students.
@@ -64,7 +67,7 @@ import java.util.stream.Collectors;
  * @author fne
  */
 @Service
-public non-sealed class StudentService extends AbstractSPARQLEndpointService {
+public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService {
     private static final String QRY_STUDENTS_COURSES =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -327,9 +330,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             etutor:hasSubmission ?submission;
             etutor:hasInstant ?instant;
             etutor:isSubmitted ?isSubmitted;
-            etutor:isSolved ?isSolved;
-            etutor:hasDispatcherId ?dispatcherId;
-            etutor:hasTaskType ?taskType;
+            etutor:isSolved ?isSolved
           ].
         }
         WHERE {
@@ -388,13 +389,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
           	?individualTask a etutor:IndividualTask;
                            etutor:hasOrderNo ?orderNo;
                            etutor:refersToTask ?taskAssignment;
-                           etutor:hasIndividualTaskSubmission ?taskSubmission.
+                           etutor:hasIndividualTaskSubmission ?taskSubmission;
+                           etutor:refersToTask ?taskAssignment.
+            ?taskAssignment etutor:hasTaskIdForDispatcher ?dispatcherId;
+                            etutor:hasTaskAssignmentType ?taskType.
           	?taskSubmission etutor:hasSubmission ?submission;
                             etutor:hasInstant ?instant;
                             etutor:isSubmitted ?isSubmitted;
-                            etutor:isSolved ?isSolved;
-                            etutor:hasDispatcherId ?dispatcherId;
-                            etutor:hasTaskType ?taskType.
+                            etutor:isSolved ?isSolved.
 
           	OPTIONAL{
             	?taskAssignment etutor:hasTaskInstruction ?taskInstruction.
@@ -432,6 +434,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
     private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
+    private final DispatcherProxyService dispatcherProxyService;
 
     /**
      * Constructor.
@@ -442,7 +445,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      */
     public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository, FileRepository fileRepository,
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
-        , UploadFileService uploadFileService) {
+        , UploadFileService uploadFileService, DispatcherProxyService dispatcherProxyService) {
         super(rdfConnectionFactory);
         this.userService = userService;
         this.studentRepository = studentRepository;
@@ -450,6 +453,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
         this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
+        this.dispatcherProxyService = dispatcherProxyService;
 
         random = new Random();
     }
@@ -1029,7 +1033,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         ParameterizedSparqlString typeAskQuery = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX etutor-task-assingment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
+            PREFIX etutor-task-assignment-type: <http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#>
 
             ASK {
               ?instance a etutor:CourseInstance.
@@ -1039,10 +1043,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
                               etutor:refersToTask ?task.
-              {?task etutor:hasTaskAssignmentType etutor-task-assingment-type:UploadTask.}
-              UNION
-              {?task etutor:hasTaskAssignmentType etutor-task-assingment-type:CalcTask.}
+              ?task etutor:hasTaskAssignmentType ?type.
 
+              FILTER (?type IN ( etutor-task-assignment-type:UploadTask, etutor-task-assignment-type:DLGTask, etutor-task-assignment-type:XQTask, etutor-task-assignment-type:SQLTask, etutor-task-assignment-type:CalcTask) )
             }
             """);
 
@@ -1234,34 +1237,38 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @param submission         the submission
      */
-    public void addSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, DispatcherSubmissionDTO submission, boolean hasBeenSolved) {
+    public void addSubmissionForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, boolean hasBeenSolved) {
         Objects.requireNonNull(submission);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
 
+
         String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String exerciseSheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentId = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
 
+        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getSubmissionId());
+
+        if(!submission.getPassedAttributes().get("action").equals("submit"))
+            return;
+
         ParameterizedSparqlString insertNewSubmissionForIndividualTaskQry = new ParameterizedSparqlString(QRY_INSERT_NEW_INDIVIDUAL_TASK_SUBMISSION);
         insertNewSubmissionForIndividualTaskQry.setIri("?courseInstance", courseInstanceId);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getPassedAttributes().get("submission"));
+        insertNewSubmissionForIndividualTaskQry.setLiteral("?submission", submission.getSubmissionId());
         insertNewSubmissionForIndividualTaskQry.setIri("?student", studentId);
         insertNewSubmissionForIndividualTaskQry.setIri("?sheet", exerciseSheetId);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?instant", instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?orderNo", taskNo);
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSubmitted", submission.getPassedAttributes().get("action").equals("submit"));
         insertNewSubmissionForIndividualTaskQry.setLiteral("?isSolved", hasBeenSolved);
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?dispatcherId", submission.getExerciseId());
-        insertNewSubmissionForIndividualTaskQry.setLiteral("?taskType", submission.getTaskType());
 
         try (RDFConnection connection = getConnection()) {
             connection.update(insertNewSubmissionForIndividualTaskQry.asUpdate());
         }
 
-        setLatestSubmissionForIndividualTask(courseInstanceId, exerciseSheetId, studentId, taskNo, submission.getPassedAttributes().get("submission"));
     }
+
 
     /**
      * Updates the latest submission for an individual task
@@ -1316,7 +1323,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return a list containing the submissions
      */
-    public Optional<List<IndividualTaskSubmissionDTO>> getAllSubmissionsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<List<IndividualTaskSubmissionDTO>> getAllDispatcherSubmissionsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1343,15 +1350,15 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal hasBeenSubmittedLiteral = solution.getLiteral("?isSubmitted");
                     Literal hasBeenSolvedLiteral = solution.getLiteral("?isSolved");
                     Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
-                    Literal taskTypeLiteral = solution.getLiteral("?taskType");
+                    String taskTypeUri = solution.getResource("?taskType").getURI();
 
                     submissions.add(new IndividualTaskSubmissionDTO(
                         instantFromRDFString(instantLiteral.getString()),
-                        submissionLiteral.getString(),
+                        dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
                         hasBeenSubmittedLiteral.getBoolean(),
                         hasBeenSolvedLiteral.getBoolean(),
                         dispatcherIdLiteral.getInt(),
-                        taskTypeLiteral.getString()
+                        taskTypeUri
                     ));
                 }
             } catch (ParseException e) {
@@ -1371,7 +1378,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the submission
      */
-    public Optional<String> getLatestSubmissionForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<String> getLatestDispatcherSubmissionForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1383,7 +1390,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         ParameterizedSparqlString query = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
-            SELECT ?submission
+            SELECT ?submission ?taskAssignmentType
             WHERE {
               ?instance a etutor:CourseInstance.
               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
@@ -1391,7 +1398,9 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                                     etutor:fromCourseInstance ?instance;
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo;
-                              etutor:hasSubmission ?submission.
+                              etutor:hasSubmission ?submission;
+                              etutor:refersToTask ?taskAssignment.
+              ?taskAssignment etutor:hasTaskAssignmentType ?taskAssignmentType.
             }
             """);
         query.setIri("?instance", courseInstanceId);
@@ -1406,14 +1415,14 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                 if (set.hasNext()) {
                     QuerySolution solution = set.nextSolution();
                     Literal submissionLiteral = solution.getLiteral("?submission");
+                    var taskAssignmentTypeURI = solution.getResource("?taskAssignmentType").getURI();
 
-                    if (submissionLiteral == null) {
-                        return Optional.empty();
+                    if (submissionLiteral != null) {
+                        return dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
+                            taskAssignmentTypeURI);
                     }
-                    return Optional.of(submissionLiteral.getString());
-                } else {
-                    return Optional.empty();
                 }
+                return Optional.empty();
             }
         }
     }
@@ -1427,7 +1436,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      *                           * @param taskNo             the task no
      *                           * @param points             the points
      */
-    public void setDispatcherPointsForAssignment(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points) {
+    public void setDispatcherPointsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, double points) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1480,7 +1489,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDispatcherPoints(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer> getAchievedDispatcherPointsForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1537,7 +1546,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      *                           * @param points             the diagnose level
      */
 
-    public void setHighestDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel) {
+    public void setHighestChosenDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, int diagnoseLevel) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1589,7 +1598,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task number
      * @return {@link Optional} containing the points
      */
-    public Optional<Integer> getDiagnoseLevel(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer> getHighestEverChosenDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1645,7 +1654,7 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
      * @param taskNo             the task no
      * @return an Optional Double[] containing both values
      */
-    public Optional<Double[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
+    public Optional<Integer[]> getDiagnoseLevelWeightingAndMaxPointsAndId(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo) {
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNo);
@@ -1669,9 +1678,12 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                          ?individualTask etutor:hasOrderNo ?orderNo;
                                          etutor:refersToTask ?taskAssignment.
 
-                         ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
-                                         etutor:hasMaxPoints ?maxPoints;
+                         ?taskAssignment etutor:hasMaxPoints ?maxPoints;
                                          etutor:hasTaskIdForDispatcher ?dispatcherId.
+
+                         OPTIONAL{
+                            ?taskAssignment etutor:hasDiagnoseLevelWeighting ?diagnoseLevelWeighting;
+                         }
                     }
             """);
 
@@ -1691,10 +1703,10 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
                     Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
                     Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherId");
 
-                    var result = new Double[3];
-                    result[0] = diagnoseLevelWeightingLiteral.getDouble();
-                    result[1] = maxPointsLiteral.getDouble();
-                    result[2] = dispatcherIdLiteral.getDouble();
+                    var result = new Integer[3];
+                    result[0] = diagnoseLevelWeightingLiteral != null ? diagnoseLevelWeightingLiteral.getInt() : 0;
+                    result[1] = maxPointsLiteral != null ? maxPointsLiteral.getInt() : 0;
+                    result[2] = dispatcherIdLiteral != null ? dispatcherIdLiteral.getInt() : -1;
                     return Optional.of(result);
                 } else {
                     return Optional.empty();
@@ -1717,7 +1729,6 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             return getReachedGoalsOfStudentAndCourseInstance(courseInstanceUrl, studentUrl, connection);
         }
     }
-
     //region Private methods
 
     /**
@@ -2074,6 +2085,146 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
         return -1;
     }
 
+
+    /**
+     * Processes a submission of a dispatcher related task assignment for an individual task.
+     * - persists the submission
+     * - updates the highest chosen diagnose level for the individual task, if necessary
+     * - updates the achieved points for the individual task, if necessary
+     * - marks the task assignment as submitted, if necessary
+     * @param matriculationNo the matriculation number of the student
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task no
+     * @param submission the submission from the dispatcher
+     * @param grading the grading from the dispatcher
+     * @param maxPoints the maximum points of the task assignment
+     * @param diagnoseLevelWeighting the weighting of the diagnose level
+     * @return the points that have been achieved by the student
+     */
+    public int processDispatcherSubmissionForIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting) {
+
+        addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+            submission,grading != null && grading.isSubmissionSuitsSolution());
+        if(grading == null)
+            return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID,
+            matriculationNo, taskNo, submission);
+        int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
+            submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel);
+        if(submission.getPassedAttributes().get("action").equals("submit"))
+            markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        return achievedPoints;
+    }
+
+    /**
+     * Updates the points that have been achieved for an individual task according to the submission to the dispatcher.
+     * @param courseInstanceUUID -
+     * @param exerciseSheetUUID -
+     * @param matriculationNo -
+     * @param taskNo -
+     * @param submission the submission from the dispatcher
+     * @param grading the grading from the dispatcher
+     * @param maxPoints the max points of the task assignment
+     * @param diagnoseLevelWeighting the weighting of the highest chosen diagnose level
+     * @param highestDiagnoseLevel the highest chosen diagnose level
+     * @return the current achieved points for the individual task
+     */
+    private int updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int taskNo, SubmissionDTO submission, GradingDTO grading, int maxPoints, int diagnoseLevelWeighting, int highestDiagnoseLevel) {
+        int achievedPointsOld = getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        int achievedPointsNew = achievedPointsOld;
+        if(submission.getPassedAttributes().get("action").equals("submit")
+            && grading.getMaxPoints() > 0 // maxPoints = 0 may indicate a syntax error in the assignment itself
+            && grading.getPoints() > 0){
+
+            double achievedPercent = grading.getPoints() / grading.getMaxPoints();
+            achievedPointsNew = (int) (maxPoints * achievedPercent - highestDiagnoseLevel * diagnoseLevelWeighting);
+            if(achievedPointsNew > achievedPointsOld) // only improving the achieved points is possible
+                setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, achievedPointsNew);
+        }
+        return achievedPointsNew;
+    }
+
+    /**
+     * Updates the highest chosen diagnose level for an individual task in the course of
+     * the submission to the dispatcher.
+     * @param courseInstanceUUID -
+     * @param exerciseSheetUUID -
+     * @param matriculationNo -
+     * @param taskNo -
+     * @param submission the submission for an individual task, holding the diagnose level.
+     * @return the current highest chosen diagnose level for the individual task.
+     */
+    private int updateHighestDiagnoseLevelForIndividualTask(String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo,
+                                                            int taskNo, SubmissionDTO submission) {
+        var oldDiagnoseLevel = getHighestEverChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
+        var currDiagnoseLevel = Integer.parseInt(submission.getPassedAttributes().get("diagnoseLevel"));
+        int highestDiagnoseLevel = oldDiagnoseLevel;
+
+        if(currDiagnoseLevel > oldDiagnoseLevel && !submission.getPassedAttributes().get("action").equals("submit")){
+            setHighestChosenDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, currDiagnoseLevel);
+            highestDiagnoseLevel = currDiagnoseLevel;
+        }
+        return highestDiagnoseLevel;
+    }
+
+    /**
+     * PM task:
+     * Method that returns the dispatcher id of a random exercise assigned to a student
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID the course instance UUID
+     * @param matriculationNo the matriculation number
+     * @param orderNo the task number
+     * @return exercise id corresponding to dispatcher
+     */
+    public Optional<Integer> getDispatcherTaskId(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int orderNo){
+        Objects.requireNonNull(matriculationNo);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+
+        String courseInstanceUrl = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetUrl = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString selectQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?id
+            WHERE{
+               ?instance a etutor:CourseInstance.
+               ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+               ?individualTaskAssignment etutor:fromExerciseSheet ?sheet;
+               etutor:fromCourseInstance ?instance;
+               etutor:hasIndividualTask ?individualTask.
+               ?individualTask etutor:hasOrderNo ?orderNo;
+               etutor:hasTaskIdForDispatcher ?id.
+            }
+            """);
+
+        selectQuery.setIri("?instance", courseInstanceUrl);
+        selectQuery.setIri("?sheet", exerciseSheetUrl);
+        selectQuery.setIri("?student", studentUrl);
+        selectQuery.setLiteral("?orderNo", orderNo);
+
+        try(RDFConnection connection = getConnection()){
+            try(QueryExecution execution = connection.query(selectQuery.asQuery())){
+                ResultSet rs = execution.execSelect();
+
+                if(rs.hasNext()){
+                    QuerySolution solution = rs.nextSolution();
+                    Literal dispatcherIdLiteral = solution.getLiteral("?id");
+
+                    if(dispatcherIdLiteral == null){
+                        return Optional.empty();
+                    }
+                    return Optional.of(dispatcherIdLiteral.getInt());
+                }else{
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
     /**
      * Method which is looking for the best fitting assignment for the current exercise sheet
      * based on the student's current knowledge.
@@ -2288,7 +2439,8 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
     /**
      * Inserts the newly assigned task.
-     *
+     * Process Mining Task:
+     *      * Inserts a newly randomized task based on given configuration
      * @param courseInstanceUrl  the course instance url
      * @param exerciseSheetUrl   the exercise sheet url
      * @param studentUrl         the student's url
@@ -2325,8 +2477,28 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
 
         connection.update(individualAssignmentInsertQry.asUpdate());
 
-
         Optional<TaskAssignmentDTO> taskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(newTaskResourceUrl.substring(newTaskResourceUrl.lastIndexOf('#') + 1));
+        if(taskAssignmentDTO.isEmpty())
+            return;
+        // assign Task of type: PmTask
+        // note: status as of 11.11.22: WORKS as planned
+        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()){
+            // fetch configuration ic stored in RDF
+            Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
+            if(id.isPresent()){
+                try{
+                    // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
+                    int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(id.get());
+                    // store id of generated exercise in RDF in IndividualTask
+                    assignmentSPARQLEndpointService.setDispatcherTaskId(courseInstanceUrl, exerciseSheetUrl,
+                        studentUrl, orderNo, dispatcherTaskId);
+                }catch(DispatcherRequestFailedException e){
+                    //throw new DispatcherRequestFailedException(e);
+                }
+            }
+        }
+
+
 
         String login = studentUrl.substring(studentUrl.lastIndexOf('#')+ 1);
 
@@ -2351,5 +2523,6 @@ public non-sealed class StudentService extends AbstractSPARQLEndpointService {
             // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
         }
     }
-    //endregion
 }
+    //endregion
+

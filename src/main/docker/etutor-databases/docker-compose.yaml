@@ -1,0 +1,31 @@
+version: "3"
+services:
+  fuseki:
+    build: 
+     context: .
+     dockerfile: ./fuseki_dockerfile
+    container_name: fuseki
+    ports:
+      - "3030:3030"
+  postgres:
+    image: postgres:15.1-bullseye
+    container_name: postgres
+    environment:
+      POSTGRES_USER: etutorplusplus
+      POSTGRES_PASSWORD: etutorplusplus
+    ports:
+      - "5432:5432"
+    networks:
+      - local-net
+  pgAdmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "8092:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: etutorplusplus@dke.uni-linz.ac.at
+      PGADMIN_DEFAULT_PASSWORD: etutorplusplus
+    networks:
+      - local-net
+networks:
+  local-net:

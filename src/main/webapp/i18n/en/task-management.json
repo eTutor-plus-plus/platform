@@ -30,7 +30,9 @@
       "raTask": "Relational algebra task",
       "xqTask": "XQuery task",
       "dlgTask": "Datalog task",
-      "calcTask": "Calc task"
+      "calcTask": "Calc task",
+      "dlgTask": "Datalog task",
+      "pmTask": "ProcessMining task"
     },
     "fields": {
       "header": "Header:",
@@ -60,7 +62,12 @@
       "datalogSolution": "Datalog solution:",
       "datalogQuery": "Datalog query:",
       "datalogFacts": "Datalog facts:",
-      "datalogUncheckedTerms": "Datalog unchecked terms"
+      "datalogUncheckedTerms": "Datalog unchecked terms",
+      "maxActivity": "Maximal Activity",
+      "minActivity": "Minimal activity ",
+      "maxLogSize": "Maximal logsize ",
+      "minLogSize": "Minimal logsize",
+      "configNum": "Configuration number"
     },
     "error": {
       "required": "This field is required!",

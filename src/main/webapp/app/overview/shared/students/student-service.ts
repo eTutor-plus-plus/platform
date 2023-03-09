@@ -11,7 +11,6 @@ import {
 } from './students.model';
 import { map } from 'rxjs/operators';
 import { TaskSubmissionsModel } from '../../dispatcher/task-submissions/task-submissions.model';
-import { SubmissionEvent } from '../../dispatcher/entities/SubmissionEvent';
 
 /**
  * Service for managing students.
@@ -288,33 +287,12 @@ export class StudentService {
   }
 
   /**
-   * Sets the submitted solution for the task
-   * @param courseInstanceId the course instance
-   * @param exerciseSheetUUID the exercise sheet
-   * @param taskNo the task number
-   * @param submission the submission to be set
-   */
-  public setSubmissionForAssignment(
-    courseInstanceId: string,
-    exerciseSheetUUID: string,
-    taskNo: number,
-    submission: SubmissionEvent
-  ): Observable<any> {
-    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-
-    return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`,
-      submission
-    );
-  }
-
-  /**
    * Returns the latest submission for a given assignment/individual task
    * @param courseInstanceId the course instance
    * @param exerciseSheetUUID the exercise sheet
    * @param taskNo the task number
    */
-  public getSubmissionForAssignment(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
+  public getDispatcherSubmissionForIndividualTask(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<any> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
     return this.http.get<any>(`${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/submission`, {
@@ -328,7 +306,7 @@ export class StudentService {
    * @param exerciseSheetUUID the exercise sheet
    * @param taskNo the task number
    */
-  public getAllSubmissionsForAssignment(
+  public getAllDispatcherSubmissionsForIndividualTask(
     courseInstanceId: string,
     exerciseSheetUUID: string,
     taskNo: string,
@@ -341,35 +319,22 @@ export class StudentService {
     );
   }
 
-  /**
-   * Sets the points assigned by the dispatcher.
-   *
-   * @param courseInstanceId the course instance id
-   * @param exerciseSheetUUID the exercise sheet UUID
-   * @param taskNo the task no
-   * @param points the points
-   */
-  public setDispatcherPoints(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number, points: number): Observable<any> {
-    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-
-    return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/${points}`,
-      undefined
-    );
-  }
-
-  public handleDispatcherUUID(
+  public processDispatcherSubmissionForIndividualTask(
     courseInstanceId: string,
     exerciseSheetUUID: string,
     taskNo: number,
     dispatcherUUID: string
-  ): Observable<any> {
+  ): Observable<number> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
 
-    return this.http.put(
-      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`,
-      undefined
-    );
+    let url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/${dispatcherUUID}`;
+
+    if (dispatcherUUID.includes('#BpmnTask')) {
+      dispatcherUUID.replace('#BpmnTask', '');
+      url = `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/${taskNo}/dispatcherUUID/bpmn/${dispatcherUUID}`;
+    }
+
+    return this.http.put<number>(url, undefined);
   }
 
   /**

@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.jku.dke.etutor</groupId>
-    <artifactId>etutor-plus-plus</artifactId>
+    <artifactId>platform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Etutor Plus Plus</name>
@@ -22,6 +22,8 @@
     <!-- jhipster-needle-distribution-management -->
 
     <properties>
+        <!-- Objects library of etutor++ -->
+        <objects.version>1.1</objects.version>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>17
@@ -135,6 +137,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>at.jku.dke.etutor</groupId>
+            <artifactId>etutor-objects</artifactId>
+            <version>${objects.version}</version>
+        </dependency>
         <!-- Custom dependencies - Utils -->
         <dependency>
             <groupId>one.util</groupId>
@@ -437,8 +444,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
 
             </plugin>

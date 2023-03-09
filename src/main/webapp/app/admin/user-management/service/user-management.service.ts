@@ -30,6 +30,17 @@ export class UserManagementService {
     return this.http.get<IUser[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
+  /**
+   * Returns the paged and filtered users.
+   *
+   * @param fulltextSearch the mandatory fulltext search string
+   * @param req the optional request pagination
+   */
+  public queryFiltered(fulltextSearch: string, req?: Pagination): Observable<HttpResponse<IUser[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<IUser[]>(`${this.resourceUrl}?fullTextSearch=${fulltextSearch.trim()}`, { params: options, observe: 'response' });
+  }
+
   delete(login: string): Observable<{}> {
     return this.http.delete(`${this.resourceUrl}/${login}`);
   }

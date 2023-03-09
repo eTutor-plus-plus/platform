@@ -3,6 +3,7 @@
  * registers custom languages, themes and token-providers for the Monaco text editor,
  * currently for Relational Algebra, XQuery and Datalog
  */
+import { TaskAssignmentType } from '../tasks/task.model';
 
 export function myMonacoLoad(): void {
   // Register a tokens provider for the language
@@ -442,4 +443,49 @@ export function myMonacoLoad(): void {
       ],
     }),
   });
+}
+
+export function getEditorOptionsForTaskTypeUrl(
+  taskTypeUrl: string,
+  readOnly: boolean
+): { theme: string; language: string; readOnly: boolean } {
+  return {
+    theme: getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl),
+    language: getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl),
+    readOnly,
+  };
+}
+
+function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
+  switch (taskTypeUrl) {
+    case TaskAssignmentType.SQLTask.value:
+      return 'pgsql';
+    case TaskAssignmentType.RATask.value:
+      return 'relationalAlgebra';
+    case TaskAssignmentType.DatalogTask.value:
+      return 'datalog';
+    case TaskAssignmentType.XQueryTask.value:
+      return 'xquery';
+    case TaskAssignmentType.BpmnTask.value:
+      return 'bpmn';
+    default:
+      return 'pgsql';
+  }
+}
+
+function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
+  switch (taskTypeUrl) {
+    case TaskAssignmentType.SQLTask.value:
+      return 'pgsql';
+    case TaskAssignmentType.RATask.value:
+      return 'relationalAlgebra-light';
+    case TaskAssignmentType.DatalogTask.value:
+      return 'datalog-light';
+    case TaskAssignmentType.XQueryTask.value:
+      return 'xquery-light';
+    case TaskAssignmentType.BpmnTask.value:
+      return 'xml';
+    default:
+      return 'vs-light';
+  }
 }

@@ -14,6 +14,8 @@ public class ApplicationProperties {
     private final Fuseki fuseki = new Fuseki();
     private final Dispatcher dispatcher = new Dispatcher();
 
+    private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
+
     /**
      * Getter for the field <code>fuseki</code>
      *
@@ -33,11 +35,20 @@ public class ApplicationProperties {
     }
 
     /**
+     * Getter for the field <code>dispatcher</code>
+     *
+     * @return a {@link ApplicationProperties.Dispatcher} object
+     */
+    public BpmnDispatcher getBpmnDispatcher() {
+        return bpmnDispatcher;
+    }
+
+    /**
      * Configuration class for the fuseki connection.
      */
     public static class Fuseki {
 
-        private String baseUrl = "http://localhost:3030/etutorpp-database";
+        private String baseUrl; //"http://localhost:3030/etutorpp-database";
 
         /**
          * Returns the base url for the fuseki connection
@@ -62,7 +73,7 @@ public class ApplicationProperties {
      * Configuration class for the dispatcher connection
      */
     public static class Dispatcher{
-        private String url = "http://localhost:8081";
+        private String url; //"http://localhost:8081";
         private String xqueryXmlFileUrlPrefix;
         private String sqlTableUrlPrefix;
         private String datalogFactsUrlPrefix;
@@ -107,6 +118,30 @@ public class ApplicationProperties {
 
         public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
             this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
+        }
+    }
+    /**
+     * Configuration class for the dispatcher connection
+     */
+    public static class BpmnDispatcher {
+        private String url; //"http://localhost:8084";
+
+        /**
+         * Returns the url for the dispatcher connection
+         *
+         * @return the url for the dispatcher connection
+         */
+        public String getUrl() {
+            return url;
+        }
+
+        /**
+         * Sets the url for the dispatcher connection
+         *
+         * @param url the url for the dispatcher connection
+         */
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

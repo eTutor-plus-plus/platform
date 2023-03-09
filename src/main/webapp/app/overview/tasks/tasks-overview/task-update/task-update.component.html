@@ -57,6 +57,18 @@
         <span jhiTranslate="taskManagement.fields.privateTask">Private task</span>
       </label>
     </div>
+    <!-- Opaque ID interpreter -->
+    <div class="form-group">
+      <p></p>
+      <label class="form-control-label" for="id">Moodle-ID:</label>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="id" id="id" disabled #moodleId value="{{ createMoodleId(taskModel?.id) }}" />
+        <!--        @schuetzk disabled copy button as not working properly -> content not copied and form closed with saving-->
+        <!--        <div class="input-group-append">-->
+        <!--          <button class="btn btn-outline-secondary" (click)="copyInputMessage(moodleId)" value="click to copy">Copy</button>-->
+        <!--        </div>-->
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-control-label" for="taskDifficulty" jhiTranslate="taskManagement.fields.taskDifficulty">Task difficulty:</label>
       <select class="form-control" name="taskDifficulty" id="taskDifficulty" formControlName="taskDifficulty">
@@ -97,6 +109,11 @@
         </small>
       </div>
     </div>
+    <div class="form-group" *ngIf="isBpmnTask">
+      <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"></label>
+      <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
+      <ngx-monaco-editor [options]="editorOptions" id="bpmnTestConfig" formControlName="bpmnTestConfig"></ngx-monaco-editor>
+    </div>
     <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
       <label class="form-control-label" for="taskIdForDispatcher">
         {{ 'taskManagement.fields.taskIdForDispatcher' | translate }}
@@ -111,9 +128,18 @@
         formControlName="taskIdForDispatcher"
       />
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask || isBpmnTask || isPmTask">
       <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
-      <input type="number" class="form-control" name="maxPoints" id="maxPoints" formControlName="maxPoints" />
+      <input
+        type="number"
+        min="0"
+        step="1"
+        class="form-control"
+        name="maxPoints"
+        id="maxPoints"
+        formControlName="maxPoints"
+        pattern="^[0-9]*$"
+      />
       <div *ngIf="updateForm.get('maxPoints')!.invalid">
         <small
           class="form-text text-danger"
@@ -124,7 +150,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask">
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
         <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.diagnoseLevelWeightingInfo' | translate }}" placement="right"></fa-icon>
@@ -134,6 +160,7 @@
         class="form-control"
         name="diagnoseLevelWeighting"
         id="diagnoseLevelWeighting"
+        ngPattern="/^-?[0-9][^\.]*$/"
         formControlName="diagnoseLevelWeighting"
       />
 
@@ -213,6 +240,7 @@
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
+      <button type="button" class="btn btn-secondary" *ngIf="!isNew && isRATask" (click)="openSolutionRunnerWindow(true)">Try - SQL</button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
@@ -255,6 +283,83 @@
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.xQueryFileURL">XQuery- file url:</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.xqFileUrlInfo' | translate }}" placement="right"></fa-icon>
       <input type="text" [disabled]="true" class="form-control" name="xQueryFileURL" id="xQueryFileURL" formControlName="xQueryFileURL" />
+    </div>
+
+    <!-- PM Task Input -->
+    <div class="form-group" *ngIf="isPmTask">
+      <label class="form-control-label" for="maxActivity" jhiTranslate="taskManagement.fields.maxActivity"
+        >Maximal Activity per Trace:</label
+      >
+      <input type="number" class="form-control" name="maxActivity" id="maxActivity" formControlName="maxActivity" />
+      <div *ngIf="updateForm.get('maxActivity')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('maxActivity')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isPmTask">
+      <label class="form-control-label" for="minActivity" jhiTranslate="taskManagement.fields.minActivity"
+        >Minimal Activity per Trace:</label
+      >
+      <input type="number" class="form-control" name="minActivity" id="minActivity" formControlName="minActivity" />
+      <div *ngIf="updateForm.get('minActivity')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('minActivity')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isPmTask">
+      <label class="form-control-label" for="maxLogSize" jhiTranslate="taskManagement.fields.maxLogSize"
+        >Maximal Log Size (Number of Traces):</label
+      >
+      <input type="number" class="form-control" name="maxLogSize" id="maxLogSize" formControlName="maxLogSize" />
+      <div *ngIf="updateForm.get('maxLogSize')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('maxLogSize')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isPmTask">
+      <label class="form-control-label" for="minLogSize" jhiTranslate="taskManagement.fields.minLogSize"
+        >Minimal Log Size (Number of Traces):</label
+      >
+      <input type="number" class="form-control" name="minLogSize" id="minLogSize" formControlName="minLogSize" />
+      <div *ngIf="updateForm.get('minLogSize')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('minLogSize')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="isPmTask">
+      <label class="form-control-label" for="configNum" jhiTranslate="taskManagement.fields.configNum"
+        >Configuration Number (e.g. config1):</label
+      >
+      <input type="String" class="form-control" name="configNum" id="configNum" formControlName="configNum" />
+      <div *ngIf="updateForm.get('configNum')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('configNum')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
     </div>
 
     <div class="form-group" *ngIf="isCalcTask">

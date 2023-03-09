@@ -8,4 +8,11 @@ import java.io.Serial;
 public class DispatcherRequestFailedException extends Exception{
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public DispatcherRequestFailedException() {
+    }
+
+    public DispatcherRequestFailedException(String message) {
+        super(message);
+    }
 }

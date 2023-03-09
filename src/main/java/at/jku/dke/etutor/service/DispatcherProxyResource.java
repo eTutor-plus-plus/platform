@@ -1,13 +1,16 @@
-package at.jku.dke.etutor.web.rest;
+package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.dto.dispatcher.DatalogExerciseDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.DatalogTaskGroupDTO;
-import at.jku.dke.etutor.service.dto.dispatcher.SQLExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.InputStreamResource;
@@ -20,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -30,19 +32,23 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
 /**
- * Proxy that connects the application with the dispatcher that is used to evaluate sql, datalog, xquery and relational algebra exercises
+ * Proxy that connects the application with the dispatcher that is used to evaluate sql, datalog, xquery, process mining  and relational algebra exercises
  */
 @Configuration
 @RestController
 @RequestMapping("/api/dispatcher")
 public class DispatcherProxyResource {
     private final String dispatcherURL;
+
+    private final String bpmnDispatcherURL;
     private HttpClient client;
+
     private final HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
 
     public DispatcherProxyResource(ApplicationProperties properties){
         this.dispatcherURL = properties.getDispatcher().getUrl();
+        this.bpmnDispatcherURL = properties.getBpmnDispatcher().getUrl();
         init();
     }
 
@@ -68,6 +74,20 @@ public class DispatcherProxyResource {
     }
 
     /**
+     * Requests a grading from the dispatcher
+     * @param submissionId the submission-id identifying the grading
+     * @return the response from the Bpmn Dispatcher
+     */
+    @GetMapping(value="/grading/bpmn/{submissionId}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getBpmnGrading(@PathVariable String submissionId) throws DispatcherRequestFailedException {
+        var request = getGetRequest(bpmnDispatcherURL+"/grading/"+submissionId);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+
+    /**
      * Sends the submission to the dispatcher and returns the submission-id
      * @param submissionDto the submission
      * @return the submission-id
@@ -76,6 +96,20 @@ public class DispatcherProxyResource {
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody(dispatcherURL+"/submission", submissionDto)
+            .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
+            .build();
+
+        return getResponseEntity(request, stringHandler);
+    }
+    /**
+     * Sends the submission to the dispatcher and returns the submission-id
+     * @param submissionDto the submission
+     * @return the submission-id
+     */
+    @PostMapping(value="/bpmn/submission")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> postBpmnSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
+        var request = getPostRequestWithBody(bpmnDispatcherURL+"/submission", submissionDto)
             .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
             .build();
 
@@ -91,6 +125,19 @@ public class DispatcherProxyResource {
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
         var request = getGetRequest(dispatcherURL+"/submission/"+submissionUUID);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Sends the submission UUID to the dispatcher and returns the Bpmn submission
+     * @param submissionUUID the UUID identifying the Bpmn submission
+     * @return the submission
+     */
+    @GetMapping(value="/submission/bpmn/{submissionUUID}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getBpmnSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
+        var request = getGetRequest(bpmnDispatcherURL+"/submission/"+submissionUUID);
 
         return getResponseEntity(request, stringHandler);
     }
@@ -173,7 +220,7 @@ public class DispatcherProxyResource {
     @GetMapping("/xquery/xml/fileid/{id}/asinputstream")
     public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(@PathVariable int id) throws DispatcherRequestFailedException {
         String xml = this.getXMLForXQByFileId(id).getBody();
-        if(xml == null) throw new DispatcherRequestFailedException();
+        if(xml == null) throw new DispatcherRequestFailedException("XML cannot be null");
 
         ByteArrayInputStream ssInput = new ByteArrayInputStream(xml.getBytes());
         InputStreamResource fileInputStream = new InputStreamResource(ssInput);
@@ -308,7 +355,7 @@ public class DispatcherProxyResource {
         HttpResponse<String> response = null;
         try {
             response = client.send(request.build(), stringHandler);
-            if(response.statusCode() == 500) throw new DispatcherRequestFailedException();
+            if(response.statusCode() == 500) throw new DispatcherRequestFailedException(response.body());
             return ResponseEntity.ok(Integer.parseInt(response.body()));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -350,6 +397,17 @@ public class DispatcherProxyResource {
 
         return getResponseEntity(request, stringHandler);
     }
+    /**
+     * Deletes an XQuery exercise
+     * @param id the exercise id
+     * @return a ResponseEntity
+     */
+    public ResponseEntity<String> deleteBpmnExercise(int id) throws DispatcherRequestFailedException {
+        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
+        var request = getDeleteRequest(url);
+
+        return getResponseEntity(request, stringHandler);
+    }
 
     /**
      * Proxies the request to create a datalog task group to the dispatcher
@@ -361,7 +419,7 @@ public class DispatcherProxyResource {
         var request = getPostRequestWithBody(url, groupDTO).build();
         var response = getResponseEntity(request, stringHandler);
 
-        if(response.getBody() == null) throw new DispatcherRequestFailedException();
+        if(response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
         var id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
@@ -408,10 +466,148 @@ public class DispatcherProxyResource {
         }
         var response = getResponseEntity(request, stringHandler);
 
-        if (response.getBody() == null) throw new DispatcherRequestFailedException();
+        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
        var id = Integer.parseInt(response.getBody());
        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
+
+    /**
+     * Requests the creation of a pm exercise configuration -> sends the PUT-request for creating an Pm exercise config to the dispatcher
+     * @param exerciseConfigDTO the {@link PmExerciseConfigDTO} wrapping the configuration information
+     * @return an {@link ResponseEntity} wrapping the assigned configuration id
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<Integer> createPmExerciseConfiguration(PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
+        String url = dispatcherURL+"/pm/configuration";
+        HttpRequest request = null;
+
+        try{
+            request = getPutRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseConfigDTO));
+        }catch(JsonProcessingException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(-1);
+        }
+
+        var response = getResponseEntity(request, stringHandler);
+        if(response.getBody() == null){
+            throw new DispatcherRequestFailedException("No id has returned by the dispatcher");
+        }
+
+        var id = Integer.parseInt(response.getBody());
+        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
+
+    /**
+     * Sends the request to update the parameters of an existing configuration to the dispatcher
+     * @param id the configuration id
+     * @param exerciseConfigDTO the parameters
+     * @return a ResponseEntitiy as received by the dispatcher
+     */
+    public ResponseEntity<String> updatePmExerciseConfiguration(int id, PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
+        String url = dispatcherURL + "/pm/configuration/"+id+"/values";
+        HttpRequest request = null;
+
+        try {
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseConfigDTO)).build();
+        }catch (JsonProcessingException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+        return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Deletes a Process Mining Exercise Configuration
+     * @param id the exercise id
+     * @return a Response Entity
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<String> deletePmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
+        String url = dispatcherURL+"/pm/configuration/"+id;
+        var request = getDeleteRequest(url);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Requests information about a pm exercise configuration from the dispatcher
+     * @param id the id of the configuration
+     * @return the {@link PmExerciseConfigDTO} wrapping the information
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<PmExerciseConfigDTO> getPmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
+        String url = dispatcherURL+"/pm/configurations/"+id;
+        var request = getGetRequest(url);
+        var response = getResponseEntity(request,stringHandler);
+        PmExerciseConfigDTO exerciseConfigDTO = null;
+
+        try{
+            exerciseConfigDTO = new ObjectMapper().readValue(response.getBody(), PmExerciseConfigDTO.class);
+        }catch (JsonProcessingException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new PmExerciseConfigDTO());
+        }
+        return ResponseEntity.status(response.getStatusCodeValue()).body(exerciseConfigDTO);
+    }
+
+    /**
+     * Requests information about a pm exercise log from the dispatcher
+     * @param exerciseId the exercise id corresponding to the requested log
+     * @return the {@link PmExerciseLogDTO} wrapping the information
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<PmExerciseLogDTO> fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
+        String url = dispatcherURL+"/pm/log/"+exerciseId;
+        var request = getGetRequest(url);
+        var response = getResponseEntity(request, stringHandler);
+        PmExerciseLogDTO pmExerciseLogDTO = null;
+
+        try{
+            pmExerciseLogDTO = new ObjectMapper().readValue(response.getBody(), PmExerciseLogDTO.class);
+        }catch(JsonProcessingException e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new PmExerciseLogDTO());
+        }
+        return ResponseEntity.status(response.getStatusCodeValue()).body(pmExerciseLogDTO);
+    }
+
+    /**
+     * Requests the creation of a random exercise -> sends the GET- request for creating a random pm exercise
+     * based on the configuration id
+     * @param configId the configuration id passed by the eTutor
+     * @return {@link ResponseEntity} wrapping the assigned pm exercise id
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<Integer> createRandomPmExercise(int configId) throws DispatcherRequestFailedException{
+        String url = dispatcherURL+"/pm/exercise/"+configId;
+        var request = getGetRequest(url);
+        var response = getResponseEntity(request, stringHandler);
+
+        if(response.getBody() == null){
+            throw new DispatcherRequestFailedException("No id has returned by the dispatcher");
+        }
+        var id = Integer.parseInt(response.getBody());
+        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
+
+    /**
+     *
+     * @param bpmnExercise
+     * @return
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<Integer> createBpmnExercise(String bpmnExercise) throws DispatcherRequestFailedException {
+        String url = this.bpmnDispatcherURL +"/bpmn/exercise";
+        HttpRequest request = null;
+        request = getPostRequestWithBody(url, bpmnExercise).build();
+
+        var response = getResponseEntity(request, stringHandler);
+
+        if (response.getBody() == null) throw new DispatcherRequestFailedException();
+
+        int id = Integer.parseInt(response.getBody());
+        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
 
     /**
@@ -430,6 +626,17 @@ public class DispatcherProxyResource {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
+        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+    /**
+     * Requests modification of a datalog exercise
+     * @return a {@link ResponseEntity} indicating if the udpate has been successful
+     */
+    public ResponseEntity<Void> modifyBpmnExercise(String exercise, int id) throws DispatcherRequestFailedException {
+        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
+
+        HttpRequest request = null;
+        request = getPostRequestWithBody(url, exercise).build();
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 
@@ -473,7 +680,7 @@ public class DispatcherProxyResource {
     private <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
             HttpResponse<T> response = this.client.send(request, handler);
-            if (response.statusCode() == 500) throw new DispatcherRequestFailedException();
+            if (response.statusCode() == 500) throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -542,5 +749,4 @@ public class DispatcherProxyResource {
     private String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
-
 }

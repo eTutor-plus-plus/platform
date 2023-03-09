@@ -8,16 +8,17 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-lecturer-run-submission',
-  templateUrl: './lecturer-run-submission.component.html',
-  styleUrls: ['./lecturer-run-submission.component.scss'],
+  templateUrl: './dispatcher-assignment-modal.component.html',
+  styleUrls: ['./dispatcher-assignment-modal.component.scss'],
 })
-export class LecturerRunSubmissionComponent {
+export class DispatcherAssignmentModalComponent {
   /**
    * Wraps information about the submission to be evaluated
    */
   public submissionEntry!: TaskSubmissionsModel;
   public matriculationNo: string | undefined = '';
   public showHeader = true;
+  public showSubmitButton = false;
 
   constructor(private activeModal: NgbActiveModal, private modalService: NgbModal) {}
 

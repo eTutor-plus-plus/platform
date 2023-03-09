@@ -73,6 +73,13 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setCalcSolutionFileId(newTaskAssignmentDTO.getCalcSolutionFileId());
         setCalcInstructionFileId(newTaskAssignmentDTO.getCalcInstructionFileId());
 
+        setBpmnTestConfig(newTaskAssignmentDTO.getBpmnTestConfig());
+        //PM task related variables
+        setMaxActivity(newTaskAssignmentDTO.getMaxActivity());
+        setMinActivity(newTaskAssignmentDTO.getMinActivity());
+        setMaxLogSize(newTaskAssignmentDTO.getMaxLogSize());
+        setMinLogSize(newTaskAssignmentDTO.getMinLogSize());
+        setConfigNum(newTaskAssignmentDTO.getConfigNum());
 
         setId(id);
         setCreationDate(creationDate);
@@ -175,6 +182,37 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         Statement datalogUncheckedTermsStatement = resource.getProperty(ETutorVocabulary.hasUncheckedDLGTerm);
         if(datalogUncheckedTermsStatement != null){
             setDatalogUncheckedTerms(datalogUncheckedTermsStatement.getString());
+        }
+
+        Statement bpmnConfig = resource.getProperty(ETutorVocabulary.hasBpmnConfig);
+        if(bpmnConfig != null){
+            setBpmnTestConfig(bpmnConfig.getString());
+        }
+
+        //PM task related variables
+        Statement maxActivity = resource.getProperty(ETutorVocabulary.hasMaxActivity);
+        if(maxActivity != null){
+            setMaxActivity(maxActivity.getInt());
+        }
+
+        Statement minActivity = resource.getProperty(ETutorVocabulary.hasMinActivity);
+        if(minActivity != null){
+            setMinActivity(minActivity.getInt());
+        }
+
+        Statement maxLogSize = resource.getProperty(ETutorVocabulary.hasMaxLogSize);
+        if(maxLogSize != null){
+            setMaxLogSize(maxLogSize.getInt());
+        }
+
+        Statement minLogSize = resource.getProperty(ETutorVocabulary.hasMinLogSize);
+        if(minLogSize != null){
+            setMinLogSize(minLogSize.getInt());
+        }
+
+        Statement configNum = resource.getProperty(ETutorVocabulary.hasConfigNum);
+        if(configNum != null){
+            setConfigNum(configNum.getString());
         }
 
 

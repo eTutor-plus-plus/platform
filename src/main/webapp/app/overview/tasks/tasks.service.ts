@@ -52,7 +52,7 @@ export class TasksService {
   }
 
   /**
-   * Performs the REST endpoint call for retrieving a task assingment
+   * Performs the REST endpoint call for retrieving a task assignment
    * object by its id.
    *
    * @param internalId the internal task's id

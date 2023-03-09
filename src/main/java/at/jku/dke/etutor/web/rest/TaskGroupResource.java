@@ -4,6 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
@@ -13,13 +14,11 @@ import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.scheduling.config.Task;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +65,7 @@ public class TaskGroupResource {
             throw new TaskGroupAlreadyExistentException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
@@ -114,25 +113,31 @@ public class TaskGroupResource {
     @PutMapping
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
-        TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
-
         try{
+            // Update task group in dispatcher if applicable
+            if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()) ||
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()) ||
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
+            }
+
+            // Update task group in RDF
+            TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
             if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
             }
+
+            return ResponseEntity.ok(taskGroupDTOFromService);
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
-            throw new DispatcherRequestFailedException();
+            throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         }
-        return ResponseEntity.ok(taskGroupDTOFromService);
+
     }
 
     /**

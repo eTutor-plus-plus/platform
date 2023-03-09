@@ -6,6 +6,7 @@ export interface GradingDTO {
   maxPoints: number;
   points: number;
   result: string;
+  submissionSuitsSolution: boolean;
   report: {
     description: string;
     error: string;
