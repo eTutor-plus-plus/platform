@@ -363,6 +363,21 @@
     </div>
 
     <div class="form-group" *ngIf="isCalcTask">
+      <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Writer: </label>
+      <jhi-file-upload
+        id="writerInstructionFileUpload"
+        [fileId]="writerInstructionFileId"
+        (fileAdded)="handleWriterInstructionFileAdded($event)"
+        (fileRemoved)="handleWriterInstructionFileRemoved($event)"
+        (fileModified)="handleWriterInstructionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+      <div *ngIf="writerInstructionFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
+      <br />
       <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Calc: </label>
       <jhi-file-upload
         id="calcInstructionFileUpload"
@@ -445,6 +460,8 @@
         [disabled]="
           updateForm.invalid ||
           isSaving ||
+          writerInstructionFileId == -2 ||
+          writerInstructionFileId == -1 ||
           calcSolutionFileId == -2 ||
           calcSolutionFileId == -1 ||
           calcInstructionFileId == -2 ||

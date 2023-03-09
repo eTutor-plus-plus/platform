@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.calc.models.Feedback;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
@@ -339,7 +340,7 @@ public class StudentResource {
      * @param taskNo             the task no
      * @return the {@link ResponseEntity} containing the file id
      */
-    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-instruction")
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-calc-instruction")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Integer> getFileAttachmentIdOfIndividualCalcInstruction (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                                    @PathVariable int taskNo) {
@@ -353,20 +354,138 @@ public class StudentResource {
     }
 
     /**
+     * Returns the calc solution file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-calc-solution")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualCalcSolution (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualCalcSolution(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * Returns the writer instruction file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-writer-instruction")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualWriterInstruction (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualWriterInstruction(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+//    /**
+//     * Corrects a calc submission and returns feedback
+//     *
+//     * @param instructionFileId id of the instruction calc file
+//     * @param solutionFileId id of the solution calc file
+//     * @param submissionFileId if of the submission calc file
+//     * @return a string which contains the feedback of the correction
+//     */
+//    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
+//    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+//    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
+//        return ResponseEntity
+//            .ok()
+//            .body(studentService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
+//    }
+//
+//
+//    /**
+//     * @param courseInstanceUUID the course instance
+//     * @param exerciseSheetUUID the exercise sheet
+//     * @param taskNo the task number
+//     * @param matriculationNo the matriculation number
+//     * @param instructionFileId the file id of the generated instruction
+//     * @param solutionFileId the file id of the solution
+//     * @param submissionFileId the file id of the sumbission
+//     */
+//    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{instructionFileId}/{solutionFileId}/{submissionFileId}/calcTask")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+//    public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+//                                                               @PathVariable int taskNo, @PathVariable String matriculationNo,
+//                                                               @PathVariable long instructionFileId, @PathVariable long solutionFileId,
+//                                                               @PathVariable long submissionFileId) {
+//        String feedback = studentService.correctCalcTask(instructionFileId, solutionFileId, submissionFileId);
+//        // TODO: call method for correction points
+//        // TODO: change setting points
+//
+//        //TODO: call method with calc object and insert data into external database
+//        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+//        String startTime = assignmentSPARQLEndpointService.getStartTimeForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+//        String endTime = assignmentSPARQLEndpointService.getEndTimeForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+//        //TODO: convert start and endtime to time format
+//        if (feedback.contains("Congratulation")) {
+//            //TODO: set only if the points are higher thant the current points
+//            //TODO: check if endtime is after current time
+//            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+//            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+//        }
+//        return ResponseEntity.ok().build();
+//    }
+
+    /**
      * Corrects a calc submission and returns feedback
      *
-     * @param instructionFileId id of the instruction calc file
-     * @param solutionFileId id of the solution calc file
-     * @param submissionFileId if of the submission calc file
+     * @param writerInstructionFileId id of the instruction writer file
+     * @param calcSolutionFileId id of the solution calc file
+     * @param calcSubmissionFileId if of the submission calc file
      * @return a string which contains the feedback of the correction
      */
-    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
+    public ResponseEntity<String> correctCalcTaskDatabase (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                   @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                   @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
+        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+        double achievedPoints = maxPoints;
+        if (!feedback.isCorrect()) {
+            achievedPoints = 0.0;
+        }
+
+        StudentService.insertIntoExternalDatabase(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
+
+
         return ResponseEntity
             .ok()
-            .body(studentService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
+            .body(feedback.getTextualFeedback());
     }
+
+    @GetMapping("courses/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> correctCalcTask (
+                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                   @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
+        return ResponseEntity
+            .ok()
+            .body(feedback.getTextualFeedback());
+    }
+
+
 
 
     /**
@@ -374,22 +493,27 @@ public class StudentResource {
      * @param exerciseSheetUUID the exercise sheet
      * @param taskNo the task number
      * @param matriculationNo the matriculation number
-     * @param instructionFileId the file id of the generated instruction
-     * @param solutionFileId the file id of the solution
-     * @param submissionFileId the file id of the sumbission
+     * @param writerInstructionFileId id of the instruction writer file
+     * @param calcSolutionFileId id of the solution calc file
+     * @param calcSubmissionFileId if of the submission calc file
      */
-    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{instructionFileId}/{solutionFileId}/{submissionFileId}/calcTask")
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/submit_task")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
                                                                @PathVariable int taskNo, @PathVariable String matriculationNo,
-                                                               @PathVariable long instructionFileId, @PathVariable long solutionFileId,
-                                                               @PathVariable long submissionFileId) {
-        String feedback = studentService.correctCalcTask(instructionFileId, solutionFileId, submissionFileId);
+                                                               @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                               @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
         double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-        if (feedback.contains("Congratulation")) {
-            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+        if (feedback.isCorrect()) {
+            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
+        double achievedPoints = maxPoints;
+        if (!feedback.isCorrect()) {
+            achievedPoints = 0.0;
+        }
+        StudentService.insertIntoExternalDatabase(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "submit", feedback.getTextualFeedback());
         return ResponseEntity.ok().build();
     }
 

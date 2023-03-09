@@ -54,7 +54,8 @@
         "submit": "Submit",
         "submitted": "Submitted",
         "file": "File-Attachment",
-        "randomInstruction": "Randomised Instruction",
+        "randomWriterInstruction": "Randomised Writer Instruction",
+        "randomCalcInstruction": "Randomised Calc Instruction",
         "calcTaskPointsDescription": "Points achieved:  "
       }
     }

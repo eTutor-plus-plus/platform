@@ -1,6 +1,8 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.calc.functions.CalcCorrection;
+import at.jku.dke.etutor.calc.models.Feedback;
+import at.jku.dke.etutor.calc.service.CorrectionService;
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.CSVHelper;
@@ -33,6 +35,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
@@ -50,6 +53,10 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -337,11 +344,43 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         }
         """;
 
-    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK = """
+//    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK = """
+//        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+//
+//        INSERT {
+//              ?individualTask etutor:hasCalcAssignmentFileId ?id.
+//        }
+//        WHERE {
+//              ?courseInstance a etutor:CourseInstance.
+//                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+//                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+//            etutor:fromCourseInstance ?courseInstance.
+//                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+//                ?individualTask etutor:hasOrderNo ?orderNo.
+//        }
+//        """;
+//
+//
+//    private static final String QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK = """
+//        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+//
+//
+//        SELECT ?id WHERE {
+//               ?courseInstance a etutor:CourseInstance.
+//               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+//               ?individualAssignment etutor:fromExerciseSheet ?sheet;
+//                            etutor:fromCourseInstance ?courseInstance.
+//               ?individualAssignment etutor:hasIndividualTask ?individualTask.
+//               ?individualTask etutor:hasOrderNo ?orderNo;
+//                               etutor:hasCalcAssignmentFileId ?id.
+//        }
+//        """;
+
+    private static final String QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
         INSERT {
-              ?individualTask etutor:hasCalcAssignmentFileId ?id.
+              ?individualTask etutor:hasCalcInstructionAssignmentFileId ?id.
         }
         WHERE {
               ?courseInstance a etutor:CourseInstance.
@@ -354,7 +393,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         """;
 
 
-    private static final String QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK = """
+    private static final String QRY_ASK_CALC_INSTRUCTION_FILE_ID_OF_INDIVIDUAL_TASK = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
 
@@ -365,9 +404,75 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                             etutor:fromCourseInstance ?courseInstance.
                ?individualAssignment etutor:hasIndividualTask ?individualTask.
                ?individualTask etutor:hasOrderNo ?orderNo;
-                               etutor:hasCalcAssignmentFileId ?id.
+                               etutor:hasCalcInstructionAssignmentFileId ?id.
         }
         """;
+
+    private static final String QRY_INSERT_CALC_SOLUTION_FILE_ID_FOR_INDIVIDUAL_TASK = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+              ?individualTask etutor:hasCalcSolutionAssignmentFileId ?id.
+        }
+        WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+
+    private static final String QRY_ASK_CALC_SOLUTION_FILE_ID_OF_INDIVIDUAL_TASK = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?id WHERE {
+               ?courseInstance a etutor:CourseInstance.
+               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+               ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                            etutor:fromCourseInstance ?courseInstance.
+               ?individualAssignment etutor:hasIndividualTask ?individualTask.
+               ?individualTask etutor:hasOrderNo ?orderNo;
+                               etutor:hasCalcSolutionAssignmentFileId ?id.
+        }
+        """;
+
+    private static final String QRY_INSERT_WRITER_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        INSERT {
+              ?individualTask etutor:hasWriterInstructionAssignmentFileId ?id.
+        }
+        WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo.
+        }
+        """;
+
+
+    private static final String QRY_ASK_WRITER_INSTRUCTION_FILE_ID_OF_INDIVIDUAL_TASK = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?id WHERE {
+               ?courseInstance a etutor:CourseInstance.
+               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+               ?individualAssignment etutor:fromExerciseSheet ?sheet;
+                            etutor:fromCourseInstance ?courseInstance.
+               ?individualAssignment etutor:hasIndividualTask ?individualTask.
+               ?individualTask etutor:hasOrderNo ?orderNo;
+                               etutor:hasWriterInstructionAssignmentFileId ?id.
+        }
+        """;
+
+
 
 
     private static final String QRY_ASK_INDIVIDUAL_TASK_SUBMISSIONS = """
@@ -1163,7 +1268,95 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
         String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
 
-        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK);
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_CALC_INSTRUCTION_FILE_ID_OF_INDIVIDUAL_TASK);
+        qry.setIri("?student", studentUrl);
+        qry.setIri("?sheet", sheetId);
+        qry.setIri("?courseInstance", courseInstanceId);
+        qry.setLiteral("?orderNo", orderNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(qry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal attachmentIdLiteral = solution.getLiteral("?id");
+
+                    if (attachmentIdLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(attachmentIdLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Return the file id of an individual calc solution
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param matriculationNo    the matriculation no
+     * @param orderNo             the order no
+     * @return {@link Optional} containing the file id
+     */
+    public Optional<Integer> getFileIdIndividualCalcSolution (String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo ) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+        assert orderNo > 0;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_CALC_SOLUTION_FILE_ID_OF_INDIVIDUAL_TASK);
+        qry.setIri("?student", studentUrl);
+        qry.setIri("?sheet", sheetId);
+        qry.setIri("?courseInstance", courseInstanceId);
+        qry.setLiteral("?orderNo", orderNo);
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(qry.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal attachmentIdLiteral = solution.getLiteral("?id");
+
+                    if (attachmentIdLiteral == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(attachmentIdLiteral.getInt());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Return the file id of an individual writer instruction
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param matriculationNo    the matriculation no
+     * @param orderNo             the order no
+     * @return {@link Optional} containing the file id
+     */
+    public Optional<Integer> getFileIdIndividualWriterInstruction (String courseInstanceUUID, String exerciseSheetUUID, String matriculationNo, int orderNo ) {
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        Objects.requireNonNull(matriculationNo);
+        assert orderNo > 0;
+
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+
+        ParameterizedSparqlString qry = new ParameterizedSparqlString(QRY_ASK_WRITER_INSTRUCTION_FILE_ID_OF_INDIVIDUAL_TASK);
         qry.setIri("?student", studentUrl);
         qry.setIri("?sheet", sheetId);
         qry.setIri("?courseInstance", courseInstanceId);
@@ -1190,34 +1383,70 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
 
 
+//    /**
+//     * Corrects a calc task
+//     *
+//     * @param instruction_file_id id of the instruction file
+//     * @param solution_file_id id of the solution file
+//     * @param submission_file_id id of the submission file
+//     * @return a string containing the feedback of the correction
+//     */
+//    @Transactional
+//    public String correctCalcTask (Long instruction_file_id, Long solution_file_id, Long submission_file_id) {
+//        FileEntity instruction_file = fileRepository.getById(instruction_file_id);
+//        FileEntity solution_file = fileRepository.getById(solution_file_id);
+//        FileEntity submission_file = fileRepository.getById(submission_file_id);
+//
+//        try {
+//            InputStream stream_instruction = new ByteArrayInputStream(instruction_file.getContent());
+//            InputStream stream_solution = new ByteArrayInputStream(solution_file.getContent());
+//            InputStream stream_submission = new ByteArrayInputStream(submission_file.getContent());
+//
+//            XSSFWorkbook workbook_instruction = new XSSFWorkbook(stream_instruction);
+//            XSSFWorkbook workbook_solution = new XSSFWorkbook(stream_solution);
+//            XSSFWorkbook workbook_submission = new XSSFWorkbook(stream_submission);
+//
+//            return CalcCorrection.correctTaskOldImplementation(workbook_instruction, workbook_solution, workbook_submission);
+//
+//        } catch (IOException e) {
+//            return null;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
     /**
      * Corrects a calc task
      *
-     * @param instruction_file_id id of the instruction file
-     * @param solution_file_id id of the solution file
-     * @param submission_file_id id of the submission file
+     * @param writerInstructionFileId id of the writer instruction file
+     * @param calcSolutionFileId id of the calc solution file
+     * @param calcSubmissionFileId id of the calc submission file
      * @return a string containing the feedback of the correction
      */
     @Transactional
-    public String correctCalcTask (Long instruction_file_id, Long solution_file_id, Long submission_file_id) {
-        FileEntity instruction_file = fileRepository.getById(instruction_file_id);
-        FileEntity solution_file = fileRepository.getById(solution_file_id);
-        FileEntity submission_file = fileRepository.getById(submission_file_id);
+    public Feedback correctCalcTask (Long writerInstructionFileId, Long calcSolutionFileId, Long calcSubmissionFileId) {
+        FileEntity writerInstructionFile = fileRepository.getById(writerInstructionFileId);
+        FileEntity calcSolutionFile = fileRepository.getById(calcSolutionFileId);
+        FileEntity calcSubmissionFile = fileRepository.getById(calcSubmissionFileId);
 
         try {
-            InputStream stream_instruction = new ByteArrayInputStream(instruction_file.getContent());
-            InputStream stream_solution = new ByteArrayInputStream(solution_file.getContent());
-            InputStream stream_submission = new ByteArrayInputStream(submission_file.getContent());
+            InputStream streamWriterInstruction = new ByteArrayInputStream(writerInstructionFile.getContent());
+            InputStream streamCalcSolution = new ByteArrayInputStream(calcSolutionFile.getContent());
+            InputStream streamCalcSubmission = new ByteArrayInputStream(calcSubmissionFile.getContent());
 
-            XSSFWorkbook workbook_instruction = new XSSFWorkbook(stream_instruction);
-            XSSFWorkbook workbook_solution = new XSSFWorkbook(stream_solution);
-            XSSFWorkbook workbook_submission = new XSSFWorkbook(stream_submission);
+            XWPFDocument documentWriterInstruction = new XWPFDocument(streamWriterInstruction);
+            XSSFWorkbook workbookCalcSolution = new XSSFWorkbook(streamCalcSolution);
+            XSSFWorkbook workbookCalcSubmission = new XSSFWorkbook(streamCalcSubmission);
 
-            return CalcCorrection.correctTask(workbook_instruction, workbook_solution, workbook_submission);
+            return CorrectionService.runCorrection(documentWriterInstruction, workbookCalcSolution, workbookCalcSubmission);
 
         } catch (IOException e) {
             return null;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
 
@@ -2508,23 +2737,81 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
 
 
-            long generated_file_id = uploadFileService.createRandomCalcFileInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(), login);
+//            long generated_file_id = uploadFileService.createRandomCalcFileInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(), login);
+            List<Long> generatedFileIdList = uploadFileService.createRandomInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(),(long) taskAssignmentDTO.get().getCalcSolutionFileId(),(long) taskAssignmentDTO.get().getWriterInstructionFileId(), login);
 
-            ParameterizedSparqlString addFileIdForCalcAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK);
-            addFileIdForCalcAssignment.setIri("?courseInstance", courseInstanceUrl);
-            addFileIdForCalcAssignment.setIri("?student", studentUrl);
-            addFileIdForCalcAssignment.setIri("?sheet", exerciseSheetUrl);
-            addFileIdForCalcAssignment.setIri("?newTask", newTaskResourceUrl);
+            ParameterizedSparqlString addFileIdForCalcInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+            addFileIdForCalcInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
+            addFileIdForCalcInstructionAssignment.setIri("?student", studentUrl);
+            addFileIdForCalcInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
+            addFileIdForCalcInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
             System.out.println(newTaskResourceUrl);
-            addFileIdForCalcAssignment.setLiteral("?newOrderNo", orderNo);
-            addFileIdForCalcAssignment.setLiteral("?id", generated_file_id);
+            addFileIdForCalcInstructionAssignment.setLiteral("?newOrderNo", orderNo);
+            addFileIdForCalcInstructionAssignment.setLiteral("?id", generatedFileIdList.get(0));
 
             // execute update
-            connection.update(addFileIdForCalcAssignment.asUpdate());
+            connection.update(addFileIdForCalcInstructionAssignment.asUpdate());
+
+
+            ParameterizedSparqlString addFileIdForCalcSolutionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_SOLUTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+            addFileIdForCalcSolutionAssignment.setIri("?courseInstance", courseInstanceUrl);
+            addFileIdForCalcSolutionAssignment.setIri("?student", studentUrl);
+            addFileIdForCalcSolutionAssignment.setIri("?sheet", exerciseSheetUrl);
+            addFileIdForCalcSolutionAssignment.setIri("?newTask", newTaskResourceUrl);
+            System.out.println(newTaskResourceUrl);
+            addFileIdForCalcSolutionAssignment.setLiteral("?newOrderNo", orderNo);
+            addFileIdForCalcSolutionAssignment.setLiteral("?id", generatedFileIdList.get(1));
+
+            // execute update
+            connection.update(addFileIdForCalcSolutionAssignment.asUpdate());
+
+            ParameterizedSparqlString addFileIdForWriterInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_WRITER_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+            addFileIdForWriterInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
+            addFileIdForWriterInstructionAssignment.setIri("?student", studentUrl);
+            addFileIdForWriterInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
+            addFileIdForWriterInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
+            System.out.println(newTaskResourceUrl);
+            addFileIdForWriterInstructionAssignment.setLiteral("?newOrderNo", orderNo);
+            addFileIdForWriterInstructionAssignment.setLiteral("?id", generatedFileIdList.get(2));
+
+            // execute update
+            connection.update(addFileIdForWriterInstructionAssignment.asUpdate());
 
             // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
         }
     }
+
+    public static void insertIntoExternalDatabase (String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
+
+
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con= DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/etutor","root","Georg221099");
+
+            String sql = " insert into calc_task_points (matriculationNo, courseInstance, exerciseSheet, taskNumber, maxPoints, achievedPoints, currentTime, submitType, feedback)"
+                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement preparedStmt = con.prepareStatement(sql);
+            preparedStmt.setString(1, matriculationNo);
+            preparedStmt.setString(2, courseInstance);
+            preparedStmt.setString(3, exerciseSheet);
+            preparedStmt.setInt(4, taskNumber);
+            preparedStmt.setDouble(5, maxPoints);
+            preparedStmt.setDouble(6,  achievedPoints);
+            preparedStmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+            preparedStmt.setString(8, submitType);
+            preparedStmt.setString(9, feedback);
+
+            preparedStmt.execute();
+
+            con.close();
+
+        }catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+    //endregion
 }
     //endregion
 

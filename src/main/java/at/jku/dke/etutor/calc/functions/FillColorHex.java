@@ -1,15 +1,33 @@
 package at.jku.dke.etutor.calc.functions;
 
+import at.jku.dke.etutor.calc.models.CorrectnessRule;
+import at.jku.dke.etutor.calc.models.Feedback;
 import org.apache.jena.base.Sys;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class FillColorHex {
+public class FillColorHex extends CorrectnessRule {
+
+
+    /**
+     * Function is currently not concluded in the config file
+     * @param solution workbook of the solution
+     * @param submission workbook of the submission
+     * @return the Feedback regarding if the background colors of the submission are the same as the solution
+     */
+    @Override
+    public Feedback checkCorrectness(XSSFWorkbook solution, XSSFWorkbook submission) throws Exception {
+        if (!areSheetsUnchanged(solution, submission)) {
+            return new Feedback(false, "Your submission has syntax errors, please do not change the colors of the cells!");
+        }
+        return new Feedback(true, null);
+    }
 
     /**
      * @param cell cell of which the color should be returned
@@ -23,11 +41,11 @@ public class FillColorHex {
             Color color =  cellStyle.getFillForegroundColorColor();
             if (color instanceof XSSFColor) {
                 XSSFColor xssfColor = (XSSFColor)color;
-                byte[] argb = xssfColor.getARgb();
+                byte[] argb = xssfColor.getARGB();
                 fillColorString = "[" + (argb[0]&0xFF) + ", " + (argb[1]&0xFF) + ", " + (argb[2]&0xFF) + ", " + (argb[3]&0xFF) + "]";
                 if (xssfColor.getTint() != 0) {
                     fillColorString += " * " + xssfColor.getTint();
-                    byte[] rgb = xssfColor.getRgbWithTint();
+                    byte[] rgb = xssfColor.getRGBWithTint();
                     fillColorString += " = [" + (argb[0]&0xFF) + ", " + (rgb[0]&0xFF) + ", " + (rgb[1]&0xFF) + ", " + (rgb[2]&0xFF) + "]" ;
                 }
             } else if (color instanceof HSSFColor) {
@@ -142,6 +160,29 @@ public class FillColorHex {
     }
 
     /**
+     * @return List of Cells of a sheet with grey background-color
+     */
+    public static List<Cell> getCheckCellFormatCells (Sheet sheet) throws Exception {
+        List<String> red_colors = new ArrayList<>();
+        red_colors.add("[255, 102, 102, 102]");
+        red_colors.add("[255, 128, 128, 128]");
+        red_colors.add("[255, 153, 153, 153]");
+        red_colors.add("[255, 178, 178, 178]");
+        red_colors.add("[255, 204, 204, 204]");
+        red_colors.add("[255, 221, 221, 221]");
+        red_colors.add("[255, 238, 238, 238]");
+        List <Cell> checkCellFormat = new ArrayList<>();
+        for (Row current_row : sheet) {
+            for (Cell current_cell : current_row) {
+                if (red_colors.contains(getFillColorHex(current_cell))) {
+                    checkCellFormat.add(current_cell);
+                }
+            }
+        }
+        return checkCellFormat;
+    }
+
+    /**
      * @return true, when the cell is a dropDownCell
      */
     public static boolean isDropdownCell (Sheet sheet, Cell cell) throws Exception {
@@ -173,30 +214,47 @@ public class FillColorHex {
         return calculation_help_cells.contains(cell);
     }
 
-    public static boolean isSheetUnchanged (Sheet solution, Sheet submission) throws Exception {
-        for (Row current_row_solution : solution) {
-            for (Cell current_cell_solution : current_row_solution) {
-                if (isDropdownCell(solution, current_cell_solution) != isDropdownCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
-                    return false;
-                }
-                if (isCalculationCell(solution, current_cell_solution) != isCalculationCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
-                    return false;
-                }
-                if (isValueCell(solution, current_cell_solution) != isValueCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
-                    return false;
-                }
-                if (isCalculationHelpCell(solution, current_cell_solution) != isCalculationHelpCell(submission, submission.getRow(current_cell_solution.getRowIndex()).getCell(current_cell_solution.getColumnIndex()))) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    /**
+     * @return true, when the cell is a calculationHelpCell
+     */
+    public static boolean isCheckCellFormatCell (Sheet sheet, Cell cell) throws Exception {
+        return getCheckCellFormatCells(sheet).contains(cell);
     }
 
 
+    /**
+     * @param solution workbook of the solution
+     * @param submission workbook of the submission
+     * @return true when the colors of the submission cells do not differ from the solution cells
+     */
+    public static boolean areSheetsUnchanged (XSSFWorkbook solution, XSSFWorkbook submission) {
+        try {
+            for (Sheet sheetSolution : solution) {
+                for (Row rowSolution : sheetSolution) {
+                    for (Cell cellSolution : rowSolution) {
+                        Sheet sheetSubmission = submission.getSheet(sheetSolution.getSheetName());
+                        Cell cellSubmission = sheetSubmission.getRow(cellSolution.getRowIndex()).getCell(cellSolution.getColumnIndex());
 
-
-
+                        if (isDropdownCell(sheetSolution, cellSolution) != isDropdownCell(sheetSubmission, cellSubmission)) {
+                            return false;
+                        }
+                        if (isCalculationCell(sheetSolution, cellSolution) != isCalculationCell(sheetSubmission, cellSubmission)) {
+                            return false;
+                        }
+                        if (isValueCell(sheetSolution, cellSolution) != isValueCell(sheetSubmission, cellSubmission)) {
+                            return false;
+                        }
+                        if (isCalculationHelpCell(sheetSolution, cellSolution) != isCalculationHelpCell(sheetSubmission, cellSubmission)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 
 
 

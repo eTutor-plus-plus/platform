@@ -51,9 +51,17 @@ export interface INewTaskModel {
    */
   uploadFileId?: number;
 
+  writerInstructionFileId?: number;
+
   calcSolutionFileId?: number;
 
   calcInstructionFileId?: number;
+
+  startTime?: string;
+
+  endTime?: string;
+
+  //TODO: starttime und endtime
   /**
    * The optional  task id for the dispatcher.
    */

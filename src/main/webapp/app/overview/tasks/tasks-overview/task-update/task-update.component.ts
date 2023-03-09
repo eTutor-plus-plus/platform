@@ -38,8 +38,11 @@ export class TaskUpdateComponent implements OnInit {
   public isCalcTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
+  public writerInstructionFileId = -1;
   public calcSolutionFileId = -1;
   public calcInstructionFileId = -1;
+  public startTime = null;
+  public endTime = null;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -63,6 +66,8 @@ export class TaskUpdateComponent implements OnInit {
     datalogQuery: [''],
     datalogUncheckedTerms: [''],
     maxPoints: [''],
+    startTime: [''],
+    endTime: [''],
     diagnoseLevelWeighting: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
@@ -136,6 +141,7 @@ export class TaskUpdateComponent implements OnInit {
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
+      writerInstructionFileId: this.writerInstructionFileId,
       calcSolutionFileId: this.calcSolutionFileId,
       calcInstructionFileId: this.calcInstructionFileId,
     };
@@ -188,6 +194,16 @@ export class TaskUpdateComponent implements OnInit {
     const maxPoints: string = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
+    }
+
+    const startTime: string = this.updateForm.get('startTime')!.value;
+    if (startTime) {
+      newTask.startTime = startTime;
+    }
+
+    const endTime: string = this.updateForm.get('endTime')!.value;
+    if (endTime) {
+      newTask.endTime = endTime;
     }
 
     const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
@@ -266,8 +282,11 @@ export class TaskUpdateComponent implements OnInit {
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
+        writerInstructionFileId: this.writerInstructionFileId,
         calcSolutionFileId: this.calcSolutionFileId,
         calcInstructionFileId: this.calcInstructionFileId,
+        startTime: newTask.startTime,
+        endTime: newTask.endTime,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -308,6 +327,8 @@ export class TaskUpdateComponent implements OnInit {
       const datalogQuery = value.datalogQuery;
       const datalogUncheckedTerms = value.datalogUncheckedTerms;
       const maxPoints = value.maxPoints ?? '';
+      const startTime = value.startTime ?? '';
+      const endTime = value.endTime ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
@@ -343,6 +364,8 @@ export class TaskUpdateComponent implements OnInit {
         datalogQuery,
         datalogUncheckedTerms,
         maxPoints,
+        startTime,
+        endTime,
         diagnoseLevelWeighting,
         processingTime,
         url,
@@ -358,6 +381,7 @@ export class TaskUpdateComponent implements OnInit {
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
+      this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
       this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
     }
@@ -555,6 +579,46 @@ export class TaskUpdateComponent implements OnInit {
     inputElement.select();
     document.execCommand('copy');
     inputElement.setSelectionRange(0, 0);
+  }
+
+  /**
+   * Sets the writer instruction id.
+   *
+   * @param fileId the file to add
+   */
+  public handleWriterInstructionFileAdded(fileId: number): void {
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        this.writerInstructionFileId = fileId;
+      } else {
+        this.writerInstructionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Removes the writer instruction file.
+   *
+   * @param fileId the file to remove
+   */
+  public handleWriterInstructionFileRemoved(fileId: number): void {
+    this.writerInstructionFileId = -1;
+  }
+
+  /**
+   * Sets a modified  writer instruction file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleWriterInstructionFileMoved(oldFileId: number, newFileId: number): void {
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.writerInstructionFileId = newFileId;
+      } else {
+        this.writerInstructionFileId = -2;
+      }
+    });
   }
 
   /**

@@ -1,178 +1,109 @@
 package at.jku.dke.etutor.calc.applications;
 
-import at.jku.dke.etutor.calc.functions.*;
-import org.apache.jena.base.Sys;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import at.jku.dke.etutor.calc.functions.RandomInstructionImplementation;
+import at.jku.dke.etutor.calc.models.RandomInstruction;
+import at.jku.dke.etutor.calc.service.CorrectionService;
+import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.io.FileOutputStream;
 
 public class CalcCorrectionApplication {
 
-    private static final String INSTRUCTION = "src/main/resources/calc/instruction_n.xlsx";
-    private static final String INSTRUCTION_K11827238 = "src/main/resources/calc/instruction_K11827238.xlsx";
-    private static final String SUBMISSION_K11827238 = "src/main/resources/calc/submission_K11827238.xlsx";
-    private static final String SOLUTION = "src/main/resources/calc/solution_n.xlsx";
-    private static final String COLORS = "src/main/resources/calc/colors.xlsx";
+    private static final String INSTRUCTION_WRITER = "src/main/resources/Prototype/AngabeVerkaufszahlen.docx";
+    private static final String SOLUTION_CALC = "src/main/resources/Prototype/LösungVerkaufszahlen.xlsx";
+    private static final String INSTRUCTION_CALC = "src/main/resources/Prototype/AngabeVerkaufszahlen.xlsx";
+
+    private static final String ANGABE  = "src/main/resources/Prototype/AngabeVerkaufszahlen.docx";
+////    private static final String INSTRUCTION  = "src/main/resources/calc/C1_AngabeGesamtSS21.xlsx";
+////    private static final String SOLUTION  = "src/main/resources/calc/C1_MusterlösungSS21.xlsx";
+//    private static final String SOLUTION  = "src/main/resources/calc/randomSolution.xlsx";
+//    private static final String INSTRUCTION  = "src/main/resources/calc/randomInstruction.xlsx";
+
+    private static final String SOLUTION  = "src/main/resources/Prototype/LösungVerkaufszahlen.xlsx";
+    private static final String INSTRUCTION  = "src/main/resources/Prototype/AngabeVerkaufszahlen.xlsx";
+
 
     public static void main(String[] args) throws Exception {
 
-        FileInputStream excelFile_instruction = new FileInputStream(new File(COLORS));
-        XSSFWorkbook workbook_instruction = new XSSFWorkbook(excelFile_instruction);
+        FileInputStream solutionCalc = new FileInputStream(new File(SOLUTION_CALC));
+        XSSFWorkbook workbook_solutionCalc = new XSSFWorkbook(solutionCalc);
 
-        Sheet sheet = workbook_instruction.getSheetAt(0);
+        FileInputStream submissionCalc = new FileInputStream(new File(INSTRUCTION_CALC));
+        XSSFWorkbook workbook_submissionCalc = new XSSFWorkbook(submissionCalc);
 
-        for (Row row: sheet) {
-            for (Cell cell : row) {
-                System.out.println(FillColorHex.getFillColorHex(cell));
-                System.out.println(FillColorHex.isCalculationHelpCell(sheet,cell));
-            }
-        }
+        FileInputStream instructionWriter = new FileInputStream(new File(INSTRUCTION_WRITER));
+        XWPFDocument document_instructionWriter = new XWPFDocument(instructionWriter);
 
-        // How to create a random Instruction
+        CorrectionService.createInstruction(document_instructionWriter, workbook_submissionCalc, workbook_solutionCalc, "asdf" );
 
-//        CreateRandomInstruction.createRandomInstruction(workbook_instruction, "src/main/resources/calc/instruction_K11827238_new.xlsx");
-
-//        runCorrection(INSTRUCTION_K11827238,SOLUTION,SUBMISSION_K11827238);
-//        FileInputStream excelFile_instruction = new FileInputStream(new File(INSTRUCTION_K11827238));
-//        XSSFWorkbook workbook_instruction = new XSSFWorkbook(excelFile_instruction);
+//        FileInputStream solutionCalc = new FileInputStream(new File(SOLUTION));
+//        XSSFWorkbook workbook_solutionCalc = new XSSFWorkbook(solutionCalc);
 //
-//        FileInputStream excelFile_solution = new FileInputStream(new File(SOLUTION));
-//        XSSFWorkbook workbook_solution = new XSSFWorkbook(excelFile_solution);
+//        FileInputStream submissionCalc = new FileInputStream(new File(INSTRUCTION));
+//        XSSFWorkbook workbook_submissionCalc = new XSSFWorkbook(submissionCalc);
+
+//        System.out.println(CorrectionService.runCorrection(document_instructionWriter, workbook_solutionCalc, workbook_submissionCalc).getTextualFeedback());
+////
+////
+////
+        FileInputStream angabe = new FileInputStream(new File(ANGABE));
+        XWPFDocument document_angabe = new XWPFDocument(angabe);
 //
-//        FileInputStream excelFile_submission = new FileInputStream(new File(SUBMISSION_K11827238));
-//        XSSFWorkbook workbook_submission = new XSSFWorkbook(excelFile_submission);
-//        System.out.println(correctTask(workbook_instruction, workbook_solution, workbook_submission));
+////        System.out.println(RandomInstructionImplementation.pickRandomOptions(RandomInstructionImplementation.readPossibleParametersOfInstructionWriter(document_angabe), RandomInstructionImplementation.pickRandomSheet(RandomInstructionImplementation.readPossibleSheetOptionsOfInstructionWriter(document_angabe))));
+//
+//        RandomInstruction randomInstruction = RandomInstructionImplementation.createRandomInstruction(document_angabe, workbook_instructionCalc, workbook_solutionCalc, "asdf");
+//
+//
+
+//        System.out.println(CalcCorrection.runCorrection());
+
+//        System.out.println(CorrectionConfig.runCorrection(workbook_solutionCalc, workbook_instructionCalc));
+        //TODO: how to use the new randomisation
+
+//        FileInputStream instruction = new FileInputStream(new File(INSTRUCTION));
+//        XSSFWorkbook workbook_instruction = new XSSFWorkbook(instruction);
+//
+//
+//
+//        FileInputStream solution = new FileInputStream(new File(SOLUTION));
+//        XSSFWorkbook workbook_solution1 = new XSSFWorkbook(solution);
+//
+//        RandomInstruction randomInstruction = RandomInstructionImplementation.createRandomInstruction(document_angabe, workbook_submissionCalc, workbook_solutionCalc, "K11827238");
+//
+////        System.out.println(CalcCorrection.correctTask(document_instructionWriter, workbook_solutionCalc, workbook_submissionCalc));
+////        System.out.println(CalculationCorrection.correctFormulasUse(workbook_solutionCalc, workbook_submissionCalc));
+//
+//
+//
+//        FileOutputStream out = new FileOutputStream("src/main/resources/instructions/instructionWriterNew.docx");
+//        randomInstruction.getInstructionWriter().write(out);
+//        out.close();
+//
+//        FileOutputStream outputStreamInstruction = new FileOutputStream("src/main/resources/instructions/instructionCalcNew.xlsx");
+//        randomInstruction.getInstructionCalc().write(outputStreamInstruction);
+//        outputStreamInstruction.close();
+//
+//
+//        FileOutputStream outputStreamSolution = new FileOutputStream("src/main/resources/instructions/solutionCalcNew.xlsx");
+//        randomInstruction.getSolutionCalc().write(outputStreamSolution);
+//        outputStreamSolution.close();
 
 
-    }
-
-    /**
-     * @param instruction Path of the created instruction of a student (submission should have the same source)
-     * @param solution Path of the solution
-     * @param submission Path of the submission of a studend (source should be identical to the instruction file)
-     *                   Method Description:
-     *                   Prints the error code of every sheet in the submission workbook
-     */
-    public static void runCorrection (String instruction, String solution, String submission) throws Exception {
-
-        FileInputStream excelFile_instruction = new FileInputStream(new File(instruction));
-        XSSFWorkbook workbook_instruction = new XSSFWorkbook(excelFile_instruction);
-
-        FileInputStream excelFile_solution = new FileInputStream(new File(solution));
-        XSSFWorkbook workbook_solution = new XSSFWorkbook(excelFile_solution);
-
-        FileInputStream excelFile_submission = new FileInputStream(new File(submission));
-        XSSFWorkbook workbook_submission = new XSSFWorkbook(excelFile_submission);
-
-        List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overriteWorkbooks(workbook_instruction,workbook_solution,workbook_submission);
-
-
-        // TODO: iterates through all sheets except the first sheet because it is the source
-        int sheet_counter = 1;
-
-        while (sheet_counter < workbook_solution.getNumberOfSheets()) {
-
-            try {
-
-
-                if (!FillColorHex.isSheetUnchanged(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter))) {
-                    System.out.println(workbook_solution.getSheetName(sheet_counter) + ": " + "Your submission has syntax errors. Please do not change the colors of the cells!");
-                } else {
-
-                    String correctDropDown = CorrectDropDown.correctDropDown(xssfWorkbookList.get(0), xssfWorkbookList.get(1), xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-                    boolean correctCalculation = CorrectCalculations.isCorrectCalculated(xssfWorkbookList.get(0), xssfWorkbookList.get(1), xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-                    boolean correctProtected = ProtectionCheck.correctProtected(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-                    boolean correctDataValidation = DataValidation.checkDataValidation(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-                    boolean correctHidden = CorrectSheetFormat.isCorrectHidden(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-                    boolean correctFormated = CorrectSheetFormat.isCorrectFormatted(xssfWorkbookList.get(0).getSheetAt(sheet_counter), xssfWorkbookList.get(1).getSheetAt(sheet_counter));
-
-                    if (!Objects.equals(correctDropDown, "Your Dropdown and the Values are correct !")) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": " + correctDropDown);
-                    }
-
-                    if (!correctCalculation) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your calculated Values are not correct !");
-                    }
-
-                    if (!correctProtected) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your Sheet is not correct protected");
-                    }
-
-                    if (!correctDataValidation) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Plaese check your Data Validation");
-                    }
-
-                    if (!correctHidden) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your Row / Colums are not correct hidden");
-                    }
-
-                    if (!correctFormated) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + ": Your Cells are not correct formated");
-                    }
-
-                    if (Objects.equals(correctDropDown, "Your Dropdown and the Values are correct !") && correctCalculation && correctFormated && correctHidden && correctProtected && correctDataValidation) {
-                        System.out.println(workbook_solution.getSheetName(sheet_counter) + " is correct !");
-                    }
-                }
-                sheet_counter++;
-            } catch (Exception e) {
-                System.out.println(workbook_solution.getSheetName(sheet_counter) + " has Syntax Errors, please Contact the Admin of your Program!");
-                sheet_counter++;
-            }
-
-        }
+//        FileInputStream solutionCalc = new FileInputStream(new File(SOLUTION));
+//        XSSFWorkbook workbook_solutionCalc = new XSSFWorkbook(solutionCalc);
+//
+//        FileInputStream submissionCalc = new FileInputStream(new File(SUBMISSION));
+//        XSSFWorkbook workbook_submissionCalc = new XSSFWorkbook(submissionCalc);
+//
+//        System.out.println(CalculationCorrection.isCorrectCalculated(workbook_solutionCalc, workbook_submissionCalc, workbook_solutionCalc.getSheetAt(0), workbook_submissionCalc.getSheetAt(0)));
+//
+//
+//
+//
 
     }
 
-
-    /**
-     * @param instruction Workbook of the created instruction of a student (submission should have the same source)
-     * @param solution Workbook of the solution
-     * @param submission Workbook of the submission of a student (source should be identical to the instruction file)
-     *                   Method Description:
-     *                   return the error code of the first sheet in the workbook
-     */
-    public static String correctTask (XSSFWorkbook instruction, XSSFWorkbook solution, XSSFWorkbook submission) throws IOException {
-
-
-        try {
-            List<XSSFWorkbook> xssfWorkbookList = CreateRandomInstruction.overriteWorkbooks(instruction,solution,submission);
-            Sheet sheet_solution = xssfWorkbookList.get(0).getSheetAt(1);
-            Sheet sheet_submission = xssfWorkbookList.get(1).getSheetAt(1);
-
-            if (!FillColorHex.isSheetUnchanged(sheet_solution, sheet_submission)) {
-                return  "Your submission has syntax errors. Please do not change the colors of the cells!";
-            }
-            if (!Objects.equals(CorrectDropDown.correctDropDown(xssfWorkbookList.get(0), xssfWorkbookList.get(1), sheet_solution, sheet_submission),"Your Dropdown and the Values are correct !")) {
-                return CorrectDropDown.correctDropDown(xssfWorkbookList.get(0), xssfWorkbookList.get(1), sheet_solution, sheet_submission);
-            }
-            if (!CorrectCalculations.isCorrectCalculated(xssfWorkbookList.get(0), xssfWorkbookList.get(1),sheet_solution, sheet_submission )) {
-                return "Your calculated Values are not correct !";
-            }
-            if (!DataValidation.checkDataValidation(sheet_solution, sheet_submission)) {
-                return "Please check your Data Validation";
-            }
-            if (!ProtectionCheck.correctProtected(sheet_solution, sheet_submission)) {
-                return "Your Sheet is not correct protected";
-            }
-            if (!CorrectSheetFormat.isCorrectHidden(sheet_solution, sheet_submission)) {
-                return "Your Row / Columns are not correct hidden";
-            }
-            if (!CorrectSheetFormat.isCorrectFormatted(sheet_solution, sheet_submission)) {
-                return "Your Cells are not correct formated";
-            }
-            return "Congratulation! Your Submission is correct";
-
-
-        }catch (Exception e) {
-            return "Your submission has Syntax Errors, please Contact the Admin of your Program!";
-        }
-    }
 }
