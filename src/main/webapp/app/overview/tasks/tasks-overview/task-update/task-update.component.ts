@@ -9,9 +9,8 @@ import { EventManager } from 'app/core/util/event-manager.service';
 import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
-import { LecturerRunSubmissionComponent } from '../../../dispatcher/lecturer-run-submission/lecturer-run-submission.component';
-import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
 import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
+import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
 
 /**
  * Component for creating / updating tasks.
@@ -704,6 +703,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isDLQTask = false;
     this.isBpmnTask = false;
     this.isPmTask = false;
+    this.isCalcTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {

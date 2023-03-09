@@ -126,7 +126,7 @@ public class LecturerSPARQLEndpointServiceTest {
         );
 
         //TODO: change to not null
-        studentService = new StudentService(null, userService, studentRepository, fileRepository, null, rdfConnectionFactory, null);
+        studentService = new StudentService(null, userService, studentRepository, fileRepository, null, rdfConnectionFactory, null, null);
 
         sparqlEndpointService.insertScheme();
 
