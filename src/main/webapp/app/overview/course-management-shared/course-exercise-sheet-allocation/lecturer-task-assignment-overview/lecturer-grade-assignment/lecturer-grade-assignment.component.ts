@@ -45,7 +45,7 @@ export class LecturerGradeAssignmentComponent {
   public set selectedGradingInfo(value: ILecturerGradingInfo | undefined) {
     this._selectedGradingInfo = value;
 
-    if (value && value.taskTypeId === TaskAssignmentType.UploadTask.value) {
+    if (value && (value.taskTypeId === TaskAssignmentType.UploadTask.value || value.taskTypeId === TaskAssignmentType.CalcTask.value)) {
       (async () => {
         const exerciseSheetUUID = this.lecturerStudentInfoModel.exerciseSheetId.substr(
           this.lecturerStudentInfoModel.exerciseSheetId.lastIndexOf('#') + 1
@@ -182,7 +182,8 @@ export class LecturerGradeAssignmentComponent {
     return (
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.SQLTask.value ||
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.RATask.value ||
-      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.XQueryTask.value
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.XQueryTask.value ||
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.DatalogTask.value
     );
   }
   /**

@@ -395,56 +395,6 @@ public class StudentResource {
         return ResponseEntity.ok(id);
     }
 
-//    /**
-//     * Corrects a calc submission and returns feedback
-//     *
-//     * @param instructionFileId id of the instruction calc file
-//     * @param solutionFileId id of the solution calc file
-//     * @param submissionFileId if of the submission calc file
-//     * @return a string which contains the feedback of the correction
-//     */
-//    @GetMapping("{instructionFileId}/{solutionFileId}/{submissionFileId}/correct_task")
-//    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-//    public ResponseEntity<String> correctCalcTask (@PathVariable long instructionFileId, @PathVariable long solutionFileId, @PathVariable long submissionFileId) {
-//        return ResponseEntity
-//            .ok()
-//            .body(studentService.correctCalcTask(instructionFileId,solutionFileId,submissionFileId));
-//    }
-//
-//
-//    /**
-//     * @param courseInstanceUUID the course instance
-//     * @param exerciseSheetUUID the exercise sheet
-//     * @param taskNo the task number
-//     * @param matriculationNo the matriculation number
-//     * @param instructionFileId the file id of the generated instruction
-//     * @param solutionFileId the file id of the solution
-//     * @param submissionFileId the file id of the sumbission
-//     */
-//    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{instructionFileId}/{solutionFileId}/{submissionFileId}/calcTask")
-//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-//    public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-//                                                               @PathVariable int taskNo, @PathVariable String matriculationNo,
-//                                                               @PathVariable long instructionFileId, @PathVariable long solutionFileId,
-//                                                               @PathVariable long submissionFileId) {
-//        String feedback = studentService.correctCalcTask(instructionFileId, solutionFileId, submissionFileId);
-//        // TODO: call method for correction points
-//        // TODO: change setting points
-//
-//        //TODO: call method with calc object and insert data into external database
-//        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-//        String startTime = assignmentSPARQLEndpointService.getStartTimeForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-//        String endTime = assignmentSPARQLEndpointService.getEndTimeForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-//        //TODO: convert start and endtime to time format
-//        if (feedback.contains("Congratulation")) {
-//            //TODO: set only if the points are higher thant the current points
-//            //TODO: check if endtime is after current time
-//            studentService.setDispatcherPointsForAssignment(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
-//            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
-//        }
-//        return ResponseEntity.ok().build();
-//    }
-
     /**
      * Corrects a calc submission and returns feedback
      *
@@ -455,10 +405,10 @@ public class StudentResource {
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> correctCalcTaskDatabase (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                   @PathVariable int taskNo, @PathVariable String matriculationNo,
-                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
-                                                   @PathVariable long calcSubmissionFileId) {
+    public ResponseEntity<String> diagnoseAndPersistCalcTaskSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                       @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                                       @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                                       @PathVariable long calcSubmissionFileId) {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
         double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
         double achievedPoints = maxPoints;
@@ -466,7 +416,7 @@ public class StudentResource {
             achievedPoints = 0.0;
         }
 
-        StudentService.insertIntoExternalDatabase(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
+        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
 
 
         return ResponseEntity
@@ -476,7 +426,7 @@ public class StudentResource {
 
     @GetMapping("courses/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> correctCalcTask (
+    public ResponseEntity<String> diagnoseCalcTaskSubmission(
                                                    @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
                                                    @PathVariable long calcSubmissionFileId) {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
@@ -499,10 +449,10 @@ public class StudentResource {
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/submit_task")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Void> handleDispatcherPointsCalcTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                               @PathVariable int taskNo, @PathVariable String matriculationNo,
-                                                               @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
-                                                               @PathVariable long calcSubmissionFileId) {
+    public ResponseEntity<Void> processSubmittedCalcTaskSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                   @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                                   @PathVariable long calcSubmissionFileId) {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
         double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
         if (feedback.isCorrect()) {
@@ -513,7 +463,7 @@ public class StudentResource {
         if (!feedback.isCorrect()) {
             achievedPoints = 0.0;
         }
-        StudentService.insertIntoExternalDatabase(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "submit", feedback.getTextualFeedback());
+        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "submit", feedback.getTextualFeedback());
         return ResponseEntity.ok().build();
     }
 

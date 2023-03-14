@@ -25,7 +25,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public exerciseSheetAlreadyClosed = false;
   public isUploadTask = false;
   public isCalcTask = false;
-  public isDispatcherTask = true;
+  public isDispatcherTask = false;
   public isPmTask = false;
   public uploadTaskFileId = -1;
   public uploadCalcSubmissionFileId = -1;
@@ -138,7 +138,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
             .toPromise();
         }
 
-        if (this.isUploadTask) {
+        if (this.isUploadTask || this.isDispatcherTask) {
           this.uploadTaskFileId = await this.studentService
             .getFileAttachmentId(this._instance!.instanceId, this._exerciseSheetUUID, this._taskNo)
             .toPromise();

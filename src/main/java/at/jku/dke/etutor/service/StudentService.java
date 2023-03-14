@@ -683,8 +683,9 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                     }
 
                     boolean closed = solution.getLiteral("?closed").getBoolean();
+                    boolean wholeSheetClosed = solution.getLiteral("?wholeSheetClosed").getBoolean();
 
-                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened, actualCount, submissionCount, gradedCount, closed));
+                    items.add(new CourseInstanceProgressOverviewDTO(sheetId, sheetName, difficultyUri, completed, opened, actualCount, submissionCount, gradedCount, closed, wholeSheetClosed));
                 }
                 return items;
             }
@@ -2720,7 +2721,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                     // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
                     int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(id.get());
                     // store id of generated exercise in RDF in IndividualTask
-                    assignmentSPARQLEndpointService.setDispatcherTaskId(courseInstanceUrl, exerciseSheetUrl,
+                    assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
                         studentUrl, orderNo, dispatcherTaskId);
                 }catch(DispatcherRequestFailedException e){
                     //throw new DispatcherRequestFailedException(e);
@@ -2734,9 +2735,6 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
 
         if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
-
-
-//            long generated_file_id = uploadFileService.createRandomCalcFileInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(), login);
             List<Long> generatedFileIdList = uploadFileService.createRandomInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(),(long) taskAssignmentDTO.get().getCalcSolutionFileId(),(long) taskAssignmentDTO.get().getWriterInstructionFileId(), login);
 
             ParameterizedSparqlString addFileIdForCalcInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
@@ -2780,9 +2778,8 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         }
     }
 
-    public static void insertIntoExternalDatabase (String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
-
-
+    public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
+        // TODO: find out what is going on here and adjust accordingly
         try{
             Class.forName("com.mysql.jdbc.Driver");
             Connection con= DriverManager.getConnection(

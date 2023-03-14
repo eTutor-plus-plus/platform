@@ -6,7 +6,6 @@ import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
-import liquibase.pro.packaged.E;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -1063,7 +1062,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
      * @param orderNo the task no
      * @param id the dispatcher id
      */
-    public void setDispatcherTaskId(String courseInstanceUrl, String exerciseSheetUrl, String studentUrl, int orderNo,  int id) {
+    public void setDispatcherIdForIndividualTask(String courseInstanceUrl, String exerciseSheetUrl, String studentUrl, int orderNo, int id) {
         Objects.requireNonNull(courseInstanceUrl);
         Objects.requireNonNull(exerciseSheetUrl);
         Objects.requireNonNull(studentUrl);

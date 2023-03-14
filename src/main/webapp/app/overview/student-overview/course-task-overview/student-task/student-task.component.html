@@ -99,7 +99,7 @@
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
       (fileModified)="handleFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted"
+      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
     >
     </jhi-file-upload>
     <jhi-file-upload
@@ -108,7 +108,7 @@
       (fileAdded)="handleCalcFileAddedAsync($event)"
       (fileRemoved)="handleCalcFileRemovedAsync($event)"
       (fileModified)="handleCalcFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted"
+      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
     >
     </jhi-file-upload>
     <div *ngIf="uploadCalcSubmissionFileId == -2">

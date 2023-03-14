@@ -95,7 +95,7 @@ export class CourseTaskOverviewComponent implements OnInit {
 
     if (!item.opened) {
       this.studentService.openExerciseSheet(this.instance!.instanceId, exerciseSheetUUID).subscribe(() => {
-        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
       });
     } else {
       if (item.submissionCount === item.gradedCount && item.submissionCount > 0 && item.actualCount === item.submissionCount) {
@@ -109,10 +109,10 @@ export class CourseTaskOverviewComponent implements OnInit {
               item.closed = true;
             }
           }
-          this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+          this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
         })();
       } else {
-        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
       }
     }
   }

@@ -17,7 +17,7 @@ public class CourseInstanceProgressOverviewDTO {
     private int submissionCount;
     private int gradedCount;
     private boolean closed;
-
+    private boolean wholeSheetClosed;
     /**
      * Constructor.
      */
@@ -36,10 +36,11 @@ public class CourseInstanceProgressOverviewDTO {
      * @param actualCount      the number of actual tasks
      * @param submissionCount  the number of submitted tasks
      * @param gradedCount      the number of graded tasks
-     * @param closed           indicates whether the exercise sheet has already been closed
+     * @param closed           indicates whether the individual assignment has already been closed
+     * @param wholeSheetClosed indicates whether the exercise sheet has already been closed
      */
     public CourseInstanceProgressOverviewDTO(String exerciseSheetId, String assignmentHeader, String difficultyURI, boolean completed, boolean opened,
-                                             int actualCount, int submissionCount, int gradedCount, boolean closed) {
+                                             int actualCount, int submissionCount, int gradedCount, boolean closed, boolean wholeSheetClosed) {
         this.exerciseSheetId = exerciseSheetId;
         this.assignmentHeader = assignmentHeader;
         this.difficultyURI = difficultyURI;
@@ -49,6 +50,7 @@ public class CourseInstanceProgressOverviewDTO {
         this.submissionCount = submissionCount;
         this.gradedCount = gradedCount;
         this.closed = closed;
+        this.wholeSheetClosed = wholeSheetClosed;
     }
 
     /**
@@ -211,5 +213,13 @@ public class CourseInstanceProgressOverviewDTO {
      */
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public boolean isWholeSheetClosed() {
+        return wholeSheetClosed;
+    }
+
+    public void setWholeSheetClosed(boolean wholeSheetClosed) {
+        this.wholeSheetClosed = wholeSheetClosed;
     }
 }
