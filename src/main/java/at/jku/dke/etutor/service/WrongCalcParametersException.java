@@ -1,4 +1,6 @@
-package at.jku.dke.etutor.web.rest.errors;
+package at.jku.dke.etutor.service;
+
+import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 
 import java.io.Serial;
 

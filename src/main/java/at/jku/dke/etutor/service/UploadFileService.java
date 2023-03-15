@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.calc.functions.DecodeMultipartFile;
-import at.jku.dke.etutor.calc.functions.RandomInstructionImplementation;
 import at.jku.dke.etutor.calc.models.RandomInstruction;
 import at.jku.dke.etutor.calc.service.CorrectionService;
 import at.jku.dke.etutor.domain.FileEntity;
@@ -9,7 +8,6 @@ import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
 import at.jku.dke.etutor.service.exception.FileNotExistsException;
 import at.jku.dke.etutor.service.exception.StudentNotExistsException;
-import at.jku.dke.etutor.web.rest.errors.WrongCalcParametersException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
