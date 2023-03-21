@@ -1651,7 +1651,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
     }
 
     /**
-     * Sets the points for an individual task
+     * Sets the achieved points for an individual task
      *
      * @param courseInstanceUUID the course instance UUID
      *                           * @param exerciseSheetUUID  the exercise sheet UUID
@@ -2780,32 +2780,33 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
     public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
         // TODO: find out what is going on here and adjust accordingly
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con= DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/etutor","root","Georg221099");
-
-            String sql = " insert into calc_task_points (matriculationNo, courseInstance, exerciseSheet, taskNumber, maxPoints, achievedPoints, currentTime, submitType, feedback)"
-                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            PreparedStatement preparedStmt = con.prepareStatement(sql);
-            preparedStmt.setString(1, matriculationNo);
-            preparedStmt.setString(2, courseInstance);
-            preparedStmt.setString(3, exerciseSheet);
-            preparedStmt.setInt(4, taskNumber);
-            preparedStmt.setDouble(5, maxPoints);
-            preparedStmt.setDouble(6,  achievedPoints);
-            preparedStmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
-            preparedStmt.setString(8, submitType);
-            preparedStmt.setString(9, feedback);
-
-            preparedStmt.execute();
-
-            con.close();
-
-        }catch(Exception e) {
-            System.out.println(e);
-        }
+        // ks: commented out, as no mysql instance available
+//        try{
+//            Class.forName("com.mysql.jdbc.Driver");
+//            Connection con= DriverManager.getConnection(
+//                "jdbc:mysql://localhost:3306/etutor","root","Georg221099");
+//
+//            String sql = " insert into calc_task_points (matriculationNo, courseInstance, exerciseSheet, taskNumber, maxPoints, achievedPoints, currentTime, submitType, feedback)"
+//                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+//
+//            PreparedStatement preparedStmt = con.prepareStatement(sql);
+//            preparedStmt.setString(1, matriculationNo);
+//            preparedStmt.setString(2, courseInstance);
+//            preparedStmt.setString(3, exerciseSheet);
+//            preparedStmt.setInt(4, taskNumber);
+//            preparedStmt.setDouble(5, maxPoints);
+//            preparedStmt.setDouble(6,  achievedPoints);
+//            preparedStmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+//            preparedStmt.setString(8, submitType);
+//            preparedStmt.setString(9, feedback);
+//
+//            preparedStmt.execute();
+//
+//            con.close();
+//
+//        }catch(Exception e) {
+//            System.out.println(e);
+//        }
     }
     //endregion
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * REST controller for managing students.
@@ -410,14 +411,12 @@ public class StudentResource {
                                                                        @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
                                                                        @PathVariable long calcSubmissionFileId) {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
-        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-        double achievedPoints = maxPoints;
-        if (!feedback.isCorrect()) {
-            achievedPoints = 0.0;
-        }
-
-        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
-
+//        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+//        double achievedPoints = maxPoints;
+//        if (!feedback.isCorrect()) {
+//            achievedPoints = 0.0;
+//        }
+        //StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
 
         return ResponseEntity
             .ok()
@@ -454,16 +453,17 @@ public class StudentResource {
                                                                    @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
                                                                    @PathVariable long calcSubmissionFileId) {
         Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
-        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
-        if (feedback.isCorrect()) {
-            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints);
+        AtomicReference<Double> maxPoints = new AtomicReference<>(0.0);
+        assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).ifPresent(points -> maxPoints.set((double)points));
+        if (feedback.isCorrect()){
+            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints.get());
             studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         }
-        double achievedPoints = maxPoints;
+        double achievedPoints = maxPoints.get();
         if (!feedback.isCorrect()) {
             achievedPoints = 0.0;
         }
-        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "submit", feedback.getTextualFeedback());
+        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints.get(), achievedPoints, "submit", feedback.getTextualFeedback());
         return ResponseEntity.ok().build();
     }
 

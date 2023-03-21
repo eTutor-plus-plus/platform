@@ -362,7 +362,7 @@ public class DispatcherProxyService {
     public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
-        if (!isDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
+        if (notIsDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
 
         if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) {
             handleBPMNTaskCreation(newTaskAssignmentDTO);
@@ -544,17 +544,15 @@ public class DispatcherProxyService {
      * @throws WrongCalcParametersException if the files of the calc task are correct
      */
     private void handleCalcTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws WrongCalcParametersException {
-
         if (!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) return;
 
-
-            FileEntity calcInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcInstructionFileId());
-            FileEntity calcSolutionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcSolutionFileId());
-            FileEntity writerInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getWriterInstructionFileId());
-            InputStream calcInstructionStream = new ByteArrayInputStream(calcInstructionFile.getContent());
-            InputStream calcSolutionStream = new ByteArrayInputStream(calcSolutionFile.getContent());
-            InputStream writerInstructionStream = new ByteArrayInputStream(writerInstructionFile.getContent());
-            System.out.println();
+        FileEntity calcInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcInstructionFileId());
+        FileEntity calcSolutionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcSolutionFileId());
+        FileEntity writerInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getWriterInstructionFileId());
+        InputStream calcInstructionStream = new ByteArrayInputStream(calcInstructionFile.getContent());
+        InputStream calcSolutionStream = new ByteArrayInputStream(calcSolutionFile.getContent());
+        InputStream writerInstructionStream = new ByteArrayInputStream(writerInstructionFile.getContent());
+        System.out.println();
 
         try {
             System.out.println();
@@ -823,10 +821,10 @@ public class DispatcherProxyService {
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
         Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
-        if(!isDispatcherTaskAssignment(taskAssignmentDTO)) return;
+        if(notIsDispatcherTaskAssignment(taskAssignmentDTO)) return;
 
 
-        if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher())) {
+        if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher()) && !taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
             throw new MissingParameterException();
         }
 
@@ -861,6 +859,12 @@ public class DispatcherProxyService {
             }else{
                 throw new MissingParameterException();
             }
+        }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
+            try{
+                handleCalcTaskCreation(taskAssignmentDTO);
+            }catch (WrongCalcParametersException e) {
+                throw new MissingParameterException();
+            }
         }
     }
 
@@ -869,16 +873,15 @@ public class DispatcherProxyService {
      * @param taskAssignmentDTO the task assignment
      * @return boolean indicating type
      */
-    private boolean isDispatcherTaskAssignment(NewTaskAssignmentDTO taskAssignmentDTO) {
+    private boolean notIsDispatcherTaskAssignment(NewTaskAssignmentDTO taskAssignmentDTO) {
         String type = taskAssignmentDTO.getTaskAssignmentTypeId();
-        return type.equals(ETutorVocabulary.SQLTask.toString()) ||
-            type.equals(ETutorVocabulary.DatalogTask.toString()) ||
-            type.equals(ETutorVocabulary.RATask.toString()) ||
-            type.equals(ETutorVocabulary.XQueryTask.toString())||
-            type.equals(ETutorVocabulary.BpmnTask.toString()) ||
-            type.equals(ETutorVocabulary.PmTask.toString()) ||
-            type.equals(ETutorVocabulary.XQueryTask.toString()) ||
-            type.equals(ETutorVocabulary.CalcTask.toString());
+        return !type.equals(ETutorVocabulary.SQLTask.toString()) &&
+            !type.equals(ETutorVocabulary.DatalogTask.toString()) &&
+            !type.equals(ETutorVocabulary.RATask.toString()) &&
+            !type.equals(ETutorVocabulary.XQueryTask.toString()) &&
+            !type.equals(ETutorVocabulary.BpmnTask.toString()) &&
+            !type.equals(ETutorVocabulary.PmTask.toString()) &&
+            !type.equals(ETutorVocabulary.CalcTask.toString());
     }
 
 
@@ -962,7 +965,7 @@ public class DispatcherProxyService {
      */
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
-        if(!isDispatcherTaskAssignment(taskAssignmentDTO) || taskAssignmentDTO.getTaskIdForDispatcher() == null) return;
+        if(notIsDispatcherTaskAssignment(taskAssignmentDTO) || taskAssignmentDTO.getTaskIdForDispatcher() == null) return;
 
         // Parse the id of the task
         int id = -1;
