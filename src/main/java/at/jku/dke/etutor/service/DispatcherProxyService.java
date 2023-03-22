@@ -21,6 +21,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
+import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
