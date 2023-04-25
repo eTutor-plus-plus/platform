@@ -188,6 +188,5 @@ application:
     xqueryXmlFileUrlPrefix: /XML?id=
     sqlTableUrlPrefix: /sql-tables/
     datalogFactsUrlPrefix: /datalog-facts/
----
-apriori:
-  baseUrl: http://localhost:8085
+  apriori:
+    baseUrl: test

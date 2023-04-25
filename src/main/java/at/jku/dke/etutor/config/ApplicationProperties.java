@@ -13,7 +13,7 @@ public class ApplicationProperties {
 
     private final Fuseki fuseki = new Fuseki();
     private final Dispatcher dispatcher = new Dispatcher();
-    
+
     private final Apriori apriori = new Apriori();
 
     /**
@@ -32,6 +32,10 @@ public class ApplicationProperties {
      */
     public Dispatcher getDispatcher() {
         return dispatcher;
+    }
+
+    public Apriori getApriori() {
+        return apriori;
     }
 
     /**
@@ -60,6 +64,17 @@ public class ApplicationProperties {
         }
     }
 
+    public static class Apriori {
+        private String baseUrl;
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+    }
     /**
      * Configuration class for the dispatcher connection
      */
@@ -70,8 +85,8 @@ public class ApplicationProperties {
         private String datalogFactsUrlPrefix;
 
         private String baseUrl;
-        
-        
+
+
         public String getBaseUrl() {
 			return baseUrl;
 		}
@@ -121,30 +136,5 @@ public class ApplicationProperties {
         public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
             this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
         }
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    public static class Apriori{
-    	
-    	private String baseUrl="http://localhost:8085";
-
-		public String getBaseUrl() {
-			return baseUrl;
-		}
-
-		public void setBaseUrl(String baseUrl) {
-			this.baseUrl = baseUrl;
-		}
-    	
-    	
-    	
-    	
-    	
     }
 }
