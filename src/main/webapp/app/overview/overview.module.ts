@@ -16,6 +16,12 @@ import { CourseInstanceStatisticsOverviewComponent } from './lecturer-overview/c
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { StudentExerciseSheetGoalsComponent } from './student-overview/course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 
+/* apriori start */
+
+import { StudentAprioriTaskComponent } from './student-overview/student-apriori-task/student-apriori-task.component';
+
+/* apriori end */
+
 /**
  * Module for the overview component.
  */
@@ -38,6 +44,12 @@ import { StudentExerciseSheetGoalsComponent } from './student-overview/course-ta
     LecturerOverviewComponent,
     CourseInstanceStatisticsOverviewComponent,
     StudentExerciseSheetGoalsComponent,
+
+    /* apriori start */
+
+    StudentAprioriTaskComponent,
+
+    /* apriori end */
   ],
 })
 export class OverviewModule {}

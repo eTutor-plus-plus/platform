@@ -19,6 +19,10 @@ import { ITaskGroupDTO } from '../../../tasks/tasks-overview/task-group-manageme
   styleUrls: ['./student-task.component.scss'],
 })
 export class StudentTaskComponent implements OnInit, OnDestroy {
+  // apriori start data for apriori child element
+  courseInstance: string;
+  difficultyTask: string | undefined;
+  // apriori end
   public isSaving = false;
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
@@ -36,7 +40,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public taskGroup: ITaskGroupDTO | undefined;
   public uploadFileId = -1;
 
-  private readonly _instance?: ICourseInstanceInformationDTO;
+  public readonly _instance?: ICourseInstanceInformationDTO;
+
   private _paramMapSubscription?: Subscription;
   private _exerciseSheetUUID = '';
   private _taskUUID = '';
@@ -69,6 +74,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/']);
     }
+
+    // apriori start data for apriori child element
+    this.courseInstance = this._instance!.instanceId;
+    this.difficultyTask = this.taskModel?.taskDifficultyId;
+    // apriori end
   }
 
   /**
@@ -90,6 +100,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value;
+        /** apriori start aprioriDatasetId 
+          ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value
+          
+             apriori end */
 
         if (this.isDispatcherTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;

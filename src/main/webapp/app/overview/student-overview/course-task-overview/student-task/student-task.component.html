@@ -69,20 +69,49 @@
       [disabled]="isSubmitted"
     >
     </jhi-file-upload>
-    <button
-      *ngIf="!isDispatcherTask"
-      type="button"
-      class="btn btn-primary"
-      style="margin-top: 10px"
-      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
-      (click)="markTaskAsSubmittedAsync()"
-    >
-      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
-      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
-        >Submit</span
+
+    <!-- apriori start -->
+
+    <div *ngIf="taskModel?.taskAssignmentTypeId === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask'; else normal">
+      <jhi-apriori-student-task [courseInstance]="courseInstance" [taskDifficultyId]="taskModel?.taskDifficultyId">
+      </jhi-apriori-student-task>
+      <!-- apriori start-->
+      <button
+        *ngIf="!isDispatcherTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+        (click)="markTaskAsSubmittedAsync()"
       >
-      <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
-    </button>
-    <br />
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+          >Submit Apriori</span
+        >
+        <span *ngIf="isSubmitted">Apriori Submitted</span>
+      </button>
+      <br /><br /><br /><br /><br /><br /><br /><br />
+    </div>
+
+    <ng-template #normal>
+      <!-- template for apriori; buttons original -->
+      <button
+        *ngIf="!isDispatcherTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+        (click)="markTaskAsSubmittedAsync()"
+      >
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+          >Submit</span
+        >
+        <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
+      </button>
+      <br />
+    </ng-template>
+
+    <!-- apriori end -->
   </div>
 </div>

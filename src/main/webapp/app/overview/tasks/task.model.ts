@@ -110,6 +110,14 @@ export interface INewTaskModel {
    * The optional task group id.
    */
   taskGroupId?: string;
+
+  /** apriori start */
+  /**
+   *	Optional dataset id for apriori
+   */
+  aprioriDatasetId?: string;
+
+  /** apriori start */
 }
 
 /**
@@ -173,6 +181,15 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.dlgTask'
   );
 
+  /** start apriori   */
+
+  public static readonly AprioriTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask',
+    'taskManagement.taskTypes.aprioriTask'
+  );
+
+  /** end apriori   */
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -180,6 +197,12 @@ export class TaskAssignmentType {
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,
+
+    /** start apriori   */
+
+    TaskAssignmentType.AprioriTask,
+
+    /** end apriori   */
   ];
 
   private readonly _value: string;

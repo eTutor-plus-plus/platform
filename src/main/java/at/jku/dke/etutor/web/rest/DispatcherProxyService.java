@@ -326,9 +326,92 @@ public class DispatcherProxyService {
         } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
             handleDLGTaskCreation(newTaskAssignmentDTO);
         }
+        
+/** start apriori   */     
+        else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.AprioriTask.toString())){
+        	handleAprioriTaskCreation(newTaskAssignmentDTO);
+
+        }
+
+/** apriori end */
+        
         return newTaskAssignmentDTO;
     }
 
+
+/** start apriori   */      
+    /**
+     * Handles creation of an Apriori-Task
+     * @param newTaskAssignmentDTO the task assignment
+     * @throws DispatcherRequestFailedException if an error is returned by the dispatcher
+     * @throws NotAValidTaskGroupException if the task group type does not match the task type
+     * @throws MissingParameterException if not enough parameters have been provided to create the task
+     */
+    private void handleAprioriTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.AprioriTask.toString())) return;
+
+        // Check wheter we are creating a new task or referencing an existing task in the dispatcher
+        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getAprioriDatasetId())) {
+            // Fetch group to compare type
+            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
+            if (group.isPresent()) {
+                if (!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.AprioriTypeTaskGroup.toString()))
+                    throw new NotAValidTaskGroupException();
+            }
+
+            // Create task
+            int id = this.createAprioriTask(newTaskAssignmentDTO);
+
+            // Set disptacher id of task
+            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+        } else if (newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Reference of existing task
+            // Fetch id
+            String id = fetchAprioriDatasetId(newTaskAssignmentDTO.getTaskIdForDispatcher());
+            // Set id
+            newTaskAssignmentDTO.setAprioriDatasetId(id);
+        } else {
+            throw new MissingParameterException();
+        }
+    }    
+   
+    /**
+     * Creates an Apriori exercise
+     *
+     * @param newTaskAssignmentDTO the new task assignment
+     * @return the id of the created exercise
+     */
+    private int createAprioriTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+
+
+        // Get id  required by the dispatcher to create the task
+        String id = newTaskAssignmentDTO.getAprioriDatasetId();
+
+
+        // Proxy request to dispatcher
+        var response = proxyResource.createAprioriExercise(id);
+
+        // Return dispatcher-id of the exercise
+        return response.getBody() != null ? Integer.parseInt(response.getBody()) : -1;
+    }   
+    
+    
+    /**
+     * Returns the id for a given Apriori-exercise-id
+     *
+     * @param taskIdForDispatcher the id
+     * @return the id
+     */
+    private String fetchAprioriDatasetId(String taskIdForDispatcher) throws DispatcherRequestFailedException {
+        return proxyResource.getAprioriDatasetId(Integer.parseInt(taskIdForDispatcher)).getBody();
+
+    }
+    
+    
+    
+/** apriori end */    
+    
+    
+    
     /**
      * Handles creation of a datalog task
      * @param newTaskAssignmentDTO the task assignment

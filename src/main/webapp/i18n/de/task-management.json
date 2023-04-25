@@ -17,6 +17,16 @@
     "xqueryXMLInfo": "Die XMLs können nur auf Ebene der Aufgabengruppen definiert, und über die Auswahl am Ende des Formulars zugeordnet werden.",
     "xqFileUrlInfo": "Die URL kann in der doc()-Funktion der Query verwendet werden, um die XML's der Aufgabengruppe zu referenzieren.",
     "fileUploadInfo": "Die hinterlegte Datei kann bei der Aufgabenbearbeitung heruntergeladen werden",
+
+    "datasetInfo": "Wenn sie ein neues Data set oder eine neue Aufgbenkonfiguration erstellen  möchten oder eine vorhandene Aufgabenkonfiguration verwenden möchten, drücken sie bitte die entsprechenden Schaltflächen. Die ID der Aufganebkonfiguration muss aus der Apriori-Extension in das entsprechnde Eingabefeld kopiert werden.",
+
+    "textAprioriLinks": {
+      "create": "Neuen Apriori-Datensatz erzeugen",
+      "stored": "vorhandenen Apriori-Datensatz auswählen",
+      "alternative": "tragen sie eine vorhandene ID manuell ein (UUID)",
+      "or": " oder "
+    },
+
     "difficulties": {
       "easy": "Leicht",
       "medium": "Mittel",
@@ -29,7 +39,9 @@
       "sqlTask": "SQL Aufgabe",
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
-      "dlgTask": "Datalog Aufgabe"
+      "dlgTask": "Datalog Aufgabe",
+
+      "aprioriTask": "Apriori Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -59,7 +71,11 @@
       "datalogSolution": "Datalog Lösung:",
       "datalogQuery": "Datalog Query:",
       "datalogFacts": "Datalog Fakten:",
-      "datalogUncheckedTerms": "Datalog Terms"
+      "datalogUncheckedTerms": "Datalog Terms",
+      "datasetApriori": "Apriori Aufgabenkonfigurations ID: ",
+      "create": "Aufgabenkonfiguration erzeugen",
+      "load": "Bestehende Aufgabenkonfiguration laden",
+      "taskIdApriori": "Bitte kopieren sie die Task Configuration ID aus der Extension und fügens es in das Feld ein"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
@@ -114,7 +130,8 @@
           "noType": "Kein Typ",
           "sqlType": "SQL Gruppe",
           "xQueryType": "XQuery Gruppe",
-          "datalogType": "Datalog Gruppe"
+          "datalogType": "Datalog Gruppe",
+          "aprioriType": "Apriori Gruppe"
         }
       }
     }

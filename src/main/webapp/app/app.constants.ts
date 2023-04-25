@@ -9,3 +9,12 @@ declare const __SERVER_API_URL__: string;
 export const VERSION = __VERSION__;
 export const DEBUG_INFO_ENABLED = __DEBUG_INFO_ENABLED__;
 export const SERVER_API_URL = __SERVER_API_URL__;
+
+export const aprioriConfig = {
+  baseUrl: 'http://localhost:8085',
+  baseExercise: '/newExercise?initalVar=',
+  baseTraining: '/initiateNewTraining?initalVar=',
+  key: '0535627058893800',
+  baseCreate: '/initialTasks?initalVar=',
+  baseStored: '/initialTables?initalVar=',
+};

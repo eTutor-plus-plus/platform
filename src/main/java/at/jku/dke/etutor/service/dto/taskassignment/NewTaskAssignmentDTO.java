@@ -35,6 +35,10 @@ public class NewTaskAssignmentDTO {
     private String datalogSolution;
     private String datalogQuery;
     private String datalogUncheckedTerms;
+    
+/** start apriori   */
+    private String aprioriDatasetId;
+/** apriori end */  
 
     private String processingTime;
 
@@ -392,4 +396,17 @@ public class NewTaskAssignmentDTO {
     public void setUploadFileId(int uploadFileId) {
         this.uploadFileId = uploadFileId;
     }
+    
+/** start apriori   */
+    
+    public String getAprioriDatasetId() {
+        return aprioriDatasetId;
+    }
+
+    public void setAprioriDatasetId(String aprioriDatasetId) {
+        this.aprioriDatasetId = aprioriDatasetId;
+    }
+    
+
+/** apriori end */  
 }

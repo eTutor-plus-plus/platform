@@ -13,6 +13,8 @@ public class ApplicationProperties {
 
     private final Fuseki fuseki = new Fuseki();
     private final Dispatcher dispatcher = new Dispatcher();
+    
+    private final Apriori apriori = new Apriori();
 
     /**
      * Getter for the field <code>fuseki</code>
@@ -67,7 +69,18 @@ public class ApplicationProperties {
         private String sqlTableUrlPrefix;
         private String datalogFactsUrlPrefix;
 
-        /**
+        private String baseUrl;
+        
+        
+        public String getBaseUrl() {
+			return baseUrl;
+		}
+
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+
+		/**
          * Returns the url for the dispatcher connection
          *
          * @return the url for the dispatcher connection
@@ -108,5 +121,30 @@ public class ApplicationProperties {
         public void setDatalogFactsUrlPrefix(String datalogFactsUrlPrefix) {
             this.datalogFactsUrlPrefix = datalogFactsUrlPrefix;
         }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    public static class Apriori{
+    	
+    	private String baseUrl="http://localhost:8085";
+
+		public String getBaseUrl() {
+			return baseUrl;
+		}
+
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+    	
+    	
+    	
+    	
+    	
     }
 }
