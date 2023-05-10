@@ -4,6 +4,12 @@
  * currently for Relational Algebra, XQuery and Datalog
  */
 import { TaskAssignmentType } from '../tasks/task.model';
+import { NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+
+export const monacoConfig: NgxMonacoEditorConfig = {
+  baseUrl: 'assets',
+  onMonacoLoad: myMonacoLoad,
+};
 
 export function myMonacoLoad(): void {
   // Register a tokens provider for the language

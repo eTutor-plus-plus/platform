@@ -35,11 +35,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { myMonacoLoad } from './overview/dispatcher/monaco-config';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
 
-const monacoConfig: NgxMonacoEditorConfig = {
-  baseUrl: 'assets',
-  onMonacoLoad: myMonacoLoad,
-};
-
 @NgModule({
   imports: [
     BrowserModule,
@@ -69,7 +64,6 @@ const monacoConfig: NgxMonacoEditorConfig = {
       },
     }),
     TranslationModule,
-    MonacoEditorModule.forRoot(monacoConfig),
   ],
   providers: [
     Title,

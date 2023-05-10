@@ -17,6 +17,8 @@ import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
 import { FilterComponent } from './filter/filter.component';
 import { TreeviewModule } from './ngx-treeview/treeview.module';
+import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+import { monacoConfig } from '../overview/dispatcher/monaco-config';
 
 @NgModule({
   imports: [
