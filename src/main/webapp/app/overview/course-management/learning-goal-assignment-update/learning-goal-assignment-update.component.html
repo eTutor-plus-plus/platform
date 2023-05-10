@@ -27,7 +27,7 @@
     <label
       (click)="handleAvailableGoalsClicked($event, item)"
       [contextMenu]="availableLearningGoalsCtxMenu"
-      [contextMenuSubject]="item"
+      [contextMenuValue]="item"
       class="bi form-check-label"
       [ngClass]="{ private: item.markedAsPrivate, selected: item.value === selectedAvailableGoal?.value }"
       >{{ item.text }}</label
@@ -63,7 +63,7 @@
     <label
       (click)="handleSelectedGoalsClicked($event, item)"
       [contextMenu]="selectedLearningGoalsCtxMenu"
-      [contextMenuSubject]="item"
+      [contextMenuValue]="item"
       class="bi form-check-label"
       [ngClass]="{ private: item.markedAsPrivate, selected: item.value === selectedSelectedGoal?.value }"
       >{{ item.text }}</label
@@ -72,12 +72,12 @@
 </ng-template>
 
 <context-menu #availableLearningGoalsCtxMenu>
-  <ng-template contextMenuItem (execute)="onSelectLearningGoal($event.item)">
+  <ng-template contextMenuItem (execute)="onSelectLearningGoal($event.value)">
     <span jhiTranslate="courseManagement.goalAssignment.selectGoal">Select learning goal</span>
   </ng-template>
 </context-menu>
 <context-menu #selectedLearningGoalsCtxMenu>
-  <ng-template contextMenuItem [enabled]="isSelectedContextMenuAllowed" (execute)="onDeselectLearningGoal($event.item)">
+  <ng-template contextMenuItem [disabled]="!isSelectedContextMenuAllowed" (execute)="onDeselectLearningGoal($event.value)">
     <span jhiTranslate="courseManagement.goalAssignment.deselectGoal">Deselect learning goal</span>
   </ng-template>
 </context-menu>

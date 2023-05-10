@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LearningGoalsService } from './learning-goals.service';
 import { LearningGoalTreeviewItem } from '../shared/learning-goal-treeview-item.model';
-import { ContextMenuComponent } from 'ngx-contextmenu';
+import { ContextMenuComponent } from '@perfectmemory/ngx-contextmenu';
 import { LearningGoalCreationComponent } from './learning-goal-creation/learning-goal-creation.component';
 import { AccountService } from 'app/core/auth/account.service';
 import { TasksService } from '../tasks/tasks.service';
 import { ITaskAssignmentDisplay } from '../tasks/task.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DependencyManagerWindowComponent } from './dependency-manager-window/dependency-manager-window.component';
-import {combineLatest, lastValueFrom} from 'rxjs';
+import { combineLatest, lastValueFrom } from 'rxjs';
 import { AlertService } from 'app/core/util/alert.service';
 import { TreeviewComponent } from '../../shared/ngx-treeview/components/treeview/treeview.component';
 import { SupergoalManagerWindowComponent } from './supergoal-manager-window/supergoal-manager-window.component';
@@ -25,7 +25,7 @@ export class LearningGoalsComponent implements OnInit {
   @ViewChild(TreeviewComponent, { static: false })
   public treeviewComponent?: TreeviewComponent;
   @ViewChild('learningGoalCtxMenu')
-  public learningGoalCtxMenu?: ContextMenuComponent;
+  public learningGoalCtxMenu?: ContextMenuComponent<any>;
   public learningGoals: LearningGoalTreeviewItem[] = [];
   public selectedLearningGoal?: LearningGoalTreeviewItem;
   public learningGoalTasks: ITaskAssignmentDisplay[] = [];
@@ -69,8 +69,9 @@ export class LearningGoalsComponent implements OnInit {
    */
   public async loadLearningGoalsAsync(): Promise<void> {
     this.learningGoals.length = 0;
-    const list = await lastValueFrom(this.learningGoalsService
-      .getAllVisibleLearningGoalsAsTreeViewItems(this.username, this.showOnlyUserGoals));
+    const list = await lastValueFrom(
+      this.learningGoalsService.getAllVisibleLearningGoalsAsTreeViewItems(this.username, this.showOnlyUserGoals)
+    );
     list.forEach(x => this.learningGoals.push(x));
   }
 

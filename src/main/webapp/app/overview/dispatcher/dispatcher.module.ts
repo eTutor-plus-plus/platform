@@ -1,6 +1,6 @@
 import { SharedModule } from 'app/shared/shared.module';
 import { NgModule } from '@angular/core';
-import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
+import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
 import { DispatcherAssignmentComponent } from 'app/overview/dispatcher/dispatcher-assignment/dispatcher-assignment.component';
 import { DispatcherAssignmentModalComponent } from './dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { SafeHtmlPipe } from './dispatcher-assignment/safe-html-pipe';
