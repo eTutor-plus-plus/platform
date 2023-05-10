@@ -23,7 +23,7 @@
           <tr *ngFor="let item of exerciseSheets; trackBy: trackIdentity">
             <td>{{ item.name }}</td>
             <td><span class="bold-span" *ngIf="isSelected(item)">X</span></td>
-            <td class="text-right">
+            <td class="text-end">
               <div class="btn-group">
                 <button [disabled]="isSelected(item)" (click)="markAsSelected(item)" class="btn btn-secondary">Zuordnen</button>
                 <button [disabled]="!isSelected(item)" (click)="openLecturerAssignmentOverview(item)" class="btn btn-info">

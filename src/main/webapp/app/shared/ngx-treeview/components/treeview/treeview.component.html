@@ -73,7 +73,7 @@
             {{ i18n.getAllCheckboxText() }}
           </label>
         </div>
-        <label *ngIf="config.hasCollapseExpand" class="float-right form-check-label" (click)="onCollapseExpand()">
+        <label *ngIf="config.hasCollapseExpand" class="float-end form-check-label" (click)="onCollapseExpand()">
           <i [title]="i18n.getTooltipCollapseExpandText(item.collapsed)" aria-hidden="true" [ngSwitch]="item.collapsed">
             <svg
               *ngSwitchCase="true"

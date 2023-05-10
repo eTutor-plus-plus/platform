@@ -16,13 +16,7 @@ import { SortByDirective } from './sort/sort-by.directive';
 import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
 import { FilterComponent } from './filter/filter.component';
-import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
 import { TreeviewModule } from './ngx-treeview/treeview.module';
-import { myMonacoLoad } from '../overview/dispatcher/monaco-config';
-
-const monacoConfig: NgxMonacoEditorConfig = {
-  onMonacoLoad: myMonacoLoad,
-};
 
 @NgModule({
   imports: [
@@ -40,7 +34,6 @@ const monacoConfig: NgxMonacoEditorConfig = {
     }),
     TreeviewModule.forRoot(),
     ContextMenuModule,
-    MonacoEditorModule.forRoot(monacoConfig),
   ],
   declarations: [
     FindLanguageFromKeyPipe,
@@ -78,7 +71,6 @@ const monacoConfig: NgxMonacoEditorConfig = {
     SortByDirective,
     SortDirective,
     ItemCountComponent,
-    MonacoEditorModule,
     FilterComponent,
   ],
 })
