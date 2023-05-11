@@ -12,10 +12,10 @@ import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercis
 import { LecturerRunSubmissionComponent } from '../../../dispatcher/lecturer-run-submission/lecturer-run-submission.component';
 
 /** apriori start */
-import { aprioriConfig } from 'app/app.constants';
 import { AccountService } from 'app/core/auth/account.service';
 import * as CryptoJS from 'crypto-js';
 import { v4 as uuid } from 'uuid';
+import { AprioriConfig } from '../../tasks.service';
 /** apriori end */
 
 /**
@@ -81,7 +81,9 @@ export class TaskUpdateComponent implements OnInit {
   });
 
   private _taskModel?: ITaskModel;
-
+  /** apriori start */    
+  private aprioriConfig!: AprioriConfig;
+  /** apriori end */
   /**
    * Constructor.
    *
@@ -134,20 +136,35 @@ export class TaskUpdateComponent implements OnInit {
     const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
     const user = String(this.accountService.getLoginName());
     const delimiter = String('[[{}]]');
-    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
-    const key = CryptoJS.enc.Utf8.parse(aprioriConfig.key);
+    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);    
+    this.getAprioriConfig();    
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
     const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
     const b64enc = btoa(ciphertext);
     const standChar = b64enc.replace('/', '-');
     return standChar;
   }
-
+  /**
+   * for retrieving apriori base link and key
+   */
+  public getAprioriConfig(): void {
+	this.tasksService.getAprioriConfig()
+		.subscribe(
+			data=>this.aprioriConfig={
+				baseUrl: (data as any).baseUrl,
+				key: (data as any).key
+			}
+		);
+  }  
+   
   /**
    * for creating link to apriori stored datasets
    */
   public getAprioriLinkTable(): void {
-    const standChar = this.initalVariableCreate();
-    const linkCreate = aprioriConfig.baseUrl + aprioriConfig.baseStored + standChar;
+   const standChar = this.initalVariableCreate();   
+   this.getAprioriConfig();
+   const baseStored = '/initialTables?initalVar=';
+   const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar; 
     window.open(linkCreate, '_blank');
   }
 
@@ -156,7 +173,9 @@ export class TaskUpdateComponent implements OnInit {
    */
   public getAprioriLink(): void {
     const standChar = this.initalVariableCreate();
-    const linkCreate = aprioriConfig.baseUrl + aprioriConfig.baseCreate + standChar;
+    this.getAprioriConfig();
+    const baseCreate = '/initialTasks?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseCreate + standChar;
     window.open(linkCreate, '_blank');
   }
   /** apriori end */
