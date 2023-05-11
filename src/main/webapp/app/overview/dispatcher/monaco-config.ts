@@ -8,10 +8,14 @@ import { NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
 
 export const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: 'assets',
+  defaultOptions: { scrollBeyondLastLine: false },
   onMonacoLoad: myMonacoLoad,
 };
 
 export function myMonacoLoad(): void {
+  console.log((window as any).monaco);
+  console.log('Hello');
+
   // Register a tokens provider for the language
   (window as any).monaco.languages.register({ id: 'datalog' });
   (window as any).monaco.languages.setMonarchTokensProvider('datalog', {
@@ -112,6 +116,7 @@ export function myMonacoLoad(): void {
 
   let keyWordColor = 'EE4B2B';
   (window as any).monaco.editor.defineTheme('datalog-light', {
+    colors: {},
     base: 'vs',
     inherit: false,
     rules: [
@@ -125,6 +130,7 @@ export function myMonacoLoad(): void {
 
   keyWordColor = '3a92bb';
   (window as any).monaco.editor.defineTheme('relationalAlgebra-light', {
+    colors: {},
     base: 'vs',
     inherit: false,
     rules: [
@@ -153,6 +159,7 @@ export function myMonacoLoad(): void {
 
   keyWordColor = 'F12F2F';
   (window as any).monaco.editor.defineTheme('xquery-light', {
+    colors: {},
     base: 'vs',
     inherit: true,
     rules: [
@@ -449,6 +456,8 @@ export function myMonacoLoad(): void {
       ],
     }),
   });
+  console.log((window as any).monaco);
+  console.log('Hello');
 }
 
 export function getEditorOptionsForTaskTypeUrl(
