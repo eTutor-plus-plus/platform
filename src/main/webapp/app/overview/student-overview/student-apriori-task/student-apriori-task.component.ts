@@ -7,7 +7,7 @@ import { StudentService } from 'app/overview/shared/students/student-service';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
 import { Subscription } from 'rxjs';
 import * as CryptoJS from 'crypto-js';
-import { aprioriConfig } from 'app/app.constants';
+import { AprioriConfig } from 'app/overview/tasks/tasks.service';
 
 /**
  * Component for displaying students' apriori task.
@@ -42,6 +42,7 @@ export class StudentAprioriTaskComponent implements OnInit {
   }
   public tas = this.taskModelA?.taskAssignmentTypeId;
   private _paramMapSubscription?: Subscription;
+  private aprioriConfig!: AprioriConfig;
 
   /**
    * Constructor.
@@ -81,11 +82,25 @@ export class StudentAprioriTaskComponent implements OnInit {
     });
     this.loginName = this.accountService.getLoginName()!;
   }
-
+  
+  /**
+   * for retrieving apriori base link and key
+   */
+	public getAprioriConfig(): void {
+		this.taskService.getAprioriConfig()
+			.subscribe(
+				data=>this.aprioriConfig={
+					baseUrl: (data as any).baseUrl,
+					key: (data as any).key
+				}
+			);
+	}  
+  
   /**
    * for creating initial parameter for exercise link
    */
-  public start(): void {
+  public start(): void {	
+	this.getAprioriConfig();	
     const maxPointsS = String(this._taskModelA?.maxPoints);
     const taskConfigIdS = String(this._taskModelA?.aprioriDatasetId);
     const taskNoS = Number(this._taskNo);
@@ -113,11 +128,12 @@ export class StudentAprioriTaskComponent implements OnInit {
         delimiter +
         taskConfigIdS
     );
-    const key = CryptoJS.enc.Utf8.parse(aprioriConfig.key);
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
     const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
     const b64enc = btoa(ciphertext);
     const standChar = b64enc.replace('/', '-');
-    const linkExercise = aprioriConfig.baseUrl + aprioriConfig.baseExercise + standChar;
+    const baseExercise = '/newExercise?initalVar=';
+    const linkExercise = this.aprioriConfig.baseUrl + baseExercise + standChar;
     window.open(linkExercise, '_blank');
   }
 
@@ -132,6 +148,7 @@ export class StudentAprioriTaskComponent implements OnInit {
    * for creating initial parameter for training link
    */
   public training(): void {
+	this.getAprioriConfig();	
     const taskConfigIdS = String(this._taskModelA?.aprioriDatasetId);
     const courseInstanceS = String(this.courseInstance);
     const exerciseSheetUUIDS = String(this._exerciseSheetUUID);
@@ -139,11 +156,12 @@ export class StudentAprioriTaskComponent implements OnInit {
     const courseIndex = courseInstanceS.indexOf('#');
     const courseInstanceMod = courseInstanceS.substring(courseIndex + 1, courseInstanceS.length);
     const linkString = String(courseInstanceMod + delimiter + exerciseSheetUUIDS + delimiter + taskConfigIdS);
-    const key = CryptoJS.enc.Utf8.parse(aprioriConfig.key);
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
     const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
     const b64enc = btoa(ciphertext);
-    const standChar = b64enc.replace('/', '-');
-    const linkTraining = aprioriConfig.baseUrl + aprioriConfig.baseTraining + standChar;
+    const standChar = b64enc.replace('/', '-');   
+    const baseTraining = '/initiateNewTraining?initalVar=';   
+    const linkTraining = this.aprioriConfig.baseUrl + baseTraining + standChar;
     window.open(linkTraining, '_blank');
   }
 
