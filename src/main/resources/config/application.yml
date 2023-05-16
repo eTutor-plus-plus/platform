@@ -189,4 +189,5 @@ application:
     sqlTableUrlPrefix: /sql-tables/
     datalogFactsUrlPrefix: /datalog-facts/
   apriori:
-    baseUrl: test
+    baseUrl: http://localhost:8086
+    key: '0535627058893800'
