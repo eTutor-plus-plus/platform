@@ -82,25 +82,25 @@ export class StudentAprioriTaskComponent implements OnInit {
     });
     this.loginName = this.accountService.getLoginName()!;
   }
-  
+
   /**
    * for retrieving apriori base link and key
    */
-	public getAprioriConfig(): void {
-		this.taskService.getAprioriConfig()
-			.subscribe(
-				data=>this.aprioriConfig={
-					baseUrl: (data as any).baseUrl,
-					key: (data as any).key
-				}
-			);
-	}  
-  
+  public getAprioriConfig(): void {
+    this.taskService.getAprioriConfig().subscribe(
+      data =>
+        (this.aprioriConfig = {
+          baseUrl: (data as any).baseUrl,
+          key: (data as any).key,
+        })
+    );
+  }
+
   /**
    * for creating initial parameter for exercise link
    */
-  public start(): void {	
-	this.getAprioriConfig();	
+  public start(): void {
+    this.getAprioriConfig();
     const maxPointsS = String(this._taskModelA?.maxPoints);
     const taskConfigIdS = String(this._taskModelA?.aprioriDatasetId);
     const taskNoS = Number(this._taskNo);
@@ -148,7 +148,7 @@ export class StudentAprioriTaskComponent implements OnInit {
    * for creating initial parameter for training link
    */
   public training(): void {
-	this.getAprioriConfig();	
+    this.getAprioriConfig();
     const taskConfigIdS = String(this._taskModelA?.aprioriDatasetId);
     const courseInstanceS = String(this.courseInstance);
     const exerciseSheetUUIDS = String(this._exerciseSheetUUID);
@@ -159,8 +159,8 @@ export class StudentAprioriTaskComponent implements OnInit {
     const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
     const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
     const b64enc = btoa(ciphertext);
-    const standChar = b64enc.replace('/', '-');   
-    const baseTraining = '/initiateNewTraining?initalVar=';   
+    const standChar = b64enc.replace('/', '-');
+    const baseTraining = '/initiateNewTraining?initalVar=';
     const linkTraining = this.aprioriConfig.baseUrl + baseTraining + standChar;
     window.open(linkTraining, '_blank');
   }

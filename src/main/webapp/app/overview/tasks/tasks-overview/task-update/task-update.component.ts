@@ -81,7 +81,7 @@ export class TaskUpdateComponent implements OnInit {
   });
 
   private _taskModel?: ITaskModel;
-  /** apriori start */    
+  /** apriori start */
   private aprioriConfig!: AprioriConfig;
   /** apriori end */
   /**
@@ -104,10 +104,8 @@ export class TaskUpdateComponent implements OnInit {
     private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService,
     /** apriori start  */
-    private accountService: AccountService
-  ) /** apriori end */
-
-  {}
+    private accountService: AccountService /** apriori end */
+  ) {}
 
   /**
    * Implements the init method. See {@link OnInit}.
@@ -136,8 +134,8 @@ export class TaskUpdateComponent implements OnInit {
     const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
     const user = String(this.accountService.getLoginName());
     const delimiter = String('[[{}]]');
-    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);    
-    this.getAprioriConfig();    
+    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
+    this.getAprioriConfig();
     const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
     const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
     const b64enc = btoa(ciphertext);
@@ -148,23 +146,23 @@ export class TaskUpdateComponent implements OnInit {
    * for retrieving apriori base link and key
    */
   public getAprioriConfig(): void {
-	this.tasksService.getAprioriConfig()
-		.subscribe(
-			data=>this.aprioriConfig={
-				baseUrl: (data as any).baseUrl,
-				key: (data as any).key
-			}
-		);
-  }  
-   
+    this.tasksService.getAprioriConfig().subscribe(
+      data =>
+        (this.aprioriConfig = {
+          baseUrl: (data as any).baseUrl,
+          key: (data as any).key,
+        })
+    );
+  }
+
   /**
    * for creating link to apriori stored datasets
    */
   public getAprioriLinkTable(): void {
-   const standChar = this.initalVariableCreate();   
-   this.getAprioriConfig();
-   const baseStored = '/initialTables?initalVar=';
-   const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar; 
+    const standChar = this.initalVariableCreate();
+    this.getAprioriConfig();
+    const baseStored = '/initialTables?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar;
     window.open(linkCreate, '_blank');
   }
 
@@ -472,15 +470,14 @@ export class TaskUpdateComponent implements OnInit {
         this.isAprioriTask = false;
         /** apriori end */
       } else if (taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value) {
-
-      /** apriori start */
+        /** apriori start */
         this.isDLQTask = false;
         this.isXQueryTask = false;
         this.isSQLTask = false;
         this.isRATask = false;
         this.isAprioriTask = true;
       } else {
-      /** apriori end */
+        /** apriori end */
         this.isRATask = true;
         this.isSQLTask = false;
         this.isXQueryTask = false;
