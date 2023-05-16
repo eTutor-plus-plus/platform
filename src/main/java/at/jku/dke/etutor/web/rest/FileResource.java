@@ -5,17 +5,13 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.UploadFileService;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
-import at.jku.dke.etutor.service.dto.taskassignment.AprioriConf;
 import at.jku.dke.etutor.web.rest.errors.EmptyFileNotAllowedException;
 import at.jku.dke.etutor.web.rest.errors.FileStorageException;
 import at.jku.dke.etutor.web.rest.errors.StudentNotExistsException;
 import com.google.common.net.UrlEscapers;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
