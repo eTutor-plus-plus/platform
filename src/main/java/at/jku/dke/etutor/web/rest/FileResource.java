@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
@@ -34,13 +35,12 @@ import java.io.IOException;
 public class FileResource {
 
 	private final UploadFileService uploadFileService;
-	
 	/** start apriori */
-	@Value("${application.apriori.baseUrl}")
-	private String aprioriUrl;
+//	@Value("${application.apriori.baseUrl}")
+	private final String aprioriUrl;
 
-	@Value("${application.apriori.key}")
-	private String aprioriKey;
+//	@Value("${application.apriori.key}")
+	private final String aprioriKey;
 	/** apriori end */
 
 	/**
@@ -48,12 +48,15 @@ public class FileResource {
 	 *
 	 * @param uploadFileService the injected upload file service
 	 */
-	public FileResource(UploadFileService uploadFileService) {
+	public FileResource(UploadFileService uploadFileService, ApplicationProperties properties) {
 		this.uploadFileService = uploadFileService;
+        this.aprioriKey = properties.getApriori().getKey();
+        this.aprioriUrl = properties.getApriori().getBaseUrl();
 	}
 
+
 	/** start apriori */
-	
+
 	/**
 	 * REST endpoint for retrieving apriori configuration
 	 * @return	ResponseEntity containing apriori configuration
