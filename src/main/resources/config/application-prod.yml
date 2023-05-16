@@ -127,3 +127,10 @@ application:
     xqueryXmlFileUrlPrefix: /XML?id=
     sqlTableUrlPrefix: /sql-tables/
     datalogFactsUrlPrefix: /datalog-facts/
+  apriori:
+    baseUrl: http://localhost:8086
+    baseExercise: /newExercise?initalVar=
+    baseTraining: /initiateNewTraining?initalVar=
+    key: 0535627058893800
+    baseCreate: /initialTasks?initalVar=
+    baseStored: /initialTables?initalVar=

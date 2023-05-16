@@ -5,13 +5,17 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.UploadFileService;
 import at.jku.dke.etutor.service.dto.FileMetaDataModelDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.AprioriConf;
 import at.jku.dke.etutor.web.rest.errors.EmptyFileNotAllowedException;
 import at.jku.dke.etutor.web.rest.errors.FileStorageException;
 import at.jku.dke.etutor.web.rest.errors.StudentNotExistsException;
 import com.google.common.net.UrlEscapers;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,16 +33,39 @@ import java.io.IOException;
 @RequestMapping("/api/files")
 public class FileResource {
 
-    private final UploadFileService uploadFileService;
+	private final UploadFileService uploadFileService;
+	
+	/** start apriori */
+	@Value("${application.apriori.baseUrl}")
+	private String aprioriUrl;
 
-    /**
-     * Constructor.
-     *
-     * @param uploadFileService the injected upload file service
-     */
-    public FileResource(UploadFileService uploadFileService) {
-        this.uploadFileService = uploadFileService;
-    }
+	@Value("${application.apriori.key}")
+	private String aprioriKey;
+	/** apriori end */
+
+	/**
+	 * Constructor.
+	 *
+	 * @param uploadFileService the injected upload file service
+	 */
+	public FileResource(UploadFileService uploadFileService) {
+		this.uploadFileService = uploadFileService;
+	}
+
+	/** start apriori */
+	
+	/**
+	 * REST endpoint for retrieving apriori configuration
+	 * @return	ResponseEntity containing apriori configuration
+	 */
+	@GetMapping(path = "/apriori", produces = { MediaType.APPLICATION_JSON_VALUE })
+	@PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR
+			+ "\")")
+	public ResponseEntity<AprioriConf> getAprioriConf() {
+		return ResponseEntity.status(HttpStatus.OK).body(new AprioriConf(aprioriUrl, aprioriKey));
+	}
+
+	/** apriori end */
 
     /**
      * REST endpoint for uploading files.

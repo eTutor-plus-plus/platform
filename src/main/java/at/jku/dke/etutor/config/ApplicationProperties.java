@@ -16,7 +16,11 @@ public class ApplicationProperties {
     
     private final Apriori apriori = new Apriori();
 
-    /**
+    public Apriori getApriori() {
+		return apriori;
+	}
+
+	/**
      * Getter for the field <code>fuseki</code>
      *
      * @return a {@link ApplicationProperties.Fuseki} object
@@ -124,27 +128,25 @@ public class ApplicationProperties {
     }
     
     
-    
-    
-    
-    
-    
-    
     public static class Apriori{
     	
     	private String baseUrl="http://localhost:8085";
-
+    	private String key;
+    	
 		public String getBaseUrl() {
 			return baseUrl;
 		}
-
 		public void setBaseUrl(String baseUrl) {
 			this.baseUrl = baseUrl;
 		}
+		public String getKey() {
+			return key;
+		}
+		public void setKey(String key) {
+			this.key = key;
+		}
     	
     	
-    	
-    	
-    	
+
     }
 }
