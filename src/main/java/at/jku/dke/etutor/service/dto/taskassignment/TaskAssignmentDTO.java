@@ -135,6 +135,11 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setCalcSolutionFileId(-1);
         }
 
+        Statement owlStatementStatement = resource.getProperty(ETutorVocabulary.hasOwlStatement);
+        if(owlStatementStatement != null){
+            setOwlStatement(owlStatementStatement.getString());
+        }
+
         Statement calcInstructionFileIdStatement = resource.getProperty(ETutorVocabulary.hasUploadCalcInstructionFileId);
         if(calcInstructionFileIdStatement != null){
             setCalcInstructionFileId(calcInstructionFileIdStatement.getInt());

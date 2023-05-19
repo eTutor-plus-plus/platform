@@ -150,6 +150,20 @@
         </small>
       </div>
     </div>
+    <div class="form-group" *ngIf="isOwlTask">
+      <label class="form-control-label" for="owlStatement"> OWL-Statement </label>
+      <input type="text" class="form-control" name="owlStatement" id="owlStatement" formControlName="owlStatement" />
+
+      <div *ngIf="updateForm.get('owlStatement')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('owlStatement')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
     <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask">
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}

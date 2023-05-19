@@ -377,8 +377,16 @@ public class DispatcherProxyService {
             handlePmTaskConfigCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
             handleCalcTaskCreation(newTaskAssignmentDTO);
+        } else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.OWLType.toString())){
+            handleOWLTaskCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
+    }
+
+    private void handleOWLTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
+        if(newTaskAssignmentDTO.getOwlStatement() == null) throw new MissingParameterException();
+        var entity = proxyResource.createOWLExercise(newTaskAssignmentDTO.getOwlStatement());
+        newTaskAssignmentDTO.setTaskIdForDispatcher(entity.getBody());
     }
 
     /**

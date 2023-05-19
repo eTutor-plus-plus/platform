@@ -73,6 +73,7 @@ public final class ETutorVocabulary {
 
     private static final String PROP_HAS_TASK_ASSIGNMENT = "hasTaskAssignment";
     private static final String PROP_HAS_TASK_CREATOR = "hasTaskCreator";
+    private static final String PROP_HAS_OWL_STATEMENT = "hasOWLStatement";
     private static final String PROP_HAS_INTERNAL_TASK_CREATOR = "hasInternalTaskCreator";
     private static final String PROP_HAS_TASK_HEADER = "hasTaskHeader";
     private static final String PROP_HAS_TASK_CREATION_DATE = "hasTaskCreationDate";
@@ -146,6 +147,8 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_OWL_TASK = "OWLTask";
+
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
@@ -301,6 +304,10 @@ public final class ETutorVocabulary {
      * The hasTaskCreator property.
      */
     public static final Property hasTaskCreator = m.createProperty(URI + PROP_HAS_TASK_CREATOR);
+    /**
+     * The hasOwlStatement property.
+     */
+    public static final Property hasOwlStatement = m.createProperty(URI + PROP_HAS_OWL_STATEMENT);
     /**
      * The hasInternalTaskCreator property.
      */
@@ -657,6 +664,10 @@ public final class ETutorVocabulary {
      * The not type task assignment type instance.
      */
     public static final Resource NoType = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_NO_TYPE);
+    /**
+     * The owl type task assignment type instance.
+     */
+    public static final Resource OWLType = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_OWL_TASK);
     /**
      * The SQL task assignment type instance.
      */

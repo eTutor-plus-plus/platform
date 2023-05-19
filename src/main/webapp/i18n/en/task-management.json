@@ -32,7 +32,8 @@
       "dlgTask": "Datalog task",
       "calcTask": "Calc task",
       "dlgTask": "Datalog task",
-      "pmTask": "ProcessMining task"
+      "pmTask": "ProcessMining task",
+      "owlTask": "OWL Task"
     },
     "fields": {
       "header": "Header:",

@@ -26,6 +26,7 @@ export interface ITaskDisplayModel {
  * Interface which represents a new task.
  */
 export interface INewTaskModel {
+  owlStatement?: string;
   /**
    * The header of the task.
    */
@@ -192,6 +193,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NoType',
     'taskManagement.taskTypes.noType'
   );
+  public static readonly OWLTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#OWLTask',
+    'taskManagement.taskTypes.owlTask'
+  );
   public static readonly UploadTask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UploadTask',
     'taskManagement.taskTypes.uploadTask'
@@ -239,6 +244,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.CalcTask,
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
+    TaskAssignmentType.OWLTask,
   ];
 
   private readonly _value: string;

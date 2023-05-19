@@ -268,6 +268,12 @@ public class DispatcherProxyResource {
         return null;
     }
 
+    public ResponseEntity<String> createOWLExercise(String owlStatement) throws DispatcherRequestFailedException {
+        HttpRequest request = null;
+        request = getPutRequestWithBody(dispatcherURL+"/owl/exercise", owlStatement);
+        return getResponseEntity(request, stringHandler);
+    }
+
     /**
      * Sends the GET-request for retrieving the solution for an SQL-exercise to the dispatcher
      * @return a ResponseEntity
@@ -749,4 +755,5 @@ public class DispatcherProxyResource {
     private String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
+
 }

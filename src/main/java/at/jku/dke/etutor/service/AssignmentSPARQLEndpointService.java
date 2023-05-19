@@ -320,6 +320,12 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                 query.append(".\n");
             }
 
+            if (StringUtils.isNotBlank(taskAssignment.getOwlStatement())) {
+                query.append("?assignment etutor:hasOWLStatement ");
+                query.appendLiteral(taskAssignment.getOwlStatement().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getSqlSolution())) {
                 query.append("?assignment etutor:hasSQLSolution ");
                 query.appendLiteral(taskAssignment.getSqlSolution().trim());
@@ -1648,6 +1654,10 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getOwlStatement())) {
+            resource.addProperty(ETutorVocabulary.hasOwlStatement, newTaskAssignmentDTO.getOwlStatement().trim());
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {

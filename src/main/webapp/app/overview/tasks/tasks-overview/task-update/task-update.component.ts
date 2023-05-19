@@ -36,6 +36,7 @@ export class TaskUpdateComponent implements OnInit {
   public isBpmnTask = false;
   public isPmTask = false; // boolean flag
   public isCalcTask = false;
+  public isOwlTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
   public writerInstructionFileId = -1;
@@ -66,6 +67,7 @@ export class TaskUpdateComponent implements OnInit {
     datalogQuery: [''],
     datalogUncheckedTerms: [''],
     maxPoints: [''],
+    owlStatement: [''],
     startTime: [''],
     endTime: [''],
     diagnoseLevelWeighting: [''],
@@ -149,6 +151,11 @@ export class TaskUpdateComponent implements OnInit {
     const urlStr: string = this.updateForm.get('url')!.value;
     if (urlStr) {
       newTask.url = new URL(urlStr);
+    }
+
+    const owlStatement: string = this.updateForm.get('owlStatement')!.value;
+    if (owlStatement) {
+      newTask.owlStatement = owlStatement;
     }
 
     const instructionStr: string = this.updateForm.get('instruction')!.value;
@@ -287,6 +294,7 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
+        owlStatement: newTask.owlStatement,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -341,6 +349,7 @@ export class TaskUpdateComponent implements OnInit {
       const maxLogSize = value.maxLogSize;
       const minLogSize = value.minLogSize;
       const configNum = value.configNum;
+      const owlStatement = value.owlStatement;
 
       if (taskIdForDispatcher) {
         this.updateForm.get('taskIdForDispatcher')!.disable();
@@ -378,6 +387,7 @@ export class TaskUpdateComponent implements OnInit {
         maxLogSize,
         minLogSize,
         configNum,
+        owlStatement,
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -452,6 +462,11 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
       this.setMaxPointsRequired();
+    } else if (taskAssignmentTypeId === TaskAssignmentType.OWLTask.value) {
+      this.isOwlTask = true;
+      this.updateForm.get('owlStatement')!.setValidators(Validators.required);
+      this.updateForm.get('owlStatement')!.updateValueAndValidity();
+      this.updateForm.updateValueAndValidity();
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
@@ -768,6 +783,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isBpmnTask = false;
     this.isPmTask = false;
     this.isCalcTask = false;
+    this.isOwlTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -777,6 +793,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    this.updateForm.get('owlStatement')!.clearValidators();
+    this.updateForm.get('owlStatement')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 

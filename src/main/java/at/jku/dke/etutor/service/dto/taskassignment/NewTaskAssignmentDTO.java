@@ -25,6 +25,7 @@ public class NewTaskAssignmentDTO {
     @NotBlank
     private String header;
 
+    private String owlStatement;
     private int uploadFileId;
     private int calcSolutionFileId; // has to match with task.model.ts
     private int calcInstructionFileId; // has to match with task.model.ts
@@ -494,5 +495,13 @@ public class NewTaskAssignmentDTO {
 
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
+    }
+
+    public String getOwlStatement() {
+        return owlStatement;
+    }
+
+    public void setOwlStatement(String owlStatement) {
+        this.owlStatement = owlStatement;
     }
 }
