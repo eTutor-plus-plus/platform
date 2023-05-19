@@ -126,7 +126,8 @@
           "noType": "Kein Typ",
           "sqlType": "SQL Gruppe",
           "xQueryType": "XQuery Gruppe",
-          "datalogType": "Datalog Gruppe"
+          "datalogType": "Datalog Gruppe",
+          "fDType": "Funktionale Abhängigkeiten"
         }
       }
     }

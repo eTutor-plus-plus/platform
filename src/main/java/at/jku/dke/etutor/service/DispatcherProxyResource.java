@@ -497,6 +497,23 @@ public class DispatcherProxyResource {
         var id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
+    public ResponseEntity<Integer> createFDExercise(FDExerciseDTO exerciseDTO) throws DispatcherRequestFailedException {
+        String url = dispatcherURL+"/fd/exercise";
+
+        HttpRequest request = null;
+        try {
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseDTO)).build();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(-1);
+        }
+        var response = getResponseEntity(request, stringHandler);
+
+        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+
+        var id = Integer.parseInt(response.getBody());
+        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+    }
 
     /**
      * Sends the request to update the parameters of an existing configuration to the dispatcher

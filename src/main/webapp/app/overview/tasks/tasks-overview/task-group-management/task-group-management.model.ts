@@ -100,8 +100,18 @@ export class TaskGroupType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#DatalogType',
     'taskManagement.taskGroup.update.types.datalogType'
   );
+  public static readonly FDType = new TaskGroupType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#FDType',
+    'taskManagement.taskGroup.update.types.fDType'
+  );
 
-  public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType, TaskGroupType.DatalogType];
+  public static readonly Values = [
+    TaskGroupType.NoType,
+    TaskGroupType.SQLType,
+    TaskGroupType.XQueryType,
+    TaskGroupType.DatalogType,
+    TaskGroupType.FDType,
+  ];
 
   private readonly _value: string;
   private readonly _text: string;

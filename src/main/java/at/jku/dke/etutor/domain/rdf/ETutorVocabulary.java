@@ -152,12 +152,13 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
-
+    private static final String INSTANCE_FD_TASK = "FDTask";
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
     private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
     private static final String INSTANCE_DATALOG_TASK_GROUP = "DatalogType";
+    private static final String INSTANCE_FD_TASK_GROUP = "FDType";
 
 
     private static final String INSTANCE_EASY = "Easy";
@@ -681,7 +682,7 @@ public final class ETutorVocabulary {
      * The Pm type instance
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
-
+    public static final Resource FDTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_FD_TASK);
     /**
      * The Calc type instance
      */
@@ -703,6 +704,10 @@ public final class ETutorVocabulary {
      * The Datalog task group type
      */
     public static final Resource DatalogTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_DATALOG_TASK_GROUP);
+    /**
+     * The FD task group type
+     */
+    public static final Resource FDTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_FD_TASK_GROUP);
 
     /**
      * The easy difficulty instance.

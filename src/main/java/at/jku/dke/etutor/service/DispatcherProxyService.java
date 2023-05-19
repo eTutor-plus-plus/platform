@@ -117,6 +117,8 @@ public class DispatcherProxyService {
             statusCode = createSQLTaskGroup(newTaskGroupDTO, isNew);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) {
             statusCode = createDLGTaskGroup(newTaskGroupDTO);
+        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.FDTypeTaskGroup.toString())) {
+            statusCode = createFDTaskGroup(newTaskGroupDTO);
         }
         if (statusCode != 200) {
             throw new DispatcherRequestFailedException();
@@ -360,7 +362,8 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the task assignment
      * @throws JsonProcessingException if there is an error while serializing
      */
-    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException, MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
+    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException,
+        MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         if (notIsDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
@@ -369,7 +372,8 @@ public class DispatcherProxyService {
             handleBPMNTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) { // XQuery task
             handleXQTaskCreation(newTaskAssignmentDTO);
-        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())
+            || newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())) {
             handleSQLTaskCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())) {
             handleDLGTaskCreation(newTaskAssignmentDTO);
@@ -377,6 +381,8 @@ public class DispatcherProxyService {
             handlePmTaskConfigCreation(newTaskAssignmentDTO);
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
             handleCalcTaskCreation(newTaskAssignmentDTO);
+        } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.FDTask.toString())) {
+            handleFDTaskCreation(newTaskAssignmentDTO);
         }
         return newTaskAssignmentDTO;
     }
@@ -569,6 +575,7 @@ public class DispatcherProxyService {
         }
     }
 
+
     /**
      * Fetches the exercise information for a datalog exercise according to its id
      * @param taskIdForDispatcher the id
@@ -593,6 +600,19 @@ public class DispatcherProxyService {
     private int createBpmnTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         String bpmnExercise = newTaskAssignmentDTO.getBpmnTestConfig();
         ResponseEntity<Integer> response = proxyResource.createBpmnExercise(bpmnExercise);
+        if(response.getBody() != null) return response.getBody();
+        else return -1;
+    }
+
+    private void handleFDTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
+
+    }
+    private FDExerciseDTO getFDExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        return null;
+    }
+    private int createFDTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+        var exerciseDTO = getFDExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
+        var response = proxyResource.createFDExercise(exerciseDTO);
         if(response.getBody() != null) return response.getBody();
         else return -1;
     }

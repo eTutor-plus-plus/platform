@@ -54,6 +54,7 @@ public class NewTaskAssignmentDTO {
 
     private String bpmnTestConfig;
 
+
     @NotBlank
     @DifficultyRankingConstraint
     private String taskDifficultyId;

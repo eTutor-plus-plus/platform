@@ -17,6 +17,7 @@ export class TaskGroupUpdateComponent {
   public isSQLGroup = false;
   public isXQueryGroup = false;
   public isDLGGroup = false;
+  public isFDGroup = false;
   public readonly taskGroupTypes = TaskGroupType.Values;
   public taskGroupToEdit?: ITaskGroupDTO;
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
@@ -73,6 +74,8 @@ export class TaskGroupUpdateComponent {
         this.adjustFormForXQType();
       } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.DatalogType.value) {
         this.adjustFormForDLGType();
+      } else if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.FDType.value) {
+        this.adjustFormForFDType();
       }
       this.isNew = false;
     })();
@@ -157,6 +160,12 @@ export class TaskGroupUpdateComponent {
     } else {
       this.isXQueryGroup = false;
     }
+
+    if (groupType === TaskGroupType.FDType.value) {
+      this.adjustFormForFDType();
+    } else {
+      this.isFDGroup = false;
+    }
   }
 
   private adjustFormForDLGType(): void {
@@ -177,6 +186,12 @@ export class TaskGroupUpdateComponent {
 
   private adjustFormForXQType(): void {
     this.isXQueryGroup = true;
+    this.clearDLGValidators();
+    this.clearSQLValidators();
+  }
+
+  private adjustFormForFDType(): void {
+    this.isFDGroup = true;
     this.clearDLGValidators();
     this.clearSQLValidators();
   }
