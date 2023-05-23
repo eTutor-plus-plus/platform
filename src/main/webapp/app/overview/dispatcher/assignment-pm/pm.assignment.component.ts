@@ -243,7 +243,7 @@ export class PmAssignmentComponent implements OnInit {
     attributes.set('action', this.action);
     // attributes.set('orI1', this.orI1);
     //attributes.set('orI1', this.updateForm.get('orI1')!.value)
-    attributes.set('orI1', this.updateForm.controls['orI1'].value);
+    attributes.set('orI1', this.updateForm.controls['orI1'].value ?? '');
     attributes.set('orI2', this.orI2);
     attributes.set('orI3', this.orI3);
 

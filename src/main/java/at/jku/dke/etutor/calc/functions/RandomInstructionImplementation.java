@@ -2,7 +2,6 @@ package at.jku.dke.etutor.calc.functions;
 
 import at.jku.dke.etutor.calc.exception.CreateRandomInstructionFailedException;
 import at.jku.dke.etutor.calc.models.RandomInstruction;
-import liquibase.pro.packaged.A;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;

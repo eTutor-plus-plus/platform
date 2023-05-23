@@ -137,7 +137,7 @@ export class TaskUpdateComponent implements OnInit {
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
       taskAssignmentTypeId,
-      privateTask: this.updateForm.get('privateTask')!.value,
+      privateTask: this.updateForm.get('privateTask')!.value ?? false,
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
@@ -146,97 +146,97 @@ export class TaskUpdateComponent implements OnInit {
       calcInstructionFileId: this.calcInstructionFileId,
     };
 
-    const urlStr: string = this.updateForm.get('url')!.value;
+    const urlStr: string | null = this.updateForm.get('url')!.value;
     if (urlStr) {
       newTask.url = new URL(urlStr);
     }
 
-    const instructionStr: string = this.updateForm.get('instruction')!.value;
-    if (instructionStr.trim()) {
+    const instructionStr: string | null = this.updateForm.get('instruction')!.value;
+    if (instructionStr) {
       newTask.instruction = instructionStr.trim();
     }
 
-    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
+    const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
       newTask.taskIdForDispatcher = taskIdForDispatcher;
     }
 
-    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
+    const sqlSolution: string | null = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
     }
 
-    const xQuerySolution: string = this.updateForm.get('xQuerySolution')!.value;
+    const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
       newTask.xQuerySolution = xQuerySolution;
     }
 
-    const xQueryXPathSorting: string = this.updateForm.get('xQueryXPathSorting')!.value;
+    const xQueryXPathSorting: string | null = this.updateForm.get('xQueryXPathSorting')!.value;
     if (xQueryXPathSorting) {
       newTask.xQueryXPathSorting = xQueryXPathSorting;
     }
 
-    const datalogSolution: string = this.updateForm.get('datalogSolution')!.value;
+    const datalogSolution: string | null = this.updateForm.get('datalogSolution')!.value;
     if (datalogSolution) {
       newTask.datalogSolution = datalogSolution;
     }
 
-    const datalogQuery: string = this.updateForm.get('datalogQuery')!.value;
+    const datalogQuery: string | null = this.updateForm.get('datalogQuery')!.value;
     if (datalogQuery) {
       newTask.datalogQuery = datalogQuery;
     }
 
-    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
+    const datalogUncheckedTerms: string | null = this.updateForm.get('datalogUncheckedTerms')!.value;
     if (datalogUncheckedTerms) {
       newTask.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 
-    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
+    const maxPoints: string | null = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
     }
 
-    const startTime: string = this.updateForm.get('startTime')!.value;
+    const startTime: string | null = this.updateForm.get('startTime')!.value;
     if (startTime) {
       newTask.startTime = startTime;
     }
 
-    const endTime: string = this.updateForm.get('endTime')!.value;
+    const endTime: string | null = this.updateForm.get('endTime')!.value;
     if (endTime) {
       newTask.endTime = endTime;
     }
 
-    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    const diagnoseLevelWeighting: string | null = this.updateForm.get('diagnoseLevelWeighting')!.value;
     if (diagnoseLevelWeighting) {
       newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
-    const processingTime: string = this.updateForm.get('processingTime')!.value;
-    if (processingTime.trim()) {
-      newTask.processingTime = processingTime.trim();
+    const processingTime: string | null = this.updateForm.get('processingTime')!.value;
+    if (processingTime) {
+      newTask.processingTime = processingTime;
     }
-    const bpmnTestConfig: string = this.updateForm.get('bpmnTestConfig')!.value;
+    const bpmnTestConfig: string | null = this.updateForm.get('bpmnTestConfig')!.value;
     if (bpmnTestConfig) {
       newTask.bpmnTestConfig = bpmnTestConfig;
     }
 
     // variables related to PM Task
-    const maxActivity: number = this.updateForm.get('maxActivity')!.value;
+    const maxActivity: string | null = this.updateForm.get('maxActivity')!.value;
     if (maxActivity) {
-      newTask.maxActivity = maxActivity;
+      newTask.maxActivity = parseFloat(maxActivity);
     }
-    const minActivity: number = this.updateForm.get('minActivity')!.value;
+    const minActivity: string | null = this.updateForm.get('minActivity')!.value;
     if (minActivity) {
-      newTask.minActivity = minActivity;
+      newTask.minActivity = parseFloat(minActivity);
     }
-    const maxLogSize: number = this.updateForm.get('maxLogSize')!.value;
+    const maxLogSize: string | null = this.updateForm.get('maxLogSize')!.value;
     if (maxLogSize) {
-      newTask.maxLogSize = maxLogSize;
+      newTask.maxLogSize = parseFloat(maxLogSize);
     }
-    const minLogSize: number = this.updateForm.get('minLogSize')!.value;
+    const minLogSize: string | null = this.updateForm.get('minLogSize')!.value;
     if (minLogSize) {
-      newTask.minLogSize = minLogSize;
+      newTask.minLogSize = parseFloat(minLogSize);
     }
-    const configNum: string = this.updateForm.get('configNum')!.value;
+    const configNum: string | null = this.updateForm.get('configNum')!.value;
     if (configNum) {
       newTask.configNum = configNum;
     }
@@ -336,10 +336,10 @@ export class TaskUpdateComponent implements OnInit {
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
       // PM related variables
-      const maxActivity = value.maxActivity;
-      const minActivity = value.minActivity;
-      const maxLogSize = value.maxLogSize;
-      const minLogSize = value.minLogSize;
+      const maxActivity: string = (value.maxActivity ?? '').toString();
+      const minActivity: string = (value.minActivity ?? '').toString();
+      const maxLogSize: string = (value.maxLogSize ?? '').toString();
+      const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
 
       if (taskIdForDispatcher) {

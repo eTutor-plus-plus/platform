@@ -2,7 +2,6 @@ package at.jku.dke.etutor.calc.functions;
 
 import at.jku.dke.etutor.calc.models.CorrectnessRule;
 import at.jku.dke.etutor.calc.models.Feedback;
-import liquibase.pro.packaged.L;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
