@@ -8,6 +8,7 @@ import { CourseExerciseSheetAllocationComponent } from '../course-management-sha
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IDisplayableCourseInstanceDTO } from '../course-management/course-mangement.model';
 import { ActivatedRoute, Router } from '@angular/router';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component which is used for displaying an overview for a lecturer.
@@ -78,13 +79,12 @@ export class LecturerOverviewComponent implements OnInit {
    * Asynchronously loads the courses.
    */
   private async loadCoursesAsync(): Promise<void> {
-    const result = await this.lecturerOverviewService
+    const result = await lastValueFrom(this.lecturerOverviewService
       .getPagedCoursesOfUser({
         page: this.page - 1,
         size: this.itemsPerPage,
         sort: [],
-      })
-      .toPromise();
+      }));
 
     this.totalItems = Number(result.headers.get(COUNT_HEADER));
     this.courseInstances = result.body ?? [];

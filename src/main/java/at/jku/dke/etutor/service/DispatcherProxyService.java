@@ -498,7 +498,7 @@ public class DispatcherProxyService {
 
             // Set the solution and optional sorted nodes
             newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
-            if (!e.getSortedNodes().isEmpty())
+            if (e.getSortedNodes() != null && !e.getSortedNodes().isEmpty())
                 newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
         }else{ // Either is the id not set, or group + solution is not set
             throw new MissingParameterException();

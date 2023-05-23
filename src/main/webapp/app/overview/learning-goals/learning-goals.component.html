@@ -26,7 +26,7 @@
     </i>
     <label
       [contextMenu]="learningGoalCtxMenu"
-      [contextMenuSubject]="item"
+      [contextMenuValue]="item"
       (click)="onSelect(item)"
       class="bi form-check-label"
       [ngClass]="{ private: item.markedAsPrivate }"
@@ -39,24 +39,24 @@
   </div>
 </ng-template>
 <context-menu #learningGoalCtxMenu>
-  <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onCreateSubGoal($event.item)">
+  <ng-template contextMenuItem [disabled]="!isCurrentUserAllowedToEdit" (execute)="onCreateSubGoal($event.value)">
     <span jhiTranslate="learningGoalManagement.createSubGoal">Create sub goal</span>
   </ng-template>
   <ng-template contextMenuItem [divider]="true"></ng-template>
-  <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onManageSuperGoalRequested($event.item)">
+  <ng-template contextMenuItem [disabled]="!isCurrentUserAllowedToEdit" (execute)="onManageSuperGoalRequested($event.value)">
     <span jhiTranslate="learningGoalManagement.addAsSubGoal">Add as sub goal</span>
   </ng-template>
   <ng-template contextMenuItem [divider]="true"></ng-template>
-  <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onEditGoalRequested($event.item)">
+  <ng-template contextMenuItem [disabled]="!isCurrentUserAllowedToEdit" (execute)="onEditGoalRequested($event.value)">
     <span jhiTranslate="learningGoalManagement.editGoal">Edit goal</span>
   </ng-template>
   <ng-template contextMenuItem [divider]="true"></ng-template>
-  <ng-template contextMenuItem [enabled]="isCurrentUserAllowedToEdit" (execute)="onManageDependentGoalsRequested($event.item)">
+  <ng-template contextMenuItem [disabled]="!isCurrentUserAllowedToEdit" (execute)="onManageDependentGoalsRequested($event.value)">
     <span jhiTranslate="learningGoalManagement.manageDependencies">Manage dependencies</span>
   </ng-template>
 
   <ng-template contextMenuItem [divider]="true"></ng-template>
-  <ng-template contextMenuItem [enabled]="canGoalBeRemoved" (execute)="onDelete($event.item)">
+  <ng-template contextMenuItem [disabled]="!canGoalBeRemoved" (execute)="onDelete($event.value)">
     <span jhiTranslate="learningGoalManagement.delete">Delete</span>
   </ng-template>
 </context-menu>
@@ -66,7 +66,7 @@
 <jhi-alert></jhi-alert>
 <jhi-alert-error></jhi-alert-error>
 
-<div class="text-right">
+<div class="text-end">
   <button type="button" class="btn btn-secondary" (click)="onCreateGoalRequested()" jhiTranslate="learningGoalManagement.createGoal">
     Create goal
   </button>

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FileUploadService } from 'app/overview/shared/file-upload/file-upload.service';
 import { FormBuilder } from '@angular/forms';
 import { IFileMetaDataModel } from 'app/overview/shared/file-upload/file.model';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component for handling file uploads.
@@ -112,7 +113,7 @@ export class FileUploadComponent {
       const fileList = this.fileUploadGroup.get(['fileUpload'])!.value as FileList;
       const file = fileList.item(0)!;
 
-      newId = await this.fileUploadService.uploadFile(file).toPromise();
+      newId = await lastValueFrom(this.fileUploadService.uploadFile(file));
     }
 
     if (this._fileRemoved && newId === -1) {

@@ -42,7 +42,7 @@
               },
               { "glob": "axios.min.js", "input": "./node_modules/axios/dist", "output": "swagger-ui" },
               { "glob": "**/*", "input": "src/main/webapp/swagger-ui/", "output": "swagger-ui" },
-              { "glob": "**/*", "input": "./node_modules/monaco-editor", "output": "assets/monaco-editor" }
+              { "glob": "**/*", "input": "./node_modules/monaco-editor", "output": "assets/monaco" }
             ],
             "styles": ["src/main/webapp/content/scss/vendor.scss", "src/main/webapp/content/scss/global.scss"],
             "scripts": [],
@@ -110,6 +110,11 @@
   },
   "defaultProject": "etutor-plus-plus",
   "cli": {
+    "cache": {
+      "enabled": true,
+      "path": "./target/angular/",
+      "environment": "all"
+    },
     "packageManager": "npm",
     "analytics": false
   }

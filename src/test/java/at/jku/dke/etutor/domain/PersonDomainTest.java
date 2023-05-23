@@ -1,12 +1,11 @@
 package at.jku.dke.etutor.domain;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.Objects;
-import liquibase.pro.packaged.U;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+
+import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test class for all {@link Person} related entities.

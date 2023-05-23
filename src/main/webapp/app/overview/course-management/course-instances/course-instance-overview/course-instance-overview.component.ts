@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CourseManagementService } from '../../course-management.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IDisplayableCourseInstanceDTO, Term } from '../../course-mangement.model';
-import { Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentAssignmentModalComponent } from '../../../course-management-shared/student-assignment-modal/student-assignment-modal.component';
 import { CourseExerciseSheetAllocationComponent } from '../../../course-management-shared/course-exercise-sheet-allocation/course-exercise-sheet-allocation.component';
@@ -185,13 +185,12 @@ export class CourseInstanceOverviewComponent implements OnInit, OnDestroy {
    * Asynchronously loads the page.
    */
   private async loadPageAsync(): Promise<any> {
-    const response = await this.courseService
+    const response = await lastValueFrom(this.courseService
       .getOverviewInstances(this.courseName, {
         page: this.page - 1,
         size: this.itemsPerPage,
         sort: [],
-      })
-      .toPromise();
+      }));
 
     this.totalItems = Number(response.headers.get(COUNT_HEADER));
     this.items = response.body ?? [];

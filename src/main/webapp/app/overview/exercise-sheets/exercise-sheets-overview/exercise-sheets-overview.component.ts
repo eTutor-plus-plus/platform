@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExerciseSheetUpdateComponent } from '../exercise-sheet-update/exercise-sheet-update.component';
-import { lastValueFrom, Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { ExerciseSheetsService } from '../exercise-sheets.service';
 import { IExerciseSheetDisplayDTO } from '../exercise-sheets.model';
 import { HttpHeaders } from '@angular/common/http';

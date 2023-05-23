@@ -10,6 +10,8 @@ import { TaskDisplayComponent } from './tasks-overview/task-display/task-display
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.component';
 import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
+import { monacoConfig } from '../dispatcher/monaco-config';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 /**
  * Module for task related components.
@@ -24,6 +26,7 @@ import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task
       closeOnOutsideClick: true,
       appendToBody: true,
     }),
+    MonacoEditorModule.forRoot(monacoConfig),
   ],
   declarations: [
     TasksOverviewComponent,
