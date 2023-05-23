@@ -55,7 +55,6 @@ class WebConfigurerTest {
     }
 
     @Test
-    @Disabled
     void shouldCustomizeServletContainer() {
         env.setActiveProfiles(JHipsterConstants.SPRING_PROFILE_PRODUCTION);
         UndertowServletWebServerFactory container = new UndertowServletWebServerFactory();
