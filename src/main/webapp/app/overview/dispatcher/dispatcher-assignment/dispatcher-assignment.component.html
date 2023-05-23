@@ -35,8 +35,6 @@
       id="submission"
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
-    <!--    TODO add BPMN Webeditor instead of monaco editor -->
-    <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
   </div>
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="processSubmission('submit')">
