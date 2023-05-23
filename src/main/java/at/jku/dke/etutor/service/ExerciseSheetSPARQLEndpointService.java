@@ -37,7 +37,7 @@ import java.util.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @Service
-public non-sealed class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_EXERCISE_BY_ID =
         """

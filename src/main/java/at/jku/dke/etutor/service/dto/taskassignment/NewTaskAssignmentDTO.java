@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,13 @@ public class NewTaskAssignmentDTO {
     private String header;
 
     private int uploadFileId;
+    private int calcSolutionFileId; // has to match with task.model.ts
+    private int calcInstructionFileId; // has to match with task.model.ts
+    private int writerInstructionFileId;
+    // insert time
+
+    private Timestamp startTime;
+    private Timestamp endTime;
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -35,6 +43,12 @@ public class NewTaskAssignmentDTO {
     private String datalogSolution;
     private String datalogQuery;
     private String datalogUncheckedTerms;
+    // Pm task related variables
+    private int maxActivity;
+    private int minActivity;
+    private int maxLogSize;
+    private int minLogSize;
+    private String configNum;
 
     private String processingTime;
 
@@ -387,6 +401,45 @@ public class NewTaskAssignmentDTO {
         this.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 
+    // Pm related getter/setter:
+    public int getMaxActivity(){return maxActivity;}
+
+    public void setMaxActivity(int maxActivity){
+        this.maxActivity = maxActivity;
+    }
+
+    public int getMinActivity() {
+        return minActivity;
+    }
+
+    public void setMinActivity(int minActivity) {
+        this.minActivity = minActivity;
+    }
+
+    public int getMaxLogSize() {
+        return maxLogSize;
+    }
+
+    public void setMaxLogSize(int maxLogSize) {
+        this.maxLogSize = maxLogSize;
+    }
+
+    public int getMinLogSize() {
+        return minLogSize;
+    }
+
+    public void setMinLogSize(int minLogSize) {
+        this.minLogSize = minLogSize;
+    }
+
+    public String getConfigNum() {
+        return configNum;
+    }
+
+    public void setConfigNum(String configNum) {
+        this.configNum = configNum;
+    }
+
     public int getUploadFileId() {
         return uploadFileId;
     }
@@ -401,5 +454,45 @@ public class NewTaskAssignmentDTO {
 
     public void setBpmnTestConfig(String bpmnTestConfig) {
         this.bpmnTestConfig = bpmnTestConfig;
+    }
+
+    public int getCalcSolutionFileId() {
+        return calcSolutionFileId;
+    }
+
+    public void setCalcSolutionFileId(int calcSolutionFileId) {
+        this.calcSolutionFileId = calcSolutionFileId;
+    }
+
+    public int getCalcInstructionFileId() {
+        return calcInstructionFileId;
+    }
+
+    public void setCalcInstructionFileId(int calcInstructionFileId) {
+        this.calcInstructionFileId = calcInstructionFileId;
+    }
+
+    public int getWriterInstructionFileId() {
+        return writerInstructionFileId;
+    }
+
+    public void setWriterInstructionFileId(int writerInstructionFileId) {
+        this.writerInstructionFileId = writerInstructionFileId;
+    }
+
+    public Timestamp getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
+    public Timestamp getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
     }
 }

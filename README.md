@@ -54,7 +54,7 @@ mvn clean install
 This application requires a [PostgreSQL](https://www.postgresql.org/)-database and a [Apache Jena Fuseki]() RDF graph database.
 Connection details can be configured in the [properties](./src/main/java/at/jku/dke/etutor/config/ApplicationProperties.java).
 
-To spin-up the necessary databases in Docker containers with configurations matching the default development settings, execute [this script](./src/main/docker/local-deploy/setup_databases.bat).
+To spin-up the necessary databases in Docker containers with configurations matching the default development settings, execute [this script](src/main/docker/etutor-databases/setup_databases.bat).
 The script executes two commands:
 
 ```shell
@@ -70,6 +70,8 @@ The second command starts three containers:
 3. PGAdmin
 
 The whole process may take some minutes, especially on first execution.
+
+You can also manually start the required services or use the [local-deploy project](https://github.com/eTutor-plus-plus/local-deploy)
 
 ## Building for production
 
@@ -99,7 +101,7 @@ This section describes relevant update-procedures for components of the etutorpl
 
 ### Apache Jena Fuseki
 
-To update the RDF-database, you have to backup the data, start the new Fuseki-server using the [configuration file](./src/main/docker/local-deploy/config_etutor_fulltext.ttl) with the following command:
+To update the RDF-database, you have to backup the data, start the new Fuseki-server using the [configuration file](src/main/docker/etutor-databases/config_etutor_fulltext.ttl) with the following command:
 
 ```
 fuseki-server --config config_etutor_fulltext.ttl

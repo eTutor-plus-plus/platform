@@ -10,6 +10,7 @@ import { ITaskGroupDisplayDTO } from 'app/overview/tasks/tasks-overview/task-gro
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
+import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
 
 /**
  * Component for creating / updating tasks.
@@ -33,8 +34,15 @@ export class TaskUpdateComponent implements OnInit {
   public isXQueryTask = false;
   public isDLQTask = false;
   public isBpmnTask = false;
+  public isPmTask = false; // boolean flag
+  public isCalcTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
+  public writerInstructionFileId = -1;
+  public calcSolutionFileId = -1;
+  public calcInstructionFileId = -1;
+  public startTime = null;
+  public endTime = null;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -58,12 +66,20 @@ export class TaskUpdateComponent implements OnInit {
     datalogQuery: [''],
     datalogUncheckedTerms: [''],
     maxPoints: [''],
+    startTime: [''],
+    endTime: [''],
     diagnoseLevelWeighting: [''],
     processingTime: [''],
     url: ['', [Validators.pattern(URL_OR_EMPTY_PATTERN)]],
     instruction: [''],
     taskGroup: ['', []],
     bpmnTestConfig: [''],
+    // PM related variables:
+    maxActivity: [''],
+    minActivity: [''],
+    maxLogSize: [''],
+    minLogSize: [''],
+    configNum: [''],
   });
 
   private _taskModel?: ITaskModel;
@@ -78,6 +94,7 @@ export class TaskUpdateComponent implements OnInit {
    * @param eventManager the injected event manager service
    * @param taskGroupService the task group service
    * @param sqlExerciseService the injected SQL exercise service
+   * @param fileService the injected File service
    */
   constructor(
     private fb: FormBuilder,
@@ -86,7 +103,8 @@ export class TaskUpdateComponent implements OnInit {
     private tasksService: TasksService,
     private eventManager: EventManager,
     private sqlExerciseService: SqlExerciseService,
-    private taskGroupService: TaskGroupManagementService
+    private taskGroupService: TaskGroupManagementService,
+    private fileService: FileUploadService
   ) {}
 
   /**
@@ -119,73 +137,108 @@ export class TaskUpdateComponent implements OnInit {
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
       taskAssignmentTypeId,
-      privateTask: this.updateForm.get('privateTask')!.value!,
+      privateTask: this.updateForm.get('privateTask')!.value,
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
+      writerInstructionFileId: this.writerInstructionFileId,
+      calcSolutionFileId: this.calcSolutionFileId,
+      calcInstructionFileId: this.calcInstructionFileId,
     };
 
-    const urlStr: string | null = this.updateForm.get('url')!.value;
+    const urlStr: string = this.updateForm.get('url')!.value;
     if (urlStr) {
       newTask.url = new URL(urlStr);
     }
 
-    const instructionStr: string | null = this.updateForm.get('instruction')!.value;
-    if (instructionStr?.trim()) {
+    const instructionStr: string = this.updateForm.get('instruction')!.value;
+    if (instructionStr.trim()) {
       newTask.instruction = instructionStr.trim();
     }
 
-    const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
+    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
       newTask.taskIdForDispatcher = taskIdForDispatcher;
     }
 
-    const sqlSolution: string | null = this.updateForm.get('sqlSolution')!.value;
+    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
     }
 
-    const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
+    const xQuerySolution: string = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
       newTask.xQuerySolution = xQuerySolution;
     }
 
-    const xQueryXPathSorting: string | null = this.updateForm.get('xQueryXPathSorting')!.value;
+    const xQueryXPathSorting: string = this.updateForm.get('xQueryXPathSorting')!.value;
     if (xQueryXPathSorting) {
       newTask.xQueryXPathSorting = xQueryXPathSorting;
     }
 
-    const datalogSolution: string | null = this.updateForm.get('datalogSolution')!.value;
+    const datalogSolution: string = this.updateForm.get('datalogSolution')!.value;
     if (datalogSolution) {
       newTask.datalogSolution = datalogSolution;
     }
 
-    const datalogQuery: string | null = this.updateForm.get('datalogQuery')!.value;
+    const datalogQuery: string = this.updateForm.get('datalogQuery')!.value;
     if (datalogQuery) {
       newTask.datalogQuery = datalogQuery;
     }
 
-    const datalogUncheckedTerms: string | null = this.updateForm.get('datalogUncheckedTerms')!.value;
+    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
     if (datalogUncheckedTerms) {
       newTask.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 
-    const maxPoints: string | null = this.updateForm.get('maxPoints')!.value;
+    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
     }
 
-    const diagnoseLevelWeighting: string | null = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    const startTime: string = this.updateForm.get('startTime')!.value;
+    if (startTime) {
+      newTask.startTime = startTime;
+    }
+
+    const endTime: string = this.updateForm.get('endTime')!.value;
+    if (endTime) {
+      newTask.endTime = endTime;
+    }
+
+    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
     if (diagnoseLevelWeighting) {
       newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
-    const processingTime: string | null = this.updateForm.get('processingTime')!.value;
-    if (processingTime?.trim()) {
+    const processingTime: string = this.updateForm.get('processingTime')!.value;
+    if (processingTime.trim()) {
       newTask.processingTime = processingTime.trim();
     }
-    const bpmnTestConfig: string | null = this.updateForm.get('bpmnTestConfig')!.value;
+    const bpmnTestConfig: string = this.updateForm.get('bpmnTestConfig')!.value;
     if (bpmnTestConfig) {
       newTask.bpmnTestConfig = bpmnTestConfig;
+    }
+
+    // variables related to PM Task
+    const maxActivity: number = this.updateForm.get('maxActivity')!.value;
+    if (maxActivity) {
+      newTask.maxActivity = maxActivity;
+    }
+    const minActivity: number = this.updateForm.get('minActivity')!.value;
+    if (minActivity) {
+      newTask.minActivity = minActivity;
+    }
+    const maxLogSize: number = this.updateForm.get('maxLogSize')!.value;
+    if (maxLogSize) {
+      newTask.maxLogSize = maxLogSize;
+    }
+    const minLogSize: number = this.updateForm.get('minLogSize')!.value;
+    if (minLogSize) {
+      newTask.minLogSize = minLogSize;
+    }
+    const configNum: string = this.updateForm.get('configNum')!.value;
+    if (configNum) {
+      newTask.configNum = configNum;
     }
 
     if (this.isNew) {
@@ -214,6 +267,11 @@ export class TaskUpdateComponent implements OnInit {
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
         bpmnTestConfig: newTask.bpmnTestConfig,
+        maxActivity: newTask.maxActivity,
+        minActivity: newTask.minActivity,
+        maxLogSize: newTask.maxLogSize,
+        minLogSize: newTask.minLogSize,
+        configNum: newTask.configNum,
         url: newTask.url,
         instruction: newTask.instruction,
         privateTask: newTask.privateTask,
@@ -224,6 +282,11 @@ export class TaskUpdateComponent implements OnInit {
         internalCreator: this.taskModel!.internalCreator,
         learningGoalIds: this.taskModel!.learningGoalIds,
         uploadFileId: this.uploadFileId,
+        writerInstructionFileId: this.writerInstructionFileId,
+        calcSolutionFileId: this.calcSolutionFileId,
+        calcInstructionFileId: this.calcInstructionFileId,
+        startTime: newTask.startTime,
+        endTime: newTask.endTime,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -264,12 +327,20 @@ export class TaskUpdateComponent implements OnInit {
       const datalogQuery = value.datalogQuery;
       const datalogUncheckedTerms = value.datalogUncheckedTerms;
       const maxPoints = value.maxPoints ?? '';
+      const startTime = value.startTime ?? '';
+      const endTime = value.endTime ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
       const processingTime = value.processingTime ?? '';
       const url = value.url ? value.url.toString() : '';
       const instruction = value.instruction ?? '';
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
+      // PM related variables
+      const maxActivity = value.maxActivity;
+      const minActivity = value.minActivity;
+      const maxLogSize = value.maxLogSize;
+      const minLogSize = value.minLogSize;
+      const configNum = value.configNum;
 
       if (taskIdForDispatcher) {
         this.updateForm.get('taskIdForDispatcher')!.disable();
@@ -293,15 +364,26 @@ export class TaskUpdateComponent implements OnInit {
         datalogQuery,
         datalogUncheckedTerms,
         maxPoints,
+        startTime,
+        endTime,
         diagnoseLevelWeighting,
         processingTime,
         url,
         instruction,
         taskGroup: value.taskGroupId ?? '',
         bpmnTestConfig,
+        // PM related variables
+        maxActivity,
+        minActivity,
+        maxLogSize,
+        minLogSize,
+        configNum,
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
+      this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
+      this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
+      this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
     }
   }
 
@@ -333,6 +415,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
       this.isDLQTask = true;
       this.patchDatalogTaskGroupValues(taskGroupId);
+    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
+      this.isCalcTask = true;
     }
   }
   /**
@@ -362,6 +446,11 @@ export class TaskUpdateComponent implements OnInit {
       this.isRATask = true;
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
+      this.setMaxPointsRequired();
+    } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
+      this.isPmTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
+      this.isCalcTask = true;
       this.setMaxPointsRequired();
     }
 
@@ -393,14 +482,26 @@ export class TaskUpdateComponent implements OnInit {
    * Reacts to the input of a task-id for the dispatcher
    */
   public taskIdForDispatcherEntered(): void {
-    if (this.updateForm.get('taskIdForDispatcher')!.value) {
-      this.updateForm.get('taskGroup')?.clearValidators();
-      this.updateForm.get('taskGroup')?.updateValueAndValidity();
-      this.updateForm.updateValueAndValidity();
+    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+
+    if (
+      taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
+      taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value
+    ) {
+      if (this.updateForm.get('taskIdForDispatcher')!.value) {
+        this.updateForm.get('taskGroup')?.clearValidators();
+        this.updateForm.get('taskGroup')?.updateValueAndValidity();
+        this.updateForm.updateValueAndValidity();
+      } else {
+        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
+        this.updateForm.get('taskGroup')!.updateValueAndValidity();
+        this.updateForm.updateValueAndValidity();
+      }
     } else {
-      this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-      this.updateForm.get('taskGroup')!.updateValueAndValidity();
-      this.updateForm.updateValueAndValidity();
+      // === PmTask
     }
   }
 
@@ -481,6 +582,126 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
+   * Sets the writer instruction id.
+   *
+   * @param fileId the file to add
+   */
+  public handleWriterInstructionFileAdded(fileId: number): void {
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        this.writerInstructionFileId = fileId;
+      } else {
+        this.writerInstructionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Removes the writer instruction file.
+   *
+   * @param fileId the file to remove
+   */
+  public handleWriterInstructionFileRemoved(fileId: number): void {
+    this.writerInstructionFileId = -1;
+  }
+
+  /**
+   * Sets a modified  writer instruction file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleWriterInstructionFileMoved(oldFileId: number, newFileId: number): void {
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.writerInstructionFileId = newFileId;
+      } else {
+        this.writerInstructionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Sets the calc solution file id.
+   *
+   * @param fileId the file to add
+   */
+  public handleCalcSolutionFileAdded(fileId: number): void {
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcSolutionFileId = fileId;
+      } else {
+        this.calcSolutionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Removes the calc solution file.
+   *
+   * @param fileId the file to remove
+   */
+  public handleCalcSolutionFileRemoved(fileId: number): void {
+    this.calcSolutionFileId = -1;
+  }
+
+  /**
+   * Sets a modified solution calc file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleCalcSolutionFileMoved(oldFileId: number, newFileId: number): void {
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcSolutionFileId = newFileId;
+      } else {
+        this.calcSolutionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Sets the calc instruction id.
+   *
+   * @param fileId the file to add
+   */
+  public handleCalcInstructionFileAdded(fileId: number): void {
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcInstructionFileId = fileId;
+      } else {
+        this.calcInstructionFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Removes the calc instruction file.
+   *
+   * @param fileId the file to remove
+   */
+  public handleCalcInstructionFileRemoved(fileId: number): void {
+    this.calcInstructionFileId = -1;
+  }
+
+  /**
+   * Sets a modified  calc instruction file.
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleCalcInstructionFileMoved(oldFileId: number, newFileId: number): void {
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        this.calcInstructionFileId = newFileId;
+      } else {
+        this.calcInstructionFileId = -2;
+      }
+    });
+  }
+
+  /**
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id
    */
@@ -545,6 +766,8 @@ export class TaskUpdateComponent implements OnInit {
     this.isRATask = false;
     this.isDLQTask = false;
     this.isBpmnTask = false;
+    this.isPmTask = false;
+    this.isCalcTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -581,6 +804,7 @@ export class TaskUpdateComponent implements OnInit {
       taskAssignmentType === TaskAssignmentType.SQLTask.value ||
       taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
       taskAssignmentType === TaskAssignmentType.XQueryTask.value
+      //taskAssignmentType === TaskAssignmentType.PmTask.value
     );
   }
 }

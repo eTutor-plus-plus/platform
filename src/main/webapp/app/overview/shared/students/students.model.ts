@@ -95,9 +95,11 @@ export interface ICourseInstanceProgressOverviewDTO {
    */
   gradedCount: number;
   /**
-   * Indicates whether the exercise sheet has already been closed or not
+   * Indicates whether the individual assignment has already been closed or not
    */
   closed: boolean;
+
+  wholeSheetClosed: boolean;
 }
 
 /**

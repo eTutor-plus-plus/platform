@@ -43,6 +43,15 @@ export class StudentService {
   }
 
   /**
+   * returns the matriculation number of the logged in Student.
+   */
+  public getMatriculationNumberOfLoggedInStudent(): Observable<string> {
+    return this.http.get<string>(`${SERVER_API_URL}api/student/matriculationNumber`, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  /**
    * Retrieves the courses of the currently logged-in student.
    */
   public getCourseInstancesOfLoggedInStudent(): Observable<ICourseInstanceInformationDTO[]> {
@@ -206,6 +215,132 @@ export class StudentService {
   }
 
   /**
+   * Returns the file attachment id of the generated calc instruction file.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getFileAttachmentIdOfIndividualCalcInstruction(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number
+  ): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/individual-calc-instruction`
+    );
+  }
+
+  /**
+   * Returns the file attachment id of the generated calc solution file.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getFileAttachmentIdOfIndividualCalcSolution(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number
+  ): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/individual-calc-solution`
+    );
+  }
+
+  /**
+   * Returns the file attachment id of the generated writer instruction file.
+   *
+   * @param courseInstanceId the course instance id
+   * @param exerciseSheetUUID the exercise sheet UUID
+   * @param taskNo the task no
+   */
+  public getFileAttachmentIdOfIndividualWriterInstruction(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number
+  ): Observable<number> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.get<number>(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/individual-writer-instruction`
+    );
+  }
+
+  /**
+   * Returns the feedback of the corrected calc submission
+   *
+   * @param matriculationNo the matriculation number of the logged in student
+   * @param courseInstanceUUID the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   * @param writerInstructionFileId the id of the generated writer instruction
+   * @param calcSolutionFileId the id of the generated calc solution
+   * @param calcSubmissionFileId the if of the submitted calc submission
+   */
+
+  public getCorrectionOfCalcTaskDatabase(
+    matriculationNo: string,
+    courseInstanceUUID: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    writerInstructionFileId: number,
+    calcSolutionFileId: number,
+    calcSubmissionFileId: number
+  ): Observable<any> {
+    const instanceUUID = courseInstanceUUID.substr(courseInstanceUUID.lastIndexOf('#') + 1);
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/student/${matriculationNo}/calcSubmission/${writerInstructionFileId}/${calcSolutionFileId}/${calcSubmissionFileId}/diagnose_task`,
+      undefined
+    );
+  }
+
+  public getCorrectionOfCalcTask(
+    writerInstructionFileId: number,
+    calcSolutionFileId: number,
+    calcSubmissionFileId: number
+  ): Observable<string> {
+    return this.http.get<string>(
+      `${SERVER_API_URL}api/student/courses/calcSubmission/${writerInstructionFileId}/${calcSolutionFileId}/${calcSubmissionFileId}/diagnose_task`,
+      {
+        responseType: 'text' as 'json',
+      }
+    );
+  }
+
+  /**
+   * handles the submitted calc task
+   *
+   * @param matriculationNo the matriculation number of the logged in student
+   * @param courseInstanceId the course instance
+   * @param exerciseSheetUUID the exercise sheet
+   * @param taskNo the task number
+   * @param writerInstructionFileId the id of the generated writer instruction
+   * @param calcSolutionFileId the id of the generated calc solution
+   * @param calcSubmissionFileId the if of the submitted calc submission
+   */
+  public handleCalcTaskSubmission(
+    matriculationNo: string,
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    writerInstructionFileId: number,
+    calcSolutionFileId: number,
+    calcSubmissionFileId: number
+  ): Observable<any> {
+    const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
+
+    return this.http.put(
+      `${SERVER_API_URL}api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/calcTask/${taskNo}/student/${matriculationNo}/calcSubmission/${writerInstructionFileId}/${calcSolutionFileId}/${calcSubmissionFileId}/submit_task`,
+      undefined
+    );
+  }
+
+  /**
    * Returns the file attachment id for an assigned exercise sheet.
    *
    * @param courseInstanceId the course instance id
@@ -236,6 +371,7 @@ export class StudentService {
    * @param courseInstanceId the course instance
    * @param exerciseSheetUUID the exercise sheet
    * @param taskNo the task number
+   * @param matriculationNo matriculation number of student
    */
   public getAllDispatcherSubmissionsForIndividualTask(
     courseInstanceId: string,

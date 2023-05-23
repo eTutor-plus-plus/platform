@@ -18,7 +18,7 @@ export class DispatcherAssignmentModalComponent {
   public submissionEntry!: TaskSubmissionsModel;
   public matriculationNo: string | undefined = '';
   public showHeader = true;
-  public showSubmitButton = false;
+  public showSubmitButton = true;
 
   constructor(private activeModal: NgbActiveModal, private modalService: NgbModal) {}
 

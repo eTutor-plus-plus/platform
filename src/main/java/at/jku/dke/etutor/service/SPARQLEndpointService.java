@@ -37,7 +37,7 @@ import java.util.*;
  * @author fne
  */
 @Service
-public non-sealed class SPARQLEndpointService extends AbstractSPARQLEndpointService {
+public /*non-sealed*/ class SPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String SCHEME_PATH = "/rdf/scheme.ttl";
 

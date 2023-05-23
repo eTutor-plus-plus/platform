@@ -7,7 +7,7 @@ import { TaskDifficulty } from '../../tasks/task.model';
 import { StudentExerciseSheetGoalsComponent } from './student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 import { ExerciseSheetsService } from '../../exercise-sheets/exercise-sheets.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {lastValueFrom} from "rxjs";
+import { lastValueFrom } from 'rxjs';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -96,7 +96,7 @@ export class CourseTaskOverviewComponent implements OnInit {
 
     if (!item.opened) {
       this.studentService.openExerciseSheet(this.instance!.instanceId, exerciseSheetUUID).subscribe(() => {
-        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
       });
     } else {
       if (item.submissionCount === item.gradedCount && item.submissionCount > 0 && item.actualCount === item.submissionCount) {
@@ -110,10 +110,10 @@ export class CourseTaskOverviewComponent implements OnInit {
               item.closed = true;
             }
           }
-          this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+          this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
         })();
       } else {
-        this.navigateToTaskOverview(exerciseSheetUUID, item.closed);
+        this.navigateToTaskOverview(exerciseSheetUUID, item.wholeSheetClosed);
       }
     }
   }
@@ -141,8 +141,9 @@ export class CourseTaskOverviewComponent implements OnInit {
    * @private
    */
   private async viewGoalAssignmentsAsync(item: ICourseInstanceProgressOverviewDTO): Promise<any> {
-    const exerciseSheetResponse = await lastValueFrom(this.exerciseSheetService
-      .getExerciseSheetById(item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1)));
+    const exerciseSheetResponse = await lastValueFrom(
+      this.exerciseSheetService.getExerciseSheetById(item.exerciseSheetId.substr(item.exerciseSheetId.lastIndexOf('#') + 1))
+    );
     const exerciseSheet = exerciseSheetResponse.body!;
     const assignedGoalsOfSheet = exerciseSheet.learningGoals.filter(g => g.learningGoal.name).map(g => g.learningGoal.name!);
     const modalRef = this.modalService.open(StudentExerciseSheetGoalsComponent, { backdrop: 'static', size: 'xl' });

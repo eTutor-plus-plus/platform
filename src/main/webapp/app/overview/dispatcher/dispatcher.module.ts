@@ -7,7 +7,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 /**
  * Module that contains "all" components related to the dispatcher, which is a seperate application
- * used to evaluate SQL, XQUery, Datalog and Relational Algebra exercises
+ * used to evaluate SQL, PM, XQUery, Datalog and Relational Algebra exercises
  */
 
 @NgModule({

@@ -30,6 +30,20 @@
         <jhi-file-download [fileId]="uploadFileId"> </jhi-file-download>
       </dd>
 
+      <dt *ngIf="writerIndividualInstructionFileId !== -1">
+        <span jhiTranslate="overview.student.tasks.randomWriterInstruction">Random Writer Instruction</span>
+      </dt>
+      <dd *ngIf="writerIndividualInstructionFileId !== -1">
+        <jhi-file-download [fileId]="writerIndividualInstructionFileId"> </jhi-file-download>
+      </dd>
+
+      <dt *ngIf="calcIndividualInstructionFileId !== -1">
+        <span jhiTranslate="overview.student.tasks.randomCalcInstruction">Random Calc Instruction</span>
+      </dt>
+      <dd *ngIf="calcIndividualInstructionFileId !== -1">
+        <jhi-file-download [fileId]="calcIndividualInstructionFileId"> </jhi-file-download>
+      </dd>
+
       <dt><span jhiTranslate="overview.student.tasks.difficulty">Difficulty</span></dt>
       <dd>
         <span>{{ getDifficultyI18nString(taskModel?.taskDifficultyId) | translate }}</span>
@@ -45,7 +59,6 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-    <p></p>
     <div class="assignment-component">
       <jhi-dispatcher-assignment
         *ngIf="isDispatcherTask"
@@ -61,17 +74,51 @@
       >
       </jhi-dispatcher-assignment>
     </div>
+    <div class="assignment-component">
+      <jhi-pm-assignment
+        *ngIf="isPmTask"
+        (submissionUUIDReceived)="handleDispatcherUUID($event)"
+        [exercise_id]="exercise_id"
+        [task_type]="task_type"
+        [submission]="submission"
+        [highestDiagnoseLevel]="diagnoseLevel"
+        [maxPoints]="maxPoints"
+        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+        [showSubmitButton]="!exerciseSheetAlreadyClosed"
+        [exerciseSheetUUID]="_exerciseSheetUUID"
+        [points]="achievedDispatcherPoints"
+        [taskNo]="_taskNo"
+        [courseInstanceUUID]="_instance!.instanceId"
+        [isSubmitted]="isSubmitted"
+      >
+      </jhi-pm-assignment>
+    </div>
     <jhi-file-upload
       *ngIf="isUploadTask || isDispatcherTask"
       [fileId]="uploadTaskFileId"
       (fileAdded)="handleFileAddedAsync($event)"
       (fileRemoved)="handleFileRemovedAsync($event)"
       (fileModified)="handleFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted"
+      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
     >
     </jhi-file-upload>
+    <jhi-file-upload
+      *ngIf="isCalcTask"
+      [fileId]="uploadCalcSubmissionFileId"
+      (fileAdded)="handleCalcFileAddedAsync($event)"
+      (fileRemoved)="handleCalcFileRemovedAsync($event)"
+      (fileModified)="handleCalcFileMovedAsync($event[0], $event[1])"
+      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
+    >
+    </jhi-file-upload>
+    <div *ngIf="uploadCalcSubmissionFileId == -2">
+      <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+        Please upload the correct content type of the file!
+      </small>
+    </div>
+
     <button
-      *ngIf="!isDispatcherTask"
+      *ngIf="!isDispatcherTask && !isCalcTask && !isPmTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
@@ -84,6 +131,37 @@
       >
       <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
     </button>
+
+    <td class="text-right" *ngIf="isCalcTask">
+      <button
+        *ngIf="isCalcTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+        (click)="correctCalcTask()"
+      >
+        Diagnose
+      </button>
+      <button
+        *ngIf="isCalcTask"
+        type="button"
+        class="btn btn-primary"
+        style="margin-top: 10px"
+        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+        (click)="submitCalcTask(); updateCalcTaskPoints()"
+      >
+        Submit
+      </button>
+    </td>
     <br />
+    <ng-container *ngIf="calcCorrectionFeedback !== undefined">
+      <span>{{ calcCorrectionFeedback }}</span>
+      <br />
+    </ng-container>
+    <ng-container *ngIf="calcTaskPoints !== undefined">
+      <span jhiTranslate="overview.student.tasks.calcTaskPointsDescription">Reached Points</span>
+      <span>{{ calcTaskPoints }}</span>
+    </ng-container>
   </div>
 </div>

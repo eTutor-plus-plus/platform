@@ -1,10 +1,11 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.calc.models.Feedback;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
+import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
-import at.jku.dke.etutor.service.StudentService;
-import at.jku.dke.etutor.service.UserService;
+import at.jku.dke.etutor.service.*;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * REST controller for managing students.
@@ -38,6 +40,9 @@ public class StudentResource {
     private final UserService userService;
     private final StudentService studentService;
     private final DispatcherProxyService dispatcherProxyService;
+    private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
+
+    private final CourseInstanceSPARQLEndpointService courseInstanceService;
 
     /**
      * Constructor.
@@ -45,10 +50,12 @@ public class StudentResource {
      * @param userService    the injected user service
      * @param studentService the injected student service
      */
-    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService) {
+    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService courseInstanceService) {
         this.userService = userService;
         this.studentService = studentService;
         this.dispatcherProxyService = dispatcherProxyService;
+        this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
+        this.courseInstanceService = courseInstanceService;
     }
 
     /**
@@ -61,6 +68,15 @@ public class StudentResource {
     public ResponseEntity<List<StudentInfoDTO>> retrieveAllStudents() {
         List<StudentInfoDTO> studentList = userService.getAvailableStudents();
         return ResponseEntity.ok(studentList);
+    }
+
+    @GetMapping("matriculationNumber")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> getCurrentStudentsMatriculationNumber () {
+        String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
+        return ResponseEntity
+            .ok()
+            .body(matriculationNumber);
     }
 
     /**
@@ -318,6 +334,141 @@ public class StudentResource {
     }
 
     /**
+     * Returns the calc instruction file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-calc-instruction")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualCalcInstruction (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualCalcInstruction(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * Returns the calc solution file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-calc-solution")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualCalcSolution (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualCalcSolution(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * Returns the writer instruction file attachment's id for an individual task.
+     *
+     * @param courseInstanceUUID the course instance UUID
+     * @param exerciseSheetUUID  the exercise sheet UUID
+     * @param taskNo             the task no
+     * @return the {@link ResponseEntity} containing the file id
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/individual-writer-instruction")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Integer> getFileAttachmentIdOfIndividualWriterInstruction (@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                                   @PathVariable int taskNo) {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+
+        Optional<Integer> optionalId = studentService.getFileIdIndividualWriterInstruction(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+        int id = optionalId.orElse(-1);
+
+        return ResponseEntity.ok(id);
+    }
+
+    /**
+     * Corrects a calc submission and returns feedback
+     *
+     * @param writerInstructionFileId id of the instruction writer file
+     * @param calcSolutionFileId id of the solution calc file
+     * @param calcSubmissionFileId if of the submission calc file
+     * @return a string which contains the feedback of the correction
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> diagnoseAndPersistCalcTaskSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                       @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                                       @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                                       @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
+//        double maxPoints = assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).get();
+//        double achievedPoints = maxPoints;
+//        if (!feedback.isCorrect()) {
+//            achievedPoints = 0.0;
+//        }
+        //StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints, achievedPoints, "diagnose", feedback.getTextualFeedback());
+
+        return ResponseEntity
+            .ok()
+            .body(feedback.getTextualFeedback());
+    }
+
+    @GetMapping("courses/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/diagnose_task")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> diagnoseCalcTaskSubmission(
+                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                   @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
+        return ResponseEntity
+            .ok()
+            .body(feedback.getTextualFeedback());
+    }
+
+
+
+
+    /**
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @param matriculationNo the matriculation number
+     * @param writerInstructionFileId id of the instruction writer file
+     * @param calcSolutionFileId id of the solution calc file
+     * @param calcSubmissionFileId if of the submission calc file
+     */
+    @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/calcTask/{taskNo}/student/{matriculationNo}/calcSubmission/{writerInstructionFileId}/{calcSolutionFileId}/{calcSubmissionFileId}/submit_task")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<Void> processSubmittedCalcTaskSubmission(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                                   @PathVariable int taskNo, @PathVariable String matriculationNo,
+                                                                   @PathVariable long writerInstructionFileId, @PathVariable long calcSolutionFileId,
+                                                                   @PathVariable long calcSubmissionFileId) {
+        Feedback feedback = studentService.correctCalcTask(writerInstructionFileId, calcSolutionFileId, calcSubmissionFileId);
+        AtomicReference<Double> maxPoints = new AtomicReference<>(0.0);
+        assignmentSPARQLEndpointService.getMaxPointsForTaskAssignmentByIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo).ifPresent(points -> maxPoints.set((double)points));
+        if (feedback.isCorrect()){
+            studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, maxPoints.get());
+            studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+        }
+        double achievedPoints = maxPoints.get();
+        if (!feedback.isCorrect()) {
+            achievedPoints = 0.0;
+        }
+        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints.get(), achievedPoints, "submit", feedback.getTextualFeedback());
+        return ResponseEntity.ok().build();
+    }
+
+
+    /**
      * Returns all submissions mady by a student for a specific individual task
      * @param courseInstanceUUID the course instance
      * @param exerciseSheetUUID the exercise sheet
@@ -411,6 +562,8 @@ public class StudentResource {
             return ResponseEntity.internalServerError().build();
         }
 
+        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
+
         // Get required information about task assignment, diagnose-level-weighting, max-points, dispatcher id
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
@@ -426,7 +579,7 @@ public class StudentResource {
 
         // Process
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
-            submission, grading, maxPoints, diagnoseLevelWeighting);
+            submission, grading, maxPoints, diagnoseLevelWeighting, isExerciseSheetClosed);
 
         return ResponseEntity.ok(achievedPoints);
     }
@@ -500,6 +653,10 @@ public class StudentResource {
         return ResponseEntity.ok().build();
     }
 
+
+
+
+
     /**
      * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/:taskNo/diagnose-level} : Returns
      * the diagnose level.
@@ -562,5 +719,31 @@ public class StudentResource {
         int id = optionalId.orElse(-1);
 
         return ResponseEntity.ok(id);
+    }
+
+    /**
+     * {@code GET /api/student/courses/:courseInstanceUUID/exercises/:exerciseSheetUUID/task/:taskNo}
+     * Returns the log corresponding to the given exercise
+     * @param courseInstanceUUID the course instance
+     * @param exerciseSheetUUID the exercise sheet
+     * @param taskNo the task number
+     * @return the log of the exercise
+     */
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/pmlog")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo){
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        PmExerciseLogDTO pmExerciseLogDTO = null;
+
+        // fetches the dispatcher exercise id corresponding to the assigned exercise
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+
+        try{
+            // fetches the log information corresponding to exercise, wrapped in DTO
+            pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElse(-1));
+        }catch(DispatcherRequestFailedException e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(pmExerciseLogDTO);
     }
 }

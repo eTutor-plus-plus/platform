@@ -35,8 +35,6 @@
       id="submission"
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
-    <!--    TODO add BPMN Webeditor instead of monaco editor -->
-    <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
   </div>
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="processSubmission('submit')">
@@ -61,9 +59,9 @@
     </strong>
   </div>
 
-  <div [innerHTML]="gradingDto?.report?.error"></div>
-  <div [innerHTML]="gradingDto?.report?.description"></div>
+  <div *ngIf="gradingDto?.report?.error" [innerHTML]="gradingDto?.report?.error"></div>
+  <div *ngIf="gradingDto?.report?.description" [innerHTML]="gradingDto?.report?.description"></div>
   <br />
-  <div [innerHTML]="gradingDto?.report?.hint"></div>
-  <div [innerHTML]="gradingDto?.result | safeHtml"></div>
+  <div *ngIf="gradingDto?.report?.hint" [innerHTML]="gradingDto?.report?.hint"></div>
+  <div *ngIf="gradingDto?.result" [innerHTML]="gradingDto?.result | safeHtml"></div>
 </div>

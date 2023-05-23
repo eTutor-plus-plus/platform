@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author fne
  */
-public abstract sealed class AbstractSPARQLEndpointService permits AssignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService, ExerciseSheetSPARQLEndpointService, LecturerOverviewService, LecturerSPARQLEndpointService, SPARQLEndpointService, StudentService {
+public abstract /*sealed*/ class AbstractSPARQLEndpointService /* permits AssignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService, ExerciseSheetSPARQLEndpointService, LecturerOverviewService, LecturerSPARQLEndpointService, SPARQLEndpointService, StudentService */ {
 
     private final RDFConnectionFactory rdfConnectionFactory;
 

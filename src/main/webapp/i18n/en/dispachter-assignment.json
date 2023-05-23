@@ -5,7 +5,9 @@
       "notCorrect": "Sorry, your solution is not correct!",
       "diagnoseLevelPlaceholder": "Choose the feedback-level:",
       "yourSolution": "Your solution:",
+      "yourAlphaSolution": "Your solution to the Alpha Algorithm:",
       "editorInfo": "Use ctrl+space to access some query-templates",
+      "editorInfoAlpha": "Please solve the ordering solutions first (you don't need to enter the #relation). Then apply the Algorithm.",
       "feedbackLabel": "Feedback-Level: ",
       "feedbackInfo": "You can adjust the feedback-level (default= no feedback). More feedback may lead to less points.",
       "diagnoseLevel": {
@@ -13,6 +15,18 @@
         "little": "Little Feedback",
         "some": "Some Feedback",
         "much": "Much Feedback"
+      },
+      "fields": {
+        "orI1": "1. Ordering Relation: 'a > b' - Direct Succession",
+        "orI2": "2. Ordering Relation: 'a -> b' - Causal Relation",
+        "orI3": "3. Ordering Relation: 'a || b' - Potential Parallelism"
+      },
+      "syntax": {
+        "orI": "Please enter the solution in the following format: (X,Y), (X,Y), (X,Y), ...",
+        "aaI123": "Please enter the solution in the following format: X, Y, Z, ...",
+        "aaI45": "Please enter the solution in the following format: ({X},{X,Y}), ({T,G},{Z}), ...",
+        "aaI6": "Please enter the solution in the following format: i, o, p({X},{X,Y}), p({T,G},{Z}), ...",
+        "aaI7": "Please enter the solution in the following format: (i,A), (D,o), (A, p({A},{B,E})), (p({A},{B,E}), B), ..."
       }
     }
   }

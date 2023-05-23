@@ -12,10 +12,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.data.domain.Page;
@@ -35,11 +32,10 @@ import java.util.*;
 
 /**
  * SPARQL endpoint for assignment related operations.
- *
  * @author fne
  */
 @Service
-public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL =
         """
@@ -74,6 +70,43 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
               }
             }
             """;
+
+
+    private static final String QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?maxPoints WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo;
+                            etutor:refersToTask ?taskAssignment.
+                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
+        }
+        """;
+
+    private static final String QRY_ASK_CALC_INFORMATION = """
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+
+        SELECT ?maxPoints WHERE {
+              ?courseInstance a etutor:CourseInstance.
+                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
+                ?individualAssignment etutor:fromExerciseSheet ?sheet;
+            etutor:fromCourseInstance ?courseInstance.
+                ?individualAssignment etutor:hasIndividualTask ?individualTask.
+                ?individualTask etutor:hasOrderNo ?orderNo;
+                            etutor:refersToTask ?taskAssignment.
+                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
+                ?taskAssignment etutor:hasStartTime ?startTime.
+                ?taskAssignment etutor:hasEndTime ?endTime.
+        }
+        """;
+
+
 
     private static final String QRY_DELETE_ASSIGNMENT =
         """
@@ -323,9 +356,36 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             query.appendLiteral(taskAssignment.getOrganisationUnit());
             query.append(".\n");
 
+
             query.append("?assignment etutor:hasUploadFileId ");
             query.appendLiteral(taskAssignment.getUploadFileId());
             query.append(".\n");
+
+
+            query.append("?assignment etutor:hasCalcSolutionFileId ");
+            query.appendLiteral(taskAssignment.getCalcSolutionFileId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasCalcInstructionFileId ");
+            query.appendLiteral(taskAssignment.getCalcInstructionFileId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasWriterInstructionFileId ");
+            query.appendLiteral(taskAssignment.getWriterInstructionFileId());
+            query.append(".\n");
+
+            if (taskAssignment.getStartTime() != null) {
+                query.append("?assignment etutor:hasStartTime ");
+                query.appendLiteral(taskAssignment.getStartTime().toString());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getEndTime() != null) {
+                query.append("?assignment etutor:hasEndTime ");
+                query.appendLiteral(taskAssignment.getEndTime().toString());
+                query.append(".\n");
+            }
+
 
             if (taskAssignment.getUrl() != null) {
                 query.append("?assignment etutor:hasTaskUrl ");
@@ -372,6 +432,37 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             if(StringUtils.isNotBlank(taskAssignment.getBpmnTestConfig())){
                 query.append("?assignment etutor:hasBpmnConfig ");
                 query.appendLiteral(taskAssignment.getBpmnTestConfig());
+                query.append(".\n");
+            }
+
+            //Pm related variables
+            if(StringUtils.isNotBlank(taskAssignment.getConfigNum())){
+                query.append("?assignment etutor:hasConfigNum ");
+                query.appendLiteral(taskAssignment.getConfigNum());
+                query.append(".\n");
+            }
+
+            if(taskAssignment.getMaxActivity() != 0){
+                query.append("?assignment etutor:hasMaxActivity ");
+                query.appendLiteral(taskAssignment.getMaxActivity());
+                query.append(".\n");
+            }
+
+            if(taskAssignment.getMinActivity() != 0){
+                query.append("?assignment etutor:hasMinActivity ");
+                query.appendLiteral(taskAssignment.getMinActivity());
+                query.append(".\n");
+            }
+
+            if(taskAssignment.getMaxLogSize() != 0){
+                query.append("?assignment etutor:hasMaxLogSize ");
+                query.appendLiteral(taskAssignment.getMaxLogSize());
+                query.append(".\n");
+            }
+
+            if(taskAssignment.getMinLogSize() != 0){
+                query.append("?assignment etutor:hasMinLogSize ");
+                query.appendLiteral(taskAssignment.getMinLogSize());
                 query.append(".\n");
             }
 
@@ -589,6 +680,24 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             return Optional.empty();
         }
     }
+
+    //TODO: check if this is needed
+    /**
+     * Returns the id of the calc solution file by its internal id
+     *
+     * @param assignmentId the task's internal id
+     * @return {@link Optional} which contains the id of the calc solution of the task
+     */
+    public Optional<Integer> getFileIdOfCalcSolution (String assignmentId) {
+        Objects.requireNonNull(assignmentId);
+        try {
+            return Optional.of(getTaskAssignmentByInternalId(assignmentId).get().getCalcSolutionFileId());
+        }
+        catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
 
     /**
      * Returns a paged task display (task header + id). An optional header filter may be passed to this method.
@@ -854,7 +963,6 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
             WHERE {
                 ?group a etutor:TaskGroup;
                     etutor:hasDispatcherTaskGroupId ?id.
-
             }
             """);
 
@@ -870,6 +978,122 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         }
         return -1;
     }
+
+    /**
+     * Method necessary for Pm Tasks:
+     * gets dispatcher id of corresponding configuration id (assigned config) from RDF
+     * with that, random exercise generation is possible
+     * @return returns a {@link Optional<Integer>}: id that has been assigned by the dispatcher for a configuration
+     */
+    public Optional<Integer> getDispatcherIdForTaskAssignment(String newTaskResourceUrl){
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?dispatcherTaskId
+            WHERE {
+              	?taskAssignment a etutor:TaskAssignment;
+            		etutor:hasTaskIdForDispatcher ?dispatcherTaskId.
+            }"""
+        );
+        query.setIri("?taskAssignment", newTaskResourceUrl);
+
+        try(RDFConnection connection = getConnection()){
+            try(QueryExecution execution = connection.query(query.asQuery())){
+                ResultSet rs = execution.execSelect();
+
+                if(rs.hasNext()){
+                    QuerySolution solution = rs.nextSolution();
+                    Literal dispatcherIdLiteral = solution.getLiteral("?dispatcherTaskId");
+
+                    if(dispatcherIdLiteral == null){
+                        return Optional.empty();
+                    }
+                    return Optional.of(dispatcherIdLiteral.getInt());
+                }else{
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    /**
+     * Method necessary for Pm Task:
+     * Queries RDF Graph to check whether task is of type ProcessMining (PM)
+     * @param newTaskResourceUrl the TaskResourceURl
+     * @return true if task is of type Pm
+     */
+    public boolean isPmTask (String newTaskResourceUrl){
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            SELECT ?taskAssignmentType
+            WHERE {
+                ?taskAssignment a etutor:TaskAssignment;
+                    etutor:hasTaskAssignmentType ?taskAssignmentType.
+            }
+            """
+        );
+
+        query.setIri("?taskAssignment", newTaskResourceUrl);
+
+        try (RDFConnection connection = getConnection()) {
+            try(var exec = connection.query(query.asQuery())){
+                var set = exec.execSelect();
+                if (set.hasNext()){
+                    QuerySolution solution = set.nextSolution();
+                    var node = solution.get("?taskAssignmentType");
+                    var tempString = node.toString();
+
+                    return tempString.contains("TaskAssignmentType#PmTask");
+                }else{
+                    return false;
+                }
+            }
+        }
+    }
+
+    /**
+     * Method necessary for Pm Task:
+     * Sets the id in RDF the dispatcher has given for a random exercise (corresponding to dispatcher id)
+     * @param courseInstanceUrl the course instance url
+     * @param exerciseSheetUrl the exercise sheet url
+     * @param studentUrl the student url
+     * @param orderNo the task no
+     * @param id the dispatcher id
+     */
+    public void setDispatcherIdForIndividualTask(String courseInstanceUrl, String exerciseSheetUrl, String studentUrl, int orderNo, int id) {
+        Objects.requireNonNull(courseInstanceUrl);
+        Objects.requireNonNull(exerciseSheetUrl);
+        Objects.requireNonNull(studentUrl);
+
+        ParameterizedSparqlString insertQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            INSERT{
+              ?individualTask etutor:hasTaskIdForDispatcher ?id.
+            } WHERE{
+              ?instance a etutor:CourseInstance.
+              ?student etutor:hasIndividualTaskAssignment ?individualTaskAssignment.
+              ?individualTaskAssignment etutor:fromExerciseSheet ?sheet;\s
+                                    etutor:fromCourseInstance ?instance;\s
+                                    etutor:hasIndividualTask ?individualTask.
+              ?individualTask etutor:hasOrderNo ?orderNo.
+            }
+            """);
+
+        insertQuery.setIri("?instance", courseInstanceUrl);
+        insertQuery.setIri("?sheet", exerciseSheetUrl);
+        insertQuery.setIri("?student", studentUrl);
+        insertQuery.setLiteral("?orderNo", orderNo);
+        insertQuery.setLiteral("?id", id);
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(insertQuery.asUpdate());
+        }
+
+    }
+
     /**
      * Persists the modifications for task groups, currently only the description can be modified.
      *
@@ -1226,6 +1450,112 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         }
     }
 
+    public Optional<Integer> getMaxPointsForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal pointsLiteral = solution.getLiteral("?maxPoints");
+
+                    if (pointsLiteral == null) {
+                        return Optional.of(0);
+                    }
+                    return Optional.of(pointsLiteral.getInt());
+                } else {
+                    return Optional.of(0);
+                }
+            }
+        }
+    }
+
+
+    public Optional<String> getStartTimeForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal startTime = solution.getLiteral("?startTime");
+
+                    if (startTime == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(startTime.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    public Optional<String> getEndTimeForTaskAssignmentByIndividualTask(String matriculationNumber, String courseInstanceUUID, String exerciseSheetUUID, int orderNo) {
+        Objects.requireNonNull(matriculationNumber);
+        Objects.requireNonNull(courseInstanceUUID);
+        Objects.requireNonNull(exerciseSheetUUID);
+        assert orderNo > 0;
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentURL = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNumber);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_ASK_MAX_POINTS_FOR_TASK_ASSIGNMENT);
+        query.setIri("?courseInstance", courseInstanceURL);
+        query.setIri("?student", studentURL);
+        query.setIri("?sheet", exerciseSheetURL);
+        query.setLiteral("?orderNo", orderNo );
+
+        try (RDFConnection connection = getConnection()) {
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                if (set.hasNext()) {
+                    QuerySolution solution = set.nextSolution();
+                    Literal endTime = solution.getLiteral("?endTime");
+
+                    if (endTime == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(endTime.getString());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
     //region Helper methods
 
     /**
@@ -1293,8 +1623,28 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
         resource.addProperty(ETutorVocabulary.hasTaskHeader, newTaskAssignmentDTO.getHeader());
         resource.addProperty(ETutorVocabulary.hasTaskCreationDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
 
-        String uploadFileid = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
-        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileid);
+        String uploadFileId = String.valueOf(newTaskAssignmentDTO.getUploadFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadFileId, uploadFileId);
+
+
+
+        String calcSolutionFileId = String.valueOf(newTaskAssignmentDTO.getCalcSolutionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcSolutionFileId, calcSolutionFileId);
+
+        String calcInstructionFileId = String.valueOf(newTaskAssignmentDTO.getCalcInstructionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadCalcInstructionFileId, calcInstructionFileId);
+
+        String writerInstructionFileId = String.valueOf(newTaskAssignmentDTO.getWriterInstructionFileId());
+        resource.addProperty(ETutorVocabulary.hasUploadWriterInstructionFileId, writerInstructionFileId);
+
+        if (newTaskAssignmentDTO.getStartTime() != null) {
+            resource.addProperty(ETutorVocabulary.hasStartTime, newTaskAssignmentDTO.getStartTime().toString());
+        }
+
+        if (newTaskAssignmentDTO.getEndTime() != null) {
+            resource.addProperty(ETutorVocabulary.hasEndTime, newTaskAssignmentDTO.getEndTime().toString());
+        }
+
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
@@ -1330,6 +1680,23 @@ public non-sealed class AssignmentSPARQLEndpointService extends AbstractSPARQLEn
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){
             resource.addProperty(ETutorVocabulary.hasMaxPoints, newTaskAssignmentDTO.getMaxPoints());
+        }
+
+        // Pm related variables
+        if(newTaskAssignmentDTO.getMaxActivity() !=0){
+            resource.addProperty(ETutorVocabulary.hasMaxActivity,Integer.toString(newTaskAssignmentDTO.getMaxActivity()), XSDDatatype.XSDinteger);
+        }
+        if(newTaskAssignmentDTO.getMinActivity() != 0){
+            resource.addProperty(ETutorVocabulary.hasMinActivity, Integer.toString(newTaskAssignmentDTO.getMinActivity()), XSDDatatype.XSDinteger);
+        }
+        if(newTaskAssignmentDTO.getMaxLogSize() != 0){
+            resource.addProperty(ETutorVocabulary.hasMaxLogSize, Integer.toString(newTaskAssignmentDTO.getMaxLogSize()), XSDDatatype.XSDinteger);
+        }
+        if(newTaskAssignmentDTO.getMinLogSize() != 0){
+            resource.addProperty(ETutorVocabulary.hasMinLogSize, Integer.toString(newTaskAssignmentDTO.getMinLogSize()), XSDDatatype.XSDinteger);
+        }
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getConfigNum())){
+            resource.addProperty(ETutorVocabulary.hasConfigNum, newTaskAssignmentDTO.getConfigNum().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getDiagnoseLevelWeighting())){

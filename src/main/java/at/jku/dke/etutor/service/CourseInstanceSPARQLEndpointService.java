@@ -33,7 +33,7 @@ import java.util.*;
  * SPARQL endpoint service for managing course instances.
  */
 @Service
-public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
+public /*non-sealed */class CourseInstanceSPARQLEndpointService extends AbstractSPARQLEndpointService {
 
     private static final String QRY_ASK_COURSE_INSTANCE_EXISTS =
         """
@@ -53,6 +53,38 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
             }
             """;
 
+    public boolean isAssignedExerciseSheetClosed (String courseInstanceUUID, String exerciseSheetUUID){
+
+        String courseInstanceURL = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String exerciseSheetURL = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+
+        ParameterizedSparqlString askQuery = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+            ASK WHERE {
+              {
+                SELECT ?eAssignment
+                WHERE {
+                 ?instance etutor:hasExerciseSheetAssignment ?eAssignment.
+                 ?eAssignment a etutor:ExerciseSheetAssignment.
+                 ?eAssignment etutor:hasExerciseSheet ?sheet.
+                }
+                LIMIT 1
+              }
+
+              ?assignment etutor:isExerciseSheetClosed ?isClosed .
+              FILTER (?isClosed = true)
+              FILTER (?assignment = ?eAssignment)
+            }
+            """);
+
+        askQuery.setIri("?instance", courseInstanceURL);
+        askQuery.setIri("?sheet", exerciseSheetURL);
+
+        try (RDFConnection connection = getConnection()) {
+            return connection.queryAsk(askQuery.asQuery());
+        }
+    }
     private static final String QRY_CONSTRUCT_COURSE_INSTANCES_FROM_COURSE =
         """
              PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -114,6 +146,9 @@ public non-sealed class CourseInstanceSPARQLEndpointService extends AbstractSPAR
         GROUP BY ?sheet ?lbl ?closed
         ORDER BY (LCASE(?lbl))
         """;
+
+
+
 
     private static final String QRY_DROP_NAMED_GRAPH = """
         DROP SILENT GRAPH ?graph

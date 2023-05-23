@@ -24,6 +24,8 @@ public interface FileRepositoryCustom {
      */
     long uploadFile(String matriculationNumber, String filename, String contentType, byte[] content, long size) throws StudentNotExistsException;
 
+    long uploadFile(String filename, String contentType, byte[] content, long size) ;
+
     /**
      * Retrieves the file meta data from a stored file.
      *

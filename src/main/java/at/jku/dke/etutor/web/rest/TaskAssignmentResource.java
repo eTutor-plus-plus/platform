@@ -2,6 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -13,6 +14,7 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
+import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -68,6 +70,7 @@ public class TaskAssignmentResource {
         TaskAssignmentDTO assignment = null;
         try {
             newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
+            // note: if step before has worked out ->  save task/ config in etutor/ save in RDF
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
@@ -76,7 +79,10 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(NotAValidTaskGroupException navtge){
             throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
+        } catch (WrongCalcParametersException wcpe) {
+            throw new BadRequestAlertException("Calc Parameters not valid", "taskManagement", "wrongCalcFiles");
         }
+
     }
 
     /**
@@ -229,6 +235,20 @@ public class TaskAssignmentResource {
         Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
 
         return ResponseEntity.of(optionalTaskAssignmentDTO);
+    }
+
+    /**
+     * REST endpoint for retrieving the calc solution file id by its
+     * internal id
+     *
+     * @param assignmentId the internal id (path variable)
+     * @return the id of the calc solution file
+     */
+    @GetMapping("tasks/assignments/calc_solution/{assignmentId}")
+    public ResponseEntity<Integer> getFileIdOfCalcSolution (@PathVariable String assignmentId) {
+        Optional<Integer> calc_solution_file_id = assignmentSPARQLEndpointService.getFileIdOfCalcSolution(assignmentId);
+
+        return ResponseEntity.of(calc_solution_file_id);
     }
 
     /**
