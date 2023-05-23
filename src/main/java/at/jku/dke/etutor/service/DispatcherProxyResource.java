@@ -7,6 +7,7 @@ import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
+import at.jku.dke.etutor.service.dto.fd.FDExerciseDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -498,7 +499,7 @@ public class DispatcherProxyResource {
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
     public ResponseEntity<Integer> createFDExercise(FDExerciseDTO exerciseDTO) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/fd/exercise";
+        String url = dispatcherURL+"/fd/new_exercise";
 
         HttpRequest request = null;
         try {
@@ -766,4 +767,23 @@ public class DispatcherProxyResource {
     private String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
+
+    public Long nextFdId() {
+        String url = dispatcherURL+"/fd/next_id";
+
+        HttpRequest request = getGetRequest(url);
+        ResponseEntity<String> response;
+        try {
+            response = getResponseEntity(request, stringHandler);
+        } catch (DispatcherRequestFailedException e) {
+            return null;
+        }
+
+        if (response.getBody() == null) {
+          return null;
+        }
+        var id = Long.parseLong(response.getBody());
+        return id;
+    }
+
 }

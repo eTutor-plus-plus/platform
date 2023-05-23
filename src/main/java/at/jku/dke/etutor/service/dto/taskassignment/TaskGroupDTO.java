@@ -28,8 +28,11 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements,
+                        String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML,
+                        String xquerySubmissionXML, String datalogFacts, String fDependencies, String id, String creator, Instant changeDate) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission,
+            sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts, fDependencies);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -60,6 +63,7 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
         Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
         Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
+        Statement fDependenciesStatement = resource.getProperty(ETutorVocabulary.hasFDependencies);
 
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
@@ -84,6 +88,9 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         }
         if(datalogFactsStatement != null){
             setDatalogFacts(datalogFactsStatement.getString());
+        }
+        if(fDependenciesStatement != null){
+            setfDependencies(fDependenciesStatement.getString());
         }
 
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());

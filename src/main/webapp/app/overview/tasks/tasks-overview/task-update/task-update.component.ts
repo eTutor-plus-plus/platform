@@ -804,7 +804,7 @@ export class TaskUpdateComponent implements OnInit {
       taskAssignmentType === TaskAssignmentType.SQLTask.value ||
       taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
       taskAssignmentType === TaskAssignmentType.XQueryTask.value
-      //taskAssignmentType === TaskAssignmentType.PmTask.value
+      // taskAssignmentType === TaskAssignmentType.PmTask.value
     );
   }
 }

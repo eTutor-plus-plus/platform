@@ -24,6 +24,7 @@ public class NewTaskGroupDTO {
     private String xQuerySubmissionXML;
     private String fileUrl;
     private String datalogFacts;
+    private String fDependencies;
 
     /**
      * Constructor.
@@ -38,7 +39,8 @@ public class NewTaskGroupDTO {
                            String sqlInsertStatementsDiagnose,
                            String xQueryDiagnoseXML,
                            String xQuerySubmissionXML,
-                           String datalogFacts) {
+                           String datalogFacts,
+                           String fDependencies) {
         this.name = name;
         this.description = description;
         this.taskGroupTypeId = taskGroupTypeId;
@@ -48,6 +50,7 @@ public class NewTaskGroupDTO {
         this.xQueryDiagnoseXML=xQueryDiagnoseXML;
         this.xQuerySubmissionXML=xQuerySubmissionXML;
         this.datalogFacts=datalogFacts;
+        this.fDependencies=fDependencies;
     }
 
     /**
@@ -139,6 +142,14 @@ public class NewTaskGroupDTO {
      */
     public void setSqlInsertStatementsDiagnose(String sqlInsertStatementsDiagnose) {
         this.sqlInsertStatementsDiagnose = sqlInsertStatementsDiagnose;
+    }
+
+    public String getfDependencies() {
+        return fDependencies;
+    }
+
+    public void setfDependencies(String fDependencies) {
+        this.fDependencies = fDependencies;
     }
 
     /**

@@ -33,7 +33,8 @@
       "calcTask": "Calc Aufgabe",
       "dlgTask": "Datalog Aufgabe",
       "bpmnTask": "Bpmn Aufgabe",
-      "pmTask": "ProcessMining Aufgabe"
+      "pmTask": "ProcessMining Aufgabe",
+      "FDTask": "Funktonale Abhängigkeitsaufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -63,6 +64,7 @@
       "datalogSolution": "Datalog Lösung:",
       "datalogQuery": "Datalog Query:",
       "datalogFacts": "Datalog Fakten:",
+      "fDependencies": "Funktionale Abhängigkeiten",
       "datalogUncheckedTerms": "Datalog Terms",
       "bpmnCreateStatements": "Create Bpmn Json Testkonfiguration",
       "maxActivity": "Maximale Anzahl Aktivitäten",
@@ -120,6 +122,8 @@
         "submissionXML": "XQuery: XML für Submit-Auswertung",
         "datalogFacts": "Datalog: Fakten",
         "datalogFactsInfo": "Link wird automatisch zur Beschreibung hinzugefügt.",
+        "fDependencies": "Funktionale Abhängigkeiten",
+        "fDependenciesInfo": "Pro Zeile eine Funktionale Abhängigkeit in der Form: a,b -> c",
         "descriptionField": "Beschreibung:",
         "taskGroupType": "Typ:",
         "types": {
@@ -127,7 +131,7 @@
           "sqlType": "SQL Gruppe",
           "xQueryType": "XQuery Gruppe",
           "datalogType": "Datalog Gruppe",
-          "fDType": "Funktionale Abhängigkeiten"
+          "fDType": "Funktionale Abhängigkeiten Gruppe"
         }
       }
     }

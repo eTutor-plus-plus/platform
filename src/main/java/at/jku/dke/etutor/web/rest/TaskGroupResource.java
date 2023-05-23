@@ -11,6 +11,9 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.jena.base.Sys;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
@@ -20,6 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +59,7 @@ public class TaskGroupResource {
      */
     @PostMapping()
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO) {
+    public ResponseEntity<TaskGroupDTO> createNewTaskGroup(@Valid @RequestBody NewTaskGroupDTO newTaskGroupDTO)  {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
@@ -153,5 +158,12 @@ public class TaskGroupResource {
         Page<TaskGroupDisplayDTO> page = assignmentSPARQLEndpointService.getFilteredTaskGroupPaged(filter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/fd/next_id")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public Long nextFdId() {
+        Long id = dispatcherProxyService.nextFdId();
+        return id;
     }
 }

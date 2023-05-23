@@ -38,7 +38,10 @@ export interface INewTaskGroupDTO {
    * Optional facts for a Datalog task group
    */
   datalogFacts?: string;
-
+  /**
+   * Optional dependencies for a Functional Dependency task group
+   */
+  fDependencies?: string;
   /**
    * Optional file url for a task group
    */

@@ -229,6 +229,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.calcTask'
   );
 
+  public static readonly FDTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#FDTask',
+    'taskManagement.taskTypes.FDTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -239,6 +244,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.CalcTask,
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
+    TaskAssignmentType.FDTask,
   ];
 
   private readonly _value: string;

@@ -15,6 +15,8 @@ import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
 import at.jku.dke.etutor.repository.FileRepository;
+import at.jku.dke.etutor.service.dto.fd.FDExerciseDTO;
+import at.jku.dke.etutor.service.dto.fd.FDependenciesDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -241,6 +243,48 @@ public class DispatcherProxyService {
         // return status code
         return statusCode;
     }
+    /**
+     * Adds task group related resources for a Functional Dependencies task group in the dispatcher.
+     * Appends the links to the tables to the task group description
+     *
+     * @param newTaskGroupDTO the task group
+     */
+    private int createFDTaskGroup(TaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
+        // Initialize DTO
+        FDExerciseDTO fdExercise = new FDExerciseDTO();
+        Set < FDependenciesDTO> fDependenciesDTOSet = new HashSet<>();
+        Long id = Long.parseLong(newTaskGroupDTO.getName().trim().replace("FunctionalDependencies-", ""));
+        fdExercise.setId(id);
+        String arrowSeperator;
+        if (newTaskGroupDTO.getfDependencies().contains("→")) {
+            arrowSeperator = "→";
+        } else {
+            arrowSeperator = "->";
+        }
+
+        //TODO sauberer mit .lines().filter(String::isBlank)
+        String [] lines = newTaskGroupDTO.getfDependencies().trim().replace("\r", "\n").
+            replaceAll("\n{2,}","\n").split("\n");
+        try {
+            for (String line : lines) {
+                String[] sides = line.split(arrowSeperator, 2);
+                String[] leftSide = sides[0].replace(" ","").trim().split(",");
+                String[] rightSide = sides[1].replace(" ","").trim().split(",");
+                fDependenciesDTOSet.add(new FDependenciesDTO(leftSide, rightSide));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return 420;
+        }
+
+        fdExercise.setDependencies(fDependenciesDTOSet);
+
+        var response = proxyResource.createFDExercise(fdExercise);
+        var statusCode = response.getStatusCodeValue();
+
+        // return status code
+        return statusCode;
+    }
 
     /**
      * Updates the description of an SQL task group by appending links to the specified tables and information about the schema of the tables
@@ -353,6 +397,8 @@ public class DispatcherProxyService {
         } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) {
             int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(taskGroupDTO);
             if (id != -1) proxyResource.deleteDLGTaskGroup(id);
+        } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.FDTypeTaskGroup.toString())) {
+            String id = taskGroupDTO.getName();
         }
     }
 
@@ -1051,6 +1097,11 @@ public class DispatcherProxyService {
         }else{
             return submissionDTO.getPassedAttributes().get("submission");
         }
+    }
+
+    public Long nextFdId() {
+        Long id = proxyResource.nextFdId();
+        return id;
     }
 }
 

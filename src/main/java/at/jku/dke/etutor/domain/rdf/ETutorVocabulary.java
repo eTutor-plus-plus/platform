@@ -142,6 +142,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
     private static final String PROP_HAS_FILE_URL = "hasFileURL";
     private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
+    private static final String PROP_HAS_FDEPENDENCIES = "hasFDependencies";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
@@ -575,7 +576,7 @@ public final class ETutorVocabulary {
      * The hasDatalogFacts property
      */
     public static final Property hasDatalogFacts = m.createProperty(URI+PROP_HAS_DATALOG_FACTS);
-
+    public static final Property hasFDependencies = m.createProperty(URI+PROP_HAS_FDEPENDENCIES);
     /**
      * The hasTask property.
      */

@@ -874,7 +874,6 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         Model model = ModelFactory.createDefaultModel();
 
         Instant now = Instant.now();
-
         Resource resource = constructTaskGroupFromDTO(newTaskGroupDTO, creator, now, model);
 
         ParameterizedSparqlString existenceQuery = new ParameterizedSparqlString("""
@@ -897,7 +896,9 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
             newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
-            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now);
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(),
+            newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), newTaskGroupDTO.getfDependencies(),
+            resource.getURI(), creator, now);
     }
 
     /**
@@ -1593,6 +1594,9 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
         if(StringUtils.isNotBlank(newTaskGroupDTO.getDatalogFacts())){
             taskGroupResource.addProperty(ETutorVocabulary.hasDatalogFacts, newTaskGroupDTO.getDatalogFacts().trim());
+        }
+        if(StringUtils.isNotBlank(newTaskGroupDTO.getfDependencies())){
+            taskGroupResource.addProperty(ETutorVocabulary.hasFDependencies, newTaskGroupDTO.getfDependencies().trim());
         }
 
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);

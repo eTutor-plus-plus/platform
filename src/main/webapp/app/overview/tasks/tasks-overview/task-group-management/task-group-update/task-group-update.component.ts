@@ -3,6 +3,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
+import { HttpClient } from '@angular/common/http';
+import { values } from 'lodash';
 
 /**
  * Component for adding / manipulation task groups.
@@ -23,6 +25,7 @@ export class TaskGroupUpdateComponent {
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
   public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
+  public editorOptionsFD = { theme: 'vs-light', language: 'fd' };
 
   public taskGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -34,6 +37,7 @@ export class TaskGroupUpdateComponent {
     diagnoseXML: ['', []],
     submissionXML: ['', []],
     datalogFacts: ['', []],
+    fDependencies: ['', []],
   });
 
   /**
@@ -43,7 +47,12 @@ export class TaskGroupUpdateComponent {
    * @param fb the injected form builder service
    * @param taskGroupService the injected task group service
    */
-  constructor(private activeModal: NgbActiveModal, private fb: FormBuilder, private taskGroupService: TaskGroupManagementService) {}
+  constructor(
+    private activeModal: NgbActiveModal,
+    private fb: FormBuilder,
+    private taskGroupService: TaskGroupManagementService,
+    private http: HttpClient
+  ) {}
 
   /**
    * Sets the task id => edit mode.
@@ -67,6 +76,7 @@ export class TaskGroupUpdateComponent {
         submissionXML: this.taskGroupToEdit.xQuerySubmissionXML,
         datalogFacts: this.taskGroupToEdit.datalogFacts,
         taskGroupType: this.taskGroupToEdit.taskGroupTypeId,
+        fDependencies: this.taskGroupToEdit.fDependencies,
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
         this.adjustFormForSQLType();
@@ -102,6 +112,7 @@ export class TaskGroupUpdateComponent {
     const xQueryDiagnoseXML = this.taskGroup.get(['diagnoseXML'])!.value as string | undefined;
     const xQuerySubmissionXML = this.taskGroup.get(['submissionXML'])!.value as string | undefined;
     const datalogFacts = this.taskGroup.get(['datalogFacts'])!.value as string | undefined;
+    const fDependencies = this.taskGroup.get(['fDependencies'])!.value as string | undefined;
     try {
       if (this.isNew) {
         const newTaskGroup = await this.taskGroupService
@@ -115,6 +126,7 @@ export class TaskGroupUpdateComponent {
             xQueryDiagnoseXML,
             xQuerySubmissionXML,
             datalogFacts,
+            fDependencies,
           })
           .toPromise();
 
@@ -128,7 +140,7 @@ export class TaskGroupUpdateComponent {
         this.taskGroupToEdit!.xQueryDiagnoseXML = xQueryDiagnoseXML;
         this.taskGroupToEdit!.xQuerySubmissionXML = xQuerySubmissionXML;
         this.taskGroupToEdit!.datalogFacts = datalogFacts;
-
+        this.taskGroupToEdit!.fDependencies = fDependencies;
         const taskFromService = await this.taskGroupService.modifyTaskGroup(this.taskGroupToEdit!).toPromise();
 
         this.isSaving = false;
@@ -174,6 +186,7 @@ export class TaskGroupUpdateComponent {
     this.taskGroup.get(['datalogFacts'])?.updateValueAndValidity();
     this.taskGroup.updateValueAndValidity();
     this.clearSQLValidators();
+    this.clearFDAdjustment();
   }
 
   private adjustFormForSQLType(): void {
@@ -182,18 +195,32 @@ export class TaskGroupUpdateComponent {
     this.taskGroup.get(['sqlCreateStatements'])?.updateValueAndValidity();
     this.taskGroup.updateValueAndValidity();
     this.clearDLGValidators();
+    this.clearFDAdjustment();
   }
 
   private adjustFormForXQType(): void {
     this.isXQueryGroup = true;
     this.clearDLGValidators();
     this.clearSQLValidators();
+    this.clearFDAdjustment();
   }
 
   private adjustFormForFDType(): void {
     this.isFDGroup = true;
+    this.taskGroupService.nextFdID().then(body => {
+      this.taskGroup.get(['name'])?.setValue('FunctionalDependencies-' + body);
+    });
+    this.taskGroup.get(['name'])?.disable();
+    this.taskGroup.get(['fDependencies'])?.setValidators(Validators.required);
+    this.taskGroup.get(['fDependencies'])?.updateValueAndValidity();
     this.clearDLGValidators();
     this.clearSQLValidators();
+  }
+  private clearFDAdjustment(): void {
+    this.taskGroup.get(['name'])?.setValue('');
+    this.taskGroup.get(['name'])?.enable();
+    this.taskGroup.get(['fDependencies'])?.clearValidators();
+    this.taskGroup.get(['fDependencies'])?.updateValueAndValidity();
   }
 
   private clearSQLValidators(): void {

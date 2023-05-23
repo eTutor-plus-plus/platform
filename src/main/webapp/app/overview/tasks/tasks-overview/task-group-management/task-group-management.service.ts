@@ -10,6 +10,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/core/request/request-util';
 import { Pagination } from 'app/core/request/request.model';
 import { map } from 'rxjs/operators';
+import { toNumber, valuesIn } from 'lodash';
 
 /**
  * Service for managing task group operations.
@@ -93,5 +94,12 @@ export class TaskGroupManagementService {
     }
 
     return this.http.get<ITaskGroupDisplayDTO[]>(url, { params: options, observe: 'response' });
+  }
+
+  public nextFdID(): Promise<string> {
+    let returnValue;
+    const url = `${SERVER_API_URL}/api/task-group/fd/next_id`;
+
+    return this.http.get<string>(url).toPromise();
   }
 }

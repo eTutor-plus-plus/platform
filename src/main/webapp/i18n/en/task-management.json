@@ -32,7 +32,8 @@
       "dlgTask": "Datalog task",
       "calcTask": "Calc task",
       "dlgTask": "Datalog task",
-      "pmTask": "ProcessMining task"
+      "pmTask": "ProcessMining task",
+      "FDTask": "Functional dependency task"
     },
     "fields": {
       "header": "Header:",
@@ -62,6 +63,7 @@
       "datalogSolution": "Datalog solution:",
       "datalogQuery": "Datalog query:",
       "datalogFacts": "Datalog facts:",
+      "fDependencies": "Functional dependencies",
       "datalogUncheckedTerms": "Datalog unchecked terms",
       "maxActivity": "Maximal Activity",
       "minActivity": "Minimal activity ",
@@ -117,13 +119,16 @@
         "submissionXML": "XQuery: XML for submit- evaluation",
         "datalogFacts": "Datalog: Facts",
         "datalogFactsInfo": "Link to the facts will be added to the description automatically.",
+        "fDependencies": "Functional dependencies",
+        "fDependenciesInfo": "One functional dependency per line, formed like: a,b -> c",
         "descriptionField": "Description:",
         "taskGroupType": "Type:",
         "types": {
           "noType": "No Type",
           "sqlType": "SQL Group",
           "xQueryType": "XQuery Group",
-          "datalogType": "Datalog Group"
+          "datalogType": "Datalog Group",
+          "fDType": "Functional Dependency Group"
         }
       }
     }

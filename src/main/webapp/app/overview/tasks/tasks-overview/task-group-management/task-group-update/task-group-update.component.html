@@ -117,6 +117,19 @@
       ></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
     </div>
+
+    <div class="form-group" *ngIf="isFDGroup">
+      <label class="form-control-label" for="fDependencies" jhiTranslate="taskManagement.taskGroup.update.fDependencies"
+        >Functional Dependencies</label
+      >
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.taskGroup.update.fDependenciesInfo' | translate }}"
+        placement="right"
+      ></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsFD" id="fDependencies" formControlName="fDependencies"></ngx-monaco-editor>
+    </div>
+
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="close()">
         <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
