@@ -40,8 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 class UserResourceIT {
 
-    private static final String DEFAULT_LOGIN = "johndoe";
-    private static final String UPDATED_LOGIN = "jhipster";
+    private static final String DEFAULT_LOGIN = "k12345";
+    private static final String UPDATED_LOGIN = "k12346";
 
     private static final Long DEFAULT_ID = 1L;
 
@@ -104,11 +104,11 @@ class UserResourceIT {
      *
      * @throws Exception must not be thrown
      */
-    @BeforeAll
-    public void initBeforeAllTests() throws Exception {
-        //springLiquibase.setDropFirst(true);
-        //springLiquibase.afterPropertiesSet();
-    }
+//    @BeforeAll
+//    public void initBeforeAllTests() throws Exception {
+//        //springLiquibase.setDropFirst(true);
+//        //springLiquibase.afterPropertiesSet();
+//    }
 
     /**
      * Setups the database with one user.

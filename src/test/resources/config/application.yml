@@ -31,7 +31,7 @@ spring:
     serialization:
       write-durations-as-timestamps: false
   jpa:
-    database-platform: tech.jhipster.domain.util.FixedH2Dialect
+    database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
     open-in-view: false
     hibernate:
       ddl-auto: none
@@ -113,8 +113,17 @@ jhipster:
 # More documentation is available at:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
+application:
+  dispatcher:
+    url: http://localhost:8081
+    xqueryXmlFileUrlPrefix: /XML?id=
+    sqlTableUrlPrefix: /sql-tables/
+    datalogFactsUrlPrefix: /datalog-facts/
+  fuseki:
+    baseUrl: http://localhost:3030/etutorpp-database
+  bpmnDispatcher:
+    url: http://localhost:8084
 
-# application:
 management:
   health:
     mail:

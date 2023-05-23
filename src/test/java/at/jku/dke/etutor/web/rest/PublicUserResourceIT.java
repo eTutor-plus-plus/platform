@@ -12,6 +12,7 @@ import at.jku.dke.etutor.repository.UserRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 class PublicUserResourceIT {
 
-    private static final String DEFAULT_LOGIN = "k1234467";
+    private static final String DEFAULT_LOGIN = "k12345";
 
     @Autowired
     private UserRepository userRepository;

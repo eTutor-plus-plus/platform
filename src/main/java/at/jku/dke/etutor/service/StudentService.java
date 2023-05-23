@@ -1,5 +1,6 @@
 package at.jku.dke.etutor.service;
 
+import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import at.jku.dke.etutor.calc.models.Feedback;
 import at.jku.dke.etutor.calc.service.CorrectionService;
 import at.jku.dke.etutor.domain.FileEntity;
@@ -2002,7 +2003,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
             } else {
                 throw new NoFurtherTasksAvailableException();
             }
-        } catch (Exception e) {
+        } catch(WrongCalcParametersException e){
             e.printStackTrace();
         }
     }
@@ -2680,7 +2681,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      */
     private void insertNewAssignedTask(@NotNull String courseInstanceUrl, @NotNull String
         exerciseSheetUrl, @NotNull String studentUrl, @NotNull String newTaskResourceUrl, @NotNull RDFConnection
-                                           connection) throws Exception {
+                                           connection) throws WrongCalcParametersException {
         ParameterizedSparqlString latestOrderNoQry = new ParameterizedSparqlString(QRY_SELECT_MAX_ORDER_NO);
         latestOrderNoQry.setIri("?courseInstance", courseInstanceUrl);
         latestOrderNoQry.setIri("?student", studentUrl);
@@ -2713,7 +2714,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
             return;
         // assign Task of type: PmTask
         // note: status as of 11.11.22: WORKS as planned
-        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
+        if(taskAssignmentDTO.get().getTaskAssignmentTypeId() != null && taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
             // fetch configuration ic stored in RDF
             Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
             if(id.isPresent()){
@@ -2734,7 +2735,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         String login = studentUrl.substring(studentUrl.lastIndexOf('#')+ 1);
 
 
-        if(taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
+        if(taskAssignmentDTO.get().getTaskAssignmentTypeId() != null && taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
             List<Long> generatedFileIdList = uploadFileService.createRandomInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(),(long) taskAssignmentDTO.get().getCalcSolutionFileId(),(long) taskAssignmentDTO.get().getWriterInstructionFileId(), login);
 
             ParameterizedSparqlString addFileIdForCalcInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);

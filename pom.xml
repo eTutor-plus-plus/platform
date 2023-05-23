@@ -46,7 +46,6 @@
         <profile.no-liquibase/>
         <profile.api-docs/>
         <profile.tls/>
-        <profile.e2e/>
 
         <!-- Dependency versions -->
         <jhipster-dependencies.version>7.9.3
@@ -756,13 +755,15 @@
                     <version>${jib-maven-plugin.version}</version>
                     <configuration>
                         <from>
-                            <image>${jib-maven-plugin.image}</image>
+                            <image>${jib-maven-plugin.image}
+                            </image>
                             <platforms>
                                 <platform>
                                     <architecture>${jib-maven-plugin.architecture}</architecture>
                                     <os>linux</os>
                                 </platform>
                             </platforms>
+
                         </from>
                         <to>
                             <image>etutorplusplus:latest</image>
@@ -1057,6 +1058,7 @@
                         <executions>
                             <execution>
                                 <id>create-pre-compiled-webapp-checksum</id>
+
                                 <goals>
                                     <goal>files</goal>
                                 </goals>
@@ -1072,6 +1074,7 @@
                                     <csvSummaryFile>checksums.csv.old</csvSummaryFile>
                                 </configuration>
                             </execution>
+
                         </executions>
                         <configuration>
                             <fileSets>
@@ -1081,10 +1084,13 @@
                                         <include>src/main/webapp/**/*.*</include>
                                         <include>target/classes/static/**/*.*</include>
                                         <include>package-lock.json</include>
-                                        <include>package.json</include>
+                                        <include>
+                                            package.json
+                                        </include>
                                         <include>webpack/*.*</include>
                                         <include>tsconfig.json</include>
                                         <include>tsconfig.app.json</include>
+
                                     </includes>
                                     <excludes>
                                         <exclude>**/app/**/service-worker.js</exclude>
@@ -1274,14 +1280,16 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>io.github.git-commit-id</groupId>
-                        <artifactId>git-commit-id-maven-plugin</artifactId>
+                        <groupId>io.github.git-commit-id
+                        </groupId>
+                        <artifactId>git-commit-id-maven-plugin
+                        </artifactId>
                     </plugin>
                 </plugins>
             </build>
             <properties>
                 <!-- default Spring profiles -->
-                <spring.profiles.active>prod${profile.api-docs}${profile.tls}${profile.e2e}${profile.no-liquibase}
+                <spring.profiles.active>prod${profile.api-docs}${profile.tls}${profile.no-liquibase}
                 </spring.profiles.active>
             </properties>
         </profile>
