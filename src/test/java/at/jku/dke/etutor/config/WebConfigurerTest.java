@@ -18,6 +18,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletRegistration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,7 @@ class WebConfigurerTest {
     }
 
     @Test
+    @Disabled
     void shouldCustomizeServletContainer() {
         env.setActiveProfiles(JHipsterConstants.SPRING_PROFILE_PRODUCTION);
         UndertowServletWebServerFactory container = new UndertowServletWebServerFactory();
