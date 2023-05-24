@@ -44,7 +44,7 @@ class JWTFilterTest {
     }
 
     @Test
-    @Disabled // TODO: enable
+//    @Disabled
     void testJWTFilter() throws Exception {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
             "test-user",
@@ -100,7 +100,7 @@ class JWTFilterTest {
     }
 
     @Test
-    @Disabled // todo: enable
+//    @Disabled
     void testJWTFilterWrongScheme() throws Exception {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
             "test-user",

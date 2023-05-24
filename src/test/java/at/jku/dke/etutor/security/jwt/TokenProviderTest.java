@@ -21,7 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.jhipster.config.JHipsterProperties;
-@Disabled // TODO: enable
+//@Disabled
 class TokenProviderTest {
 
     private static final long ONE_MINUTE = 60000;
