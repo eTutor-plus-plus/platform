@@ -34,6 +34,7 @@ export class TaskUpdateComponent implements OnInit {
   public isXQueryTask = false;
   public isDLQTask = false;
   public isBpmnTask = false;
+  public isJDBCTask = false;
   public isPmTask = false; // boolean flag
   public isCalcTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
@@ -59,6 +60,9 @@ export class TaskUpdateComponent implements OnInit {
     xQuerySubmissionXML: [''],
     xQueryFileURL: [''],
     sqlSolution: [''],
+    jdbcCreateStatementDiagnose: [''],
+    jdbcCreateStatementSubmission: [''],
+    jdbcSolution: [''],
     xQuerySolution: [''],
     xQueryXPathSorting: [''],
     datalogFacts: [''],
@@ -412,6 +416,9 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       this.isXQueryTask = true;
       this.patchXQueryTaskGroupValues(taskGroupId);
+    } else if (taskAssignmentTypeId === TaskAssignmentType.JDBCTask.value) {
+      this.isJDBCTask = true;
+      this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
       this.isDLQTask = true;
       this.patchDatalogTaskGroupValues(taskGroupId);
@@ -444,6 +451,11 @@ export class TaskUpdateComponent implements OnInit {
       this.isDLQTask = true;
     } else if (taskAssignmentTypeId === TaskAssignmentType.RATask.value) {
       this.isRATask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.JDBCTask.value) {
+      this.isJDBCTask = true;
+      this.updateForm.get('jdbcsolution')!.setValidators(Validators.required);
+      this.updateForm.get('jdbcsolution')!.updateValueAndValidity();
+      this.updateForm.updateValueAndValidity();
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
       this.setMaxPointsRequired();
@@ -768,6 +780,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isBpmnTask = false;
     this.isPmTask = false;
     this.isCalcTask = false;
+    this.isJDBCTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -775,6 +788,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('taskGroup')!.updateValueAndValidity();
     this.updateForm.get('maxPoints')!.clearValidators();
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
+    this.updateForm.get('jdbcsolution')!.clearValidators();
+    this.updateForm.get('jdbcsolution')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
@@ -803,7 +818,8 @@ export class TaskUpdateComponent implements OnInit {
       taskAssignmentType === TaskAssignmentType.RATask.value ||
       taskAssignmentType === TaskAssignmentType.SQLTask.value ||
       taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
-      taskAssignmentType === TaskAssignmentType.XQueryTask.value
+      taskAssignmentType === TaskAssignmentType.XQueryTask.value ||
+      taskAssignmentType === TaskAssignmentType.JDBCTask.value
       //taskAssignmentType === TaskAssignmentType.PmTask.value
     );
   }

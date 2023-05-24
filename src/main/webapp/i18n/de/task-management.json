@@ -27,6 +27,7 @@
       "noType": "Kein Typ",
       "uploadTask": "Upload Aufgabe",
       "sqlTask": "SQL Aufgabe",
+      "jdbcTask": "JDBC Aufgabe",
       "raTask": "Relationale Algebra Aufgabe",
       "xqTask": "XQuery Aufgabe",
       "dlgTask": "Datalog Aufgabe",

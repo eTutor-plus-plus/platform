@@ -73,6 +73,10 @@ export interface INewTaskModel {
   /**
    * Optional solution for a SQL-assignment
    */
+  jdbcSolution?: string;
+  /**
+   * Optional solution for a SQL-assignment
+   */
   sqlSolution?: string;
   /**
    * Optional solution for a XQuery-assignment
@@ -200,7 +204,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#SQLTask',
     'taskManagement.taskTypes.sqlTask'
   );
-
+  public static readonly JDBCTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#JDBCTask',
+    'taskManagement.taskTypes.jdbcTask'
+  );
   public static readonly RATask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#RATask',
     'taskManagement.taskTypes.raTask'
@@ -233,6 +240,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
     TaskAssignmentType.SQLTask,
+    TaskAssignmentType.JDBCTask,
     TaskAssignmentType.RATask,
     TaskAssignmentType.XQueryTask,
     TaskAssignmentType.DatalogTask,

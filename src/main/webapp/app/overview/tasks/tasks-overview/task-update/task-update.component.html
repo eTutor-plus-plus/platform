@@ -114,7 +114,7 @@
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
       <ngx-monaco-editor [options]="editorOptions" id="bpmnTestConfig" formControlName="bpmnTestConfig"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isJDBCTask">
       <label class="form-control-label" for="taskIdForDispatcher">
         {{ 'taskManagement.fields.taskIdForDispatcher' | translate }}
         <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.dispatcherIdInfo' | translate }}" placement="right"></fa-icon>
@@ -150,7 +150,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask || isJDBCTask">
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
         <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.diagnoseLevelWeightingInfo' | translate }}" placement="right"></fa-icon>
@@ -174,7 +174,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isJDBCTask">
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
         >SQL Create-Table-Statements:</label
       >
@@ -206,7 +206,7 @@
         formControlName="xQuerySubmissionXML"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask">
+    <div class="form-group" *ngIf="isSQLTask || isRATask || isJDBCTask">
       <label
         class="form-control-label"
         for="sqlInsertStatementsSubmission"
@@ -219,6 +219,30 @@
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
+    <div class="form-group" *ngIf="isJDBCTask">
+      <label class="form-control-label" for="jdbcsolution">
+        {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
+      </label>
+      <input
+        type="number"
+        class="form-control"
+        name="jdbcsolution"
+        id="jdbcsolution"
+        ngPattern="/^-?[0-9][^\.]*$/"
+        formControlName="jdbcsolution"
+      />
+
+      <div *ngIf="updateForm.get('jdbcsolution')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('jdbcsolution')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+
     <div class="form-group" *ngIf="isSQLTask">
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.fields.sqlInsertStatementsDiagnose"
         >SQL Insert-Into-Statements (Diagnose):</label
