@@ -179,11 +179,7 @@
         >SQL Create-Table-Statements:</label
       >
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>
-      <ngx-monaco-editor
-        [options]="editorOptionsReadOnly"
-        id="sqlCreateStatements"
-        formControlName="sqlCreateStatements"
-      ></ngx-monaco-editor>
+      <ngx-monaco-editor [options]="editorOptions" id="sqlCreateStatements" formControlName="sqlCreateStatements"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="isXQueryTask">
       <label class="form-control-label" for="xQueryDiagnoseXML" jhiTranslate="taskManagement.fields.xQueryDiagnoseXML"
@@ -214,41 +210,17 @@
         >SQL Insert-Into-Statements (Submission):</label
       >
       <ngx-monaco-editor
-        [options]="editorOptionsReadOnly"
+        [options]="editorOptions"
         id="sqlInsertStatementsSubmission"
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isJDBCTask">
-      <label class="form-control-label" for="jdbcsolution">
-        {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
-      </label>
-      <input
-        type="number"
-        class="form-control"
-        name="jdbcsolution"
-        id="jdbcsolution"
-        ngPattern="/^-?[0-9][^\.]*$/"
-        formControlName="jdbcsolution"
-      />
-
-      <div *ngIf="updateForm.get('jdbcsolution')!.invalid">
-        <small
-          class="form-text text-danger"
-          *ngIf="updateForm.get('jdbcsolution')?.errors?.required"
-          jhiTranslate="taskManagement.error.required"
-        >
-          This field is required!
-        </small>
-      </div>
-    </div>
-
-    <div class="form-group" *ngIf="isSQLTask">
+    <div class="form-group" *ngIf="isSQLTask || isJDBCTask">
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.fields.sqlInsertStatementsDiagnose"
         >SQL Insert-Into-Statements (Diagnose):</label
       >
       <ngx-monaco-editor
-        [options]="editorOptionsReadOnly"
+        [options]="editorOptions"
         id="sqlInsertStatementsDiagnose"
         formControlName="sqlInsertStatementsDiagnose"
       ></ngx-monaco-editor>

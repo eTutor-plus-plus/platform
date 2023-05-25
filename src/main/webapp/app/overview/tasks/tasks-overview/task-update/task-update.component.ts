@@ -60,9 +60,6 @@ export class TaskUpdateComponent implements OnInit {
     xQuerySubmissionXML: [''],
     xQueryFileURL: [''],
     sqlSolution: [''],
-    jdbcCreateStatementDiagnose: [''],
-    jdbcCreateStatementSubmission: [''],
-    jdbcSolution: [''],
     xQuerySolution: [''],
     xQueryXPathSorting: [''],
     datalogFacts: [''],
@@ -415,9 +412,6 @@ export class TaskUpdateComponent implements OnInit {
       this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       this.isXQueryTask = true;
-      this.patchXQueryTaskGroupValues(taskGroupId);
-    } else if (taskAssignmentTypeId === TaskAssignmentType.JDBCTask.value) {
-      this.isJDBCTask = true;
       this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
       this.isDLQTask = true;
@@ -788,8 +782,6 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('taskGroup')!.updateValueAndValidity();
     this.updateForm.get('maxPoints')!.clearValidators();
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
-    this.updateForm.get('jdbcsolution')!.clearValidators();
-    this.updateForm.get('jdbcsolution')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
