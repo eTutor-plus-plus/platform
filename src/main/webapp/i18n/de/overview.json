@@ -56,7 +56,9 @@
         "file": "Datei-Anhang",
         "randomWriterInstruction": "Generierte Writer Angabe",
         "randomCalcInstruction": "Generierte Calc Angabe",
-        "calcTaskPointsDescription": "Erreichte Punkte: "
+        "calcTaskPointsDescription": "Erreichte Punkte: ",
+        "solveApriori": "Apriori-Aufgabe lösen",
+        "trainingApriori": "Freies Apriori-Training"
       }
     }
   }

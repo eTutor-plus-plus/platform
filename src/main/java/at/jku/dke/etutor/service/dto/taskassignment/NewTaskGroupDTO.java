@@ -24,8 +24,26 @@ public class NewTaskGroupDTO {
     private String xQuerySubmissionXML;
     private String fileUrl;
     private String datalogFacts;
+    
+    
+/** start apriori   */  
+    
+    private String aprioriID;
+    
+    
+    public String getAprioriID() {
+	return aprioriID;
+    }
 
-    /**
+	public void setAprioriID(String aprioriID) {
+		this.aprioriID = aprioriID;
+	}
+
+/** apriori end */
+
+
+
+	/**
      * Constructor.
      *
      * @param name        the mandatory name
@@ -38,7 +56,15 @@ public class NewTaskGroupDTO {
                            String sqlInsertStatementsDiagnose,
                            String xQueryDiagnoseXML,
                            String xQuerySubmissionXML,
-                           String datalogFacts) {
+                           String datalogFacts
+            
+/** start apriori   */  
+                           ,
+                           String aprioriID
+                           
+/** apriori end */
+    		
+    		) {
         this.name = name;
         this.description = description;
         this.taskGroupTypeId = taskGroupTypeId;
@@ -48,6 +74,10 @@ public class NewTaskGroupDTO {
         this.xQueryDiagnoseXML=xQueryDiagnoseXML;
         this.xQuerySubmissionXML=xQuerySubmissionXML;
         this.datalogFacts=datalogFacts;
+        
+        /** start apriori   */  
+        this.aprioriID=aprioriID;
+        /** apriori end */
     }
 
     /**

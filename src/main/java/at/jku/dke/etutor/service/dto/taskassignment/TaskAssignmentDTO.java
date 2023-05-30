@@ -88,6 +88,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
+        
+/** start apriori   */
+        setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
+        
+/** apriori end */  
+        
     }
 
     /**
@@ -171,6 +177,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
+        
+/** start apriori   */
+        Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
+        if(aprioriStatement != null){
+        	
+        	setAprioriDatasetId(aprioriStatement.getString());
+        }
+        
+/** apriori end */  
+        
+        
+        
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());

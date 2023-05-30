@@ -117,51 +117,79 @@
       </small>
     </div>
 
-    <button
-      *ngIf="!isDispatcherTask && !isCalcTask && !isPmTask"
-      type="button"
-      class="btn btn-primary"
-      style="margin-top: 10px"
-      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
-      (click)="markTaskAsSubmittedAsync()"
-    >
-      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
-      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
-        >Submit</span
-      >
-      <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
-    </button>
+    <!-- apriori start -->
 
-    <td class="text-right" *ngIf="isCalcTask">
+    <div *ngIf="taskModel?.taskAssignmentTypeId === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask'; else normal">
+      <jhi-apriori-student-task [courseInstance]="courseInstance" [taskDifficultyId]="taskModel?.taskDifficultyId">
+      </jhi-apriori-student-task>
+      <!-- apriori start-->
       <button
-        *ngIf="isCalcTask"
+        *ngIf="!isDispatcherTask && !isCalcTask && !isPmTask"
         type="button"
         class="btn btn-primary"
         style="margin-top: 10px"
-        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
-        (click)="correctCalcTask()"
+        [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+        (click)="markTaskAsSubmittedAsync()"
       >
-        Diagnose
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+          >Submit Apriori</span
+        >
+        <span *ngIf="isSubmitted">Apriori Submitted</span>
       </button>
+      <br /><br /><br /><br /><br /><br /><br /><br />
+    </div>
+
+    <ng-template #normal>
+      <!-- template for apriori; buttons original -->
       <button
-        *ngIf="isCalcTask"
+        *ngIf="!isDispatcherTask"
         type="button"
         class="btn btn-primary"
         style="margin-top: 10px"
-        [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
-        (click)="submitCalcTask(); updateCalcTaskPoints()"
+        [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+        (click)="markTaskAsSubmittedAsync()"
       >
-        Submit
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+        <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+          >Submit</span
+        >
+        <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
       </button>
-    </td>
-    <br />
-    <ng-container *ngIf="calcCorrectionFeedback !== undefined">
-      <span>{{ calcCorrectionFeedback }}</span>
+
+      <td class="text-right" *ngIf="isCalcTask">
+        <button
+          *ngIf="isCalcTask"
+          type="button"
+          class="btn btn-primary"
+          style="margin-top: 10px"
+          [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+          (click)="correctCalcTask()"
+        >
+          Diagnose
+        </button>
+        <button
+          *ngIf="isCalcTask"
+          type="button"
+          class="btn btn-primary"
+          style="margin-top: 10px"
+          [disabled]="uploadCalcSubmissionFileId == -1 || uploadCalcSubmissionFileId == -2"
+          (click)="submitCalcTask(); updateCalcTaskPoints()"
+        >
+          Submit
+        </button>
+      </td>
       <br />
-    </ng-container>
-    <ng-container *ngIf="calcTaskPoints !== undefined">
-      <span jhiTranslate="overview.student.tasks.calcTaskPointsDescription">Reached Points</span>
-      <span>{{ calcTaskPoints }}</span>
-    </ng-container>
+      <ng-container *ngIf="calcCorrectionFeedback !== undefined">
+        <span>{{ calcCorrectionFeedback }}</span>
+        <br />
+      </ng-container>
+      <ng-container *ngIf="calcTaskPoints !== undefined">
+        <span jhiTranslate="overview.student.tasks.calcTaskPointsDescription">Reached Points</span>
+        <span>{{ calcTaskPoints }}</span>
+      </ng-container>
+    </ng-template>
+
+    <!-- apriori end -->
   </div>
 </div>

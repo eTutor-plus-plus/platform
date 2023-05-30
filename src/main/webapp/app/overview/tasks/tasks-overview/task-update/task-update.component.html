@@ -7,6 +7,7 @@
   </div>
   <div class="modal-body">
     <jhi-alert-error></jhi-alert-error>
+
     <div class="form-group">
       <label class="form-control-label" for="header" jhiTranslate="taskManagement.fields.header">Header:</label>
       <input type="text" class="form-control" name="header" id="header" formControlName="header" />
@@ -75,7 +76,6 @@
         <option value="" disabled>{{ 'taskManagement.difficultyPlaceholder' | translate }}</option>
         <option *ngFor="let difficulty of difficulties" [ngValue]="difficulty">{{ difficulty.text | translate }}</option>
       </select>
-
       <div *ngIf="updateForm.get('taskDifficulty')!.invalid">
         <small
           class="form-text text-danger"
@@ -128,7 +128,14 @@
         formControlName="taskIdForDispatcher"
       />
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask || isBpmnTask || isPmTask">
+
+    <!-- APRIORI element start -->
+    <div
+      class="form-group"
+      *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask || isBpmnTask || isPmTask || isAprioriTask"
+    >
+      <!-- APRIORI element end -->
+
       <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
       <input
         type="number"
@@ -150,6 +157,38 @@
         </small>
       </div>
     </div>
+
+    <!-- APRIORI start -->
+    <div class="form-group" *ngIf="isAprioriTask">
+      <label class="form-control-label" for="aprioriDatasetId" jhiTranslate="taskManagement.fields.datasetApriori"
+        >Apriori task configuration ID:
+      </label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datasetInfo' | translate }}" placement="right"></fa-icon>
+      <input type="text" class="form-control" name="aprioriDatasetId" id="aprioriDatasetId" formControlName="aprioriDatasetId" />
+
+      <button type="button" class="btn btn-primary" style="margin-top: 10px" (click)="getAprioriLink()">
+        <span jhiTranslate="taskManagement.fields.create">Create dataset and task config</span>
+      </button>
+
+      <button type="button" class="btn btn-primary" style="margin-top: 10px" (click)="getAprioriLinkTable()">
+        <span jhiTranslate="taskManagement.fields.load">Load dataset and task config</span>
+      </button>
+
+      <p jhiTranslate="taskManagement.fields.taskIdApriori">
+        Please copy the task configuration id from the extension and paste it into the field
+      </p>
+      <div *ngIf="updateForm.get('aprioriDatasetId')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('aprioriDatasetId')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <!-- APRIORI end  -->
+
     <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask">
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}

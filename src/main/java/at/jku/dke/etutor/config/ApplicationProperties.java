@@ -16,7 +16,13 @@ public class ApplicationProperties {
 
     private final BpmnDispatcher bpmnDispatcher = new BpmnDispatcher();
 
-    /**
+    private final Apriori apriori = new Apriori();
+
+    public Apriori getApriori() {
+		return apriori;
+	}
+
+	/**
      * Getter for the field <code>fuseki</code>
      *
      * @return a {@link ApplicationProperties.Fuseki} object
@@ -78,7 +84,18 @@ public class ApplicationProperties {
         private String sqlTableUrlPrefix;
         private String datalogFactsUrlPrefix;
 
-        /**
+        private String baseUrl;
+
+
+        public String getBaseUrl() {
+			return baseUrl;
+		}
+
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+
+		/**
          * Returns the url for the dispatcher connection
          *
          * @return the url for the dispatcher connection
@@ -143,5 +160,25 @@ public class ApplicationProperties {
         public void setUrl(String url) {
             this.url = url;
         }
+    }
+
+
+    public static class Apriori{
+
+    	private String baseUrl;
+    	private String key;
+
+		public String getBaseUrl() {
+			return baseUrl;
+		}
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+		public String getKey() {
+			return key;
+		}
+		public void setKey(String key) {
+			this.key = key;
+		}
     }
 }

@@ -20,6 +20,10 @@ import { FileUploadService } from '../../../shared/file-upload/file-upload.servi
   styleUrls: ['./student-task.component.scss'],
 })
 export class StudentTaskComponent implements OnInit, OnDestroy {
+  // apriori start data for apriori child element
+  courseInstance: string;
+  difficultyTask: string | undefined;
+  // apriori end
   public isSaving = false;
   public isSubmitted = true;
   public exerciseSheetAlreadyClosed = false;
@@ -82,6 +86,11 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/']);
     }
+
+    // apriori start data for apriori child element
+    this.courseInstance = this._instance!.instanceId;
+    this.difficultyTask = this.taskModel?.taskDifficultyId;
+    // apriori end
   }
 
   /**

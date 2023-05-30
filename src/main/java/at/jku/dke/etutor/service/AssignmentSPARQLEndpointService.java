@@ -326,6 +326,16 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                 query.append(".\n");
             }
 
+/** start apriori   */            
+    
+            if (StringUtils.isNotBlank(taskAssignment.getAprioriDatasetId())) {
+                query.append("?assignment etutor:hasAprioriID ");
+                query.appendLiteral(taskAssignment.getAprioriDatasetId().trim());
+                query.append(".\n");
+            }
+            
+/** apriori end */
+            
             if(StringUtils.isNotBlank(taskAssignment.getMaxPoints())){
                 query.append("?assignment etutor:hasMaxPoints ");
                 query.appendLiteral(taskAssignment.getMaxPoints());
@@ -897,7 +907,16 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
             newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
-            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now);
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now
+            
+/** start apriori   */  
+            ,
+            newTaskGroupDTO.getAprioriID()
+            
+/** apriori end */
+        		
+        		
+        		);
     }
 
     /**
@@ -1595,6 +1614,16 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             taskGroupResource.addProperty(ETutorVocabulary.hasDatalogFacts, newTaskGroupDTO.getDatalogFacts().trim());
         }
 
+ 
+/** start apriori   */ 
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getAprioriID())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasAprioriID, newTaskGroupDTO.getAprioriID().trim());
+        }
+        
+        
+/** apriori end */
+        
+        
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
         return taskGroupResource;
@@ -1649,7 +1678,17 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
         }
-
+/** start apriori   */  
+        
+        
+        
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getAprioriDatasetId() )) {
+            resource.addProperty(ETutorVocabulary.hasAprioriID, newTaskAssignmentDTO.getAprioriDatasetId().trim());
+        }        
+        
+        
+        
+/** apriori end */
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }

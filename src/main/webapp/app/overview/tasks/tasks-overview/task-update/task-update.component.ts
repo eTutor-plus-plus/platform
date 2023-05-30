@@ -12,6 +12,20 @@ import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercis
 import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
 
+/** apriori start */
+import { AccountService } from 'app/core/auth/account.service';
+import * as CryptoJS from 'crypto-js';
+import { v4 as uuid } from 'uuid';
+import { AprioriConfig } from '../../tasks.service';
+/** apriori end */
+
+/** apriori start */
+import { AccountService } from 'app/core/auth/account.service';
+import * as CryptoJS from 'crypto-js';
+import { v4 as uuid } from 'uuid';
+import { AprioriConfig } from '../../tasks.service';
+/** apriori end */
+
 /**
  * Component for creating / updating tasks.
  */
@@ -43,6 +57,16 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
+
+  /** apriori start */
+  public isAprioriTask = false;
+  public accId = this.accountService;
+  /** apriori end   */
+
+  /** apriori start */
+  public isAprioriTask = false;
+  public accId = this.accountService;
+  /** apriori end   */
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -80,10 +104,16 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
+
+    /** apriori start */
+    aprioriDatasetId: ['', [CustomValidators.required]],
+    /** apriori end */
   });
 
   private _taskModel?: ITaskModel;
-
+  /** apriori start */
+  private aprioriConfig!: AprioriConfig;
+  /** apriori end */
   /**
    * Constructor.
    *
@@ -104,7 +134,9 @@ export class TaskUpdateComponent implements OnInit {
     private eventManager: EventManager,
     private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService,
-    private fileService: FileUploadService
+    private fileService: FileUploadService,
+    /** apriori start  */
+    private accountService: AccountService /** apriori end */
   ) {}
 
   /**
@@ -121,6 +153,62 @@ export class TaskUpdateComponent implements OnInit {
         this.taskGroups = response.body ?? [];
       });
   }
+
+  /** apriori start */
+
+  /**
+   * for creating initial parameter for apriori task creation
+   */
+  public initalVariableCreate(): string {
+    const idOne = String(uuid());
+    const idTwo = String(uuid());
+    const idThree = String(uuid());
+    const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
+    const user = String(this.accountService.getLoginName());
+    const delimiter = String('[[{}]]');
+    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
+    this.getAprioriConfig();
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
+    const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
+    const b64enc = btoa(ciphertext);
+    const standChar = b64enc.replace('/', '-');
+    return standChar;
+  }
+  /**
+   * for retrieving apriori base link and key
+   */
+  public getAprioriConfig(): void {
+    this.tasksService.getAprioriConfig().subscribe(
+      data =>
+        (this.aprioriConfig = {
+          baseUrl: (data as any).baseUrl,
+          key: (data as any).key,
+        })
+    );
+  }
+
+  /**
+   * for creating link to apriori stored datasets
+   */
+  public getAprioriLinkTable(): void {
+    const standChar = this.initalVariableCreate();
+    this.getAprioriConfig();
+    const baseStored = '/initialTables?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar;
+    window.open(linkCreate, '_blank');
+  }
+
+  /**
+   * for creating link apriori dataset creation
+   */
+  public getAprioriLink(): void {
+    const standChar = this.initalVariableCreate();
+    this.getAprioriConfig();
+    const baseCreate = '/initialTasks?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseCreate + standChar;
+    window.open(linkCreate, '_blank');
+  }
+  /** apriori end */
 
   /**
    * Saves the task.
@@ -155,6 +243,13 @@ export class TaskUpdateComponent implements OnInit {
     if (instructionStr) {
       newTask.instruction = instructionStr.trim();
     }
+
+    /** apriori start */
+    const aprioriDatasetId: string = this.updateForm.get('aprioriDatasetId')!.value;
+    if (aprioriDatasetId) {
+      newTask.aprioriDatasetId = aprioriDatasetId;
+    }
+    /** apriori end */
 
     const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
@@ -287,6 +382,10 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
+
+        /** apriori start */
+        aprioriDatasetId: newTask.aprioriDatasetId,
+        /** apriori end */
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -342,6 +441,14 @@ export class TaskUpdateComponent implements OnInit {
       const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
 
+      /** apriori start */
+      const aprioriDatasetId = value.aprioriDatasetId;
+      /** apriori end */
+
+      /** apriori start */
+      const aprioriDatasetId = value.aprioriDatasetId;
+      /** apriori end */
+
       if (taskIdForDispatcher) {
         this.updateForm.get('taskIdForDispatcher')!.disable();
       }
@@ -378,6 +485,10 @@ export class TaskUpdateComponent implements OnInit {
         maxLogSize,
         minLogSize,
         configNum,
+
+        /** apriori start */
+        aprioriDatasetId,
+        /** apriori end */
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -452,6 +563,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
       this.setMaxPointsRequired();
+    } else if (taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value) {
+      this.isAprioriTask = true;
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {

@@ -96,6 +96,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
+    
+/** start apriori   */  
+    
+    private static final String PROP_HAS_APRIORI_ID = "hasAprioriID";
+    
+/** apriori end */
+    
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
     private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
@@ -151,7 +158,13 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
+    
 
+/** start apriori   */  
+    private static final String INSTANCE_APRIORI_TASK = "AprioriTask";
+    
+    private static final String INSTANCE_APRIORI_TYPE_TASK_GROUP = "AprioriType";
+/** apriori end */    
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -370,6 +383,19 @@ public final class ETutorVocabulary {
      * The hasSQLSolution property.
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
+
+    
+/** start apriori   */  
+    
+    /**
+     * The hasAprioriID property.
+     */
+    public static final Property hasAprioriID = m.createProperty(URI + PROP_HAS_APRIORI_ID);
+    
+    
+/** apriori end */
+    
+    
     /**
      * The hasXQuerySolution property.
      */
@@ -681,11 +707,23 @@ public final class ETutorVocabulary {
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
 
+/** start apriori   */     
     /**
      * The Calc type instance
      */
     public static final Resource CalcTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_CALC_TASK);
 
+    /**
+     * The Apriori type instance
+     */
+    public static final Resource AprioriTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_APRIORI_TASK);
+    /**
+     * The Apriori task group type
+     */
+    public static final Resource AprioriTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_APRIORI_TYPE_TASK_GROUP);
+
+/** apriori end */
+    
     /**
      * The no type task group type
      */

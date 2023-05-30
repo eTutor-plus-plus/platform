@@ -56,7 +56,9 @@
         "file": "File-Attachment",
         "randomWriterInstruction": "Randomised Writer Instruction",
         "randomCalcInstruction": "Randomised Calc Instruction",
-        "calcTaskPointsDescription": "Points achieved:  "
+        "calcTaskPointsDescription": "Points achieved:  ",
+        "solveApriori": "Solve apriori exercise",
+        "trainingApriori": "Free apriori training"
       }
     }
   }

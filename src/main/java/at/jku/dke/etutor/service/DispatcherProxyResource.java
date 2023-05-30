@@ -4,6 +4,7 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.dto.dispatcher.AprioriExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
@@ -749,4 +750,35 @@ public class DispatcherProxyResource {
     private String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
+    
+/** start apriori   */      
+    
+    /**
+     * Sends the GET-request for retrieving the id for an Apriori-exercise to the dispatcher
+     * @return a ResponseEntity
+     */
+    public ResponseEntity<String> getAprioriDatasetId(@PathVariable int id) throws DispatcherRequestFailedException {
+        var request = getGetRequest(dispatcherURL+"/apriori/exercise/"+id+"/aprioriDatasetId");
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+    /**
+     * Sends the PUT-request for creating an Apriori-exercise to the dispatcher
+     * @param solution the solution for the exercise
+     * @param schemaName the schema/task-group
+     * @return a ResponseEntity
+     */
+    public ResponseEntity<String> createAprioriExercise(String id) throws DispatcherRequestFailedException {
+        var exerciseDTO = new AprioriExerciseDTO(id);
+        HttpRequest request = null;
+        try {
+            request = getPutRequestWithBody(dispatcherURL+"/apriori/exercise", new ObjectMapper().writeValueAsString(exerciseDTO));
+            return getResponseEntity(request, stringHandler);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+/** apriori end */     
 }

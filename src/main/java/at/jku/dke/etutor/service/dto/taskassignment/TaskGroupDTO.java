@@ -28,8 +28,26 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate
+    		
+/** start apriori   */  
+            ,
+            String aprioriID
+            
+/** apriori end */
+    		
+    		) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts
+        	
+/** start apriori   */  
+                ,
+                aprioriID
+                
+/** apriori end */
+        		
+        		
+        		
+        		);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -60,10 +78,27 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
         Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
         Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
-
+        
+/** start apriori   */       
+        Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
+        
+/** apriori end */
+        
+        
+        
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
         }
+        
+        
+/** start apriori   */       
+        if (aprioriStatement != null) {
+        	setAprioriID(aprioriStatement.getString());
+        }
+/** apriori end */
+        
+        
+        
         if (sqlCreateStatement != null) {
             setSqlCreateStatements(sqlCreateStatement.getString());
         }
