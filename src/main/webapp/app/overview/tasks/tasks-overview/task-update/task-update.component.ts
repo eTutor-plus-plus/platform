@@ -460,18 +460,26 @@ export class TaskUpdateComponent implements OnInit {
 
     if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
       this.isSQLTask = true;
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
       this.isXQueryTask = true;
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
       this.isDLQTask = true;
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.RATask.value) {
       this.isRATask = true;
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
       this.isBpmnTask = true;
       this.setMaxPointsRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
       this.isPmTask = true;
-      this.setMaxPointsRequired();
+      this.setProcessMiningValidators();
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
       this.setMaxPointsRequired();
@@ -485,8 +493,6 @@ export class TaskUpdateComponent implements OnInit {
       if (!this.updateForm.get('taskIdForDispatcher')!.value) {
         this.setTaskGroupRequired();
       }
-      this.setMaxPointsRequired();
-      this.setDiagnoseLevelWeightingRequired();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -827,6 +833,16 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
     this.updateForm.get('aprioriDatasetId')!.clearValidators();
     this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
+    this.updateForm.get('maxActivity')!.clearValidators();
+    this.updateForm.get('maxActivity')!.updateValueAndValidity();
+    this.updateForm.get('minActivity')!.clearValidators();
+    this.updateForm.get('minActivity')!.updateValueAndValidity();
+    this.updateForm.get('maxLogSize')!.clearValidators();
+    this.updateForm.get('maxLogSize')!.updateValueAndValidity();
+    this.updateForm.get('configNum')!.clearValidators();
+    this.updateForm.get('configNum')!.updateValueAndValidity();
+    this.updateForm.get('minLogSize')!.clearValidators();
+    this.updateForm.get('minLogSize')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
@@ -851,6 +867,22 @@ export class TaskUpdateComponent implements OnInit {
   private setAprioriDatasetIdRequired(): void {
     this.updateForm.get('aprioriDatasetId')!.setValidators(Validators.required);
     this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setProcessMiningValidators() {
+    this.setMaxPointsRequired();
+    this.setDiagnoseLevelWeightingRequired();
+    this.updateForm.get('maxActivity')!.setValidators(Validators.required);
+    this.updateForm.get('maxActivity')!.updateValueAndValidity();
+    this.updateForm.get('minActivity')!.setValidators(Validators.required);
+    this.updateForm.get('minActivity')!.updateValueAndValidity();
+    this.updateForm.get('maxLogSize')!.setValidators(Validators.required);
+    this.updateForm.get('maxLogSize')!.updateValueAndValidity();
+    this.updateForm.get('minLogSize')!.setValidators(Validators.required);
+    this.updateForm.get('minLogSize')!.updateValueAndValidity();
+    this.updateForm.get('configNum')!.setValidators(Validators.required);
+    this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
