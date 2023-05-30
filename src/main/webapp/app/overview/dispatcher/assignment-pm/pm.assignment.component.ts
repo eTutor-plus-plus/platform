@@ -131,12 +131,6 @@ export class PmAssignmentComponent implements OnInit {
   public gradingReceived = false;
 
   /**
-   * Indicates if the submission contained errors according to the grading
-   * see method {@link setHasErrors}
-   */
-  public hasErrors = true;
-
-  /**
    * The {@link GradingDTO} wrapping information about the graded submission
    */
   public gradingDTO!: GradingDTO;
@@ -199,28 +193,11 @@ export class PmAssignmentComponent implements OnInit {
   }
 
   /**
-   * Handles a click on the DIAGNOSE button
-   * calls {@link processSubmission}
-   */
-  public onDiagnose(): void {
-    this.action = 'diagnose';
-    this.processSubmission();
-  }
-
-  /**
-   * Handles a click on the SUBMIT button
-   * calls {@link processSubmission}
-   */
-  public onSubmit(): void {
-    this.action = 'submit';
-    this.processSubmission();
-  }
-
-  /**
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    */
-  private processSubmission(): void {
-    this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText); //this.mapDiagnoseText(this.diagnoseLevelText);
+  public processSubmission(action: string): void {
+    this.action = action;
+    this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText);
     const submissionDTO = this.initializeSubmissionDTO();
 
     this.assignmentService.postSubmission(submissionDTO).subscribe(submissionId => {
@@ -285,25 +262,9 @@ export class PmAssignmentComponent implements OnInit {
   private getGrading(): void {
     this.assignmentService.getGrading(this.submissionIdDTO).subscribe(grading => {
       this.gradingDTO = grading;
-      // console.log(this.gradingDTO);
       this.gradingReceived = true;
-
-      this.setHasErrors();
       this.emitSubmissionEvents();
     });
-  }
-
-  /**
-   * Verifies if the submission has been evaluated as correct by the dispatcher
-   * and sets {@link hasErrors} accordingly
-   * has errors either if the maximal points are not achieved (points are less than maxPoints)
-   * or if maxPoints equal 0
-   * @private
-   */
-  private setHasErrors(): void {
-    this.gradingDTO.maxPoints > this.gradingDTO.points || this.gradingDTO.maxPoints === 0
-      ? (this.hasErrors = true)
-      : (this.hasErrors = false);
   }
 
   /**
@@ -331,21 +292,16 @@ export class PmAssignmentComponent implements OnInit {
    */
   private getSubmissionFromJson(): void {
     const json = this._submission;
-    if (typeof json === 'string') {
-      const map = new Map<string, string>(Object.entries(JSON.parse(json)));
-
-      //this.orI1 = <string>map.get("orI1");
-      //this.updateForm.get('orI1')?.patchValue(<string>map.get("orI1"));
-      this.updateForm.controls['orI1'].patchValue(<string>map.get('orI1'));
-      this.orI2 = <string>map.get('orI2');
-      this.orI3 = <string>map.get('orI3');
-      this.aaI1 = <string>map.get('aaI1');
-      this.aaI2 = <string>map.get('aaI2');
-      this.aaI3 = <string>map.get('aaI3');
-      this.aaI4 = <string>map.get('aaI4');
-      this.aaI5 = <string>map.get('aaI5');
-      this.aaI6 = <string>map.get('aaI6');
-      this.aaI7 = <string>map.get('aaI7');
-    }
+    const map = new Map<string, string>(Object.entries(JSON.parse(json)));
+    this.updateForm.controls['orI1'].patchValue(<string>map.get('orI1'));
+    this.orI2 = <string>map.get('orI2');
+    this.orI3 = <string>map.get('orI3');
+    this.aaI1 = <string>map.get('aaI1');
+    this.aaI2 = <string>map.get('aaI2');
+    this.aaI3 = <string>map.get('aaI3');
+    this.aaI4 = <string>map.get('aaI4');
+    this.aaI5 = <string>map.get('aaI5');
+    this.aaI6 = <string>map.get('aaI6');
+    this.aaI7 = <string>map.get('aaI7');
   }
 }
