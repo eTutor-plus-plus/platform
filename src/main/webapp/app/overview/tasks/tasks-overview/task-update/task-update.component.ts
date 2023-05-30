@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TasksService } from '../../tasks.service';
+import { AprioriConfig, TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
@@ -14,7 +14,6 @@ import { FileUploadService } from '../../../shared/file-upload/file-upload.servi
 import { AccountService } from 'app/core/auth/account.service';
 import * as CryptoJS from 'crypto-js';
 import { v4 as uuid } from 'uuid';
-import { AprioriConfig } from '../../tasks.service';
 
 /**
  * Component for creating / updating tasks.
@@ -48,7 +47,6 @@ export class TaskUpdateComponent implements OnInit {
   public startTime = null;
   public endTime = null;
   public isAprioriTask = false;
-  public accId = this.accountService;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -88,7 +86,7 @@ export class TaskUpdateComponent implements OnInit {
     configNum: [''],
 
     /** apriori start */
-    aprioriDatasetId: ['', [CustomValidators.required]],
+    aprioriDatasetId: [''],
     /** apriori end */
   });
 
@@ -135,62 +133,6 @@ export class TaskUpdateComponent implements OnInit {
         this.taskGroups = response.body ?? [];
       });
   }
-
-  /** apriori start */
-
-  /**
-   * for creating initial parameter for apriori task creation
-   */
-  public initalVariableCreate(): string {
-    const idOne = String(uuid());
-    const idTwo = String(uuid());
-    const idThree = String(uuid());
-    const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
-    const user = String(this.accountService.getLoginName());
-    const delimiter = String('[[{}]]');
-    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
-    this.getAprioriConfig();
-    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
-    const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
-    const b64enc = btoa(ciphertext);
-    const standChar = b64enc.replace('/', '-');
-    return standChar;
-  }
-  /**
-   * for retrieving apriori base link and key
-   */
-  public getAprioriConfig(): void {
-    this.tasksService.getAprioriConfig().subscribe(
-      data =>
-        (this.aprioriConfig = {
-          baseUrl: (data as any).baseUrl,
-          key: (data as any).key,
-        })
-    );
-  }
-
-  /**
-   * for creating link to apriori stored datasets
-   */
-  public getAprioriLinkTable(): void {
-    const standChar = this.initalVariableCreate();
-    this.getAprioriConfig();
-    const baseStored = '/initialTables?initalVar=';
-    const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar;
-    window.open(linkCreate, '_blank');
-  }
-
-  /**
-   * for creating link apriori dataset creation
-   */
-  public getAprioriLink(): void {
-    const standChar = this.initalVariableCreate();
-    this.getAprioriConfig();
-    const baseCreate = '/initialTasks?initalVar=';
-    const linkCreate = this.aprioriConfig.baseUrl + baseCreate + standChar;
-    window.open(linkCreate, '_blank');
-  }
-  /** apriori end */
 
   /**
    * Saves the task.
@@ -492,20 +434,11 @@ export class TaskUpdateComponent implements OnInit {
    */
   public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
     if (this.isSqlOrRaTask(taskAssignmentTypeId)) {
-      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-        this.isSQLTask = true;
-      } else {
-        this.isRATask = true;
-      }
       this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
-      this.isXQueryTask = true;
       this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
-      this.isDLQTask = true;
       this.patchDatalogTaskGroupValues(taskGroupId);
-    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
-      this.isCalcTask = true;
     }
   }
   /**
@@ -538,11 +471,14 @@ export class TaskUpdateComponent implements OnInit {
       this.setMaxPointsRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
       this.isPmTask = true;
+      this.setMaxPointsRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
       this.setMaxPointsRequired();
     } else if (taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value) {
       this.isAprioriTask = true;
+      this.setMaxPointsRequired();
+      this.setAprioriDatasetIdRequired();
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
@@ -570,7 +506,8 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Reacts to the input of a task-id for the dispatcher
+   * Reacts to the input of a task-id for the dispatcher.
+   * For some task types, either a task-group or an existing dispatcher-task-id are required, so we change the validators accordingly
    */
   public taskIdForDispatcherEntered(): void {
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
@@ -591,8 +528,6 @@ export class TaskUpdateComponent implements OnInit {
         this.updateForm.get('taskGroup')!.updateValueAndValidity();
         this.updateForm.updateValueAndValidity();
       }
-    } else {
-      // === PmTask
     }
   }
 
@@ -602,7 +537,7 @@ export class TaskUpdateComponent implements OnInit {
   public openSolutionRunnerWindow(asSql = false): void {
     const modalRef = this.modalService.open(DispatcherAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
     let subm = '';
-    const taskT = asSql
+    const taskT = asSql // solutions for relational algebra are available in SQL, so we either open an empty editor or one with the SQL solution
       ? TaskAssignmentType.SQLTask.value
       : (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskT === TaskAssignmentType.SQLTask.value) {
@@ -673,7 +608,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the writer instruction id.
+   * Sets the writer instruction id (calc task).
    *
    * @param fileId the file to add
    */
@@ -688,7 +623,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the writer instruction file.
+   * Removes the writer instruction file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -697,7 +632,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified  writer instruction file.
+   * Sets a modified  writer instruction file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -713,7 +648,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the calc solution file id.
+   * Sets the calc solution file id (calc task).
    *
    * @param fileId the file to add
    */
@@ -728,7 +663,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the calc solution file.
+   * Removes the calc solution file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -737,7 +672,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified solution calc file.
+   * Sets a modified solution calc file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -753,7 +688,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the calc instruction id.
+   * Sets the calc instruction id (calc task).
    *
    * @param fileId the file to add
    */
@@ -768,7 +703,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the calc instruction file.
+   * Removes the calc instruction file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -777,7 +712,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified  calc instruction file.
+   * Sets a modified  calc instruction file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -792,6 +727,27 @@ export class TaskUpdateComponent implements OnInit {
     });
   }
 
+  /**
+   * for creating link to apriori stored datasets
+   */
+  public getAprioriLinkTable(): void {
+    const standChar = this.initialVariableCreate();
+    this.getAprioriConfig();
+    const baseStored = '/initialTables?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar;
+    window.open(linkCreate, '_blank');
+  }
+
+  /**
+   * for creating link apriori dataset creation
+   */
+  public getAprioriLink(): void {
+    const standChar = this.initialVariableCreate();
+    this.getAprioriConfig();
+    const baseCreate = '/initialTasks?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseCreate + standChar;
+    window.open(linkCreate, '_blank');
+  }
   /**
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id
@@ -859,6 +815,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isBpmnTask = false;
     this.isPmTask = false;
     this.isCalcTask = false;
+    this.isAprioriTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -868,6 +825,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    this.updateForm.get('aprioriDatasetId')!.clearValidators();
+    this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
@@ -889,13 +848,52 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.updateValueAndValidity();
   }
 
+  private setAprioriDatasetIdRequired(): void {
+    this.updateForm.get('aprioriDatasetId')!.setValidators(Validators.required);
+    this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
   private isDkeDispatcherTask(taskAssignmentType: string): boolean {
     return (
       taskAssignmentType === TaskAssignmentType.RATask.value ||
       taskAssignmentType === TaskAssignmentType.SQLTask.value ||
       taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
       taskAssignmentType === TaskAssignmentType.XQueryTask.value
-      //taskAssignmentType === TaskAssignmentType.PmTask.value
     );
   }
+
+  /** apriori start */
+
+  /**
+   * for creating initial parameter for apriori task creation
+   */
+  private initialVariableCreate(): string {
+    const idOne = String(uuid());
+    const idTwo = String(uuid());
+    const idThree = String(uuid());
+    const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
+    const user = String(this.accountService.getLoginName());
+    const delimiter = String('[[{}]]');
+    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
+    this.getAprioriConfig();
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
+    const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
+    const b64enc = btoa(ciphertext);
+    return b64enc.replace('/', '-');
+  }
+  /**
+   * for retrieving apriori base link and key
+   */
+  private getAprioriConfig(): void {
+    this.tasksService.getAprioriConfig().subscribe(
+      data =>
+        (this.aprioriConfig = {
+          baseUrl: (data as any).baseUrl,
+          key: (data as any).key,
+        })
+    );
+  }
+
+  /** apriori end */
 }
