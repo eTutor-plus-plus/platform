@@ -11,20 +11,10 @@ import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/ta
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
-
-/** apriori start */
 import { AccountService } from 'app/core/auth/account.service';
 import * as CryptoJS from 'crypto-js';
 import { v4 as uuid } from 'uuid';
 import { AprioriConfig } from '../../tasks.service';
-/** apriori end */
-
-/** apriori start */
-import { AccountService } from 'app/core/auth/account.service';
-import * as CryptoJS from 'crypto-js';
-import { v4 as uuid } from 'uuid';
-import { AprioriConfig } from '../../tasks.service';
-/** apriori end */
 
 /**
  * Component for creating / updating tasks.
@@ -57,16 +47,8 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
-
-  /** apriori start */
   public isAprioriTask = false;
   public accId = this.accountService;
-  /** apriori end   */
-
-  /** apriori start */
-  public isAprioriTask = false;
-  public accId = this.accountService;
-  /** apriori end   */
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -245,7 +227,7 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     /** apriori start */
-    const aprioriDatasetId: string = this.updateForm.get('aprioriDatasetId')!.value;
+    const aprioriDatasetId: string | null = this.updateForm.get('aprioriDatasetId')!.value;
     if (aprioriDatasetId) {
       newTask.aprioriDatasetId = aprioriDatasetId;
     }
@@ -440,10 +422,6 @@ export class TaskUpdateComponent implements OnInit {
       const maxLogSize: string = (value.maxLogSize ?? '').toString();
       const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
-
-      /** apriori start */
-      const aprioriDatasetId = value.aprioriDatasetId;
-      /** apriori end */
 
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;

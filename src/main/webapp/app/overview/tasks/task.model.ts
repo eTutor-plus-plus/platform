@@ -236,24 +236,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#CalcTask',
     'taskManagement.taskTypes.calcTask'
   );
-
-  /** start apriori   */
-
   public static readonly AprioriTask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask',
     'taskManagement.taskTypes.aprioriTask'
   );
-
-  /** end apriori   */
-
-  /** start apriori   */
-
-  public static readonly AprioriTask = new TaskAssignmentType(
-    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask',
-    'taskManagement.taskTypes.aprioriTask'
-  );
-
-  /** end apriori   */
 
   public static readonly Values = [
     TaskAssignmentType.NoType,

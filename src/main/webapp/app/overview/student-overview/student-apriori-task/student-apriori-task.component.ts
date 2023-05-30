@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AccountService } from 'app/core/auth/account.service';
 import { StudentService } from 'app/overview/shared/students/student-service';
 import { ICourseInstanceInformationDTO } from 'app/overview/shared/students/students.model';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import * as CryptoJS from 'crypto-js';
 import { AprioriConfig } from 'app/overview/tasks/tasks.service';
 
@@ -73,7 +73,7 @@ export class StudentAprioriTaskComponent implements OnInit {
       this._taskUUID = paramMap.get('taskUUID')!;
       this._taskNo = Number(paramMap.get('taskNo')!);
       (async () => {
-        const result = await this.taskService.getTaskAssignmentById(this._taskUUID, true).toPromise();
+        const result = await lastValueFrom(this.taskService.getTaskAssignmentById(this._taskUUID, true));
         this._taskModelA = result.body!;
       })();
     });
