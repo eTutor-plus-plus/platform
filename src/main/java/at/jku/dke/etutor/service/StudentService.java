@@ -2332,13 +2332,13 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
         addSubmissionForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission,grading != null && grading.isSubmissionSuitsSolution());
-        if(grading == null)
+        if(grading == null || isExerciseSheetClosed)
             return getAchievedDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo).orElse(0);
         int highestChosenDiagnoseLevel = updateHighestDiagnoseLevelForIndividualTask(courseInstanceUUID, exerciseSheetUUID,
             matriculationNo, taskNo, submission);
         int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel, isExerciseSheetClosed);
-        if(submission.getPassedAttributes().get("action").equals("submit") && !isExerciseSheetClosed)
+        if(submission.getPassedAttributes().get("action").equals("submit"))
             markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
         return achievedPoints;
     }
