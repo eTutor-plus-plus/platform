@@ -31,7 +31,7 @@
   <div class="modal-header">
     <h4 class="modal-title" jhiTranslate="courseManagement.goalAssignment.displayModalHeader">Display learning goal assignment</h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
   <div class="modal-body">
     <jhi-learning-goal-treeview [items]="goals" [itemTemplate]="learningGoalsTemplate"> </jhi-learning-goal-treeview>
