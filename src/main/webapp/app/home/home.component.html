@@ -75,12 +75,16 @@
       </div>
 
       <br />
-
-      <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid" jhiTranslate="login.form.button">Sign in</button>
-      &nbsp;
-      <button type="button" class="bnt btn-secondary" (click)="requestResetPassword()" jhiTranslate="login.password.forgot">
-        Did you forget your password?
-      </button>
+      <div class="row">
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid" jhiTranslate="login.form.button">Sign in</button>
+        </div>
+        <div class="col-md-8">
+          <button type="button" class="btn btn-secondary" (click)="requestResetPassword()" jhiTranslate="login.password.forgot">
+            Did you forget your password?
+          </button>
+        </div>
+      </div>
     </form>
   </div>
 </div>
