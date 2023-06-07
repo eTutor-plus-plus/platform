@@ -251,12 +251,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.CalcTask,
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
-
-    /** start apriori   */
-
     TaskAssignmentType.AprioriTask,
-
-    /** end apriori   */
   ];
 
   private readonly _value: string;

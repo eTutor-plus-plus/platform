@@ -32,13 +32,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
   public editorOptionsDLGReadOnly = { theme: 'datalog-light', language: 'datalog', readOnly: true };
-  public isSQLTask = false;
-  public isRATask = false;
-  public isXQueryTask = false;
-  public isDLQTask = false;
-  public isBpmnTask = false;
-  public isPmTask = false; // boolean flag
-  public isCalcTask = false;
+  public selectedTaskAssignmentType = '';
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
   public writerInstructionFileId = -1;
@@ -46,7 +40,6 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
-  public isAprioriTask = false;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -453,43 +446,33 @@ export class TaskUpdateComponent implements OnInit {
    * Reacts to a change of the taskType in the update form
    */
   public taskTypeChanged(): void {
-    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-
-    this.setAllTaskTypeFlagsToFalse();
+    this.selectedTaskAssignmentType = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     this.clearAllTaskTypeDependentValidators();
 
-    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-      this.isSQLTask = true;
+    if (this.selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value) {
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
-      this.isXQueryTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value) {
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
-      this.isDLQTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value) {
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.RATask.value) {
-      this.isRATask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.RATask.value) {
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
-      this.isBpmnTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value) {
       this.setMaxPointsRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
-      this.isPmTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.PmTask.value) {
       this.setProcessMiningValidators();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
-      this.isCalcTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value) {
       this.setMaxPointsRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value) {
-      this.isAprioriTask = true;
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
     }
 
-    if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
+    if (this.isDkeDispatcherTask(this.selectedTaskAssignmentType)) {
       if (!this.updateForm.get('taskIdForDispatcher')!.value) {
         this.setTaskGroupRequired();
       }
@@ -809,21 +792,6 @@ export class TaskUpdateComponent implements OnInit {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }
 
-  /**
-   * Sets all booleans indicating the task-type to false
-   * @private
-   */
-  private setAllTaskTypeFlagsToFalse(): void {
-    this.isSQLTask = false;
-    this.isXQueryTask = false;
-    this.isRATask = false;
-    this.isDLQTask = false;
-    this.isBpmnTask = false;
-    this.isPmTask = false;
-    this.isCalcTask = false;
-    this.isAprioriTask = false;
-  }
-
   private clearAllTaskTypeDependentValidators(): void {
     this.updateForm.get('taskGroup')!.clearValidators();
     this.updateForm.get('taskGroup')!.updateValueAndValidity();
@@ -928,4 +896,5 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /** apriori end */
+  protected readonly TaskAssignmentType = TaskAssignmentType;
 }
