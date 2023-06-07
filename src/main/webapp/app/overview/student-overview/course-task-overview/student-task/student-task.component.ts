@@ -419,4 +419,6 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
       });
     }
   }
+
+  protected readonly TaskAssignmentType = TaskAssignmentType;
 }
