@@ -4,6 +4,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.RDF;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +19,8 @@ public final class ETutorVocabulary {
     private static final String CLASS_SUB_GOAL = "SubGoal";
     private static final String CLASS_COURSE = "Course";
     private static final String CLASS_TASK_ASSIGNMENT = "TaskAssignment";
+    private static final String CLASS_TASK_ASSIGNMENT_CHANGESET = "TaskAssignmentChangeSet";
+    private static final String CLASS_CHANGESET = "ChangeSet";
     private static final String CLASS_DIFFICULTY_RANKING = "DifficultyRanking";
     private static final String CLASS_TASK_ASSIGNMENT_TYPE = "TaskAssignmentType";
     private static final String CLASS_EXERCISE_SHEET = "ExerciseSheet";
@@ -79,8 +82,6 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_UPLOAD_CALC_SOLUTION_FILE_ID = "hasCalcSolutionFileId";// Beziehung im RDF Graphen
     private static final String PROP_HAS_UPLOAD_CALC_INSTRUCTION_FILE_ID = "hasCalcInstructionFileId";// Beziehung im RDF Graphen
     private static final String PROP_HAS_UPLOAD_WRITER_INSTRUCTION_FILE_ID = "hasWriterInstructionFileId";
-    // TODO: i change now the hasCalcAssignmentFileId to hasCalcInstructionAssignmentFileId and add new ids because of the new implementation
-//    private static final String PROP_HAS_CALC_ASSIGNMENT_FILE_ID = "hasCalcAssignmentFileId";
     private static final String PROP_HAS_CALC_INSTRUCTION_ASSIGNMENT_FILE_ID = "hasCalcInstructionAssignmentFileId";
     private static final String PROP_HAS_CALC_SOLUTION_ASSIGNMENT_FILE_ID = "hasCalcSolutionAssignmentFileId";
     private static final String PROP_HAS_WRITER_INSTRUCTION_ASSIGNMENT_FILE_ID = "hasWriterInstructionAssignmentFileId";
@@ -96,13 +97,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
-    
-/** start apriori   */  
-    
+
+/** start apriori   */
+
     private static final String PROP_HAS_APRIORI_ID = "hasAprioriID";
-    
+
 /** apriori end */
-    
+
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
     private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
@@ -149,6 +150,17 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_FILE_URL = "hasFileURL";
     private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
+    // PURL properties used for change-sets
+    private static final String PROP_ADDITION = "addition";
+    private static final String PROP_REMOVAL = "removal";
+    private static final String PROP_STATEMENT = "statement";
+    private static final String PROP_CHANGE_REASON = "changeReason";
+    private static final String PROP_SUBJECT_OF_CHANGE = "subjectOfChange";
+    private static final String PROP_PRECEDING_CHANGESET = "precedingChangeSet";
+    private static final String PROP_CREATOR_NAME = "creatorName";
+    private static final String PROP_CREATED_DATE = "createdDate";
+
+
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
@@ -158,13 +170,13 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
-    
 
-/** start apriori   */  
+
+/** start apriori   */
     private static final String INSTANCE_APRIORI_TASK = "AprioriTask";
-    
+
     private static final String INSTANCE_APRIORI_TYPE_TASK_GROUP = "AprioriType";
-/** apriori end */    
+/** apriori end */
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -184,6 +196,7 @@ public final class ETutorVocabulary {
      * The namespace of the vocabulary.
      */
     public static final String URI = "http://www.dke.uni-linz.ac.at/etutorpp/";
+    public static final String PURL_URI = "http://purl.org/vocab/changeset/schema#";
     /**
      * The namespace of the difficulty types.
      */
@@ -203,6 +216,17 @@ public final class ETutorVocabulary {
 
     private static final Model m = ModelFactory.createDefaultModel();
 
+    /**
+     * Properties from the ChangeSet-vocabulary
+     */
+    public static final Property addition = m.createProperty(PURL_URI+PROP_ADDITION);
+    public static final Property removal = m.createProperty(PURL_URI+PROP_REMOVAL);
+    public static final Property statement = m.createProperty(PURL_URI+PROP_STATEMENT);
+    public static final Property changeReason = m.createProperty(PURL_URI+PROP_CHANGE_REASON);
+    public static final Property subjectOfChange = m.createProperty(PURL_URI+PROP_SUBJECT_OF_CHANGE);
+    public static final Property precedingChangeSet = m.createProperty(PURL_URI+PROP_PRECEDING_CHANGESET);
+    public static final Property creatorName = m.createProperty(PURL_URI+PROP_CREATOR_NAME);
+    public static final Property createdDate = m.createProperty(PURL_URI+PROP_CREATED_DATE);
     /**
      * The hasDescription property.
      */
@@ -384,18 +408,18 @@ public final class ETutorVocabulary {
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
 
-    
-/** start apriori   */  
-    
+
+/** start apriori   */
+
     /**
      * The hasAprioriID property.
      */
     public static final Property hasAprioriID = m.createProperty(URI + PROP_HAS_APRIORI_ID);
-    
-    
+
+
 /** apriori end */
-    
-    
+
+
     /**
      * The hasXQuerySolution property.
      */
@@ -707,7 +731,7 @@ public final class ETutorVocabulary {
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
 
-/** start apriori   */     
+/** start apriori   */
     /**
      * The Calc type instance
      */
@@ -723,7 +747,7 @@ public final class ETutorVocabulary {
     public static final Resource AprioriTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_APRIORI_TYPE_TASK_GROUP);
 
 /** apriori end */
-    
+
     /**
      * The no type task group type
      */
@@ -823,6 +847,16 @@ public final class ETutorVocabulary {
      */
     public static Resource createTaskAssignmentResourceOfModel(String uuid, Model model) {
         return model.createResource(URI + CLASS_TASK_ASSIGNMENT + "#" + uuid);
+    }
+
+    public static Resource createTaskAssignmentChangeSetResourceOfModel (String uuid, Model model){
+        Resource resource = model.createResource(URI + CLASS_TASK_ASSIGNMENT_CHANGESET + "#" + uuid);
+        resource.addProperty(RDF.type, createChangeSetResourceOfMOdel(model));
+        return resource;
+    }
+
+    private static Resource createChangeSetResourceOfMOdel(Model model){
+        return model.createResource(PURL_URI + CLASS_CHANGESET);
     }
 
     /**

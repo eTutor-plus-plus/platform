@@ -13,11 +13,12 @@
 @prefix etutor:  <http://www.dke.uni-linz.ac.at/etutorpp/> .
 
 
+
 [] rdf:type fuseki:Server ;
    fuseki:services (
      <#service_tdb2>
    ) .
-   
+
 ## Initialize text query
 [] ja:loadClass       "org.apache.jena.query.text.TextQuery" .
 # A TextDataset is a regular dataset with a text index.
@@ -30,7 +31,7 @@ text:TextIndexLucene  rdfs:subClassOf   text:TextIndex .
 	text:dataset <#tdb_dataset_readwrite> ;
 	text:index <#indexLucene> ;
 	.
-	
+
 <#indexLucene>  a text:TextIndexLucene ;
 	text:directory <file:run/lucene> ;
 	text:storeValue true ;
@@ -38,10 +39,10 @@ text:TextIndexLucene  rdfs:subClassOf   text:TextIndex .
 	text:entityMap <#entMap> ;
 	text:analyzer  [
 		a text:LocalizedAnalyzer ;
-        text:language "de" 
+        text:language "de"
 	]
 	.
-	
+
 <#entMap> a text:EntityMap ;
 	text:defaultField "text" ;
 	text:entityField "uri" ;
@@ -87,11 +88,11 @@ text:TextIndexLucene  rdfs:subClassOf   text:TextIndex .
      .
 
    # Example::
-   # Server-wide query timeout.   
-   # 
+   # Server-wide query timeout.
+   #
    # Timeout - server-wide default: milliseconds.
    # Format 1: "1000" -- 1 second timeout
-   # Format 2: "10000,60000" -- 10s timeout to first result, 
+   # Format 2: "10000,60000" -- 10s timeout to first result,
    #                            then 60s timeout for the rest of query.
    #
    # See javadoc for ARQ.queryTimeout for details.
@@ -101,7 +102,7 @@ text:TextIndexLucene  rdfs:subClassOf   text:TextIndex .
 
    # Add any custom classes you want to load.
    # Must have a "public static void init()" method.
-   # ja:loadClass "your.code.Class" ;   
+   # ja:loadClass "your.code.Class" ;
 
    # End triples.
-   
+
