@@ -575,13 +575,14 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.setIri("?assignment", taskAssignment.getId());
 
             connection.update(query.asUpdate());
+
+            // construct change set for task versioning
             var updatedModel = getModelOfTaskAssignment(taskAssignment.getId());
             constructTaskAssignmentChangeSet(taskAssignment.getId(), currentModel, updatedModel);
         }
     }
 
     // ChangeSet methods start
-    // TODO: document and change arguments from optional to values
     private void constructTaskAssignmentChangeSet(String taskAssignmentUri, Optional<Model> oldModel, Optional<Model> updatedModel) {
         if(oldModel.isPresent() && updatedModel.isPresent()){
             Model before = oldModel.get();
@@ -592,7 +593,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             Resource changeSetResource = ETutorVocabulary.createTaskAssignmentChangeSetResourceOfModel(UUID.randomUUID().toString(), changeSetModel);
 
             // preceding change set
-            Optional<Resource> precedingChangeSetResource = getCurrentTaskAssignmentChangeSetUrl(taskAssignmentUri);
+            Optional<Resource> precedingChangeSetResource = getCurrentTaskAssignmentChangeSetUri(taskAssignmentUri);
             precedingChangeSetResource.ifPresent(resource -> changeSetResource.addProperty(ETutorVocabulary.precedingChangeSet, resource));
 
             // task assignment resource
@@ -655,7 +656,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
     }
 
-    private Optional<Resource> getCurrentTaskAssignmentChangeSetUrl(String taskAssignmentUri){
+    private Optional<Resource> getCurrentTaskAssignmentChangeSetUri(String taskAssignmentUri){
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_CURRENT_CHANGESET_OF_TASK_ASSIGNMENT);
         query.setIri("?assignment", taskAssignmentUri);
         try (RDFConnection connection = getConnection()) {
@@ -672,7 +673,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
     }
 
-    private Optional<TaskAssignmentDTO> getTaskAssignmentVersionByChangeSetId(String changeSetUri, ChangeSetStatementType version){
+    private Optional<TaskAssignmentDTO> getTaskAssignmentVersionByChangeSetUri(String changeSetUri, ChangeSetStatementType version){
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENT_BY_CHANGESET);
         query.setIri("?changeSet", changeSetUri);
         query.setIri("?typeOfStatement", version.getProperty().getURI());
@@ -697,7 +698,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
     }
 
     public List<TaskAssignmentDTO> getAllVersionOfTaskAssignmentByUri(String taskAssignmentUri){
-        var changeSetResourceList = getAllTaskAssignmentChangeSetIdsByInternalTaskId(taskAssignmentUri);
+        var changeSetResourceList = getAllTaskAssignmentChangeSetsByTaskUri(taskAssignmentUri);
         List<TaskAssignmentDTO> resultList = new ArrayList<>();
         if(changeSetResourceList.isEmpty()){
             var optionalTask = getTaskAssignmentByInternalId(taskAssignmentUri.substring(taskAssignmentUri.lastIndexOf("#") + 1, taskAssignmentUri.length()));
@@ -708,18 +709,18 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         Resource resource = null;
         for (Resource value : changeSetResourceList) {
             resource = value;
-            var task = getTaskAssignmentVersionByChangeSetId(resource.getURI(), ChangeSetStatementType.AFTER);
+            var task = getTaskAssignmentVersionByChangeSetUri(resource.getURI(), ChangeSetStatementType.AFTER);
             task.ifPresent(resultList::add);
         }
         // first version
-        var task = getTaskAssignmentVersionByChangeSetId(resource.getURI(), ChangeSetStatementType.BEFORE);
+        var task = getTaskAssignmentVersionByChangeSetUri(resource.getURI(), ChangeSetStatementType.BEFORE);
         task.ifPresent(resultList::add);
         return resultList;
     }
 
-    private List<Resource> getAllTaskAssignmentChangeSetIdsByInternalTaskId(String taskAssignmentId){
+    private List<Resource> getAllTaskAssignmentChangeSetsByTaskUri(String taskAssignmentUri){
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_CHANGESETS_OF_TASK_ASSIGNMENT);
-        query.setIri("?assignment", taskAssignmentId);
+        query.setIri("?assignment", taskAssignmentUri);
         List<Resource> result = new ArrayList<>();
         try (RDFConnection connection = getConnection()) {
             try (QueryExecution execution = connection.query(query.asQuery())) {
