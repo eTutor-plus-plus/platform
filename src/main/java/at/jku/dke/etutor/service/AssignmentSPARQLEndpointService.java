@@ -1,8 +1,8 @@
 package at.jku.dke.etutor.service;
 
-import at.jku.dke.etutor.domain.rdf.ChangeSetStatementType;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.helper.RDFConnectionFactory;
+import at.jku.dke.etutor.service.dto.ResourceVersionDTO;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
@@ -37,6 +37,7 @@ import java.util.*;
  */
 @Service
 public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
+    private final ChangeSetSPARQLEndpointService changeSetSPARQLEndpointService;
     private static final String QRY_SELECT_TRIPLES_TASK_ASSIGNMENT =
         """
             PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -167,34 +168,6 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
               }
             }
             """;
-     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENT_BY_CHANGESET =
-        """
-            PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
-            PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX purl:              <http://purl.org/vocab/changeset/schema#>
-            PREFIX rdf:                 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-            CONSTRUCT { ?assignment ?predicate ?object.
-              ?assignment etutor:isAssignmentOf ?goal.
-              ?othergoal rdfs:label ?goalName.
-              ?assignment etutor:hasTaskGroup ?taskGroup. }
-            WHERE {
-              ?changeSet a purl:ChangeSet;
-                            purl:subjectOfChange ?assignment;
-                            ?typeOfStatement ?statement .
-              ?statement rdf:predicate ?predicate ;
-                                rdf:object ?object .
-              ?assignment a etutor:TaskAssignment.
-              OPTIONAL {
-                ?goal etutor:hasTaskAssignment ?assignment.
-                ?othergoal rdfs:label ?goalName.
-              }
-              OPTIONAL {
-                ?taskGroup etutor:hasTask ?assignment.
-              }
-            }
-            """;
     private static final String QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -217,51 +190,20 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             }
             ORDER BY (LCASE(?assignmentHeader))
             """;
-    private static final String QRY_SELECT_CURRENT_CHANGESET_OF_TASK_ASSIGNMENT =
-        """
-            PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX purl:              <http://purl.org/vocab/changeset/schema#>
-            PREFIX xsd:                 <http://www.w3.org/2001/XMLSchema#>
 
-            SELECT ?changeSet
-            WHERE {
-              ?changeSet purl:subjectOfChange ?assignment;
-                                    purl:createdDate ?date .
-              FILTER(DATATYPE(?date) = xsd:dateTime)
-
-              ?assignment a etutor:TaskAssignment .
-            }
-            ORDER BY DESC(?date)
-            LIMIT 1
-            """;
-
-    private static final String QRY_SELECT_CHANGESETS_OF_TASK_ASSIGNMENT =
-        """
-            PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX purl:              <http://purl.org/vocab/changeset/schema#>
-            PREFIX xsd:                 <http://www.w3.org/2001/XMLSchema#>
-
-            SELECT ?changeSet
-            WHERE {
-              ?changeSet purl:subjectOfChange ?assignment;
-                                    purl:createdDate ?date .
-              FILTER(DATATYPE(?date) = xsd:dateTime)
-
-              ?assignment a etutor:TaskAssignment .
-            }
-            ORDER BY DESC(?date)
-            """;
     /**
      * Constructor.
      *
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public AssignmentSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory) {
+    public AssignmentSPARQLEndpointService(RDFConnectionFactory rdfConnectionFactory, ChangeSetSPARQLEndpointService changeSetSPARQLEndpointService) {
         super(rdfConnectionFactory);
+        this.changeSetSPARQLEndpointService = changeSetSPARQLEndpointService;
     }
 
     /**
      * Inserts a new task assignment.
+     * Also inserts an initial ChangeSet for the task.
      *
      * @param newTaskAssignmentDTO the task assignment dto to persist
      * @param internalCreator      the internal creator of this task assignment
@@ -286,6 +228,10 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         try (RDFConnection connection = getConnection()) {
             connection.load(model);
         }
+        // insert initial ChangeSet for task
+        var optTaskModel = changeSetSPARQLEndpointService.getModelOfResource(newTaskAssignment.getURI());
+        optTaskModel.ifPresent(taskModel ->
+            changeSetSPARQLEndpointService.insertNewChangeSet(newTaskAssignment.getURI(), "initial creation", ModelFactory.createDefaultModel(), taskModel));
 
         return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator);
     }
@@ -348,10 +294,13 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         try (RDFConnection connection = getConnection()) {
             connection.update(parameterizedQry.asUpdate());
         }
+        // delete ChangeSets
+        changeSetSPARQLEndpointService.deleteChangeSetsOfResource(assignmentId); // TODO: delete or keep history by constructing final changeset?
     }
 
     /**
      * Updates the given task assignment. Task learning goal assignment changes are ignored!
+     * Also, creates a ChangeSet to document the changes applied to the task assignment.
      *
      * @param taskAssignment the task assignment to update
      * @throws InternalTaskAssignmentNonexistentException if the given assignment does not exist
@@ -369,7 +318,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             if (!assignmentExist) {
                 throw new InternalTaskAssignmentNonexistentException();
             }
-            var currentModel = getModelOfTaskAssignment(taskAssignment.getId());
+            var currentModel = changeSetSPARQLEndpointService.getModelOfResource(taskAssignment.getId());
 
             ParameterizedSparqlString query = new ParameterizedSparqlString();
             query.append(
@@ -400,15 +349,11 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                 query.append(".\n");
             }
 
-/** start apriori   */
-
             if (StringUtils.isNotBlank(taskAssignment.getAprioriDatasetId())) {
                 query.append("?assignment etutor:hasAprioriID ");
                 query.appendLiteral(taskAssignment.getAprioriDatasetId().trim());
                 query.append(".\n");
             }
-
-/** apriori end */
 
             if(StringUtils.isNotBlank(taskAssignment.getMaxPoints())){
                 query.append("?assignment etutor:hasMaxPoints ");
@@ -577,166 +522,52 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             connection.update(query.asUpdate());
 
             // construct change set for task versioning
-            var updatedModel = getModelOfTaskAssignment(taskAssignment.getId());
-            constructTaskAssignmentChangeSet(taskAssignment.getId(), currentModel, updatedModel);
-        }
-    }
-
-    // ChangeSet methods start
-    private void constructTaskAssignmentChangeSet(String taskAssignmentUri, Optional<Model> oldModel, Optional<Model> updatedModel) {
-        if(oldModel.isPresent() && updatedModel.isPresent()){
-            Model before = oldModel.get();
-            Model after = updatedModel.get();
-
-            Model changeSetModel = ModelFactory.createDefaultModel();
-
-            Resource changeSetResource = ETutorVocabulary.createTaskAssignmentChangeSetResourceOfModel(UUID.randomUUID().toString(), changeSetModel);
-
-            // preceding change set
-            Optional<Resource> precedingChangeSetResource = getCurrentTaskAssignmentChangeSetUri(taskAssignmentUri);
-            precedingChangeSetResource.ifPresent(resource -> changeSetResource.addProperty(ETutorVocabulary.precedingChangeSet, resource));
-
-            // task assignment resource
-            Resource taskAssignmentResource = changeSetModel.createResource(taskAssignmentUri);
-            changeSetResource.addProperty(ETutorVocabulary.subjectOfChange, taskAssignmentResource);
-
-            // changeDate
-            changeSetResource.addProperty(ETutorVocabulary.createdDate, instantToRDFString(Instant.now()), XSDDatatype.XSDdateTime);
-
-            // change Person
-
-            // reason of change
-
-
-            // statements
-            var beforeIterator = before.listStatements();
-            while(beforeIterator.hasNext()){
-                var statement = beforeIterator.nextStatement();
-                if(!statement.getSubject().equals(taskAssignmentResource))
-                    continue;
-                changeSetResource.addProperty(ETutorVocabulary.removal, getReifiedStatement(changeSetModel, statement));
-            }
-            var afterIterator = after.listStatements();
-            while(afterIterator.hasNext()){
-                var statement = afterIterator.nextStatement();
-                if(!statement.getSubject().equals(taskAssignmentResource))
-                    continue;
-                changeSetResource.addProperty(ETutorVocabulary.addition, getReifiedStatement(changeSetModel, statement));
-            }
-            try(RDFConnection connection = getConnection()){
-                connection.load(changeSetModel);
+            // TODO: pass and set reason for change
+            var updatedModel = changeSetSPARQLEndpointService.getModelOfResource(taskAssignment.getId());
+            if(currentModel.isPresent() && updatedModel.isPresent()){
+                changeSetSPARQLEndpointService.insertNewChangeSet(taskAssignment.getId(), "", currentModel.get(), updatedModel.get());
             }
         }
-
     }
 
     /**
-     * Utility method that receives a statement and creates a reified resource that represents a statement,
-     * where the subject, predicate and object of the statement present in the iterator are
-     * linked to the resource with rdf:subject, rdf:predicate and rdf:object.
-     * @param changeSetModel the model
-     * @param statement the statement for reification
-     * @return the reified resource
+     * Returns all previous versions of the task.
+     *
+     * @param id the internal id of the task
+     * @return all versions of the task as {@link List} of {@link ResourceVersionDTO<TaskAssignmentDTO>}
+     * @exception InternalTaskAssignmentNonexistentException if no task assignment with the given URI exists
      */
-    private Resource getReifiedStatement(Model changeSetModel, Statement statement) {
-        Resource resource = changeSetModel.createResource();
-        resource.addProperty(RDF.type, RDF.Statement);
-        resource.addProperty(RDF.subject, statement.getSubject());
-        resource.addProperty(RDF.predicate, statement.getPredicate());
-        resource.addProperty(RDF.object, statement.getObject());
-        return resource;
-    }
+    public List<ResourceVersionDTO<TaskAssignmentDTO>> getAllTaskAssignmentVersions(String id) throws InternalTaskAssignmentNonexistentException {
+        Objects.requireNonNull(id);
 
-    private Optional<Model> getModelOfTaskAssignment(String taskAssignmentUri) {
-        ParameterizedSparqlString query = new ParameterizedSparqlString("CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o .}");
-        query.setIri("?s", taskAssignmentUri);
+        ParameterizedSparqlString existQuery = new ParameterizedSparqlString(QRY_ASK_ASSIGNMENT_EXISTS);
+
+        String taskAssignmentUri = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", id);
+        existQuery.setIri("?assignment", taskAssignmentUri);
+
         try (RDFConnection connection = getConnection()) {
-            var resultModel = connection.queryConstruct(query.asQuery());
-            return Optional.of(resultModel);
+            boolean assignmentExist = connection.queryAsk(existQuery.asQuery());
+
+            if (!assignmentExist) {
+                throw new InternalTaskAssignmentNonexistentException();
+            }
         }
-    }
 
-    private Optional<Resource> getCurrentTaskAssignmentChangeSetUri(String taskAssignmentUri){
-        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_CURRENT_CHANGESET_OF_TASK_ASSIGNMENT);
-        query.setIri("?assignment", taskAssignmentUri);
-        try (RDFConnection connection = getConnection()) {
-            try (QueryExecution execution = connection.query(query.asQuery())) {
-                ResultSet set = execution.execSelect();
-
-                if (set.hasNext()) {
-                    QuerySolution solution = set.nextSolution();
-                    return Optional.of(solution.getResource("?changeSet"));
+        return changeSetSPARQLEndpointService.getAllVersionOfResource(taskAssignmentUri,
+            () -> getTaskAssignmentByInternalId(taskAssignmentUri.substring(taskAssignmentUri.lastIndexOf("#")+1)).orElse(null),
+            r -> {
+                try {
+                    return new TaskAssignmentDTO(r);
+                } catch (MalformedURLException | ParseException e) {
+                    // decide how to handle
                 }
-
-                return Optional.empty();
+                return null;
             }
-        }
+           );
+
     }
 
-    private Optional<TaskAssignmentDTO> getTaskAssignmentVersionByChangeSetUri(String changeSetUri, ChangeSetStatementType version){
-        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENT_BY_CHANGESET);
-        query.setIri("?changeSet", changeSetUri);
-        query.setIri("?typeOfStatement", version.getProperty().getURI());
 
-        try (RDFConnection connection = getConnection()) {
-            Model model = connection.queryConstruct(query.asQuery());
-
-            if (model.isEmpty()) {
-                return Optional.empty();
-            }
-            ResIterator iterator = model.listResourcesWithProperty(RDF.type, ETutorVocabulary.TaskAssignment);
-
-            try {
-                Resource resource = iterator.nextResource();
-                return Optional.of(new TaskAssignmentDTO(resource));
-            } finally {
-                iterator.close();
-            }
-        } catch (ParseException | MalformedURLException e) {
-            return Optional.empty();
-        }
-    }
-
-    public List<TaskAssignmentDTO> getAllVersionOfTaskAssignmentByUri(String taskAssignmentUri){
-        var changeSetResourceList = getAllTaskAssignmentChangeSetsByTaskUri(taskAssignmentUri);
-        List<TaskAssignmentDTO> resultList = new ArrayList<>();
-        if(changeSetResourceList.isEmpty()){
-            var optionalTask = getTaskAssignmentByInternalId(taskAssignmentUri.substring(taskAssignmentUri.lastIndexOf("#") + 1, taskAssignmentUri.length()));
-            optionalTask.ifPresent(resultList::add);
-            return resultList;
-        }
-
-        Resource resource = null;
-        for (Resource value : changeSetResourceList) {
-            resource = value;
-            var task = getTaskAssignmentVersionByChangeSetUri(resource.getURI(), ChangeSetStatementType.AFTER);
-            task.ifPresent(resultList::add);
-        }
-        // first version
-        var task = getTaskAssignmentVersionByChangeSetUri(resource.getURI(), ChangeSetStatementType.BEFORE);
-        task.ifPresent(resultList::add);
-        return resultList;
-    }
-
-    private List<Resource> getAllTaskAssignmentChangeSetsByTaskUri(String taskAssignmentUri){
-        ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_SELECT_CHANGESETS_OF_TASK_ASSIGNMENT);
-        query.setIri("?assignment", taskAssignmentUri);
-        List<Resource> result = new ArrayList<>();
-        try (RDFConnection connection = getConnection()) {
-            try (QueryExecution execution = connection.query(query.asQuery())) {
-                ResultSet set = execution.execSelect();
-
-                while (set.hasNext()) {
-                    QuerySolution solution = set.nextSolution();
-                    result.add(solution.getResource("?changeSet"));
-                }
-
-                return result;
-            }
-        }
-    }
-
-    // ChangeSet methods end
     /**
      * Updates the task assignment.
      *
@@ -924,7 +755,6 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
     }
 
-    //TODO: check if this is needed
     /**
      * Returns the id of the calc solution file by its internal id
      *
@@ -1911,17 +1741,10 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskIdForDispatcher())) {
             resource.addProperty(ETutorVocabulary.hasTaskIdForDispatcher, newTaskAssignmentDTO.getTaskIdForDispatcher().trim());
         }
-/** start apriori   */
-
-
-
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getAprioriDatasetId() )) {
             resource.addProperty(ETutorVocabulary.hasAprioriID, newTaskAssignmentDTO.getAprioriDatasetId().trim());
         }
 
-
-
-/** apriori end */
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }

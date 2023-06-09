@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel } from './task.model';
+import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel, ITaskVersionModel } from './task.model';
 import { Observable } from 'rxjs';
 import { createRequestOption } from 'app/core/request/request-util';
 
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
+type TaskVersionsResponseType = HttpResponse<ITaskVersionModel[]>;
 type StringArrayResponseType = HttpResponse<string[]>;
 type TaskAssignmentDisplayResponseType = HttpResponse<ITaskAssignmentDisplay[]>;
 
@@ -77,6 +78,26 @@ export class TasksService {
     }
 
     return this.http.get<ITaskModel>(`api/tasks/assignments/${id}`, { observe: 'response' });
+  }
+
+  // get all task versions
+  /**
+   * Performs the REST endpoint call for retrieving all versions of a task assignment
+   * object by its id.
+   *
+   * @param internalId the internal task's id
+   * @param alreadyParsed indicates whether the given internalId is already parsed or not (default = false)
+   */
+  public getTaskVersionsById(internalId: string, alreadyParsed = false): Observable<TaskVersionsResponseType> {
+    let id;
+
+    if (alreadyParsed) {
+      id = internalId;
+    } else {
+      id = internalId.substr(internalId.lastIndexOf('#') + 1);
+    }
+
+    return this.http.get<ITaskVersionModel[]>(`api/tasks/assignments/versions/${id}`, { observe: 'response' });
   }
 
   /**

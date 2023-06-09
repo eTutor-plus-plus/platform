@@ -6,6 +6,7 @@ import at.jku.dke.etutor.service.DispatcherProxyService;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
+import at.jku.dke.etutor.service.dto.ResourceVersionDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
@@ -235,6 +236,23 @@ public class TaskAssignmentResource {
         Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
 
         return ResponseEntity.of(optionalTaskAssignmentDTO);
+    }
+
+    /**
+     * REST endpoint for retrieving all versions of a task assignment
+     * @param assignmentId the internal id (path variable)
+     * @return the list of all versions of the task assignment
+     */
+    @GetMapping("tasks/assignments/versions/{assignmentId}")
+    public ResponseEntity<List<ResourceVersionDTO<TaskAssignmentDTO>>> getAllVersionsOfTaskAssignment(@PathVariable String assignmentId) {
+        List<ResourceVersionDTO<TaskAssignmentDTO>> versions = null;
+        try {
+            versions = assignmentSPARQLEndpointService.getAllTaskAssignmentVersions(assignmentId);
+        } catch (InternalTaskAssignmentNonexistentException e) {
+            // TODO: handle exception
+        }
+
+        return ResponseEntity.ok(versions);
     }
 
     /**

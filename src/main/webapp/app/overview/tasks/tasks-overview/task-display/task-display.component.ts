@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ITaskDisplayModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
+import { ITaskDisplayModel, ITaskModel, ITaskVersionModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -13,6 +13,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 export class TaskDisplayComponent {
   private _taskDisplayModel?: ITaskDisplayModel;
   private _taskModel?: ITaskModel;
+  private _taskVersions?: ITaskVersionModel[];
   private readonly difficulties = TaskDifficulty.Values;
   private readonly taskTypes = TaskAssignmentType.Values;
 
@@ -43,6 +44,14 @@ export class TaskDisplayComponent {
       this.tasksService.getTaskAssignmentById(value.taskId).subscribe(response => {
         if (response.body) {
           this._taskModel = response.body;
+        }
+      });
+    }
+    // TODO: complete switch to all versions
+    if (value) {
+      this.tasksService.getTaskVersionsById(value.taskId).subscribe(response => {
+        if (response.body) {
+          this._taskVersions = response.body;
         }
       });
     }

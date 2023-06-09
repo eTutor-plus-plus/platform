@@ -21,7 +21,21 @@ export interface ITaskDisplayModel {
    */
   privateTask: boolean;
 }
+export interface ITaskVersionModel {
+  /**
+   * The date of the creation of the specific version
+   */
+  creationDate: Date;
+  /**
+   * The reason the resource has been modified to this version
+   */
+  reasonOfChange: string;
 
+  /**
+   * The version of the resource
+   */
+  version: ITaskModel;
+}
 /**
  * Interface which represents a new task.
  */
