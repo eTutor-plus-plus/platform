@@ -110,6 +110,8 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
 
     /**
      * Constructs a ChangeSet for a resource.
+     * The ChangeSet only captures statements in the model, where the subject corresponds to the resourceUri.
+     * This is required to ensure consistency when reconstructing resources based on ChangeSets.
      * The creation date of the ChangeSet is set to the time this method is called.
      * The preceding ChangeSet of this ChangeSet is set to the most current ChangeSet; i.e. the ChangeSet with the most current
      * creationDate.
@@ -156,11 +158,17 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
         var beforeIterator = before.listStatements();
         while (beforeIterator.hasNext()) {
             var statement = beforeIterator.nextStatement();
+            if(!statement.getSubject().equals(subjectOfChangeResource)) {
+                continue;
+            }
             changeSetResource.addProperty(ETutorVocabulary.removal, getReifiedStatement(changeSetModel, statement));
         }
         var afterIterator = after.listStatements();
         while (afterIterator.hasNext()) {
             var statement = afterIterator.nextStatement();
+            if(!statement.getSubject().equals(subjectOfChangeResource)) {
+                continue;
+            }
             changeSetResource.addProperty(ETutorVocabulary.addition, getReifiedStatement(changeSetModel, statement));
         }
         try (RDFConnection connection = getConnection()) {
