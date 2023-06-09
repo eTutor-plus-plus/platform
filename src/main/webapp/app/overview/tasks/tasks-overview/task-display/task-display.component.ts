@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { ITaskDisplayModel, ITaskModel, ITaskVersionModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {AccountService} from "../../../../core/auth/account.service";
 
 /**
  * Component for displaying a task.
@@ -10,20 +11,30 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   selector: 'jhi-task-display',
   templateUrl: './task-display.component.html',
 })
-export class TaskDisplayComponent {
+export class TaskDisplayComponent implements OnInit{
   private _taskDisplayModel?: ITaskDisplayModel;
   private _taskModel?: ITaskModel;
-  private _taskVersions?: ITaskVersionModel[];
   private readonly difficulties = TaskDifficulty.Values;
   private readonly taskTypes = TaskAssignmentType.Values;
+  private userLogin = '';
+  public _taskVersions: ITaskVersionModel[] = []
+  public version?: ITaskModel;
+  public currentIndex = 0;
 
   /**
    * Constructor.
    *
+   * @param accountService the injected account service
    * @param tasksService the injected task service
    * @param activeModal the active modal service
    */
-  constructor(private tasksService: TasksService, private activeModal: NgbActiveModal) {}
+  constructor(private accountService: AccountService,
+              private tasksService: TasksService,
+              private activeModal: NgbActiveModal) {}
+
+  ngOnInit(): void {
+        this.userLogin = this.accountService.getLoginName() ?? ''
+  }
 
   /**
    * Returns the task display model.
@@ -47,11 +58,12 @@ export class TaskDisplayComponent {
         }
       });
     }
-    // TODO: complete switch to all versions
+
     if (value) {
       this.tasksService.getTaskVersionsById(value.taskId).subscribe(response => {
         if (response.body) {
           this._taskVersions = response.body;
+          this.version = this._taskVersions[0].version;
         }
       });
     }
@@ -87,5 +99,24 @@ export class TaskDisplayComponent {
    */
   public close(): void {
     this.activeModal.close();
+  }
+
+
+  previousVersion() {
+    this.currentIndex -= 1;
+    if(this._taskVersions && this.currentIndex >= 0){
+      this.version = this._taskVersions[this.currentIndex].version;
+    }
+  }
+
+  nextVersion() {
+    this.currentIndex += 1;
+    if(this._taskVersions && this.currentIndex < this._taskVersions.length){
+      this.version = this._taskVersions[this.currentIndex].version;
+    }
+  }
+
+  public isCurrentUserAllowedToEditTask(): boolean {
+    return this._taskDisplayModel?.internalCreator === this.userLogin;
   }
 }

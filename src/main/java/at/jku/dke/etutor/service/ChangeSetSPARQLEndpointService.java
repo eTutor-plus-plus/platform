@@ -22,12 +22,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 //TODO: reason of change for tasks
-//TODO: refactor TaskDisplayComponent in UI to schow all versions
 
 /**
  * Service to handle ChangeSets.
  * ChangeSets capture the delta between two versions of a resource and describe the changes to resources.
- * Also see the vocabulary description for further info (<a href="https://vocab.org/changeset/">...</a>).
+ * Also see the vocabulary description for further info (<a href="https://vocab.org/changeset/">ChangeSet vocabulary</a>).
  */
 @Service
 public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointService {
@@ -157,15 +156,11 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
         var beforeIterator = before.listStatements();
         while (beforeIterator.hasNext()) {
             var statement = beforeIterator.nextStatement();
-            if (!statement.getSubject().equals(subjectOfChangeResource)) // should not happen, but ensures that all subjects of the reified statements match the subjectOfChange
-                continue;
             changeSetResource.addProperty(ETutorVocabulary.removal, getReifiedStatement(changeSetModel, statement));
         }
         var afterIterator = after.listStatements();
         while (afterIterator.hasNext()) {
             var statement = afterIterator.nextStatement();
-            if (!statement.getSubject().equals(subjectOfChangeResource))
-                continue;
             changeSetResource.addProperty(ETutorVocabulary.addition, getReifiedStatement(changeSetModel, statement));
         }
         try (RDFConnection connection = getConnection()) {
@@ -218,8 +213,8 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
             return resultList;
         }
 
-        for (Resource resource : changeSetResourceList) {
-            var optionalVersion = getVersionOfResourceByChangeSetUri(resource.getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, Instant::now);
+        for (Resource changeSetResource : changeSetResourceList) {
+            var optionalVersion = getVersionOfResourceByChangeSetUri(resourceUri, changeSetResource.getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, Instant::now);
             optionalVersion.ifPresent(resultList::add);
         }
         return resultList;
@@ -257,7 +252,7 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
      *                     i.e. the old or the updated version of the ChangeSet.
      * @return an {@link Optional} containing the {@link ResourceVersionDTO}, or an empty {@link Optional}
      */
-    private <T> Optional<ResourceVersionDTO<T>> getVersionOfResourceByChangeSetUri(String changeSetUri, ChangeSetStatementType type, Function<Resource,T> resourceToTargetTypeMapper, Supplier<Instant> creationDateSupplier) {
+    private <T> Optional<ResourceVersionDTO<T>> getVersionOfResourceByChangeSetUri(String resourceUri, String changeSetUri, ChangeSetStatementType type, Function<Resource,T> resourceToTargetTypeMapper, Supplier<Instant> creationDateSupplier) {
         Objects.requireNonNull(changeSetUri);
         Objects.requireNonNull(resourceToTargetTypeMapper);
         Objects.requireNonNull(creationDateSupplier);
@@ -274,36 +269,31 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
             if (model.isEmpty()) {
                 return Optional.empty();
             }
-            ResIterator iterator = model.listResourcesWithProperty(RDF.type, ETutorVocabulary.TaskAssignment);
 
-            try {
-                Resource resource = iterator.nextResource();
+            Resource resource = model.getResource(resourceUri);
+            Resource changeSetResource = model.getResource(changeSetUri);
 
-                var mappedBaseType = resourceToTargetTypeMapper.apply(resource);
-                var version = new ResourceVersionDTO<T>();
-                version.setVersion(mappedBaseType);
+            var mappedBaseType = resourceToTargetTypeMapper.apply(resource);
+            var version = new ResourceVersionDTO<T>();
+            version.setVersion(mappedBaseType);
+            version.setReasonOfChange(changeSetResource.getProperty(ETutorVocabulary.changeReason).getString());
 
-                Resource changeSetResource = model.getResource(changeSetUri);
-                version.setReasonOfChange(changeSetResource.getProperty(ETutorVocabulary.changeReason).getString());
-
-                if (type == ChangeSetStatementType.AFTER) { // creation date of change set represents the version of the addition-statements only
-                    var creationDateAsString = changeSetResource.getProperty(ETutorVocabulary.createdDate).getString();
-                    version.setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(creationDateAsString).toInstant());
+            // set creation date depending on type
+            if (type == ChangeSetStatementType.AFTER) { // creation date of change set represents the version of the addition-statements only
+                var creationDateAsString = changeSetResource.getProperty(ETutorVocabulary.createdDate).getString();
+                version.setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(creationDateAsString).toInstant());
+            } else {
+                Statement precedingChangeSetStatement = changeSetResource.getProperty(ETutorVocabulary.precedingChangeSet);
+                if (precedingChangeSetStatement == null) {
+                    version.setCreationDate(creationDateSupplier.get());
                 } else {
-                    Statement precedingChangeSetStatement = changeSetResource.getProperty(ETutorVocabulary.precedingChangeSet);
-                    if (precedingChangeSetStatement == null) {
-                        version.setCreationDate(creationDateSupplier.get());
-                    } else {
-                        // set creation date to createDate of previous change set
-                        var previousVersion = getVersionOfResourceByChangeSetUri(precedingChangeSetStatement.getResource().getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, creationDateSupplier);
-                        previousVersion.ifPresent(pV -> version.setCreationDate(pV.getCreationDate()));
-                    }
+                    // set creation date to createDate of previous change set
+                    var previousVersion = getVersionOfResourceByChangeSetUri(resourceUri, precedingChangeSetStatement.getResource().getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, creationDateSupplier);
+                    previousVersion.ifPresent(pV -> version.setCreationDate(pV.getCreationDate()));
                 }
-
-                return Optional.of(version);
-            } finally {
-                iterator.close();
             }
+
+            return Optional.of(version);
         } catch (ParseException e) {
             return Optional.empty();
         }

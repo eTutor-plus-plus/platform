@@ -88,12 +88,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        
+
 /** start apriori   */
         setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
-        
-/** apriori end */  
-        
+
+/** apriori end */
+
     }
 
     /**
@@ -115,7 +115,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
                 Resource goalResource = statement.getObject().asResource();
 
                 String goalId = goalResource.getURI();
-                String name = goalResource.getProperty(RDFS.label).getString();
+                Statement label = goalResource.getProperty(RDFS.label);
+                String name = label != null ? label.getString() : goalId.substring(goalId.lastIndexOf("#") + 1);
 
                 learningGoalIds.add(new LearningGoalDisplayDTO(goalId, name));
             }
@@ -177,18 +178,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        
+
 /** start apriori   */
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
         if(aprioriStatement != null){
-        	
+
         	setAprioriDatasetId(aprioriStatement.getString());
         }
-        
-/** apriori end */  
-        
-        
-        
+
+/** apriori end */
+
+
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());

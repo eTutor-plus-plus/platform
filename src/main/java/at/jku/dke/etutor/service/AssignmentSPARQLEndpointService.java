@@ -38,18 +38,7 @@ import java.util.*;
 @Service
 public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPARQLEndpointService {
     private final ChangeSetSPARQLEndpointService changeSetSPARQLEndpointService;
-    private static final String QRY_SELECT_TRIPLES_TASK_ASSIGNMENT =
-        """
-            PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
-            PREFIX etutor-difficulty: <http://www.dke.uni-linz.ac.at/etutorpp/DifficultyRanking#>
-            PREFIX rdfs:              <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT ?assignment ?predicate ?object
-            WHERE{
-                ?assignment a etutor:TaskAssignment;
-                    ?predicate ?object .
-            }
-        """;
     private static final String QRY_CONSTRUCT_TASK_ASSIGNMENTS_FROM_GOAL =
         """
             PREFIX etutor:            <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -101,26 +90,6 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
         """;
 
-    private static final String QRY_ASK_CALC_INFORMATION = """
-        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-
-
-        SELECT ?maxPoints WHERE {
-              ?courseInstance a etutor:CourseInstance.
-                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-                ?individualAssignment etutor:fromExerciseSheet ?sheet;
-            etutor:fromCourseInstance ?courseInstance.
-                ?individualAssignment etutor:hasIndividualTask ?individualTask.
-                ?individualTask etutor:hasOrderNo ?orderNo;
-                            etutor:refersToTask ?taskAssignment.
-                ?taskAssignment etutor:hasMaxPoints ?maxPoints.
-                ?taskAssignment etutor:hasStartTime ?startTime.
-                ?taskAssignment etutor:hasEndTime ?endTime.
-        }
-        """;
-
-
-
     private static final String QRY_DELETE_ASSIGNMENT =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -168,6 +137,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
               }
             }
             """;
+
     private static final String QRY_SELECT_LEARNING_GOAL_IDS_OF_ASSIGNMENT =
         """
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -229,9 +199,8 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             connection.load(model);
         }
         // insert initial ChangeSet for task
-        var optTaskModel = changeSetSPARQLEndpointService.getModelOfResource(newTaskAssignment.getURI());
-        optTaskModel.ifPresent(taskModel ->
-            changeSetSPARQLEndpointService.insertNewChangeSet(newTaskAssignment.getURI(), "initial creation", ModelFactory.createDefaultModel(), taskModel));
+        var taskModel = constructTaskAssignmentModel(newTaskAssignment.getURI());
+        changeSetSPARQLEndpointService.insertNewChangeSet(newTaskAssignment.getURI(), "initial creation", ModelFactory.createDefaultModel(), taskModel);
 
         return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator);
     }
@@ -318,7 +287,8 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             if (!assignmentExist) {
                 throw new InternalTaskAssignmentNonexistentException();
             }
-            var currentModel = changeSetSPARQLEndpointService.getModelOfResource(taskAssignment.getId());
+
+            var currentModel = constructTaskAssignmentModel(taskAssignment.getId());
 
             ParameterizedSparqlString query = new ParameterizedSparqlString();
             query.append(
@@ -523,11 +493,26 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
             // construct change set for task versioning
             // TODO: pass and set reason for change
-            var updatedModel = changeSetSPARQLEndpointService.getModelOfResource(taskAssignment.getId());
-            if(currentModel.isPresent() && updatedModel.isPresent()){
-                changeSetSPARQLEndpointService.insertNewChangeSet(taskAssignment.getId(), "", currentModel.get(), updatedModel.get());
-            }
+            var updatedModel = constructTaskAssignmentModel(taskAssignment.getId());
+            changeSetSPARQLEndpointService.insertNewChangeSet(taskAssignment.getId(), "", currentModel, updatedModel);
         }
+    }
+
+    /**
+     * Constructs a model for the given task assignment, including all its properties and relations, as
+     * well as information about the learning goals and the task group.
+     *
+     * @param id the id of the task assignment
+     * @return a model containing all information about the task assignment
+     */
+    private Model constructTaskAssignmentModel(String id) {
+        var query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENTS);
+        query.setIri("assignment", id);
+        var model = ModelFactory.createDefaultModel();
+        try (RDFConnection connection = getConnection()) {
+            model = connection.queryConstruct(query.asQuery());
+        }
+        return model;
     }
 
     /**

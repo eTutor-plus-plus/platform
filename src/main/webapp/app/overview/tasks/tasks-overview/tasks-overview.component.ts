@@ -222,6 +222,7 @@ export class TasksOverviewComponent implements OnInit, OnDestroy {
    * @param currentModel the current task model
    */
   public isCurrentUserAllowedToEdit(currentModel: ITaskDisplayModel): boolean {
+    // TODO: adjust for labelling
     return currentModel.internalCreator === this.userLogin;
   }
 

@@ -1,21 +1,21 @@
+
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">{{ 'taskManagement.display.header' | translate: { taskHeader: taskModel?.header } }}</h4>
-
+    <h4 class="modal-title">{{ 'taskManagement.display.header' | translate: { taskHeader: version?.header } }}</h4>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
   <div class="modal-body">
     <div class="form-group">
       <label class="form-control-label" for="header" jhiTranslate="taskManagement.fields.header">Header:</label>
-      <input type="text" class="form-control" name="header" id="header" disabled value="{{ taskModel?.header }}" />
+      <input type="text" class="form-control" name="header" id="header" disabled value="{{ version?.header }}" />
     </div>
     <div class="form-group">
       <label class="form-control-label" for="creator" jhiTranslate="taskManagement.fields.creator">Creator:</label>
-      <input type="text" class="form-control" name="creator" id="creator" disabled value="{{ taskModel?.creator }}" />
+      <input type="text" class="form-control" name="creator" id="creator" disabled value="{{ version?.creator }}" />
     </div>
     <div class="form-group">
       <label class="form-control-label" for="organisationUnit" jhiTranslate="taskManagement.fields.organisationUnit"
-        >Organisation unit:</label
+      >Organisation unit:</label
       >
       <input
         type="text"
@@ -23,13 +23,13 @@
         name="organisationUnit"
         id="organisationUnit"
         disabled
-        value="{{ taskModel?.organisationUnit }}"
+        value="{{ version?.organisationUnit }}"
       />
     </div>
     <div class="form-check">
       <label class="form-check-label">
-        <input class="form-check-input" type="checkbox" name="privateTask" *ngIf="taskModel?.privateTask" disabled checked />
-        <input class="form-check-input" type="checkbox" name="privateTask" *ngIf="!taskModel?.privateTask" disabled />
+        <input class="form-check-input" type="checkbox" name="privateTask" *ngIf="version?.privateTask" disabled checked />
+        <input class="form-check-input" type="checkbox" name="privateTask" *ngIf="!version?.privateTask" disabled />
         <span jhiTranslate="taskManagement.fields.privateTask">Private task</span>
       </label>
     </div>
@@ -41,48 +41,57 @@
         name="taskDifficulty"
         id="taskDifficulty"
         disabled
-        *ngIf="taskModel"
-        value="{{ getTaskDifficultyForURL(taskModel.taskDifficultyId).toString() | translate }}"
+        *ngIf="version"
+        value="{{ getTaskDifficultyForURL(version.taskDifficultyId).toString() | translate }}"
       />
-      <div class="form-group">
-        <label class="form-control-label" for="taskDifficulty" jhiTranslate="taskManagement.fields.taskType">Task type:</label>
-        <input
-          type="text"
-          class="form-control"
-          name="taskAssignmentType"
-          id="taskAssignmentType"
-          disabled
-          *ngIf="taskModel"
-          value="{{ getTaskTypeForURL(taskModel.taskAssignmentTypeId).toString() | translate }}"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
-        <input
-          type="text"
-          class="form-control"
-          name="processingTime"
-          id="processingTime"
-          disabled
-          value="{{ taskModel?.processingTime }}"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-control-label" for="url" jhiTranslate="taskManagement.fields.url">Url:</label>
-        <input type="url" class="form-control" name="url" id="url" disabled value="{{ taskModel?.url?.toString() }}" />
-      </div>
-      <div class="form-group">
-        <label class="form-control-label" jhiTranslate="taskManagement.fields.instruction">Instructions:</label>
-        <div [innerHTML]="taskModel?.instruction!"></div>
-      </div>
-      <h4 jhiTranslate="taskManagement.display.assignedLearningGoals">Assigned learning goals</h4>
-      <ul class="list-group">
-        <li *ngFor="let goal of taskModel?.learningGoalIds" class="list-group-item">{{ goal.name }}</li>
-      </ul>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="close()">
-        <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
+    <div class="form-group">
+      <label class="form-control-label" for="taskAssignmentType" jhiTranslate="taskManagement.fields.taskType">Task type:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="taskAssignmentType"
+        id="taskAssignmentType"
+        disabled
+        *ngIf="version"
+        value="{{ getTaskTypeForURL(version.taskAssignmentTypeId).toString() | translate }}"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="processingTime"
+        id="processingTime"
+        disabled
+        value="{{ version?.processingTime }}"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-control-label" for="url" jhiTranslate="taskManagement.fields.url">Url:</label>
+      <input type="url" class="form-control" name="url" id="url" disabled value="{{ version?.url?.toString() }}" />
+    </div>
+    <div class="form-group">
+      <label class="form-control-label" jhiTranslate="taskManagement.fields.instruction">Instructions:</label>
+      <div [innerHTML]="version?.instruction!"></div>
+    </div>
+    <h4 jhiTranslate="taskManagement.display.assignedLearningGoals">Assigned learning goals</h4>
+    <ul class="list-group">
+      <li *ngFor="let goal of version?.learningGoalIds" class="list-group-item">{{ goal.name }}</li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
+    </button>
+    <div class="pagination">
+      <button type="button" class="btn btn-primary" (click)="previousVersion()" [disabled]="currentIndex === 0">
+        Previous
+      </button>
+      <span>{{ currentIndex + 1 }}/{{ _taskVersions.length }}</span>
+      <button type="button" class="btn btn-primary" (click)="nextVersion()" [disabled]="currentIndex === (_taskVersions.length - 1)">
+        Next
       </button>
     </div>
   </div>
