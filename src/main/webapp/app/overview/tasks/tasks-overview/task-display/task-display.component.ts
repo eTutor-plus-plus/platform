@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ITaskDisplayModel, ITaskModel, ITaskVersionModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import {AccountService} from "../../../../core/auth/account.service";
+import { AccountService } from '../../../../core/auth/account.service';
 
 /**
  * Component for displaying a task.
@@ -11,13 +11,12 @@ import {AccountService} from "../../../../core/auth/account.service";
   selector: 'jhi-task-display',
   templateUrl: './task-display.component.html',
 })
-export class TaskDisplayComponent implements OnInit{
+export class TaskDisplayComponent implements OnInit {
   private _taskDisplayModel?: ITaskDisplayModel;
-  private _taskModel?: ITaskModel;
   private readonly difficulties = TaskDifficulty.Values;
   private readonly taskTypes = TaskAssignmentType.Values;
   private userLogin = '';
-  public _taskVersions: ITaskVersionModel[] = []
+  public _taskVersions: ITaskVersionModel[] = [];
   public version?: ITaskModel;
   public currentIndex = 0;
 
@@ -28,12 +27,10 @@ export class TaskDisplayComponent implements OnInit{
    * @param tasksService the injected task service
    * @param activeModal the active modal service
    */
-  constructor(private accountService: AccountService,
-              private tasksService: TasksService,
-              private activeModal: NgbActiveModal) {}
+  constructor(private accountService: AccountService, private tasksService: TasksService, private activeModal: NgbActiveModal) {}
 
   ngOnInit(): void {
-        this.userLogin = this.accountService.getLoginName() ?? ''
+    this.userLogin = this.accountService.getLoginName() ?? '';
   }
 
   /**
@@ -52,14 +49,6 @@ export class TaskDisplayComponent implements OnInit{
     this._taskDisplayModel = value;
 
     if (value) {
-      this.tasksService.getTaskAssignmentById(value.taskId).subscribe(response => {
-        if (response.body) {
-          this._taskModel = response.body;
-        }
-      });
-    }
-
-    if (value) {
       this.tasksService.getTaskVersionsById(value.taskId).subscribe(response => {
         if (response.body) {
           this._taskVersions = response.body;
@@ -67,13 +56,6 @@ export class TaskDisplayComponent implements OnInit{
         }
       });
     }
-  }
-
-  /**
-   * Returns the task model.
-   */
-  public get taskModel(): ITaskModel | undefined {
-    return this._taskModel;
   }
 
   /**
@@ -101,22 +83,48 @@ export class TaskDisplayComponent implements OnInit{
     this.activeModal.close();
   }
 
-
   previousVersion() {
-    this.currentIndex -= 1;
-    if(this._taskVersions && this.currentIndex >= 0){
+    this.currentIndex += 1;
+    if (this._taskVersions && this.currentIndex >= 0) {
       this.version = this._taskVersions[this.currentIndex].version;
     }
   }
 
   nextVersion() {
-    this.currentIndex += 1;
-    if(this._taskVersions && this.currentIndex < this._taskVersions.length){
+    this.currentIndex -= 1;
+    if (this._taskVersions && this.currentIndex < this._taskVersions.length) {
       this.version = this._taskVersions[this.currentIndex].version;
     }
   }
 
   public isCurrentUserAllowedToEditTask(): boolean {
     return this._taskDisplayModel?.internalCreator === this.userLogin;
+  }
+
+  public resetToCurrentVersion(): void {
+    if (
+      !confirm(
+        'Do you really want to reset to this version? This will update the task. Note, however, that the assigned learning goals will not be updated.'
+      )
+    ) {
+      return;
+    }
+    if (this.version) {
+      // delete all versions after current version
+      // ToDo: delete all versions after current version
+      // update to current version
+      this.tasksService.saveEditedTask(this.version, 'reset task to previous version').subscribe(response => {
+        // reload versions and reset current version and index
+        if (this._taskDisplayModel) {
+          this.tasksService.getTaskVersionsById(this._taskDisplayModel.taskId).subscribe(response => {
+            if (response.body) {
+              this._taskVersions = response.body;
+              this.currentIndex = 0;
+              this.version = this._taskVersions[0].version;
+            }
+          });
+        }
+      });
+    }
   }
 }

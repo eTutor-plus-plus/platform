@@ -71,22 +71,17 @@ export class TaskUpdateComponent implements OnInit {
     instruction: [''],
     taskGroup: ['', []],
     bpmnTestConfig: [''],
-    // PM related variables:
     maxActivity: [''],
     minActivity: [''],
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
-
-    /** apriori start */
     aprioriDatasetId: [''],
-    /** apriori end */
+    changeReason: [''],
   });
 
   private _taskModel?: ITaskModel;
-  /** apriori start */
   private aprioriConfig!: AprioriConfig;
-  /** apriori end */
   /**
    * Constructor.
    *
@@ -98,6 +93,7 @@ export class TaskUpdateComponent implements OnInit {
    * @param taskGroupService the task group service
    * @param sqlExerciseService the injected SQL exercise service
    * @param fileService the injected File service
+   * @param accountService the injected account service
    */
   constructor(
     private fb: FormBuilder,
@@ -108,8 +104,7 @@ export class TaskUpdateComponent implements OnInit {
     private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService,
     private fileService: FileUploadService,
-    /** apriori start  */
-    private accountService: AccountService /** apriori end */
+    private accountService: AccountService
   ) {}
 
   /**
@@ -161,12 +156,10 @@ export class TaskUpdateComponent implements OnInit {
       newTask.instruction = instructionStr.trim();
     }
 
-    /** apriori start */
     const aprioriDatasetId: string | null = this.updateForm.get('aprioriDatasetId')!.value;
     if (aprioriDatasetId) {
       newTask.aprioriDatasetId = aprioriDatasetId;
     }
-    /** apriori end */
 
     const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
     if (taskIdForDispatcher) {
@@ -299,13 +292,10 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
-
-        /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
-        /** apriori end */
       };
-
-      this.tasksService.saveEditedTask(editedTask).subscribe(
+      const changeReason: string = this.updateForm.get('changeReason')!.value ?? '';
+      this.tasksService.saveEditedTask(editedTask, changeReason).subscribe(
         () => {
           this.isSaving = false;
           this.eventManager.broadcast('taskModification');
@@ -351,16 +341,12 @@ export class TaskUpdateComponent implements OnInit {
       const instruction = value.instruction ?? '';
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
-      // PM related variables
       const maxActivity: string = (value.maxActivity ?? '').toString();
       const minActivity: string = (value.minActivity ?? '').toString();
       const maxLogSize: string = (value.maxLogSize ?? '').toString();
       const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
-
-      /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
-      /** apriori end */
 
       if (taskIdForDispatcher) {
         this.updateForm.get('taskIdForDispatcher')!.disable();
@@ -392,19 +378,20 @@ export class TaskUpdateComponent implements OnInit {
         instruction,
         taskGroup: value.taskGroupId ?? '',
         bpmnTestConfig,
-        // PM related variables
         maxActivity,
         minActivity,
         maxLogSize,
         minLogSize,
         configNum,
-
-        /** apriori start */
         aprioriDatasetId,
-        /** apriori end */
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
+
+      this.updateForm.get('changeReason')!.setValidators(Validators.required);
+      this.updateForm.get('changeReason')!.updateValueAndValidity();
+      this.updateForm.updateValueAndValidity();
+
       this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
       this.calcInstructionFileId = value.calcInstructionFileId ?? -1;

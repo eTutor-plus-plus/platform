@@ -21,8 +21,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-//TODO: reason of change for tasks
-
 /**
  * Service to handle ChangeSets.
  * ChangeSets capture the delta between two versions of a resource and describe the changes to resources.
@@ -59,15 +57,22 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
 
             CONSTRUCT { ?resource ?predicate ?object .
               ?changeSet purl:createdDate ?date .
-              ?changeSet purl:changeReason ?changeReason .}
+              ?changeSet purl:changeReason ?changeReason .
+              ?changeSet purl:creatorName ?creator .
+              }
             WHERE {
               ?changeSet a purl:ChangeSet;
                             purl:subjectOfChange ?resource;
                             ?typeOfStatement ?statement ;
-                            purl:createdDate ?date ;
-                            purl:changeReason ?changeReason .
+                            purl:createdDate ?date .
               ?statement rdf:predicate ?predicate ;
                                 rdf:object ?object .
+              OPTIONAL{
+                ?changeSet purl:creatorName ?creator .
+              }
+              OPTIONAL{
+                ?changeSet purl:changeReason ?changeReason .
+              }
             }
             """;
     private static final String QRY_SELECT_CURRENT_CHANGESET_OF_RESOURCE =
@@ -120,12 +125,13 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
      * Also, instead of deleting all changeSets for a resource by calling {@link #deleteChangeSetsOfResource(String)}, clients can also
      * create a ChangeSet with an empty model as the after-version.
      *
-     * @param resourceUri the uri of the resource for which a ChangeSet should be created
-     * @param changeReason the reason for the modification
-     * @param before the old model, can be generated with {{@link #getModelOfResource(String)}}
-     * @param after the updated model, can be generated with {@link #getModelOfResource(String)}
+     * @param resourceUri     the uri of the resource for which a ChangeSet should be created
+     * @param changeReason    the reason for the modification
+     * @param creator         the creator of the ChangeSet
+     * @param before          the old model, can be generated with {{@link #getModelOfResource(String)}}
+     * @param after           the updated model, can be generated with {@link #getModelOfResource(String)}
      */
-    void insertNewChangeSet(String resourceUri, String changeReason, Model before, Model after) {
+    void insertNewChangeSet(String resourceUri, String changeReason, String creator, Model before, Model after) {
         Objects.requireNonNull(before);
         Objects.requireNonNull(after);
         Objects.requireNonNull(resourceUri);
@@ -149,7 +155,8 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
         changeSetResource.addProperty(ETutorVocabulary.createdDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);
 
         // change Person
-        // changeSetResource.addProperty(ETutorVocabulary.creatorName)
+        changeSetResource.addProperty(ETutorVocabulary.creatorName, creator);
+
         // reason of change
         changeSetResource.addProperty(ETutorVocabulary.changeReason, changeReason);
 
@@ -178,7 +185,7 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
 
     /**
      * Get a model with all triples where the uri which is passed to the method
-     * is the subject. This method can be used by clients to generate the models required by {@link #insertNewChangeSet(String, String, Model, Model)}.
+     * is the subject. This method can be used by clients to generate the models required by {@link #insertNewChangeSet(String, String, String, Model, Model)}.
      *
      * @param resourceUri the uri of the resource
      * @return an  {@link Optional} that contains the {@link Model} with all the triples.
@@ -201,7 +208,8 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
      * Otherwise, all versions are returned.
      *
      * @param resourceUri the URI of the resource
-     * @param currentVersionSupplier if no ChangeSet exists for the resource, the resource might be in its original state; the supplier can be used to supply this version
+     * @param currentVersionSupplier if no ChangeSet exists for the resource, the resource might be in its original state; the supplier can be used to supply this version.
+     *                               Also, if multiple ChangeSets exists, the version supplied by this parameter is used instead of the most current changeset.
      * @param resourceToTargetTypeMapper a mapper that maps a resource to the target type
      * @return a {@link List} of {@link ResourceVersionDTO} that are composed of the target types provided by the mapper, and meta-information about the versions
      * @param <T> the target type for the resources
@@ -222,8 +230,13 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
         }
 
         for (Resource changeSetResource : changeSetResourceList) {
-            var optionalVersion = getVersionOfResourceByChangeSetUri(resourceUri, changeSetResource.getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, Instant::now);
+            var optionalVersion = getVersionOfResourceByChangeSetUri(resourceUri, changeSetResource.getURI(), resourceToTargetTypeMapper);
             optionalVersion.ifPresent(resultList::add);
+        }
+
+        // replace first version with current version provided by supplier
+        if(!resultList.isEmpty()){
+            resultList.get(0).setVersion(currentVersionSupplier.get());
         }
         return resultList;
     }
@@ -248,28 +261,21 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
 
 
     /**
-     * Returns on of the two versions of the resource represented by the ChangeSet for the URI which is passed to the method.
-     * In general {@link ChangeSetStatementType#BEFORE} represents a resource before the ChangeSet has been applied,
-     * whereas {@link ChangeSetStatementType#AFTER} represents the resource after the change has been applied.
-     *
+     * Returns the version represented by the ChangeSet for the URI which is passed to the method; i.e. the version of the resource after the ChangeSet has been applied.
+     * @param resourceUri the URI of the resource
      * @param changeSetUri the URI of the change set
      * @param resourceToTargetTypeMapper a mapper to transform the resource into the target type T
-     * @param creationDateSupplier if the type is set to {@link ChangeSetStatementType#BEFORE}, the creationDate of the ChangeSet is not representative for the version returned.
-     *                             If no preceding ChangeSet exists, the supplier can be used to supply an alternative creation date.
-     * @param type         indicates if the version before the ChangeSet has been applied should be returned, or the version after the ChangeSet has been applied;
-     *                     i.e. the old or the updated version of the ChangeSet.
      * @return an {@link Optional} containing the {@link ResourceVersionDTO}, or an empty {@link Optional}
      */
-    private <T> Optional<ResourceVersionDTO<T>> getVersionOfResourceByChangeSetUri(String resourceUri, String changeSetUri, ChangeSetStatementType type, Function<Resource,T> resourceToTargetTypeMapper, Supplier<Instant> creationDateSupplier) {
+    private <T> Optional<ResourceVersionDTO<T>> getVersionOfResourceByChangeSetUri(String resourceUri, String changeSetUri, Function<Resource,T> resourceToTargetTypeMapper) {
         Objects.requireNonNull(changeSetUri);
         Objects.requireNonNull(resourceToTargetTypeMapper);
-        Objects.requireNonNull(creationDateSupplier);
-
-        if (type == null) type = ChangeSetStatementType.AFTER;
+        Objects.requireNonNull(resourceUri);
 
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_RESOURCE_BY_CHANGESET);
         query.setIri("?changeSet", changeSetUri);
-        query.setIri("?typeOfStatement", type.getProperty().getURI());
+        query.setIri("?resource", resourceUri);
+        query.setIri("?typeOfStatement", ChangeSetStatementType.AFTER.getProperty().getURI());
 
         try (RDFConnection connection = getConnection()) {
             Model model = connection.queryConstruct(query.asQuery());
@@ -284,21 +290,19 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
             var mappedBaseType = resourceToTargetTypeMapper.apply(resource);
             var version = new ResourceVersionDTO<T>();
             version.setVersion(mappedBaseType);
-            version.setReasonOfChange(changeSetResource.getProperty(ETutorVocabulary.changeReason).getString());
+            version.setChangeSetId(changeSetUri);
 
-            // set creation date depending on type
-            if (type == ChangeSetStatementType.AFTER) { // creation date of change set represents the version of the addition-statements only
-                var creationDateAsString = changeSetResource.getProperty(ETutorVocabulary.createdDate).getString();
-                version.setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(creationDateAsString).toInstant());
-            } else {
-                Statement precedingChangeSetStatement = changeSetResource.getProperty(ETutorVocabulary.precedingChangeSet);
-                if (precedingChangeSetStatement == null) {
-                    version.setCreationDate(creationDateSupplier.get());
-                } else {
-                    // set creation date to createDate of previous change set
-                    var previousVersion = getVersionOfResourceByChangeSetUri(resourceUri, precedingChangeSetStatement.getResource().getURI(), ChangeSetStatementType.AFTER, resourceToTargetTypeMapper, creationDateSupplier);
-                    previousVersion.ifPresent(pV -> version.setCreationDate(pV.getCreationDate()));
-                }
+            var changeReasonResource = changeSetResource.getProperty(ETutorVocabulary.changeReason);
+            if(changeReasonResource != null){
+                version.setReasonOfChange(changeReasonResource.getString());
+            }
+            var creatorResource = changeSetResource.getProperty(ETutorVocabulary.creatorName);
+            if(creatorResource != null){
+                version.setCreator(creatorResource.getString());
+            }
+            var creationDateResource = changeSetResource.getProperty(ETutorVocabulary.createdDate);
+            if(creationDateResource != null){
+                version.setCreationDate(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(creationDateResource.getString()).toInstant());
             }
 
             return Optional.of(version);

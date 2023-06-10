@@ -132,8 +132,8 @@ export class TasksService {
    *
    * @param task the task to save
    */
-  public saveEditedTask(task: ITaskModel): Observable<HttpResponse<any>> {
-    return this.http.put('api/tasks/assignments', task, { observe: 'response' });
+  public saveEditedTask(task: ITaskModel, changeReason = ''): Observable<HttpResponse<any>> {
+    return this.http.put(`api/tasks/assignments?changeReason=${changeReason}`, task, { observe: 'response' });
   }
 
   /**

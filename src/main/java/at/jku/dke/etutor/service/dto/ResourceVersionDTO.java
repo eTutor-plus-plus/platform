@@ -10,6 +10,14 @@ import java.util.function.Function;
 
 public class ResourceVersionDTO<T> {
     /**
+     * The user that created the version
+     */
+    private String creator;
+    /**
+     * The id of the change set that created this version
+     */
+    private String changeSetId;
+    /**
      * The date of the creation of the specific version
      */
     private Instant creationDate;
@@ -41,6 +49,14 @@ public class ResourceVersionDTO<T> {
 
     }
 
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
     public Instant getCreationDate() {
         return creationDate;
     }
@@ -63,5 +79,13 @@ public class ResourceVersionDTO<T> {
 
     public void setVersion(T version) {
         this.version = version;
+    }
+
+    public String getChangeSetId() {
+        return changeSetId;
+    }
+
+    public void setChangeSetId(String changeSetId) {
+        this.changeSetId = changeSetId;
     }
 }

@@ -23,6 +23,10 @@ export interface ITaskDisplayModel {
 }
 export interface ITaskVersionModel {
   /**
+   * The id of the change set
+   */
+  changeSetId: string;
+  /**
    * The date of the creation of the specific version
    */
   creationDate: Date;
@@ -30,7 +34,10 @@ export interface ITaskVersionModel {
    * The reason the resource has been modified to this version
    */
   reasonOfChange: string;
-
+  /**
+   * The user who created the version
+   */
+  creator: string;
   /**
    * The version of the resource
    */

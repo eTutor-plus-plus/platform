@@ -200,7 +200,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
         // insert initial ChangeSet for task
         var taskModel = constructTaskAssignmentModel(newTaskAssignment.getURI());
-        changeSetSPARQLEndpointService.insertNewChangeSet(newTaskAssignment.getURI(), "initial creation", ModelFactory.createDefaultModel(), taskModel);
+        changeSetSPARQLEndpointService.insertNewChangeSet(newTaskAssignment.getURI(), "initial creation", internalCreator, ModelFactory.createDefaultModel(), taskModel);
 
         return new TaskAssignmentDTO(newTaskAssignmentDTO, newTaskAssignment.getURI(), now, internalCreator);
     }
@@ -274,7 +274,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
      * @param taskAssignment the task assignment to update
      * @throws InternalTaskAssignmentNonexistentException if the given assignment does not exist
      */
-    public void updateTaskAssignment(TaskAssignmentDTO taskAssignment) throws InternalTaskAssignmentNonexistentException {
+    public void updateTaskAssignment(String user, String changeReason, TaskAssignmentDTO taskAssignment) throws InternalTaskAssignmentNonexistentException {
         Objects.requireNonNull(taskAssignment);
 
         ParameterizedSparqlString existQuery = new ParameterizedSparqlString(QRY_ASK_ASSIGNMENT_EXISTS);
@@ -492,9 +492,8 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             connection.update(query.asUpdate());
 
             // construct change set for task versioning
-            // TODO: pass and set reason for change
             var updatedModel = constructTaskAssignmentModel(taskAssignment.getId());
-            changeSetSPARQLEndpointService.insertNewChangeSet(taskAssignment.getId(), "", currentModel, updatedModel);
+            changeSetSPARQLEndpointService.insertNewChangeSet(taskAssignment.getId(), changeReason, user, currentModel, updatedModel);
         }
     }
 

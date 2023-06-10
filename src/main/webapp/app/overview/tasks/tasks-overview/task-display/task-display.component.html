@@ -1,8 +1,18 @@
-
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">{{ 'taskManagement.display.header' | translate: { taskHeader: version?.header } }}</h4>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
+    <div class="container">
+      <div class="row">
+        <div class="col-11">
+          <h4 class="modal-title">{{ 'taskManagement.display.header' | translate: { taskHeader: version?.header } }}</h4>
+        </div>
+        <div class="col-1">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
+        </div>
+      </div>
+      <div class="row">
+        <strong>Version {{ _taskVersions.length - currentIndex }}/{{ _taskVersions.length }}</strong>
+      </div>
+    </div>
   </div>
   <div class="modal-body">
     <div class="form-group">
@@ -15,7 +25,7 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="organisationUnit" jhiTranslate="taskManagement.fields.organisationUnit"
-      >Organisation unit:</label
+        >Organisation unit:</label
       >
       <input
         type="text"
@@ -59,14 +69,7 @@
     </div>
     <div class="form-group">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.processingTime">Processing time:</label>
-      <input
-        type="text"
-        class="form-control"
-        name="processingTime"
-        id="processingTime"
-        disabled
-        value="{{ version?.processingTime }}"
-      />
+      <input type="text" class="form-control" name="processingTime" id="processingTime" disabled value="{{ version?.processingTime }}" />
     </div>
     <div class="form-group">
       <label class="form-control-label" for="url" jhiTranslate="taskManagement.fields.url">Url:</label>
@@ -82,17 +85,36 @@
     </ul>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="close()">
-      <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.close">Close</span>
-    </button>
-    <div class="pagination">
-      <button type="button" class="btn btn-primary" (click)="previousVersion()" [disabled]="currentIndex === 0">
-        Previous
-      </button>
-      <span>{{ currentIndex + 1 }}/{{ _taskVersions.length }}</span>
-      <button type="button" class="btn btn-primary" (click)="nextVersion()" [disabled]="currentIndex === (_taskVersions.length - 1)">
-        Next
-      </button>
+    <div class="container">
+      <div class="row">
+        <div class="col-6">
+          <strong>
+            <div
+              class="text-left"
+              [innerHTML]="_taskVersions[currentIndex]?.creator + ' on ' + _taskVersions[currentIndex]?.creationDate + ':'"
+            ></div>
+          </strong>
+          <div class="text-left" [innerHTML]="_taskVersions[currentIndex]?.reasonOfChange"></div>
+        </div>
+        <div class="col-3">
+          <div *ngIf="isCurrentUserAllowedToEditTask && currentIndex !== 0" (click)="resetToCurrentVersion()">
+            <button type="button" class="btn btn-primary">Rebase</button>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="pagination">
+            <button type="button" class="btn btn-primary" (click)="nextVersion()" [disabled]="currentIndex === 0">Next</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="previousVersion()"
+              [disabled]="currentIndex === _taskVersions.length - 1"
+            >
+              Previous
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

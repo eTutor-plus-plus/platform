@@ -16,6 +16,7 @@ import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
 import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
+import com.apicatalog.jsonld.uri.UriUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -139,16 +140,15 @@ public class TaskAssignmentResource {
      */
     @PutMapping("tasks/assignments")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO) {
+    public ResponseEntity<Void> updateTaskAssignment(@Valid @RequestBody TaskAssignmentDTO taskAssignmentDTO, @RequestParam(value = "changeReason", defaultValue = "", required = false) String changeReason) {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
         if (!StringUtils.equals(taskAssignmentDTO.getInternalCreator(), currentLogin)) {
             throw new BadRequestAlertException("Only the creator of the task is allowed to edit it!", "taskManagement", "taskNotOwner");
         }
 
         try {
             dispatcherProxyService.updateTask(taskAssignmentDTO);
-            assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
+            assignmentSPARQLEndpointService.updateTaskAssignment(currentLogin, changeReason, taskAssignmentDTO);
             return ResponseEntity.noContent().build();
 
         } catch (InternalTaskAssignmentNonexistentException e) {
