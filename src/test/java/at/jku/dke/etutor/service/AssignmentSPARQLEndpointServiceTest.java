@@ -374,7 +374,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         Optional<TaskAssignmentDTO> optionalTaskFromDb = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
 
         assertThat(optionalTaskFromDb).isPresent();
-        TaskAssignmentDTO taskFromDb = optionalTaskFromDb.get();
+        TaskAssignmentDTO taskFromDb = optionalTaskFromDb.orElseThrow();
 
         assertThat(taskFromDb)
             .usingRecursiveComparison()
@@ -485,7 +485,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).isPresent());
 
 
-        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).orElseThrow();
         assertThat(fetchedGroup.getName().equals(name));
         assertThat(fetchedGroup.getDescription().equals(description));
         assertThat(fetchedGroup.getSqlCreateStatements().equals(createSt));
@@ -530,7 +530,7 @@ public class AssignmentSPARQLEndpointServiceTest {
         taskGroupDTO.setDescription("TestDescription2");
         assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
         assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).isPresent());
-        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).get().getDescription().equals("TestDescription2"));
+        assertThat(assignmentSPARQLEndpointService.getTaskGroupByName(name).orElseThrow().getDescription().equals("TestDescription2"));
     }
 
     @Test
@@ -550,7 +550,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTO);
 
-        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).orElseThrow();
 
         assertThat(fetchedGroup.getSqlCreateStatements().equals(create));
         assertThat(fetchedGroup.getSqlInsertStatementsDiagnose().equals(insert1));
@@ -573,7 +573,7 @@ public class AssignmentSPARQLEndpointServiceTest {
 
         assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTO);
 
-        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).get();
+        var fetchedGroup = assignmentSPARQLEndpointService.getTaskGroupByName(name).orElseThrow();
 
         assertThat(fetchedGroup.getxQueryDiagnoseXML().equals(xml1));
         assertThat(fetchedGroup.getxQuerySubmissionXML().equals(xml2));

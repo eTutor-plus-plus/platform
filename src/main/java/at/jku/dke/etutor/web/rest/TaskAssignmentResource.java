@@ -117,13 +117,13 @@ public class TaskAssignmentResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskAssignment(@PathVariable String id) {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
-        if(taskAssignmentDTOOptional.isPresent()){
+        taskAssignmentDTOOptional.ifPresent(t -> {
             try {
-                dispatcherProxyService.deleteTaskAssignment(taskAssignmentDTOOptional.get());
+                dispatcherProxyService.deleteTaskAssignment(t);
             } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
                 e.printStackTrace();
             }
-        }
+        });
 
         assignmentSPARQLEndpointService.removeTaskAssignment(id);
 

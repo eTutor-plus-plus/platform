@@ -157,7 +157,7 @@ public class UploadFileServiceIT {
 
         assertThat(optionalMetaData).isNotEmpty();
 
-        var metaData = optionalMetaData.get();
+        var metaData = optionalMetaData.orElseThrow();
 
         assertThat(metaData.getFileName()).isEqualTo(file.getName());
         assertThat(metaData.getContentType()).isEqualTo(file.getContentType());

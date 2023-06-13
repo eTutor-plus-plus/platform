@@ -668,7 +668,7 @@ public class SPARQLEndpointServiceTest {
 
         Optional<CourseDTO> optionalCourse = sparqlEndpointService.getCourse(course.getNameForRDF());
         assertThat(optionalCourse).isPresent();
-        course = optionalCourse.get();
+        course = optionalCourse.orElseThrow();
         assertThat(course.getName()).isEqualTo(courseFromService.getName());
         assertThat(course.getCourseType()).isEqualTo(courseFromService.getCourseType());
         assertThat(course.getId()).isEqualTo(courseFromService.getId());

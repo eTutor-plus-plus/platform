@@ -378,92 +378,9 @@ public class DispatcherProxyService {
         } else if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
             handleCalcTaskCreation(newTaskAssignmentDTO);
         }
-        
-/** start apriori   */     
-        else if(newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.AprioriTask.toString())){
-        	handleAprioriTaskCreation(newTaskAssignmentDTO);
-
-        }
-
-/** apriori end */
-        
         return newTaskAssignmentDTO;
     }
 
-
-/** start apriori   */      
-    /**
-     * Handles creation of an Apriori-Task
-     * @param newTaskAssignmentDTO the task assignment
-     * @throws DispatcherRequestFailedException if an error is returned by the dispatcher
-     * @throws NotAValidTaskGroupException if the task group type does not match the task type
-     * @throws MissingParameterException if not enough parameters have been provided to create the task
-     */
-    private void handleAprioriTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.AprioriTask.toString())) return;
-
-        // Check wheter we are creating a new task or referencing an existing task in the dispatcher
-        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getAprioriDatasetId())) {
-            // Fetch group to compare type
-            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
-            if (group.isPresent()) {
-                if (!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.AprioriTypeTaskGroup.toString()))
-                    throw new NotAValidTaskGroupException();
-            }
-
-            // Create task
-            int id = this.createAprioriTask(newTaskAssignmentDTO);
-
-            // Set disptacher id of task
-            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-        } else if (newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Reference of existing task
-            // Fetch id
-            String id = fetchAprioriDatasetId(newTaskAssignmentDTO.getTaskIdForDispatcher());
-            // Set id
-            newTaskAssignmentDTO.setAprioriDatasetId(id);
-        } else {
-            throw new MissingParameterException();
-        }
-    }    
-   
-    /**
-     * Creates an Apriori exercise
-     *
-     * @param newTaskAssignmentDTO the new task assignment
-     * @return the id of the created exercise
-     */
-    private int createAprioriTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
-
-
-        // Get id  required by the dispatcher to create the task
-        String id = newTaskAssignmentDTO.getAprioriDatasetId();
-
-
-        // Proxy request to dispatcher
-        var response = proxyResource.createAprioriExercise(id);
-
-        // Return dispatcher-id of the exercise
-        return response.getBody() != null ? Integer.parseInt(response.getBody()) : -1;
-    }   
-    
-    
-    /**
-     * Returns the id for a given Apriori-exercise-id
-     *
-     * @param taskIdForDispatcher the id
-     * @return the id
-     */
-    private String fetchAprioriDatasetId(String taskIdForDispatcher) throws DispatcherRequestFailedException {
-        return proxyResource.getAprioriDatasetId(Integer.parseInt(taskIdForDispatcher)).getBody();
-
-    }
-    
-    
-    
-/** apriori end */    
-    
-    
-    
     /**
      * Handles creation of a Process Mining Task
      * @param newTaskAssignmentDTO the task assignment
@@ -522,10 +439,8 @@ public class DispatcherProxyService {
 
             // Fetch assigned task-group to check if the group-type matches the task type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-            if(group.isPresent()){
-                if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
-                    throw new NotAValidTaskGroupException();
-            }
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTask.toString())).orElseThrow(NotAValidTaskGroupException::new);
+
             // Create task
             int id = this.createDLGTask(newTaskAssignmentDTO);
 
@@ -566,10 +481,7 @@ public class DispatcherProxyService {
 
             // Fetch group to compare the group type with the task assignment type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-            if(group.isPresent() && !group.get().getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
-               throw new NotAValidTaskGroupException();
-            }// task group is of right type (XQuery task group)
-
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())).orElseThrow(NotAValidTaskGroupException::new);
             // Create XQ-Task
             int id = this.createXQueryTask(newTaskAssignmentDTO);
 
@@ -600,19 +512,19 @@ public class DispatcherProxyService {
             && !newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString()))
             return;
 
-        // Check wheter we are creating a new task or referencing an existing task in the dispatcher
+        // Check whether we are creating a new task or referencing an existing task in the dispatcher
         if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             // Fetch group to compare type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
-            if (group.isPresent()) {
-                if (!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
-                    throw new NotAValidTaskGroupException();
-            }
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
+                .orElseThrow(NotAValidTaskGroupException::new);
+
             // Create task
             int id = this.createSQLTask(newTaskAssignmentDTO);
 
-            // Set disptacher id of task
+            // Set dispatcher id of task
             if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
+            else throw new DispatcherRequestFailedException();
         } else if (newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Reference of existing task
             // Fetch solution
             String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
@@ -630,9 +542,9 @@ public class DispatcherProxyService {
     private void handleCalcTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws WrongCalcParametersException {
         if (!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) return;
 
-        FileEntity calcInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcInstructionFileId());
-        FileEntity calcSolutionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcSolutionFileId());
-        FileEntity writerInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getWriterInstructionFileId());
+        FileEntity calcInstructionFile = fileRepository.findById((long) newTaskAssignmentDTO.getCalcInstructionFileId()).orElse(new FileEntity());
+        FileEntity calcSolutionFile = fileRepository.findById((long) newTaskAssignmentDTO.getCalcSolutionFileId()).orElse(new FileEntity());
+        FileEntity writerInstructionFile = fileRepository.findById((long) newTaskAssignmentDTO.getWriterInstructionFileId()).orElse(new FileEntity());
         InputStream calcInstructionStream = new ByteArrayInputStream(calcInstructionFile.getContent());
         InputStream calcSolutionStream = new ByteArrayInputStream(calcSolutionFile.getContent());
         InputStream writerInstructionStream = new ByteArrayInputStream(writerInstructionFile.getContent());
@@ -679,17 +591,6 @@ public class DispatcherProxyService {
         if(response.getBody() != null) return response.getBody();
         else return -1;
     }
-
-    /**
-     * Fetches the configuration parameters for a pm configuration according to its id
-     * @param taskIdForDispatcher the id
-     * @return the {@link PmExerciseConfigDTO} wrapping the informaation
-     * @throws DispatcherRequestFailedException
-     */
-    private PmExerciseConfigDTO fetchPmExerciseConfigInfo (String taskIdForDispatcher) throws DispatcherRequestFailedException{
-        return proxyResource.getPmExerciseConfiguration(Integer.parseInt(taskIdForDispatcher)).getBody();
-    }
-
 
     /**
      * Creates a Process Mining Task Configuration in the dispatcher

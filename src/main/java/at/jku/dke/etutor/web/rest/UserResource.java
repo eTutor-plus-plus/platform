@@ -154,13 +154,19 @@ public class UserResource {
         }
 
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new EmailAlreadyUsedException();
-        }
+        existingUser.map(User::getId)
+            .filter(id -> !id.equals(userDTO.getId()))
+            .ifPresent(id -> {
+                throw new EmailAlreadyUsedException();
+            });
+
         existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new LoginAlreadyUsedException();
-        }
+        existingUser.map(User::getId)
+            .filter(id -> !id.equals(userDTO.getId()))
+            .ifPresent(id -> {
+                throw new LoginAlreadyUsedException();
+            });
+
         Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
 
         return ResponseUtil.wrapOrNotFound(

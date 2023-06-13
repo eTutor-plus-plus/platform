@@ -53,10 +53,6 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -2020,12 +2016,10 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      * @throws NoFurtherTasksAvailableException if no further tasks are available for assignment
      */
     private void assignAllTasks(String courseInstanceUUID, String exerciseSheetUUID, String
-        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException, NoFurtherTasksAvailableException {
+        matriculationNumber, RDFConnection connection) throws AllTasksAlreadyAssignedException{
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
         Objects.requireNonNull(matriculationNumber);
-
-        long pdfFileId = -1;
 
         String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
         String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
@@ -2046,59 +2040,48 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
             int taskCount = querySolution.getLiteral("?taskCount").getInt();
             int assignedCount = querySolution.getLiteral("?assignedCount").getInt();
-
             if (taskCount == assignedCount) {
                 throw new AllTasksAlreadyAssignedException();
             }
             int availableForAssignmentCount = taskCount-assignedCount;
-
             var tasksToAssign = getAllTaskAssignmentsForAllocation(courseInstanceId, sheetId, studentUrl, connection, availableForAssignmentCount);
 
-            var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
-            var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
+            if(tasksToAssign.isEmpty())
+                throw new NoFurtherTasksAvailableException();
 
-            if (tasksToAssign != null) {
-                int i = 0;
-                boolean allAssigned = false;
-                for (String taskToAssign : tasksToAssign) {
-                    if (allAssigned) break;
-
-                    insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
-
+            // assign tasks
+            for (String taskToAssign : tasksToAssign) {
+                insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+            }
+            // generate pdf in new thread
+            new Thread(() -> {
+                var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
+                var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
+                for(String taskToAssign : tasksToAssign){
                     // Adding task to collection for pdf creation
                     var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
-                    if(taskOpt.isPresent()){
-                        var task = taskOpt.get();
-                        Optional<TaskGroupDTO> taskGroupOpt;
-                        if(task.getTaskGroupId() != null) taskGroupOpt = assignmentSPARQLEndpointService.getTaskGroupByName(task.getTaskGroupId().substring(task.getTaskGroupId().indexOf("#")+1));
-                        else taskGroupOpt = Optional.empty();
-                        if(taskGroupOpt.isPresent()){
-                            var taskGroup = taskGroupOpt.get();
-                            if(taskGroupToTaskListMap.get(taskGroup) != null){
-                                taskGroupToTaskListMap.get(taskGroup).add(task);
-                            }else{
-                                var taskList = new ArrayList<TaskAssignmentDTO>();
-                                taskList.add(task);
-                                taskGroupToTaskListMap.put(taskGroup, taskList);
-                            }
-                        }else{
-                            assignedTasksWithoutGroup.add(task);
-                        }
-                    }
+                    var task = taskOpt.orElseThrow();
+                    Optional<TaskGroupDTO> taskGroupOpt = Optional.empty();
+                    if (task.getTaskGroupId() != null)
+                        taskGroupOpt = assignmentSPARQLEndpointService.getTaskGroupByName(task.getTaskGroupId().substring(task.getTaskGroupId().indexOf("#") + 1));
 
-                    i++;
-                    if (i == availableForAssignmentCount) {
-                        allAssigned = true;
-                    }
+                    taskGroupOpt.ifPresentOrElse(taskGroup -> {
+                        if (taskGroupToTaskListMap.containsKey(taskGroup)) {
+                            taskGroupToTaskListMap.get(taskGroup).add(task);
+                        } else {
+                            var taskList = new ArrayList<TaskAssignmentDTO>();
+                            taskList.add(task);
+                            taskGroupToTaskListMap.put(taskGroup, taskList);
+                        }
+                    }, () -> assignedTasksWithoutGroup.add(task));
                 }
-                pdfFileId = generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasksWithoutGroup, taskGroupToTaskListMap);
-            } else {
-                throw new NoFurtherTasksAvailableException();
-            }
+                generatePdfExerciseSheet(exerciseSheetUUID, matriculationNumber, assignedTasksWithoutGroup, taskGroupToTaskListMap).ifPresent(id ->
+                    setFileForIndividualAssignment(matriculationNumber, courseInstanceUUID, exerciseSheetUUID, id));
+
+            }).start();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(pdfFileId != -1) setFileForIndividualAssignment(matriculationNumber, courseInstanceUUID, exerciseSheetUUID, pdfFileId);
     }
 
     /**
@@ -2200,11 +2183,6 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         }
     }
 
-//    public int getFileIdOfCalcSolution (String assignmentId) {
-//        Objects.requireNonNull(assignmentId);
-//         return assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId).get().getCalcSolutionFileId();
-//    }
-
     /**
      * Generates a pdf exercise sheet.
      * Uploads the pdf file and returns the file-id.
@@ -2212,7 +2190,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      * @param assignedTasks a list of tasks
      * @return the file id
      */
-    public long generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
+    public Optional<Long> generatePdfExerciseSheet(String exerciseSheetId, String matriculationNo, List<TaskAssignmentDTO> assignedTasks, Map<TaskGroupDTO, List<TaskAssignmentDTO>> taskGroupDTOTaskListMap) {
         // Replace links
         String hrefToBeReplaced = "href=\"/";
         String hrefToReplaceWith = "href=\"https://etutor.dke.uni-linz.ac.at/etutorpp/";
@@ -2301,12 +2279,12 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
             MultipartFile multipartFile = new MultipartFileImpl(outputStream, "pdf");
 
             // Upload Multipart PDF-file and return file id
-            return this.uploadFileService.uploadFile(matriculationNo, multipartFile, sheetName[0] + "_" + matriculationNo + ".pdf");
+            return Optional.of(this.uploadFileService.uploadFile(matriculationNo, multipartFile, sheetName[0] + "_" + matriculationNo + ".pdf"));
 
         } catch (IOException | StudentNotExistsException | URISyntaxException e) {
             e.printStackTrace();
         }
-        return -1;
+        return Optional.empty();
     }
 
 
@@ -2626,7 +2604,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
                 return taskSheets;
             } else {
-                return null;
+                return Collections.emptyList();
             }
         }
     }
@@ -2710,73 +2688,75 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         connection.update(individualAssignmentInsertQry.asUpdate());
 
         Optional<TaskAssignmentDTO> taskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(newTaskResourceUrl.substring(newTaskResourceUrl.lastIndexOf('#') + 1));
-        if(taskAssignmentDTO.isEmpty())
-            return;
-        // assign Task of type: PmTask
-        // note: status as of 11.11.22: WORKS as planned
-        if(taskAssignmentDTO.get().getTaskAssignmentTypeId() != null && taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
-            // fetch configuration ic stored in RDF
-            Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
-            if(id.isPresent()){
-                try{
-                    // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                    int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(id.get());
-                    // store id of generated exercise in RDF in IndividualTask
-                    assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
-                        studentUrl, orderNo, dispatcherTaskId);
-                }catch(DispatcherRequestFailedException e){
-                    //throw new DispatcherRequestFailedException(e);
+
+        // Additional requirements for Process-Mining tasks (triggering random exercise generation in Dispatcher and persisting id in RDF)
+        taskAssignmentDTO.filter(task -> task.getTaskAssignmentTypeId() != null && task.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()))
+            .ifPresent(task -> {
+                Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
+                id.ifPresent(i -> {
+                    try{
+                        // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
+                        int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                        // store id of generated exercise in RDF in IndividualTask
+                        assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
+                            studentUrl, orderNo, dispatcherTaskId);
+                    }catch(DispatcherRequestFailedException e){
+                        log.error(e.getMessage());
+                    }
+                });
+            });
+
+        // Additional requirements for Calc-Task creation
+        taskAssignmentDTO.filter(task -> task.getTaskAssignmentTypeId() != null && task.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()))
+            .ifPresent(task -> {
+                List<Long> generatedFileIdList;
+                try {
+                    String login = studentUrl.substring(studentUrl.lastIndexOf('#')+ 1);
+                    generatedFileIdList = uploadFileService.createRandomCalcInstruction((long) task.getCalcInstructionFileId(),(long) task.getCalcSolutionFileId(),(long) task.getWriterInstructionFileId(), login);
+                } catch (WrongCalcParametersException e) {
+                    log.error(e.getMessage());
+                    return;
                 }
-            }
-        }
+
+                ParameterizedSparqlString addFileIdForCalcInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+                addFileIdForCalcInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
+                addFileIdForCalcInstructionAssignment.setIri("?student", studentUrl);
+                addFileIdForCalcInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
+                addFileIdForCalcInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
+                System.out.println(newTaskResourceUrl);
+                addFileIdForCalcInstructionAssignment.setLiteral("?newOrderNo", orderNo);
+                addFileIdForCalcInstructionAssignment.setLiteral("?id", generatedFileIdList.get(0));
+
+                // execute update
+                connection.update(addFileIdForCalcInstructionAssignment.asUpdate());
 
 
+                ParameterizedSparqlString addFileIdForCalcSolutionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_SOLUTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+                addFileIdForCalcSolutionAssignment.setIri("?courseInstance", courseInstanceUrl);
+                addFileIdForCalcSolutionAssignment.setIri("?student", studentUrl);
+                addFileIdForCalcSolutionAssignment.setIri("?sheet", exerciseSheetUrl);
+                addFileIdForCalcSolutionAssignment.setIri("?newTask", newTaskResourceUrl);
+                System.out.println(newTaskResourceUrl);
+                addFileIdForCalcSolutionAssignment.setLiteral("?newOrderNo", orderNo);
+                addFileIdForCalcSolutionAssignment.setLiteral("?id", generatedFileIdList.get(1));
 
-        String login = studentUrl.substring(studentUrl.lastIndexOf('#')+ 1);
+                // execute update
+                connection.update(addFileIdForCalcSolutionAssignment.asUpdate());
 
+                ParameterizedSparqlString addFileIdForWriterInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_WRITER_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
+                addFileIdForWriterInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
+                addFileIdForWriterInstructionAssignment.setIri("?student", studentUrl);
+                addFileIdForWriterInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
+                addFileIdForWriterInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
+                System.out.println(newTaskResourceUrl);
+                addFileIdForWriterInstructionAssignment.setLiteral("?newOrderNo", orderNo);
+                addFileIdForWriterInstructionAssignment.setLiteral("?id", generatedFileIdList.get(2));
 
-        if(taskAssignmentDTO.get().getTaskAssignmentTypeId() != null && taskAssignmentDTO.get().getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()) ){
-            List<Long> generatedFileIdList = uploadFileService.createRandomInstruction((long) taskAssignmentDTO.get().getCalcInstructionFileId(),(long) taskAssignmentDTO.get().getCalcSolutionFileId(),(long) taskAssignmentDTO.get().getWriterInstructionFileId(), login);
+                // execute update
+                connection.update(addFileIdForWriterInstructionAssignment.asUpdate());
 
-            ParameterizedSparqlString addFileIdForCalcInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
-            addFileIdForCalcInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
-            addFileIdForCalcInstructionAssignment.setIri("?student", studentUrl);
-            addFileIdForCalcInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
-            addFileIdForCalcInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
-            System.out.println(newTaskResourceUrl);
-            addFileIdForCalcInstructionAssignment.setLiteral("?newOrderNo", orderNo);
-            addFileIdForCalcInstructionAssignment.setLiteral("?id", generatedFileIdList.get(0));
-
-            // execute update
-            connection.update(addFileIdForCalcInstructionAssignment.asUpdate());
-
-
-            ParameterizedSparqlString addFileIdForCalcSolutionAssignment = new ParameterizedSparqlString(QRY_INSERT_CALC_SOLUTION_FILE_ID_FOR_INDIVIDUAL_TASK);
-            addFileIdForCalcSolutionAssignment.setIri("?courseInstance", courseInstanceUrl);
-            addFileIdForCalcSolutionAssignment.setIri("?student", studentUrl);
-            addFileIdForCalcSolutionAssignment.setIri("?sheet", exerciseSheetUrl);
-            addFileIdForCalcSolutionAssignment.setIri("?newTask", newTaskResourceUrl);
-            System.out.println(newTaskResourceUrl);
-            addFileIdForCalcSolutionAssignment.setLiteral("?newOrderNo", orderNo);
-            addFileIdForCalcSolutionAssignment.setLiteral("?id", generatedFileIdList.get(1));
-
-            // execute update
-            connection.update(addFileIdForCalcSolutionAssignment.asUpdate());
-
-            ParameterizedSparqlString addFileIdForWriterInstructionAssignment = new ParameterizedSparqlString(QRY_INSERT_WRITER_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK);
-            addFileIdForWriterInstructionAssignment.setIri("?courseInstance", courseInstanceUrl);
-            addFileIdForWriterInstructionAssignment.setIri("?student", studentUrl);
-            addFileIdForWriterInstructionAssignment.setIri("?sheet", exerciseSheetUrl);
-            addFileIdForWriterInstructionAssignment.setIri("?newTask", newTaskResourceUrl);
-            System.out.println(newTaskResourceUrl);
-            addFileIdForWriterInstructionAssignment.setLiteral("?newOrderNo", orderNo);
-            addFileIdForWriterInstructionAssignment.setLiteral("?id", generatedFileIdList.get(2));
-
-            // execute update
-            connection.update(addFileIdForWriterInstructionAssignment.asUpdate());
-
-            // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
-        }
+                // Finished (use QRY_ASK_CALC_FILE_ID_FOR_INDIVIDUAL_TASK to fetch id -> method and endpoint required)
+            });
     }
 
     public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
