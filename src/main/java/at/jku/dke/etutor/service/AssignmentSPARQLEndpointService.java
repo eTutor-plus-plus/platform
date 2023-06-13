@@ -715,7 +715,6 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
      * @return {@link Optional} which contains the task, if a task with the given id exists
      */
     public Optional<TaskAssignmentDTO> getTaskAssignmentByInternalId(String id) {
-        // TODO: labels of goals are not correctly set because only the task-assignment resource is passed to the constructor of the DTO, not the resource of the goal, currently, there is a workaround to construct the label from the goals uri
         ParameterizedSparqlString query = new ParameterizedSparqlString(QRY_CONSTRUCT_TASK_ASSIGNMENTS);
 
         String taskAssignmentId = String.format("http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignment#%s", id);
