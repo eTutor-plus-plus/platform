@@ -43,6 +43,8 @@ cd objects
 mvn clean install
 ```
 
+Alternatively, you could donwload the latest jar from the [github action workflows](https://github.com/eTutor-plus-plus/objects/actions) in the repository of the objects-project. Click on the latest workflow and then on artifacts to do so. However, it would be required to install the jar into your local maven repository, so maybe installing it manually like described above is easier.
+
 3. Other dependencies include:
 
 - Java
