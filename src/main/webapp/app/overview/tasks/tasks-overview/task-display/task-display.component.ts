@@ -3,6 +3,7 @@ import { ITaskDisplayModel, ITaskModel, ITaskVersionModel, TaskAssignmentType, T
 import { TasksService } from '../../tasks.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../../../core/auth/account.service';
+import { getEditorOptionsForTaskTypeUrl } from '../../../dispatcher/monaco-config';
 
 /**
  * Component for displaying a task.
@@ -19,6 +20,7 @@ export class TaskDisplayComponent implements OnInit {
   public _taskVersions: ITaskVersionModel[] = [];
   public version?: ITaskModel;
   public currentIndex = 0;
+  public editorOptions = { theme: 'vs-light', language: 'pgsql', readOnly: true };
 
   /**
    * Constructor.
@@ -53,6 +55,7 @@ export class TaskDisplayComponent implements OnInit {
         if (response.body) {
           this._taskVersions = response.body;
           this.version = this._taskVersions[0].version;
+          this.editorOptions = getEditorOptionsForTaskTypeUrl(this.version.taskAssignmentTypeId, true);
         }
       });
     }
@@ -127,4 +130,7 @@ export class TaskDisplayComponent implements OnInit {
       });
     }
   }
+
+  protected readonly TaskAssignmentType = TaskAssignmentType;
+  protected readonly getEditorOptionsForTaskTypeUrl = getEditorOptionsForTaskTypeUrl;
 }

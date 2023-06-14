@@ -55,7 +55,7 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
             PREFIX purl:              <http://purl.org/vocab/changeset/schema#>
             PREFIX rdf:                 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            CONSTRUCT { ?resource ?predicate ?object .
+            CONSTRUCT { ?subject ?predicate ?object .
               ?changeSet purl:createdDate ?date .
               ?changeSet purl:changeReason ?changeReason .
               ?changeSet purl:creatorName ?creator .
@@ -65,8 +65,9 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
                             purl:subjectOfChange ?resource;
                             ?typeOfStatement ?statement ;
                             purl:createdDate ?date .
-              ?statement rdf:predicate ?predicate ;
-                                rdf:object ?object .
+              ?statement rdf:subject ?subject ;
+                    rdf:predicate ?predicate ;
+                    rdf:object ?object .
               OPTIONAL{
                 ?changeSet purl:creatorName ?creator .
               }
@@ -165,17 +166,11 @@ public class ChangeSetSPARQLEndpointService extends AbstractSPARQLEndpointServic
         var beforeIterator = before.listStatements();
         while (beforeIterator.hasNext()) {
             var statement = beforeIterator.nextStatement();
-            if(!statement.getSubject().equals(subjectOfChangeResource)) {
-                continue;
-            }
             changeSetResource.addProperty(ETutorVocabulary.removal, getReifiedStatement(changeSetModel, statement));
         }
         var afterIterator = after.listStatements();
         while (afterIterator.hasNext()) {
             var statement = afterIterator.nextStatement();
-            if(!statement.getSubject().equals(subjectOfChangeResource)) {
-                continue;
-            }
             changeSetResource.addProperty(ETutorVocabulary.addition, getReifiedStatement(changeSetModel, statement));
         }
         try (RDFConnection connection = getConnection()) {

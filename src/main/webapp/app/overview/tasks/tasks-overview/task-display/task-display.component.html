@@ -75,10 +75,55 @@
       <label class="form-control-label" for="url" jhiTranslate="taskManagement.fields.url">Url:</label>
       <input type="url" class="form-control" name="url" id="url" disabled value="{{ version?.url?.toString() }}" />
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="version?.taskGroupId">
+      <label class="form-control-label">Task Group:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="taskGroup"
+        id="taskGroup"
+        disabled
+        value="{{ version?.taskGroupId!.substring(version?.taskGroupId!.indexOf('#') + 1) }}"
+      />
+    </div>
+    <div class="form-group" *ngIf="version?.instruction">
       <label class="form-control-label" jhiTranslate="taskManagement.fields.instruction">Instructions:</label>
       <div [innerHTML]="version?.instruction!"></div>
     </div>
+    <br />
+    <h4>Task-type specific attributes</h4>
+    <div *ngIf="version?.maxPoints">
+      <label class="form-control-label">Maximum Points:</label>
+      <input type="number" class="form-control" name="maxPoints" id="maxPoints" disabled value="{{ version?.maxPoints }}" />
+    </div>
+    <div *ngIf="version?.diagnoseLevelWeighting">
+      <label class="form-control-label">Diagnose Level Weighting:</label>
+      <input
+        type="number"
+        class="form-control"
+        name="diagnoseLevelWeighting"
+        id="diagnoseLevelWeighting"
+        disabled
+        value="{{ version?.diagnoseLevelWeighting }}"
+      />
+    </div>
+    <div
+      *ngIf="
+        version?.taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
+        version?.taskAssignmentTypeId === TaskAssignmentType.RATask.value
+      "
+    >
+      <div>
+        <label class="form-control-label">SQL Solution:</label>
+        <ngx-monaco-editor name="test" id="test" [options]="this.editorOptions" ngModel="{{ this.version?.sqlSolution }}">
+        </ngx-monaco-editor>
+      </div>
+    </div>
+    <div *ngIf="version?.taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value"></div>
+    <div *ngIf="version?.taskAssignmentTypeId! === TaskAssignmentType.XQueryTask.value"></div>
+    <div *ngIf="version?.taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value"></div>
+    <div *ngIf="version?.taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value"></div>
+    <div *ngIf="version?.taskAssignmentTypeId === TaskAssignmentType.PmTask.value"></div>
     <h4 jhiTranslate="taskManagement.display.assignedLearningGoals">Assigned learning goals</h4>
     <ul class="list-group">
       <li *ngFor="let goal of version?.learningGoalIds" class="list-group-item">{{ goal.name }}</li>
