@@ -8,4 +8,12 @@ import java.io.Serial;
 public class MissingParameterException extends Exception{
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public MissingParameterException(){
+        super();
+    }
+
+    public MissingParameterException(String message){
+        super(message);
+    }
 }

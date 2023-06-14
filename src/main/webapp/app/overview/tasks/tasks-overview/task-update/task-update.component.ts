@@ -48,7 +48,6 @@ export class TaskUpdateComponent implements OnInit {
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
-    taskIdForDispatcher: [''],
     sqlCreateStatements: [''],
     sqlInsertStatementsSubmission: [''],
     sqlInsertStatementsDiagnose: [''],
@@ -168,11 +167,6 @@ export class TaskUpdateComponent implements OnInit {
     }
     /** apriori end */
 
-    const taskIdForDispatcher: string | null = this.updateForm.get('taskIdForDispatcher')!.value;
-    if (taskIdForDispatcher) {
-      newTask.taskIdForDispatcher = taskIdForDispatcher;
-    }
-
     const sqlSolution: string | null = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
@@ -268,7 +262,7 @@ export class TaskUpdateComponent implements OnInit {
         creator: newTask.creator,
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
-        taskIdForDispatcher: newTask.taskIdForDispatcher,
+        taskIdForDispatcher: this.taskModel!.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
         xQuerySolution: newTask.xQuerySolution,
         xQueryXPathSorting: newTask.xQueryXPathSorting,
@@ -334,7 +328,6 @@ export class TaskUpdateComponent implements OnInit {
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
-      const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
       const xQuerySolution = value.xQuerySolution;
@@ -362,9 +355,6 @@ export class TaskUpdateComponent implements OnInit {
       const aprioriDatasetId = value.aprioriDatasetId;
       /** apriori end */
 
-      if (taskIdForDispatcher) {
-        this.updateForm.get('taskIdForDispatcher')!.disable();
-      }
       this.updateForm.get('xQueryFileURL')!.disable();
 
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
@@ -376,7 +366,6 @@ export class TaskUpdateComponent implements OnInit {
         privateTask: value.privateTask,
         taskDifficulty,
         taskAssignmentType,
-        taskIdForDispatcher,
         sqlSolution,
         xQuerySolution,
         xQueryXPathSorting,
@@ -450,15 +439,19 @@ export class TaskUpdateComponent implements OnInit {
     this.clearAllTaskTypeDependentValidators();
 
     if (this.selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.RATask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value) {
@@ -470,12 +463,6 @@ export class TaskUpdateComponent implements OnInit {
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
-    }
-
-    if (this.isDkeDispatcherTask(this.selectedTaskAssignmentType)) {
-      if (!this.updateForm.get('taskIdForDispatcher')!.value) {
-        this.setTaskGroupRequired();
-      }
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -491,32 +478,6 @@ export class TaskUpdateComponent implements OnInit {
       this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       this.patchDatalogTaskGroupValues(taskGroupId);
-    }
-  }
-
-  /**
-   * Reacts to the input of a task-id for the dispatcher.
-   * For some task types, either a task-group or an existing dispatcher-task-id are required, so we change the validators accordingly
-   */
-  public taskIdForDispatcherEntered(): void {
-    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-
-    if (
-      taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value
-    ) {
-      if (this.updateForm.get('taskIdForDispatcher')!.value) {
-        this.updateForm.get('taskGroup')?.clearValidators();
-        this.updateForm.get('taskGroup')?.updateValueAndValidity();
-        this.updateForm.updateValueAndValidity();
-      } else {
-        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-        this.updateForm.get('taskGroup')!.updateValueAndValidity();
-        this.updateForm.updateValueAndValidity();
-      }
     }
   }
 
@@ -853,17 +814,6 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
-
-  private isDkeDispatcherTask(taskAssignmentType: string): boolean {
-    return (
-      taskAssignmentType === TaskAssignmentType.RATask.value ||
-      taskAssignmentType === TaskAssignmentType.SQLTask.value ||
-      taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
-      taskAssignmentType === TaskAssignmentType.XQueryTask.value
-    );
-  }
-
-  /** apriori start */
 
   /**
    * for creating initial parameter for apriori task creation

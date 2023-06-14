@@ -122,20 +122,7 @@
         selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value
       "
-    >
-      <label class="form-control-label" for="taskIdForDispatcher">
-        {{ 'taskManagement.fields.taskIdForDispatcher' | translate }}
-        <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.dispatcherIdInfo' | translate }}" placement="right"></fa-icon>
-      </label>
-      <input
-        (change)="taskIdForDispatcherEntered()"
-        type="number"
-        class="form-control"
-        name="taskIdForDispatcher"
-        id="taskIdForDispatcher"
-        formControlName="taskIdForDispatcher"
-      />
-    </div>
+    ></div>
 
     <!-- APRIORI element start -->
     <div
