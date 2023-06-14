@@ -486,10 +486,14 @@ export class TaskUpdateComponent implements OnInit {
    */
   public openSolutionRunnerWindow(asSql = false): void {
     const modalRef = this.modalService.open(DispatcherAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
+    const taskT =
+      this._taskModel?.taskAssignmentTypeId === TaskAssignmentType.RATask.value && asSql // solutions for relational algebra are available in SQL, so we either open an empty editor or one with the SQL solution
+        ? TaskAssignmentType.SQLTask.value
+        : this._taskModel?.taskAssignmentTypeId ?? '';
+
+    const id = Number(this._taskModel?.taskIdForDispatcher ?? '-1');
+
     let subm = '';
-    const taskT = asSql // solutions for relational algebra are available in SQL, so we either open an empty editor or one with the SQL solution
-      ? TaskAssignmentType.SQLTask.value
-      : (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskT === TaskAssignmentType.SQLTask.value) {
       subm = this.updateForm.get(['sqlSolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
@@ -497,7 +501,6 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
     }
-    const id = this.updateForm.get(['taskIdForDispatcher'])!.value;
     (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
       isSubmitted: false,
