@@ -68,38 +68,39 @@ export function myMonacoLoad(): void {
   (window as any).monaco.languages.setMonarchTokensProvider('xquery', {
     tokenizer: {
       root: [
-        [/\/text/, 'text'],
-        [/\/node/, 'node'],
-        [/for/, 'for'],
-        [/let/, 'let'],
-        [/where/, 'where'],
-        [/order by/, 'order-by'],
-        [/return|returns/, 'return'],
-        [/if/, 'if'],
-        [/then/, 'then'],
-        [/else/, 'else'],
-        [/every/, 'every'],
-        [/some/, 'some'],
-        [/satisfies/, 'satisfies'],
+        [/<\/[^>]+>/, 'closing-tag'], // Matches closing tags e.g. </company>
+        [/<[^\/>]+>/, 'opening-tag'], // Matches opening tags e.g. <company>
+        [/\/node\(\)/, 'node'],
+        [/(^|[^a-zA-Z])for(?![a-zA-Z])/, 'for'],
+        [/(^|[^a-zA-Z])let(?![a-zA-Z])/, 'let'],
+        [/(^|[^a-zA-Z])where(?![a-zA-Z])/, 'where'],
+        [/(^|[^a-zA-Z])order by(?![a-zA-Z])/, 'order-by'],
+        [/(^|[^a-zA-Z])return|returns(?![a-zA-Z])/, 'return'],
+        [/(^|[^a-zA-Z])if(?![a-zA-Z])/, 'if'],
+        [/(^|[^a-zA-Z])in(?![a-zA-Z])/, 'in'],
+        [/(^|[^a-zA-Z])then(?![a-zA-Z])/, 'then'],
+        [/(^|[^a-zA-Z])else(?![a-zA-Z])/, 'else'],
+        [/(^|[^a-zA-Z])every(?![a-zA-Z])/, 'every'],
+        [/(^|[^a-zA-Z])some(?![a-zA-Z])/, 'some'],
+        [/(^|[^a-zA-Z])satisfies/, 'satisfies'],
         [/define function/, 'define-function'],
-        [/\$[a-z]+/, 'variable'],
-        [/position/, 'position'],
-        [/count/, 'count'],
-        [/last/, 'last'],
-        [/empty/, 'empty'],
-        [/avg/, 'avg'],
-        [/max/, 'max'],
-        [/min/, 'min'],
-        [/sum/, 'sum'],
-        [/not/, 'not'],
-        [/substring/, 'substring'],
-        [/distinct-nodes/, 'distinct-nodes'],
-        [/distinct-values/, 'distinct-values'],
-        [/node-name/, 'node-name'],
-        [/data/, 'data'],
-        [/doc/, 'doc'],
-        [/and/, 'and'],
-        [/\sor\s/, 'or'],
+        [/\$[a-z]+(?![a-zA-Z])/, 'variable'],
+        [/(^|[^a-zA-Z])count(?![a-zA-Z])/, 'count'],
+        [/(^|[^a-zA-Z])last(?![a-zA-Z])/, 'last'],
+        [/(^|[^a-zA-Z])empty(?![a-zA-Z])/, 'empty'],
+        [/(^|[^a-zA-Z])avg(?![a-zA-Z])/, 'avg'],
+        [/(^|[^a-zA-Z])max(?![a-zA-Z])/, 'max'],
+        [/(^|[^a-zA-Z])min(?![a-zA-Z])/, 'min'],
+        [/(^|[^a-zA-Z])sum(?![a-zA-Z])/, 'sum'],
+        [/(^|[^a-zA-Z])not(?![a-zA-Z])/, 'not'],
+        [/(^|[^a-zA-Z])substring(?![a-zA-Z])/, 'substring'],
+        [/(^|[^a-zA-Z])distinct-nodes(?![a-zA-Z])/, 'distinct-nodes'],
+        [/(^|[^a-zA-Z])distinct-values(?![a-zA-Z])/, 'distinct-values'],
+        [/(^|[^a-zA-Z])node-name(?![a-zA-Z])/, 'node-name'],
+        [/(^|[^a-zA-Z])data(?![a-zA-Z])/, 'data'],
+        [/(^|[^a-zA-Z])doc(?![a-zA-Z])/, 'doc'],
+        [/(^|[^a-zA-Z])and(?![a-zA-Z])/, 'and'],
+        [/\sor\s(?![a-zA-Z])/, 'or'],
         [/'.+'/, 'string'],
         [/:=/, 'assignment-sign'],
         [/\]/, 'right-bracket'],
@@ -108,8 +109,6 @@ export function myMonacoLoad(): void {
         [/\)/, 'right-parantheses'],
         [/\}/, 'right-curly'],
         [/\{/, 'left-curly'],
-        [/<\/|</, 'opening-tag'],
-        [/>/, 'closing-tag'],
       ],
     },
   });
@@ -118,7 +117,19 @@ export function myMonacoLoad(): void {
   (window as any).monaco.editor.defineTheme('datalog-light', {
     colors: {},
     base: 'vs',
-    inherit: false,
+    inherit: true,
+    rules: [
+      { token: 'dot', foreground: '00FF00', fontStyle: 'bold' },
+      { token: 'assignment', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'left-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'right-parantheses', foreground: keyWordColor, fontStyle: 'bold' },
+      { token: 'question-mark', foreground: '00FF00', fontStyle: 'bold' },
+    ],
+  });
+  (window as any).monaco.editor.defineTheme('datalog-dark', {
+    colors: {},
+    base: 'vs-dark',
+    inherit: true,
     rules: [
       { token: 'dot', foreground: '00FF00', fontStyle: 'bold' },
       { token: 'assignment', foreground: keyWordColor, fontStyle: 'bold' },
@@ -132,13 +143,13 @@ export function myMonacoLoad(): void {
   (window as any).monaco.editor.defineTheme('relationalAlgebra-light', {
     colors: {},
     base: 'vs',
-    inherit: false,
+    inherit: true,
     rules: [
       { token: 'projection', foreground: keyWordColor },
       { token: 'selection', foreground: keyWordColor },
       { token: 'renaming', foreground: keyWordColor },
       { token: 'intersection', foreground: keyWordColor },
-      { token: 'cartesian_product', foreground: keyWordColor },
+      { token: 'cartesian-product', foreground: keyWordColor },
       { token: 'division', foreground: keyWordColor },
       { token: 'join', foreground: keyWordColor },
       { token: 'right', foreground: keyWordColor },
@@ -156,16 +167,44 @@ export function myMonacoLoad(): void {
       { token: 'left-curly', foreground: '2d7c02' },
     ],
   });
-
+  (window as any).monaco.editor.defineTheme('relationalAlgebra-dark', {
+    colors: {},
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'projection', foreground: keyWordColor },
+      { token: 'selection', foreground: keyWordColor },
+      { token: 'renaming', foreground: keyWordColor },
+      { token: 'intersection', foreground: keyWordColor },
+      { token: 'cartesian-product', foreground: keyWordColor },
+      { token: 'division', foreground: keyWordColor },
+      { token: 'join', foreground: keyWordColor },
+      { token: 'right', foreground: keyWordColor },
+      { token: 'semi', foreground: keyWordColor },
+      { token: 'full', foreground: keyWordColor },
+      { token: 'minus', foreground: keyWordColor },
+      { token: 'theta', foreground: keyWordColor },
+      { token: 'union', foreground: keyWordColor },
+      { token: 'outer', foreground: keyWordColor },
+      { token: 'leftarrow', foreground: keyWordColor },
+      { token: 'between-brackets', foreground: 'f15530', fontStyle: 'italic' },
+      { token: 'left', foreground: keyWordColor },
+      { token: 'theta-join', foreground: '0FB695' },
+      { token: 'right-curly', foreground: '2d7c02' },
+      { token: 'left-curly', foreground: '2d7c02' },
+    ],
+  });
   keyWordColor = 'F12F2F';
   (window as any).monaco.editor.defineTheme('xquery-light', {
     colors: {},
     base: 'vs',
     inherit: true,
     rules: [
-      { token: 'text', foreground: keyWordColor },
+      { token: 'opening-tag', foreground: '#3a92bb', fontStyle: 'bold' },
+      { token: 'closing-tag', foreground: '#3a92bb', fontStyle: 'bold' },
       { token: 'node', foreground: keyWordColor },
       { token: 'for', foreground: keyWordColor },
+      { token: 'in', foreground: keyWordColor },
       { token: 'let', foreground: keyWordColor },
       { token: 'where', foreground: keyWordColor },
       { token: 'order-by', foreground: keyWordColor },
@@ -177,8 +216,7 @@ export function myMonacoLoad(): void {
       { token: 'some', foreground: keyWordColor },
       { token: 'satisfies', foreground: keyWordColor },
       { token: 'define-function', foreground: keyWordColor },
-      { token: 'variable', foreground: '3a92bb' },
-      { token: 'position', foreground: keyWordColor },
+      { token: 'variable', foreground: '#7C57E8' },
       { token: 'count', foreground: keyWordColor },
       { token: 'last', foreground: keyWordColor },
       { token: 'empty', foreground: keyWordColor },
@@ -195,17 +233,61 @@ export function myMonacoLoad(): void {
       { token: 'doc', foreground: keyWordColor },
       { token: 'and', foreground: keyWordColor },
       { token: 'or', foreground: keyWordColor },
-      { token: 'string', foreground: '039307' },
+      { token: 'string', foreground: '#039307' },
       { token: 'left-parantheses', fontStyle: 'bold' },
       { token: 'right-parantheses', fontStyle: 'bold' },
       { token: 'right-curly', fontStyle: 'bold' },
       { token: 'left-curly', fontStyle: 'bold' },
       { token: 'assignment-sign', fontStyle: 'bold' },
-      { token: 'opening-tag', foreground: '9308E2', fontStyle: 'bold' },
-      { token: 'closing-tag', foreground: '9308E2', fontStyle: 'bold' },
     ],
   });
 
+  (window as any).monaco.editor.defineTheme('xquery-dark', {
+    colors: {},
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'opening-tag', foreground: '#3a92bb', fontStyle: 'bold' },
+      { token: 'closing-tag', foreground: '#3a92bb', fontStyle: 'bold' },
+      { token: 'in', foreground: keyWordColor },
+      { token: 'node', foreground: keyWordColor },
+      { token: 'for', foreground: keyWordColor },
+      { token: 'let', foreground: keyWordColor },
+      { token: 'where', foreground: keyWordColor },
+      { token: 'order-by', foreground: keyWordColor },
+      { token: 'return', foreground: keyWordColor },
+      { token: 'if', foreground: keyWordColor },
+      { token: 'then', foreground: keyWordColor },
+      { token: 'else', foreground: keyWordColor },
+      { token: 'every', foreground: keyWordColor },
+      { token: 'some', foreground: keyWordColor },
+      { token: 'satisfies', foreground: keyWordColor },
+      { token: 'define-function', foreground: keyWordColor },
+      { token: 'variable', foreground: '#7C57E8' },
+      { token: 'count', foreground: keyWordColor },
+      { token: 'last', foreground: keyWordColor },
+      { token: 'empty', foreground: keyWordColor },
+      { token: 'avg', foreground: keyWordColor },
+      { token: 'min', foreground: keyWordColor },
+      { token: 'max', foreground: keyWordColor },
+      { token: 'sum', foreground: keyWordColor },
+      { token: 'not', foreground: keyWordColor },
+      { token: 'substring', foreground: keyWordColor },
+      { token: 'distinct-nodes', foreground: keyWordColor },
+      { token: 'distinct-values', foreground: keyWordColor },
+      { token: 'node-name', foreground: keyWordColor },
+      { token: 'data', foreground: keyWordColor },
+      { token: 'doc', foreground: keyWordColor },
+      { token: 'and', foreground: keyWordColor },
+      { token: 'or', foreground: keyWordColor },
+      { token: 'string', foreground: '#039307' },
+      { token: 'left-parantheses', fontStyle: 'bold' },
+      { token: 'right-parantheses', fontStyle: 'bold' },
+      { token: 'right-curly', fontStyle: 'bold' },
+      { token: 'left-curly', fontStyle: 'bold' },
+      { token: 'assignment-sign', fontStyle: 'bold' },
+    ],
+  });
   (window as any).monaco.languages.registerCompletionItemProvider('relationalAlgebra', {
     provideCompletionItems: () => ({
       suggestions: [
@@ -459,15 +541,25 @@ export function myMonacoLoad(): void {
   console.log((window as any).monaco);
   console.log('Hello');
 }
+export interface MonacoEditorOptions {
+  theme: string;
+  language: string;
+  readOnly: boolean;
+}
 
-export function getEditorOptionsForTaskTypeUrl(
-  taskTypeUrl: string,
-  readOnly: boolean
-): { theme: string; language: string; readOnly: boolean } {
+export function getEditorOptionsForTaskTypeUrl(taskTypeUrl: string, readOnly: boolean): MonacoEditorOptions {
   return {
     theme: getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl),
     language: getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl),
     readOnly,
+  };
+}
+
+export function switchModeOfEditorConfig(config: MonacoEditorOptions): MonacoEditorOptions {
+  const newTheme = switchTheme(config.theme);
+  return {
+    ...config,
+    theme: newTheme,
   };
 }
 
@@ -491,7 +583,7 @@ function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string 
 function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
   switch (taskTypeUrl) {
     case TaskAssignmentType.SQLTask.value:
-      return 'pgsql';
+      return 'vs-light';
     case TaskAssignmentType.RATask.value:
       return 'relationalAlgebra-light';
     case TaskAssignmentType.DatalogTask.value:
@@ -499,6 +591,30 @@ function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
     case TaskAssignmentType.XQueryTask.value:
       return 'xquery-light';
     case TaskAssignmentType.BpmnTask.value:
+      return 'xml';
+    default:
+      return 'vs-light';
+  }
+}
+function switchTheme(currentTheme: string): string {
+  switch (currentTheme) {
+    case 'relationalAlgebra-light':
+      return 'relationalAlgebra-dark';
+    case 'relationalAlgebra-dark':
+      return 'relationalAlgebra-light';
+    case 'datalog-light':
+      return 'datalog-dark';
+    case 'datalog-dark':
+      return 'datalog-light';
+    case 'xquery-light':
+      return 'xquery-dark';
+    case 'xquery-dark':
+      return 'xquery-light';
+    case 'vs-light':
+      return 'vs-dark';
+    case 'vs-dark':
+      return 'vs-light';
+    case 'xml':
       return 'xml';
     default:
       return 'vs-light';

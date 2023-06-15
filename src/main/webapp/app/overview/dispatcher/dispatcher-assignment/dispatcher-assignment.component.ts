@@ -3,7 +3,7 @@ import { SubmissionDTO } from 'app/overview/dispatcher/entities/SubmissionDTO';
 import { GradingDTO } from 'app/overview/dispatcher/entities/GradingDTO';
 import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDTO';
 import { DispatcherAssignmentService } from 'app/overview/dispatcher/services/dispatcher-assignment.service';
-import { getEditorOptionsForTaskTypeUrl } from '../monaco-config';
+import { getEditorOptionsForTaskTypeUrl, MonacoEditorOptions, switchModeOfEditorConfig } from '../monaco-config';
 import { TaskAssignmentType } from '../../tasks/task.model';
 
 /**
@@ -95,7 +95,7 @@ export class DispatcherAssignmentComponent {
   /**
    * The default editor options
    */
-  public editorOptions = { theme: 'vs-light', language: 'pgsql', readOnly: false };
+  public editorOptions: MonacoEditorOptions = { theme: 'vs-light', language: 'pgsql', readOnly: false };
 
   public isXQueryTask = false;
   public isDatalogTask = false;
@@ -211,5 +211,10 @@ export class DispatcherAssignmentComponent {
     this.isXQueryTask = this._task_type === TaskAssignmentType.XQueryTask.value;
     this.isDatalogTask = this._task_type === TaskAssignmentType.DatalogTask.value;
     this.isBpmnTask = this._task_type === TaskAssignmentType.BpmnTask.value;
+  }
+
+  switchEditorMode() {
+    const newOptions = switchModeOfEditorConfig(this.editorOptions);
+    this.editorOptions = switchModeOfEditorConfig(this.editorOptions);
   }
 }
