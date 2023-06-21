@@ -180,7 +180,9 @@ public class StudentResource {
                                                             @PathVariable String exerciseSheetUUID) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
-            studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            if(!courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID)){
+                studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            }
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException esaoe) {
             throw new ExerciseSheetAlreadyOpenedException();
