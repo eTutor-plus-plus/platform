@@ -605,11 +605,11 @@ public class DispatcherProxyService {
      * @param configId the configuration id fetched by RDF graph
      * @return the dispatcher id of the task
      */
-    public int createRandomPmTask(int configId) throws DispatcherRequestFailedException{
+    public Optional<Integer> createRandomPmTask(int configId) throws DispatcherRequestFailedException{
         // proxy request to dispatcher
         var response = proxyResource.createRandomPmExercise(configId);
         // return dispatcher id of the random exercise
-        return response.getBody() != null? response.getBody() : -1;
+        return Optional.ofNullable(response.getBody());
     }
 
     /**

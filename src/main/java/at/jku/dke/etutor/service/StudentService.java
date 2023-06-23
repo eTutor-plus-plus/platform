@@ -2057,7 +2057,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                     insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
                     assignedTasks.add(taskToAssign);
                 }catch (Exception e){
-                    log.error("Could not assign task during while opening exercise sheet for student.");
+                    log.error("Could not assign task while opening exercise sheet for student.");
                     log.error(e.getMessage());
                 }
             }
@@ -2705,11 +2705,11 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                 id.ifPresent(i -> {
                     try{
                         // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                        int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                        var optDispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
                         // only now insert new task assignment, in case request to disptacher failed
                         // store id of generated exercise in RDF in IndividualTask
-                        assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
-                            studentUrl, orderNo, dispatcherTaskId);
+                        optDispatcherTaskId.ifPresent(dispatcherTaskId -> assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
+                            studentUrl, orderNo, dispatcherTaskId));
                     }catch(DispatcherRequestFailedException e){
                         log.error(e.getMessage());
                     }
@@ -2788,11 +2788,12 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         id.ifPresent(i -> {
             try {
                 // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                var optDispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
                 // only now insert new task assignment, in case request to disptacher failed
                 // store id of generated exercise in RDF in IndividualTask
+                optDispatcherTaskId.ifPresent(dispatcherTaskId ->
                 assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceId, sheetId,
-                    studentUrl, taskNo, dispatcherTaskId);
+                    studentUrl, taskNo, dispatcherTaskId));
             } catch (DispatcherRequestFailedException e) {
                 log.error(e.getMessage());
             }
