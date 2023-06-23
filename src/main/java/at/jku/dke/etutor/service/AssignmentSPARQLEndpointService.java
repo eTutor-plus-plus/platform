@@ -1089,6 +1089,9 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         ParameterizedSparqlString insertQuery = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
 
+            DELETE{
+                ?individualTask etutor:hasTaskIdForDispatcher ?oldId .
+            }
             INSERT{
               ?individualTask etutor:hasTaskIdForDispatcher ?id.
             } WHERE{
@@ -1098,6 +1101,9 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                                     etutor:fromCourseInstance ?instance;\s
                                     etutor:hasIndividualTask ?individualTask.
               ?individualTask etutor:hasOrderNo ?orderNo.
+              OPTIONAL{
+                ?individualTask etutor:hasTaskIdForDispatcher ?oldId .
+              }
             }
             """);
 
