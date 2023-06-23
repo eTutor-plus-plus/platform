@@ -69,7 +69,7 @@ export class DispatcherAssignmentService {
   ): Observable<PmLogModel> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
     return this.http.get<PmLogModel>(
-      `api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/${taskAssignmentId}/pmlog`
+      `api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/taskassignment/${taskAssignmentId}/pmlog`
     );
   }
 

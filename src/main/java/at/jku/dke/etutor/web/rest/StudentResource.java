@@ -731,7 +731,7 @@ public class StudentResource {
      * @param taskNo the task number
      * @return the log of the exercise
      */
-    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/{taskAssignmentUUID}/pmlog")
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/taskassignment/{taskAssignmentUUID}/pmlog")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo, @PathVariable String taskAssignmentUUID){
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
