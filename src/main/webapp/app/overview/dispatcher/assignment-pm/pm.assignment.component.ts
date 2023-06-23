@@ -114,6 +114,7 @@ export class PmAssignmentComponent implements OnInit {
   @Input() public courseInstanceUUID!: string;
 
   @Input() public isSubmitted = false;
+  @Input() public taskAssignmentId: string = '';
 
   /**
    * Output that notifies components id the submission has been sent to the dispatcher
@@ -186,10 +187,12 @@ export class PmAssignmentComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.assignmentService.getPmLogForIndividualTask(this.courseInstanceUUID, this.exerciseSheetUUID, this.taskNo).subscribe(DTO => {
-      this.log = DTO.log;
-      this.dispatcherExerciseID = DTO.exerciseId;
-    });
+    this.assignmentService
+      .getPmLogForIndividualTask(this.courseInstanceUUID, this.exerciseSheetUUID, this.taskNo, this.taskAssignmentId)
+      .subscribe(DTO => {
+        this.log = DTO.log;
+        this.dispatcherExerciseID = DTO.exerciseId;
+      });
   }
 
   /**

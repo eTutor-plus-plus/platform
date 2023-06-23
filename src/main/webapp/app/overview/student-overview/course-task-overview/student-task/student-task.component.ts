@@ -54,7 +54,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public readonly _instance?: ICourseInstanceInformationDTO;
   public _taskNo = 0;
   public _exerciseSheetUUID = '';
-  private _taskUUID = '';
+  public _taskUUID = '';
   private _paramMapSubscription?: Subscription;
   private _taskModel?: ITaskModel;
 

@@ -96,13 +96,13 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
-    
-/** start apriori   */  
-    
+
+/** start apriori   */
+
     private static final String PROP_HAS_APRIORI_ID = "hasAprioriID";
-    
+
 /** apriori end */
-    
+
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
     private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
@@ -158,13 +158,13 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
-    
 
-/** start apriori   */  
+
+/** start apriori   */
     private static final String INSTANCE_APRIORI_TASK = "AprioriTask";
-    
+
     private static final String INSTANCE_APRIORI_TYPE_TASK_GROUP = "AprioriType";
-/** apriori end */    
+/** apriori end */
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
@@ -384,18 +384,18 @@ public final class ETutorVocabulary {
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
 
-    
-/** start apriori   */  
-    
+
+/** start apriori   */
+
     /**
      * The hasAprioriID property.
      */
     public static final Property hasAprioriID = m.createProperty(URI + PROP_HAS_APRIORI_ID);
-    
-    
+
+
 /** apriori end */
-    
-    
+
+
     /**
      * The hasXQuerySolution property.
      */
@@ -707,7 +707,7 @@ public final class ETutorVocabulary {
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
 
-/** start apriori   */     
+/** start apriori   */
     /**
      * The Calc type instance
      */
@@ -723,7 +723,7 @@ public final class ETutorVocabulary {
     public static final Resource AprioriTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_APRIORI_TYPE_TASK_GROUP);
 
 /** apriori end */
-    
+
     /**
      * The no type task group type
      */
@@ -894,6 +894,10 @@ public final class ETutorVocabulary {
         return URI + CLASS_STUDENT + "#" + matriculationNumber;
     }
 
+    public static String createTaskAssignmentUrl(String taskAssignmentUUID) {
+        return URI + CLASS_TASK_ASSIGNMENT + "#" + taskAssignmentUUID;
+    }
+
     /**
      * Returns the task id for a task group entity.
      *
@@ -910,4 +914,5 @@ public final class ETutorVocabulary {
     private ETutorVocabulary() {
         throw new IllegalStateException("Utility class");
     }
+
 }

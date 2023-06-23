@@ -747,7 +747,6 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
         try (RDFConnection connection = getConnection()) {
             boolean result = connection.queryAsk(exerciseSheetOpenedQry.asQuery());
-
             if (result) {
                 throw new ExerciseSheetAlreadyOpenedException();
             }
@@ -2688,18 +2687,18 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         individualAssignmentInsertQry.setLiteral("?newOrderNo", orderNo);
 
 
+        connection.update(individualAssignmentInsertQry.asUpdate());
         Optional<TaskAssignmentDTO> taskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(newTaskResourceUrl.substring(newTaskResourceUrl.lastIndexOf('#') + 1));
 
         // Additional requirements for Process-Mining tasks (triggering random exercise generation in Dispatcher and persisting id in RDF)
         taskAssignmentDTO.filter(task -> task.getTaskAssignmentTypeId() != null && task.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()))
-            .ifPresentOrElse(task -> {
+            .ifPresent(task -> {
                 Optional<Integer> id= assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(newTaskResourceUrl);
                 id.ifPresent(i -> {
                     try{
                         // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
                         int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
                         // only now insert new task assignment, in case request to disptacher failed
-                        connection.update(individualAssignmentInsertQry.asUpdate());
                         // store id of generated exercise in RDF in IndividualTask
                         assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
                             studentUrl, orderNo, dispatcherTaskId);
@@ -2707,7 +2706,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                         log.error(e.getMessage());
                     }
                 });
-            }, () -> connection.update(individualAssignmentInsertQry.asUpdate()));
+            });
 
         // Additional requirements for Calc-Task creation
         taskAssignmentDTO.filter(task -> task.getTaskAssignmentTypeId() != null && task.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString()))
@@ -2762,6 +2761,39 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
             });
     }
 
+    /**
+     * Randomizes a PM task for a student and returns the id of it
+     * @param matriculationNo
+     * @param courseInstanceUUID
+     * @param exerciseSheetUUID
+     * @param taskNo
+     * @param taskAssignmentUUID
+     * @return
+     */
+    public Optional<Integer> randomizePmTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int taskNo, String taskAssignmentUUID) {
+        String courseInstanceId = ETutorVocabulary.createCourseInstanceURLString(courseInstanceUUID);
+        String sheetId = ETutorVocabulary.createExerciseSheetURLString(exerciseSheetUUID);
+        String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
+        String taskAssignmentUrl = ETutorVocabulary.createTaskAssignmentUrl(taskAssignmentUUID);
+
+        try (RDFConnection con = getConnection()) {
+            Optional<Integer> id = assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(taskAssignmentUrl);
+            id.ifPresent(i -> {
+                try {
+                    // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
+                    int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                    // only now insert new task assignment, in case request to disptacher failed
+                    // store id of generated exercise in RDF in IndividualTask
+                    assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceId, sheetId,
+                        studentUrl, taskNo, dispatcherTaskId);
+                } catch (DispatcherRequestFailedException e) {
+                    log.error(e.getMessage());
+                }
+            });
+        }
+        return getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+    }
+
     public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
         // TODO: find out what is going on here and adjust accordingly
         // ks: commented out, as no mysql instance available
@@ -2792,6 +2824,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 //            System.out.println(e);
 //        }
     }
+
     //endregion
 }
     //endregion
