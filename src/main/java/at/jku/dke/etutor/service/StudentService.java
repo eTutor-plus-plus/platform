@@ -2051,16 +2051,24 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                 throw new NoFurtherTasksAvailableException();
 
             // assign tasks
+            List<String> assignedTasks = new ArrayList<>();
             for (String taskToAssign : tasksToAssign) {
-                insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+                try{
+                    insertNewAssignedTask(courseInstanceId, sheetId, studentUrl, taskToAssign, connection);
+                    assignedTasks.add(taskToAssign);
+                }catch (Exception e){
+                    log.error("Could not assign task during while opening exercise sheet for student.");
+                    log.error(e.getMessage());
+                }
             }
+
             // generate pdf in new thread
             new Thread(() -> {
                 var assignedTasksWithoutGroup = new ArrayList<TaskAssignmentDTO>();
                 var taskGroupToTaskListMap = new HashMap<TaskGroupDTO, List<TaskAssignmentDTO>>();
-                for(String taskToAssign : tasksToAssign){
+                for(String assignedTask : assignedTasks){
                     // Adding task to collection for pdf creation
-                    var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskToAssign.substring(taskToAssign.indexOf("#") + 1));
+                    var taskOpt = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignedTask.substring(assignedTask.indexOf("#") + 1));
                     var task = taskOpt.orElseThrow();
                     Optional<TaskGroupDTO> taskGroupOpt = Optional.empty();
                     if (task.getTaskGroupId() != null)
@@ -2081,7 +2089,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
             }).start();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
@@ -2388,7 +2396,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      * @param orderNo the task number
      * @return exercise id corresponding to dispatcher
      */
-    public Optional<Integer> getDispatcherTaskId(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int orderNo){
+    public Optional<Integer> getDispatcherTaskIdOfIndividualTask(String matriculationNo, String courseInstanceUUID, String exerciseSheetUUID, int orderNo){
         Objects.requireNonNull(matriculationNo);
         Objects.requireNonNull(courseInstanceUUID);
         Objects.requireNonNull(exerciseSheetUUID);
@@ -2776,22 +2784,20 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         String studentUrl = ETutorVocabulary.getStudentURLFromMatriculationNumber(matriculationNo);
         String taskAssignmentUrl = ETutorVocabulary.createTaskAssignmentUrl(taskAssignmentUUID);
 
-        try (RDFConnection con = getConnection()) {
-            Optional<Integer> id = assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(taskAssignmentUrl);
-            id.ifPresent(i -> {
-                try {
-                    // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                    int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
-                    // only now insert new task assignment, in case request to disptacher failed
-                    // store id of generated exercise in RDF in IndividualTask
-                    assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceId, sheetId,
-                        studentUrl, taskNo, dispatcherTaskId);
-                } catch (DispatcherRequestFailedException e) {
-                    log.error(e.getMessage());
-                }
-            });
-        }
-        return getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+        Optional<Integer> id = assignmentSPARQLEndpointService.getDispatcherIdForTaskAssignment(taskAssignmentUrl);
+        id.ifPresent(i -> {
+            try {
+                // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
+                int dispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                // only now insert new task assignment, in case request to disptacher failed
+                // store id of generated exercise in RDF in IndividualTask
+                assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceId, sheetId,
+                    studentUrl, taskNo, dispatcherTaskId);
+            } catch (DispatcherRequestFailedException e) {
+                log.error(e.getMessage());
+            }
+        });
+        return getDispatcherTaskIdOfIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
     }
 
     public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {

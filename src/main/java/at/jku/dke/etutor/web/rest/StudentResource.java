@@ -738,7 +738,7 @@ public class StudentResource {
         PmExerciseLogDTO pmExerciseLogDTO = null;
 
         // fetches the dispatcher exercise id corresponding to the assigned exercise
-        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskIdOfIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
         if(dispatcherExerciseId.isEmpty()){
             dispatcherExerciseId = studentService.randomizePmTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, taskAssignmentUUID);
         }
