@@ -52,16 +52,14 @@ export class UserManagementUpdateComponent implements OnInit {
     this.updateUser(this.user);
     if (this.user.id !== undefined) {
       this.userService.update(this.user).subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
-    }
-    );
+        next: () => this.onSaveSuccess(),
+        error: () => this.onSaveError(),
+      });
     } else {
       this.userService.create(this.user).subscribe({
-          next: () => this.onSaveSuccess(),
-          error: () => this.onSaveError()
-      }
-      );
+        next: () => this.onSaveSuccess(),
+        error: () => this.onSaveError(),
+      });
     }
   }
 

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, Routes } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
-import { IUser } from './user-management.model';
+import { IUser, User } from './user-management.model';
 import { UserManagementService } from './service/user-management.service';
 import { UserManagementComponent } from './list/user-management.component';
 import { UserManagementDetailComponent } from './detail/user-management-detail.component';
@@ -17,7 +17,7 @@ export class UserManagementResolve implements Resolve<IUser | null> {
     if (id) {
       return this.service.find(id);
     }
-    return of(null);
+    return of(new User());
   }
 }
 
