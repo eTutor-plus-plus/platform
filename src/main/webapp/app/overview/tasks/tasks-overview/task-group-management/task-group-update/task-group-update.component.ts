@@ -208,7 +208,7 @@ export class TaskGroupUpdateComponent {
   private adjustFormForFDType(): void {
     this.isFDGroup = true;
     if (!this.taskGroupToEdit) {
-      this.taskGroupService.nextFdID().then(body => {
+      this.taskGroupService.nextFdID().subscribe(body => {
         this.taskGroup.get(['name'])?.setValue('FunctionalDependencies-' + body);
         this.taskGroup.get(['name'])?.disable();
       });

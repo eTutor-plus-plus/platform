@@ -96,10 +96,10 @@ export class TaskGroupManagementService {
     return this.http.get<ITaskGroupDisplayDTO[]>(url, { params: options, observe: 'response' });
   }
 
-  public nextFdID(): Promise<string> {
+  public nextFdID(): Observable<string> {
     let returnValue;
     const url = `${SERVER_API_URL}/api/task-group/fd/next_id`;
 
-    return this.http.get<string>(url).toPromise();
+    return this.http.get<string>(url);
   }
 }

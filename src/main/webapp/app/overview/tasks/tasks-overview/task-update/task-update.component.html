@@ -509,7 +509,7 @@
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>
     </div>
-    <div class="form-group" *ngIf="isFDTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="fDSubtype" jhiTranslate="taskManagement.fields.fDSubtypeTitle"
         >Functional Dependency Subtype:</label
       >

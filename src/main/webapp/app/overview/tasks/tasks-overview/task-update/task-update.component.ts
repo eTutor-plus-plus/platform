@@ -78,6 +78,7 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
+    fDependencies:[''],
     fDSubtype: [''],
 
     /** apriori start */
