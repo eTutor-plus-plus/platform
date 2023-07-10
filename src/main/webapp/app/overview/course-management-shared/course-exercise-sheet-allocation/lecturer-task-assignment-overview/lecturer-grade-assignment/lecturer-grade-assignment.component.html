@@ -4,7 +4,7 @@
       {{ 'lecturerOverview.gradingWindow.modalHeader' | translate: { student: lecturerStudentInfoModel.matriculationNo } }}
     </h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
 
   <div class="modal-body">
@@ -53,7 +53,7 @@
     <button
       class="btn btn-primary"
       (click)="saveCurrentAssessment()"
-      [disabled]="!selectedGradingInfo || isSaving || !selectedGradingInfo?.submitted"
+      [disabled]="!selectedGradingInfo || isSaving || !selectedGradingInfo.submitted"
     >
       <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
       <span jhiTranslate="lecturerOverview.gradingWindow.form.saveEvaluation">Save evaluation</span>

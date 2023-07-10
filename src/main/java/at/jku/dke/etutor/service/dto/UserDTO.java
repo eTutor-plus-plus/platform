@@ -5,11 +5,14 @@ import at.jku.dke.etutor.domain.User;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * A DTO representing a user, with only the public attributes.
  */
-public class UserDTO {
+public class UserDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
 

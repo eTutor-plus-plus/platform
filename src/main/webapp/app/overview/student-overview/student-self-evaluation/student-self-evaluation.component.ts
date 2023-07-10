@@ -7,6 +7,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { IStudentSelfEvaluationLearningGoal, IStudentSelfEvaluationLearningGoalWithReference } from './student-self-evaluation.model';
 import { LearningGoalTreeviewItem } from '../../shared/learning-goal-treeview-item.model';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import {lastValueFrom} from "rxjs";
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -176,7 +177,7 @@ export class StudentSelfEvaluationComponent implements OnInit {
    */
   private async loadLearningGoalsAsync(): Promise<void> {
     if (this._instance) {
-      const goals = await this.courseManagementService.getLearningGoalsFromCourse(this._instance.courseName, this._login).toPromise();
+      const goals = await lastValueFrom(this.courseManagementService.getLearningGoalsFromCourse(this._instance.courseName, this._login));
       const formArray = this.controlsAsFormArray;
 
       for (const goal of goals) {

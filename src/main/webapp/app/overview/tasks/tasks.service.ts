@@ -23,6 +23,15 @@ export class TasksService {
    */
   constructor(private http: HttpClient) {}
 
+  /**  apriori start */
+  /**
+   * for retrieving apriori base url and key
+   */
+  public getAprioriConfig(): Observable<AprioriConfig> {
+    return this.http.get<AprioriConfig>('api/files/apriori');
+  }
+  /** apriori end	*/
+
   /**
    * Performs the REST endpoint call for retrieving the paged task display list.
    *
@@ -155,4 +164,11 @@ export class TasksService {
   // public getFDExercise(name: string) {
   //
   // }
+}
+/**
+ * interface for apriori base url and key
+ */
+export interface AprioriConfig {
+  baseUrl: string;
+  key: string;
 }

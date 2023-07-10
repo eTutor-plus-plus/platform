@@ -101,7 +101,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         var optionalExerciseSheetFromKG = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         assertThat(optionalExerciseSheetFromKG).isPresent();
 
-        var exerciseSheetFromKG = optionalExerciseSheetFromKG.get();
+        var exerciseSheetFromKG = optionalExerciseSheetFromKG.orElseThrow();
         assertThat(exerciseSheetFromKG)
             .usingRecursiveComparison()
             .ignoringFields("learningGoals")
@@ -166,7 +166,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         String id = exerciseSheetDTO.getId().substring(exerciseSheetDTO.getId().lastIndexOf('#') + 1);
         Optional<ExerciseSheetDTO> optionalExerciseSheetFromDb = exerciseSheetSPARQLEndpointService.getExerciseSheetById(id);
         assertThat(optionalExerciseSheetFromDb).isPresent();
-        ExerciseSheetDTO exerciseSheetFromDb = optionalExerciseSheetFromDb.get();
+        ExerciseSheetDTO exerciseSheetFromDb = optionalExerciseSheetFromDb.orElseThrow();
         assertThat(exerciseSheetFromDb)
             .usingRecursiveComparison()
             .ignoringFields("learningGoals")

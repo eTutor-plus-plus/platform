@@ -89,10 +89,7 @@ public class CourseResource {
     public ResponseEntity<CourseDTO> getCourse(@PathVariable String name) {
         Optional<CourseDTO> course = sparqlEndpointService.getCourse(name);
 
-        if (course.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(course.get());
+        return course.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**

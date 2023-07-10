@@ -152,6 +152,14 @@ export interface INewTaskModel {
    * the configuration number (either config1, config2, config3, default)
    */
   configNum?: string;
+
+  /** apriori start */
+  /**
+   *	Optional dataset id for apriori
+   */
+  aprioriDatasetId?: string;
+
+  /** apriori start */
 }
 
 /**
@@ -228,6 +236,10 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#CalcTask',
     'taskManagement.taskTypes.calcTask'
   );
+  public static readonly AprioriTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask',
+    'taskManagement.taskTypes.aprioriTask'
+  );
 
   public static readonly FDTask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#FDTask',
@@ -245,6 +257,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
     TaskAssignmentType.FDTask,
+    TaskAssignmentType.AprioriTask,
   ];
 
   private readonly _value: string;

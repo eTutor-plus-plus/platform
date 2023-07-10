@@ -8,7 +8,7 @@ import { ProfileService } from './profile.service';
   selector: 'jhi-page-ribbon',
   template: `
     <div class="ribbon" *ngIf="ribbonEnv$ | async as ribbonEnv">
-      <a href="" jhiTranslate="global.ribbon.{{ ribbonEnv }}">{{ ribbonEnv }}</a>
+      <a href="" jhiTranslate="global.ribbon.{{ ribbonEnv }}">{{ { dev: 'Entwicklung' }[ribbonEnv] || '' }}</a>
     </div>
   `,
   styleUrls: ['./page-ribbon.component.scss'],

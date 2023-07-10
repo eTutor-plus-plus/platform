@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExerciseSheetUpdateComponent } from '../exercise-sheet-update/exercise-sheet-update.component';
-import { Subscription } from 'rxjs';
+import {lastValueFrom, Subscription} from 'rxjs';
 import { ExerciseSheetsService } from '../exercise-sheets.service';
 import { IExerciseSheetDisplayDTO } from '../exercise-sheets.model';
 import { HttpHeaders } from '@angular/common/http';
@@ -149,7 +149,7 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
       size: this.itemsPerPage,
       sort: [],
     };
-    const response = await this.exerciseSheetsService.getExerciseSheetPage(pagination, this.filterString).toPromise();
+    const response = await lastValueFrom(this.exerciseSheetsService.getExerciseSheetPage(pagination, this.filterString));
     this.paginate(response.body, response.headers);
   }
 
@@ -159,7 +159,7 @@ export class ExerciseSheetsOverviewComponent implements OnInit {
    * @param exerciseSheetDisplay the exercise sheet to edit
    */
   private async editExerciseSheetAsync(exerciseSheetDisplay: IExerciseSheetDisplayDTO): Promise<any> {
-    const exerciseSheetResponse = await this.exerciseSheetsService.getExerciseSheetById(exerciseSheetDisplay.internalId).toPromise();
+    const exerciseSheetResponse = await lastValueFrom(this.exerciseSheetsService.getExerciseSheetById(exerciseSheetDisplay.internalId));
     const exerciseSheet = exerciseSheetResponse.body!;
     const modalRef = this.modalService.open(ExerciseSheetUpdateComponent, { size: 'lg', backdrop: 'static' });
     (modalRef.componentInstance as ExerciseSheetUpdateComponent).exerciseSheet = exerciseSheet;

@@ -2,7 +2,7 @@
   <div class="modal-header">
     <h4 class="modal-title" jhiTranslate="lecturerOverview.overviewModalHeader">Lecturer assignment overview</h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
 
   <div class="modal-body">
@@ -28,7 +28,7 @@
               <span *ngSwitchCase="true"><fa-icon icon="check"></fa-icon></span>
               <span *ngSwitchCase="false"><fa-icon icon="times"></fa-icon></span>
             </td>
-            <td class="text-right">
+            <td class="text-end">
               <button
                 [disabled]="entry.expectedTaskCount === 0"
                 class="btn-secondary"

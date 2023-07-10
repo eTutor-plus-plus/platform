@@ -131,3 +131,6 @@ application:
     baseUrl: ${FUSEKI_BASE_URL}
   bpmnDispatcher:
     url: ${BPMN_DISPATCHER_URL}
+  apriori:
+    baseUrl: ${APRIORI_BASE_URL}
+    key: ${APRIORI_ENCRYPTION_KEY}

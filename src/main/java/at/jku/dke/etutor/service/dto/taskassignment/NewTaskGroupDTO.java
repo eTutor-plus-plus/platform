@@ -25,8 +25,26 @@ public class NewTaskGroupDTO {
     private String fileUrl;
     private String datalogFacts;
     private String fDependencies;
+    
+    
+/** start apriori   */  
+    
+    private String aprioriID;
+    
+    
+    public String getAprioriID() {
+	return aprioriID;
+    }
 
-    /**
+	public void setAprioriID(String aprioriID) {
+		this.aprioriID = aprioriID;
+	}
+
+/** apriori end */
+
+
+
+	/**
      * Constructor.
      *
      * @param name        the mandatory name
@@ -40,7 +58,15 @@ public class NewTaskGroupDTO {
                            String xQueryDiagnoseXML,
                            String xQuerySubmissionXML,
                            String datalogFacts,
-                           String fDependencies) {
+                           String fDependencies
+            
+/** start apriori   */  
+                           ,
+                           String aprioriID
+                           
+/** apriori end */
+    		
+    		) {
         this.name = name;
         this.description = description;
         this.taskGroupTypeId = taskGroupTypeId;
@@ -51,6 +77,10 @@ public class NewTaskGroupDTO {
         this.xQuerySubmissionXML=xQuerySubmissionXML;
         this.datalogFacts=datalogFacts;
         this.fDependencies=fDependencies;
+        
+        /** start apriori   */  
+        this.aprioriID=aprioriID;
+        /** apriori end */
     }
 
     /**

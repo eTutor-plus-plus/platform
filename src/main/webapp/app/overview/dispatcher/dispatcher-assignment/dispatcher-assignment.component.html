@@ -1,19 +1,35 @@
 <div class="container" xmlns="http://www.w3.org/1999/html">
-  <div class="assignment-points" *ngIf="showPoints">
-    <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
-    <label>{{ points }}/{{ maxPoints }}</label>
+  <div class="row">
+    <div class="col-md-6">
+      <div *ngIf="showDiagnoseBar && !isBpmnTask">
+        <label class="form-control-label">
+          {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
+          <fa-icon
+            icon="info-circle"
+            ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}"
+            placement="right"
+          ></fa-icon>
+        </label>
+        <select class="form-control" [(ngModel)]="diagnoseLevelText">
+          <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
+          <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">
+            {{ chosenDiagnoseLevel | translate }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="col d-flex justify-content-end">
+      <div class="form-check form-switch">
+        <input mdbCheckbox class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" (click)="switchEditorMode()" />
+        <label class="form-check-label" for="flexSwitchCheckDefault">Dark Theme</label>
+      </div>
+    </div>
   </div>
-  <div *ngIf="showDiagnoseBar && !isBpmnTask">
-    <label class="form-control-label">
-      {{ 'dispatcherAssignment.assignment.feedbackLabel' | translate }}
-      <fa-icon icon="info-circle" ngbTooltip="{{ 'dispatcherAssignment.assignment.feedbackInfo' | translate }}" placement="right"></fa-icon>
-    </label>
-    <select class="form-control" [(ngModel)]="diagnoseLevelText">
-      <option value="" disabled>{{ 'dispatcherAssignment.assignment.diagnoseLevelPlaceholder' | translate }}</option>
-      <option *ngFor="let chosenDiagnoseLevel of diagnoseLevels" [ngValue]="chosenDiagnoseLevel">
-        {{ chosenDiagnoseLevel | translate }}
-      </option>
-    </select>
+  <div class="row" *ngIf="showPoints">
+    <div class="col d-flex justify-content-end">
+      <fa-icon *ngIf="points > 0" icon="check"></fa-icon>
+      <label>{{ points }}/{{ maxPoints }}</label>
+    </div>
   </div>
   <br />
   <div>
@@ -35,8 +51,6 @@
       id="submission"
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
-    <!--    TODO add BPMN Webeditor instead of monaco editor -->
-    <!--    <div *ngIf="this.isBpmnTask" id="bpmn"></div>-->
   </div>
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="processSubmission('submit')">

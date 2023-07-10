@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TasksService } from '../../tasks.service';
+import { AprioriConfig, TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty, FDSubtype } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
@@ -11,6 +11,9 @@ import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/ta
 import { SqlExerciseService } from 'app/overview/dispatcher/services/sql-exercise.service';
 import { DispatcherAssignmentModalComponent } from '../../../dispatcher/dispatcher-assignment-modal/dispatcher-assignment-modal.component';
 import { FileUploadService } from '../../../shared/file-upload/file-upload.service';
+import { AccountService } from 'app/core/auth/account.service';
+import * as CryptoJS from 'crypto-js';
+import { v4 as uuid } from 'uuid';
 
 /**
  * Component for creating / updating tasks.
@@ -30,14 +33,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
   public editorOptionsDLGReadOnly = { theme: 'datalog-light', language: 'datalog', readOnly: true };
-  public isSQLTask = false;
-  public isRATask = false;
-  public isXQueryTask = false;
-  public isDLQTask = false;
-  public isBpmnTask = false;
-  public isPmTask = false; // boolean flag
-  public isCalcTask = false;
-  public isFDTask = false;
+  public selectedTaskAssignmentType = '';
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
   public writerInstructionFileId = -1;
@@ -54,7 +50,6 @@ export class TaskUpdateComponent implements OnInit {
     privateTask: [false],
     taskDifficulty: [this.difficulties[0], [Validators.required]],
     taskAssignmentType: [this.taskTypes[0], [Validators.required]],
-    taskIdForDispatcher: [''],
     sqlCreateStatements: [''],
     sqlInsertStatementsSubmission: [''],
     sqlInsertStatementsDiagnose: [''],
@@ -84,10 +79,16 @@ export class TaskUpdateComponent implements OnInit {
     minLogSize: [''],
     configNum: [''],
     fDSubtype: [''],
+
+    /** apriori start */
+    aprioriDatasetId: [''],
+    /** apriori end */
   });
 
   private _taskModel?: ITaskModel;
-
+  /** apriori start */
+  private aprioriConfig!: AprioriConfig;
+  /** apriori end */
   /**
    * Constructor.
    *
@@ -108,7 +109,9 @@ export class TaskUpdateComponent implements OnInit {
     private eventManager: EventManager,
     private sqlExerciseService: SqlExerciseService,
     private taskGroupService: TaskGroupManagementService,
-    private fileService: FileUploadService
+    private fileService: FileUploadService,
+    /** apriori start  */
+    private accountService: AccountService /** apriori end */
   ) {}
 
   /**
@@ -141,7 +144,7 @@ export class TaskUpdateComponent implements OnInit {
       organisationUnit: this.updateForm.get(['organisationUnit'])!.value.trim(),
       taskDifficultyId,
       taskAssignmentTypeId,
-      privateTask: this.updateForm.get('privateTask')!.value,
+      privateTask: this.updateForm.get('privateTask')!.value ?? false,
       learningGoalIds: [],
       taskGroupId: this.updateForm.get(['taskGroup'])!.value,
       uploadFileId: this.uploadFileId,
@@ -150,97 +153,99 @@ export class TaskUpdateComponent implements OnInit {
       calcInstructionFileId: this.calcInstructionFileId,
     };
 
-    const urlStr: string = this.updateForm.get('url')!.value;
+    const urlStr: string | null = this.updateForm.get('url')!.value;
     if (urlStr) {
       newTask.url = new URL(urlStr);
     }
 
-    const instructionStr: string = this.updateForm.get('instruction')!.value;
-    if (instructionStr.trim()) {
+    const instructionStr: string | null = this.updateForm.get('instruction')!.value;
+    if (instructionStr) {
       newTask.instruction = instructionStr.trim();
     }
 
-    const taskIdForDispatcher: string = this.updateForm.get('taskIdForDispatcher')!.value;
-    if (taskIdForDispatcher) {
-      newTask.taskIdForDispatcher = taskIdForDispatcher;
+    /** apriori start */
+    const aprioriDatasetId: string | null = this.updateForm.get('aprioriDatasetId')!.value;
+    if (aprioriDatasetId) {
+      newTask.aprioriDatasetId = aprioriDatasetId;
     }
+    /** apriori end */
 
-    const sqlSolution: string = this.updateForm.get('sqlSolution')!.value;
+    const sqlSolution: string | null = this.updateForm.get('sqlSolution')!.value;
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
     }
 
-    const xQuerySolution: string = this.updateForm.get('xQuerySolution')!.value;
+    const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
       newTask.xQuerySolution = xQuerySolution;
     }
 
-    const xQueryXPathSorting: string = this.updateForm.get('xQueryXPathSorting')!.value;
+    const xQueryXPathSorting: string | null = this.updateForm.get('xQueryXPathSorting')!.value;
     if (xQueryXPathSorting) {
       newTask.xQueryXPathSorting = xQueryXPathSorting;
     }
 
-    const datalogSolution: string = this.updateForm.get('datalogSolution')!.value;
+    const datalogSolution: string | null = this.updateForm.get('datalogSolution')!.value;
     if (datalogSolution) {
       newTask.datalogSolution = datalogSolution;
     }
 
-    const datalogQuery: string = this.updateForm.get('datalogQuery')!.value;
+    const datalogQuery: string | null = this.updateForm.get('datalogQuery')!.value;
     if (datalogQuery) {
       newTask.datalogQuery = datalogQuery;
     }
 
-    const datalogUncheckedTerms: string = this.updateForm.get('datalogUncheckedTerms')!.value;
+    const datalogUncheckedTerms: string | null = this.updateForm.get('datalogUncheckedTerms')!.value;
     if (datalogUncheckedTerms) {
       newTask.datalogUncheckedTerms = datalogUncheckedTerms;
     }
 
-    const maxPoints: string = this.updateForm.get('maxPoints')!.value;
+    const maxPoints: string | null = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
     }
 
-    const startTime: string = this.updateForm.get('startTime')!.value;
+    const startTime: string | null = this.updateForm.get('startTime')!.value;
     if (startTime) {
       newTask.startTime = startTime;
     }
 
-    const endTime: string = this.updateForm.get('endTime')!.value;
+    const endTime: string | null = this.updateForm.get('endTime')!.value;
     if (endTime) {
       newTask.endTime = endTime;
     }
 
-    const diagnoseLevelWeighting: string = this.updateForm.get('diagnoseLevelWeighting')!.value;
+    const diagnoseLevelWeighting: string | null = this.updateForm.get('diagnoseLevelWeighting')!.value;
     if (diagnoseLevelWeighting) {
       newTask.diagnoseLevelWeighting = diagnoseLevelWeighting;
     }
-    const processingTime: string = this.updateForm.get('processingTime')!.value;
-    if (processingTime.trim()) {
-      newTask.processingTime = processingTime.trim();
+    const processingTime: string | null = this.updateForm.get('processingTime')!.value;
+    if (processingTime) {
+      newTask.processingTime = processingTime;
     }
-    const bpmnTestConfig: string = this.updateForm.get('bpmnTestConfig')!.value;
+    const bpmnTestConfig: string | null = this.updateForm.get('bpmnTestConfig')!.value;
     if (bpmnTestConfig) {
       newTask.bpmnTestConfig = bpmnTestConfig;
     }
 
     // variables related to PM Task
-    const maxActivity: number = this.updateForm.get('maxActivity')!.value;
+    const maxActivity: string | null = this.updateForm.get('maxActivity')!.value;
     if (maxActivity) {
-      newTask.maxActivity = maxActivity;
+      newTask.maxActivity = parseFloat(maxActivity);
     }
-    const minActivity: number = this.updateForm.get('minActivity')!.value;
+    const minActivity: string | null = this.updateForm.get('minActivity')!.value;
     if (minActivity) {
-      newTask.minActivity = minActivity;
+      newTask.minActivity = parseFloat(minActivity);
     }
-    const maxLogSize: number = this.updateForm.get('maxLogSize')!.value;
+    const maxLogSize: string | null = this.updateForm.get('maxLogSize')!.value;
     if (maxLogSize) {
-      newTask.maxLogSize = maxLogSize;
+      newTask.maxLogSize = parseFloat(maxLogSize);
     }
-    const minLogSize: number = this.updateForm.get('minLogSize')!.value;
+    const minLogSize: string | null = this.updateForm.get('minLogSize')!.value;
     if (minLogSize) {
-      newTask.minLogSize = minLogSize;
+      newTask.minLogSize = parseFloat(minLogSize);
     }
-    const configNum: string = this.updateForm.get('configNum')!.value;
+    const configNum: string | null = this.updateForm.get('configNum')!.value;
     if (configNum) {
       newTask.configNum = configNum;
     }
@@ -260,7 +265,7 @@ export class TaskUpdateComponent implements OnInit {
         creator: newTask.creator,
         organisationUnit: newTask.organisationUnit,
         taskDifficultyId: newTask.taskDifficultyId,
-        taskIdForDispatcher: newTask.taskIdForDispatcher,
+        taskIdForDispatcher: this.taskModel!.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
         xQuerySolution: newTask.xQuerySolution,
         xQueryXPathSorting: newTask.xQueryXPathSorting,
@@ -291,6 +296,10 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
+
+        /** apriori start */
+        aprioriDatasetId: newTask.aprioriDatasetId,
+        /** apriori end */
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -322,7 +331,6 @@ export class TaskUpdateComponent implements OnInit {
     if (value) {
       const taskDifficulty = this.difficulties.find(x => x.value === value.taskDifficultyId)!;
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
-      const taskIdForDispatcher = value.taskIdForDispatcher ?? '';
       const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
       const xQuerySolution = value.xQuerySolution;
@@ -340,15 +348,16 @@ export class TaskUpdateComponent implements OnInit {
       const taskGroupId = value.taskGroupId ?? '';
       const taskAssignmentTypeId = value.taskAssignmentTypeId;
       // PM related variables
-      const maxActivity = value.maxActivity;
-      const minActivity = value.minActivity;
-      const maxLogSize = value.maxLogSize;
-      const minLogSize = value.minLogSize;
+      const maxActivity: string = (value.maxActivity ?? '').toString();
+      const minActivity: string = (value.minActivity ?? '').toString();
+      const maxLogSize: string = (value.maxLogSize ?? '').toString();
+      const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
 
-      if (taskIdForDispatcher) {
-        this.updateForm.get('taskIdForDispatcher')!.disable();
-      }
+      /** apriori start */
+      const aprioriDatasetId = value.aprioriDatasetId;
+      /** apriori end */
+
       this.updateForm.get('xQueryFileURL')!.disable();
 
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
@@ -360,7 +369,6 @@ export class TaskUpdateComponent implements OnInit {
         privateTask: value.privateTask,
         taskDifficulty,
         taskAssignmentType,
-        taskIdForDispatcher,
         sqlSolution,
         xQuerySolution,
         xQueryXPathSorting,
@@ -382,6 +390,10 @@ export class TaskUpdateComponent implements OnInit {
         maxLogSize,
         minLogSize,
         configNum,
+
+        /** apriori start */
+        aprioriDatasetId,
+        /** apriori end */
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -407,22 +419,11 @@ export class TaskUpdateComponent implements OnInit {
    */
   public patchDispatcherValues(taskAssignmentTypeId: string, taskGroupId: string): void {
     if (this.isSqlOrRaTask(taskAssignmentTypeId)) {
-      if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-        this.isSQLTask = true;
-      } else {
-        this.isRATask = true;
-      }
       this.patchSqlTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
-      this.isXQueryTask = true;
       this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
-      this.isDLQTask = true;
       this.patchDatalogTaskGroupValues(taskGroupId);
-    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
-      this.isCalcTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.FDTask.value) {
-      this.isFDTask = true;
     }
   }
   /**
@@ -437,40 +438,38 @@ export class TaskUpdateComponent implements OnInit {
    * Reacts to a change of the taskType in the update form
    */
   public taskTypeChanged(): void {
-    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-
-    this.setAllTaskTypeFlagsToFalse();
+    this.selectedTaskAssignmentType = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     this.clearAllTaskTypeDependentValidators();
 
-    if (taskAssignmentTypeId === TaskAssignmentType.SQLTask.value) {
-      this.isSQLTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value) {
-      this.isXQueryTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value) {
-      this.isDLQTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.RATask.value) {
-      this.isRATask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value) {
-      this.isBpmnTask = true;
+    if (this.selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.PmTask.value) {
-      this.isPmTask = true;
-    } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
-      this.isCalcTask = true;
+      this.setDiagnoseLevelWeightingRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value) {
+      this.setTaskGroupRequired();
       this.setMaxPointsRequired();
-    } else if (taskAssignmentTypeId === TaskAssignmentType.FDTask.value) {
-      this.isFDTask = true;
+      this.setDiagnoseLevelWeightingRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value) {
+      this.setTaskGroupRequired();
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.RATask.value) {
+      this.setTaskGroupRequired();
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value) {
+      this.setMaxPointsRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.PmTask.value) {
+      this.setProcessMiningValidators();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value) {
+      this.setMaxPointsRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
+      this.setMaxPointsRequired();
+      this.setAprioriDatasetIdRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.FDTask.value) {
       this.setTaskGroupRequired();
       this.updateForm.get('fDSubtype')!.setValidators(Validators.required);
       this.updateForm.get('fDSubtype')!.updateValueAndValidity();
-    }
-
-    if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
-      if (!this.updateForm.get('taskIdForDispatcher')!.value) {
-        this.setTaskGroupRequired();
-      }
-      this.setMaxPointsRequired();
-      this.setDiagnoseLevelWeightingRequired();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -500,41 +499,18 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Reacts to the input of a task-id for the dispatcher
-   */
-  public taskIdForDispatcherEntered(): void {
-    const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
-
-    if (
-      taskAssignmentTypeId === TaskAssignmentType.SQLTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.RATask.value ||
-      taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value
-    ) {
-      if (this.updateForm.get('taskIdForDispatcher')!.value) {
-        this.updateForm.get('taskGroup')?.clearValidators();
-        this.updateForm.get('taskGroup')?.updateValueAndValidity();
-        this.updateForm.updateValueAndValidity();
-      } else {
-        this.updateForm.get('taskGroup')!.setValidators(Validators.required);
-        this.updateForm.get('taskGroup')!.updateValueAndValidity();
-        this.updateForm.updateValueAndValidity();
-      }
-    } else {
-      // === PmTask
-    }
-  }
-
-  /**
    * Opens a lecturer-run-submission modal window to test a solution
    */
   public openSolutionRunnerWindow(asSql = false): void {
     const modalRef = this.modalService.open(DispatcherAssignmentModalComponent, { backdrop: 'static', size: 'xl' });
+    const taskT =
+      this._taskModel?.taskAssignmentTypeId === TaskAssignmentType.RATask.value && asSql // solutions for relational algebra are available in SQL, so we either open an empty editor or one with the SQL solution
+        ? TaskAssignmentType.SQLTask.value
+        : this._taskModel?.taskAssignmentTypeId ?? '';
+
+    const id = Number(this._taskModel?.taskIdForDispatcher ?? '-1');
+
     let subm = '';
-    const taskT = asSql
-      ? TaskAssignmentType.SQLTask.value
-      : (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
     if (taskT === TaskAssignmentType.SQLTask.value) {
       subm = this.updateForm.get(['sqlSolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.XQueryTask.value) {
@@ -542,7 +518,6 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
     }
-    const id = this.updateForm.get(['taskIdForDispatcher'])!.value;
     (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
       isSubmitted: false,
@@ -600,7 +575,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the writer instruction id.
+   * Sets the writer instruction id (calc task).
    *
    * @param fileId the file to add
    */
@@ -615,7 +590,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the writer instruction file.
+   * Removes the writer instruction file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -624,7 +599,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified  writer instruction file.
+   * Sets a modified  writer instruction file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -640,7 +615,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the calc solution file id.
+   * Sets the calc solution file id (calc task).
    *
    * @param fileId the file to add
    */
@@ -655,7 +630,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the calc solution file.
+   * Removes the calc solution file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -664,7 +639,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified solution calc file.
+   * Sets a modified solution calc file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -680,7 +655,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets the calc instruction id.
+   * Sets the calc instruction id (calc task).
    *
    * @param fileId the file to add
    */
@@ -695,7 +670,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Removes the calc instruction file.
+   * Removes the calc instruction file (calc task).
    *
    * @param fileId the file to remove
    */
@@ -704,7 +679,7 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /**
-   * Sets a modified  calc instruction file.
+   * Sets a modified  calc instruction file (calc task).
    *
    * @param oldFileId the file's old id
    * @param newFileId the file's new id
@@ -719,6 +694,27 @@ export class TaskUpdateComponent implements OnInit {
     });
   }
 
+  /**
+   * for creating link to apriori stored datasets
+   */
+  public getAprioriLinkTable(): void {
+    const standChar = this.initialVariableCreate();
+    this.getAprioriConfig();
+    const baseStored = '/initialTables?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseStored + standChar;
+    window.open(linkCreate, '_blank');
+  }
+
+  /**
+   * for creating link apriori dataset creation
+   */
+  public getAprioriLink(): void {
+    const standChar = this.initialVariableCreate();
+    this.getAprioriConfig();
+    const baseCreate = '/initialTasks?initalVar=';
+    const linkCreate = this.aprioriConfig.baseUrl + baseCreate + standChar;
+    window.open(linkCreate, '_blank');
+  }
   /**
    * Patches the values from an SQL-Task group in the update form
    * @param taskGroupId the task-group-id
@@ -785,21 +781,6 @@ export class TaskUpdateComponent implements OnInit {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }
 
-  /**
-   * Sets all booleans indicating the task-type to false
-   * @private
-   */
-  private setAllTaskTypeFlagsToFalse(): void {
-    this.isSQLTask = false;
-    this.isXQueryTask = false;
-    this.isRATask = false;
-    this.isDLQTask = false;
-    this.isBpmnTask = false;
-    this.isPmTask = false;
-    this.isCalcTask = false;
-    this.isFDTask = false;
-  }
-
   private clearAllTaskTypeDependentValidators(): void {
     this.updateForm.get('taskGroup')!.clearValidators();
     this.updateForm.get('taskGroup')!.updateValueAndValidity();
@@ -809,6 +790,18 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
     // this.updateForm.get('fDSubtype')!.clearValidators();
     // this.updateForm.get('fDSubtype')!.updateValueAndValidity();
+    this.updateForm.get('aprioriDatasetId')!.clearValidators();
+    this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
+    this.updateForm.get('maxActivity')!.clearValidators();
+    this.updateForm.get('maxActivity')!.updateValueAndValidity();
+    this.updateForm.get('minActivity')!.clearValidators();
+    this.updateForm.get('minActivity')!.updateValueAndValidity();
+    this.updateForm.get('maxLogSize')!.clearValidators();
+    this.updateForm.get('maxLogSize')!.updateValueAndValidity();
+    this.updateForm.get('configNum')!.clearValidators();
+    this.updateForm.get('configNum')!.updateValueAndValidity();
+    this.updateForm.get('minLogSize')!.clearValidators();
+    this.updateForm.get('minLogSize')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
@@ -830,13 +823,58 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.updateValueAndValidity();
   }
 
-  private isDkeDispatcherTask(taskAssignmentType: string): boolean {
-    return (
-      taskAssignmentType === TaskAssignmentType.RATask.value ||
-      taskAssignmentType === TaskAssignmentType.SQLTask.value ||
-      taskAssignmentType === TaskAssignmentType.DatalogTask.value ||
-      taskAssignmentType === TaskAssignmentType.XQueryTask.value
-      // taskAssignmentType === TaskAssignmentType.PmTask.value
+  private setAprioriDatasetIdRequired(): void {
+    this.updateForm.get('aprioriDatasetId')!.setValidators(Validators.required);
+    this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setProcessMiningValidators() {
+    this.setMaxPointsRequired();
+    this.setDiagnoseLevelWeightingRequired();
+    this.updateForm.get('maxActivity')!.setValidators(Validators.required);
+    this.updateForm.get('maxActivity')!.updateValueAndValidity();
+    this.updateForm.get('minActivity')!.setValidators(Validators.required);
+    this.updateForm.get('minActivity')!.updateValueAndValidity();
+    this.updateForm.get('maxLogSize')!.setValidators(Validators.required);
+    this.updateForm.get('maxLogSize')!.updateValueAndValidity();
+    this.updateForm.get('minLogSize')!.setValidators(Validators.required);
+    this.updateForm.get('minLogSize')!.updateValueAndValidity();
+    this.updateForm.get('configNum')!.setValidators(Validators.required);
+    this.updateForm.get('configNum')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  /**
+   * for creating initial parameter for apriori task creation
+   */
+  private initialVariableCreate(): string {
+    const idOne = String(uuid());
+    const idTwo = String(uuid());
+    const idThree = String(uuid());
+    const dif: string = this.updateForm.get(['taskDifficulty'])!.value;
+    const user = String(this.accountService.getLoginName());
+    const delimiter = String('[[{}]]');
+    const linkString = String(idOne + delimiter + dif + delimiter + idTwo + delimiter + user + delimiter + idThree);
+    this.getAprioriConfig();
+    const key = CryptoJS.enc.Utf8.parse(this.aprioriConfig.key);
+    const ciphertext = CryptoJS.AES.encrypt(linkString, key, { iv: key }).toString();
+    const b64enc = btoa(ciphertext);
+    return b64enc.replace('/', '-');
+  }
+  /**
+   * for retrieving apriori base link and key
+   */
+  private getAprioriConfig(): void {
+    this.tasksService.getAprioriConfig().subscribe(
+      data =>
+        (this.aprioriConfig = {
+          baseUrl: (data as any).baseUrl,
+          key: (data as any).key,
+        })
     );
   }
+
+  /** apriori end */
+  protected readonly TaskAssignmentType = TaskAssignmentType;
 }

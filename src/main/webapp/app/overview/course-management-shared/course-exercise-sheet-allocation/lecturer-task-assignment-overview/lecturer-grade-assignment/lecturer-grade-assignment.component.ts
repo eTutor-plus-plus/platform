@@ -6,6 +6,7 @@ import { TaskAssignmentType } from 'app/overview/tasks/task.model';
 import { TaskSubmissionsComponent } from '../../../../dispatcher/task-submissions/task-submissions.component';
 import { StudentService } from '../../../../shared/students/student-service';
 import { TaskSubmissionsModel } from '../../../../dispatcher/task-submissions/task-submissions.model';
+import { lastValueFrom } from 'rxjs';
 
 /**
  * Modal component for displaying
@@ -51,14 +52,14 @@ export class LecturerGradeAssignmentComponent {
           this.lecturerStudentInfoModel.exerciseSheetId.lastIndexOf('#') + 1
         );
 
-        this.currentFile = await this.lecturerTaskService
-          .getFileIdOfStudentsAssignment(
+        this.currentFile = await lastValueFrom(
+          this.lecturerTaskService.getFileIdOfStudentsAssignment(
             this.lecturerStudentInfoModel.courseInstanceId,
             exerciseSheetUUID,
             value.orderNo,
             this.lecturerStudentInfoModel.matriculationNo
           )
-          .toPromise();
+        );
       })();
     } else {
       this.currentFile = -1;
@@ -164,9 +165,14 @@ export class LecturerGradeAssignmentComponent {
     const orderNo = this._selectedGradingInfo?.orderNo;
     let submissions: TaskSubmissionsModel[] = [];
     if (orderNo) {
-      submissions = await this.studentService
-        .getAllDispatcherSubmissionsForIndividualTask(courseInstanceId, exerciseSheetUUID, orderNo.toString(), matriculationNo)
-        .toPromise();
+      submissions = await lastValueFrom(
+        this.studentService.getAllDispatcherSubmissionsForIndividualTask(
+          courseInstanceId,
+          exerciseSheetUUID,
+          orderNo.toString(),
+          matriculationNo
+        )
+      );
     }
 
     const modalRef = this.modalService.open(TaskSubmissionsComponent, { backdrop: 'static', size: 'xl' });
@@ -190,7 +196,7 @@ export class LecturerGradeAssignmentComponent {
    * Asynchronously loads the grading info.
    */
   private async loadGradingInfosAsync(): Promise<any> {
-    const response = await this.lecturerTaskService.getGradingInfo(this.lecturerStudentInfoModel).toPromise();
+    const response = await lastValueFrom(this.lecturerTaskService.getGradingInfo(this.lecturerStudentInfoModel));
     this.availableGradingInfos = response.body ?? [];
     this.availableGradingInfos = this.availableGradingInfos.filter(x => x.submitted);
 

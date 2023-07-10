@@ -412,8 +412,8 @@ public class DispatcherProxyService {
     public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws JsonProcessingException,
         MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
-        Objects.requireNonNull(newTaskAssignmentDTO.getTaskAssignmentTypeId());
-        if (notIsDispatcherTaskAssignment(newTaskAssignmentDTO)) return newTaskAssignmentDTO;
+        if (newTaskAssignmentDTO.getTaskAssignmentTypeId() == null || notIsDispatcherTaskAssignment(newTaskAssignmentDTO))
+            return newTaskAssignmentDTO;
 
         if (newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) {
             handleBPMNTaskCreation(newTaskAssignmentDTO);
@@ -437,23 +437,22 @@ public class DispatcherProxyService {
     /**
      * Handles creation of a Process Mining Task
      * @param newTaskAssignmentDTO the task assignment
-     * @throws MissingParameterException
+     * @throws MissingParameterException if a parameter is missing
      * @throws DispatcherRequestFailedException if dispatcher returned error
      */
     private void handlePmTaskConfigCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())) return;
 
-        // note: getTaskIdForDispatcher() in html rausnehmen (disabled? )
-        if(newTaskAssignmentDTO.getTaskIdForDispatcher() == null && newTaskAssignmentDTO.getMaxActivity() != 0
-            && newTaskAssignmentDTO.getMinActivity() !=0 && newTaskAssignmentDTO.getMaxLogSize() != 0
-            && newTaskAssignmentDTO.getMinLogSize() != 0 && StringUtils.isNotBlank(newTaskAssignmentDTO.getConfigNum())){
+        if(newTaskAssignmentDTO.getMaxActivity() != 0
+            && newTaskAssignmentDTO.getMinActivity() != 0
+            && newTaskAssignmentDTO.getMaxLogSize() != 0
+            && newTaskAssignmentDTO.getMinLogSize() != 0
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getConfigNum())){
             // creates task and returns dispatcher id
-            int id = this.createPmTaskConfiguration(newTaskAssignmentDTO);
+            var optId = this.createPmTaskConfiguration(newTaskAssignmentDTO);
 
             // set Dispatcher id of configuration
-            if(id != -1){
-                newTaskAssignmentDTO.setTaskIdForDispatcher(id+"");
-            }
+            optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
         }else{
             throw new MissingParameterException();
         }
@@ -461,9 +460,10 @@ public class DispatcherProxyService {
 
 
     private void handleBPMNTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) return;
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString()))
+            return;
 
-        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getBpmnTestConfig())){
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getBpmnTestConfig())){
 
             // Create task
             int id = this.createBpmnTask(newTaskAssignmentDTO);
@@ -471,7 +471,7 @@ public class DispatcherProxyService {
             // Set the returned id of the task
             if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
         }else{ // Creation failed, either because no id and no group has been set or, in the case of the creation of a new task, not enough info has been provided
-            throw new MissingParameterException();
+            throw new MissingParameterException("No BPMN test configuration has been provided");
         }
 
     }
@@ -484,39 +484,25 @@ public class DispatcherProxyService {
      * @throws MissingParameterException if not enough parameter have been provided to execute the creation
      */
     private void handleDLGTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws NotAValidTaskGroupException, DispatcherRequestFailedException, MissingParameterException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())) return;
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString()))
+            return;
 
-        // Check whether we want to create a new task or if we are referencing a task which is already existing in the dispatcher by referencing via the ID
-        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
-            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) { //creation of new task
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution())
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) {
 
             // Fetch assigned task-group to check if the group-type matches the task type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-            if(group.isPresent()){
-                if(!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
-                    throw new NotAValidTaskGroupException();
-            }
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTask.toString())).orElseThrow(NotAValidTaskGroupException::new);
+
             // Create task
-            int id = this.createDLGTask(newTaskAssignmentDTO);
+            var optId = this.createDLGTask(newTaskAssignmentDTO);
 
             // Set the returned id of the task
-            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-        } else if(newTaskAssignmentDTO.getTaskIdForDispatcher()  != null) { // Reference of existing task
-            // Fetch the Info about the exercise from dispatcher
-            DatalogExerciseDTO exerciseDTO = fetchDLGExerciseInfo (newTaskAssignmentDTO.getTaskIdForDispatcher());
-
-            // Indicates most likely that id could not be found in the dispatcher
-            if(exerciseDTO == null) throw new DispatcherRequestFailedException();
-
-            // Set the relevant fields in the task assignment
-            newTaskAssignmentDTO.setDatalogSolution(exerciseDTO.getSolution());
-            newTaskAssignmentDTO.setDatalogQuery(exerciseDTO.getQueries().get(0));
-            // Parse the List of DatalogUncheckedTerms into a String representation
-            String uncheckedTerms = exerciseDTO.getUncheckedTerms()
-                .stream().map(DatalogTermDescriptionDTO::toString).reduce("", (x, y)->x+y+".\n");
-            newTaskAssignmentDTO.setDatalogUncheckedTerms(uncheckedTerms);
-        }else{ // Creation failed, either because no id and no group has been set or, in the case of the creation of a new task, not enough info has been provided
-            throw new MissingParameterException();
+            optId.map(String::valueOf)
+                .ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
+        } else{
+            throw new MissingParameterException("Not enough parameters have been provided to create a Datalog task");
         }
     }
 
@@ -527,34 +513,22 @@ public class DispatcherProxyService {
      * @throws DispatcherRequestFailedException if dispatcher returned an error
      * @throws MissingParameterException if not enough parameter have been provided to execute the creation
      */
-    private void handleXQTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, JsonProcessingException, MissingParameterException, NotAValidTaskGroupException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())) return;
+    private void handleXQTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, MissingParameterException, NotAValidTaskGroupException {
+        Objects.requireNonNull(newTaskAssignmentDTO);
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString()))
+            return;
 
-        // Check wheter we are creating a new task, or referencing an existing task
-        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
-            && StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())) { // No Dispatcher-ID set AND task group not null AND solution not null
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
+            && StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())) {
 
             // Fetch group to compare the group type with the task assignment type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-            if(group.isPresent() && !group.get().getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())){
-               throw new NotAValidTaskGroupException();
-            }// task group is of right type (XQuery task group)
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())).orElseThrow(NotAValidTaskGroupException::new);
 
-            // Create XQ-Task
-            int id = this.createXQueryTask(newTaskAssignmentDTO);
-
-            // Set the returned id from the task in the dispatcher
-            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-        } else if(newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Dispatcher ID set to reference existing task
-            // Fetch info about the exercise from dispatcher
-            XQExerciseDTO e = this.getXQExerciseInfo(newTaskAssignmentDTO.getTaskIdForDispatcher());
-
-            // Set the solution and optional sorted nodes
-            newTaskAssignmentDTO.setxQuerySolution(e.getQuery());
-            if (!e.getSortedNodes().isEmpty())
-                newTaskAssignmentDTO.setxQueryXPathSorting(e.getSortedNodes().get(0));
-        }else{ // Either is the id not set, or group + solution is not set
-            throw new MissingParameterException();
+            var optId = this.createXQueryTask(newTaskAssignmentDTO);
+            optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
+        } else{ // Either is the id not set, or group + solution is not set
+            throw new MissingParameterException("Either the task group id or the solution is not set");
         }
     }
 
@@ -566,30 +540,24 @@ public class DispatcherProxyService {
      * @throws MissingParameterException if not enough parameters have been provided to create the task
      */
     private void handleSQLTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
+        Objects.requireNonNull(newTaskAssignmentDTO);
         if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())
             && !newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString()))
             return;
 
-        // Check wheter we are creating a new task or referencing an existing task in the dispatcher
-        if (newTaskAssignmentDTO.getTaskIdForDispatcher() == null && StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             // Fetch group to compare type
             var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
-            if (group.isPresent()) {
-                if (!group.get().getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
-                    throw new NotAValidTaskGroupException();
-            }
-            // Create task
-            int id = this.createSQLTask(newTaskAssignmentDTO);
+            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
+                .orElseThrow(NotAValidTaskGroupException::new);
 
-            // Set disptacher id of task
-            if (id != -1) newTaskAssignmentDTO.setTaskIdForDispatcher(id + "");
-        } else if (newTaskAssignmentDTO.getTaskIdForDispatcher() != null) { // Reference of existing task
-            // Fetch solution
-            String solution = fetchSQLSolution(newTaskAssignmentDTO.getTaskIdForDispatcher());
-            // Set solution
-            newTaskAssignmentDTO.setSqlSolution(solution);
+            // Create task
+            var optId = this.createSQLTask(newTaskAssignmentDTO);
+
+            // Set dispatcher id of task
+            optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
         } else {
-            throw new MissingParameterException();
+            throw new MissingParameterException("Either the task group id or the solution is not set");
         }
     }
 
@@ -600,9 +568,9 @@ public class DispatcherProxyService {
     private void handleCalcTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws WrongCalcParametersException {
         if (!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) return;
 
-        FileEntity calcInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcInstructionFileId());
-        FileEntity calcSolutionFile = fileRepository.getById((long) newTaskAssignmentDTO.getCalcSolutionFileId());
-        FileEntity writerInstructionFile = fileRepository.getById((long) newTaskAssignmentDTO.getWriterInstructionFileId());
+        FileEntity calcInstructionFile = fileRepository.findById((long) newTaskAssignmentDTO.getCalcInstructionFileId()).orElse(new FileEntity());
+        FileEntity calcSolutionFile = fileRepository.findById((long) newTaskAssignmentDTO.getCalcSolutionFileId()).orElse(new FileEntity());
+        FileEntity writerInstructionFile = fileRepository.findById((long) newTaskAssignmentDTO.getWriterInstructionFileId()).orElse(new FileEntity());
         InputStream calcInstructionStream = new ByteArrayInputStream(calcInstructionFile.getContent());
         InputStream calcSolutionStream = new ByteArrayInputStream(calcSolutionFile.getContent());
         InputStream writerInstructionStream = new ByteArrayInputStream(writerInstructionFile.getContent());
@@ -637,11 +605,13 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the{@link NewTaskAssignmentDTO} to be created
      * @return the dispatcher-id of the task
      */
-    private int createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+    private Optional<Integer> createDLGTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         var exerciseDTO = getDatalogExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
         var response = proxyResource.createDLGExercise(exerciseDTO);
-        if(response.getBody() != null) return response.getBody();
-        else return -1;
+        if(response.getBody() != null)
+            return Optional.of(response.getBody());
+        else
+            return Optional.empty();
     }
 
     private int createBpmnTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
@@ -665,29 +635,18 @@ public class DispatcherProxyService {
     }
 
     /**
-     * Fetches the configuration parameters for a pm configuration according to its id
-     * @param taskIdForDispatcher the id
-     * @return the {@link PmExerciseConfigDTO} wrapping the informaation
-     * @throws DispatcherRequestFailedException
-     */
-    private PmExerciseConfigDTO fetchPmExerciseConfigInfo (String taskIdForDispatcher) throws DispatcherRequestFailedException{
-        return proxyResource.getPmExerciseConfiguration(Integer.parseInt(taskIdForDispatcher)).getBody();
-    }
-
-
-    /**
      * Creates a Process Mining Task Configuration in the dispatcher
      * @param newTaskAssignmentDTO the {@link NewTaskAssignmentDTO} to be created
      * @return the dispatcher-id of the task configuration
-     * @throws DispatcherRequestFailedException
+     * @throws DispatcherRequestFailedException if the request to the dispatcher fails
      */
-    private int createPmTaskConfiguration(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException{
+    private Optional<Integer> createPmTaskConfiguration(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException{
         // get PmExerciseConfigDTO required by the dispatcher to create the configuration
         var pmExerciseConfigDTO = getPmExerciseConfigDTOFromTaskAssignment(newTaskAssignmentDTO);
         // Proxy request to dispatcher
         var response = proxyResource.createPmExerciseConfiguration(pmExerciseConfigDTO);
         // return dispatcher -id of the exercise configuration
-        return response.getBody() != null? response.getBody() : -1;
+        return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
     }
 
     /**
@@ -713,11 +672,11 @@ public class DispatcherProxyService {
      * @param configId the configuration id fetched by RDF graph
      * @return the dispatcher id of the task
      */
-    public int createRandomPmTask(int configId) throws DispatcherRequestFailedException{
+    public Optional<Integer> createRandomPmTask(int configId) throws DispatcherRequestFailedException{
         // proxy request to dispatcher
         var response = proxyResource.createRandomPmExercise(configId);
         // return dispatcher id of the random exercise
-        return response.getBody() != null? response.getBody() : -1;
+        return Optional.ofNullable(response.getBody());
     }
 
     /**
@@ -805,7 +764,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the task assignment
      * @return the id of the created task
      */
-    private int createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+    private Optional<Integer> createXQueryTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getxQuerySolution());
 
         // Initialize DTO
@@ -813,7 +772,8 @@ public class DispatcherProxyService {
 
         List<String> sortings = new ArrayList<>();
         String dtoSorting = newTaskAssignmentDTO.getxQueryXPathSorting();
-        if (dtoSorting != null) sortings.add(dtoSorting);
+        if (dtoSorting != null)
+            sortings.add(dtoSorting);
 
 
         body.setQuery(newTaskAssignmentDTO.getxQuerySolution());
@@ -826,13 +786,13 @@ public class DispatcherProxyService {
             jsonBody = mapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return -1;
+            return Optional.empty();
         }
 
         var response = proxyResource.createXQExercise(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_"), jsonBody);
 
         // Return ID of the task
-        return response.getBody() != null ? response.getBody() : -1;
+        return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
     }
 
     /**
@@ -855,7 +815,7 @@ public class DispatcherProxyService {
      * @param newTaskAssignmentDTO the new task assignment
      * @return the id of the created exercise
      */
-    private int createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+    private Optional<Integer> createSQLTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getSqlSolution());
         Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
@@ -867,18 +827,11 @@ public class DispatcherProxyService {
         var response = proxyResource.createSQLExercise(solution, taskGroup);
 
         // Return dispatcher-id of the exercise
-        return response.getBody() != null ? Integer.parseInt(response.getBody()) : -1;
-    }
-
-    /**
-     * Returns the solution for a given SQL-exercise-id
-     *
-     * @param taskIdForDispatcher the id
-     * @return the solution
-     */
-    private String fetchSQLSolution(String taskIdForDispatcher) throws DispatcherRequestFailedException {
-        return proxyResource.getSQLSolution(Integer.parseInt(taskIdForDispatcher)).getBody();
-
+        try{
+            return response.getBody() != null ? Optional.of(Integer.parseInt(response.getBody())) : Optional.empty();
+        }catch(NumberFormatException ignored){
+            throw new DispatcherRequestFailedException("Dispatcher returned invalid id");
+        }
     }
 
     /**
@@ -888,50 +841,50 @@ public class DispatcherProxyService {
      */
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
-        Objects.requireNonNull(taskAssignmentDTO.getTaskAssignmentTypeId());
-        if(notIsDispatcherTaskAssignment(taskAssignmentDTO)) return;
+        if(StringUtils.isBlank(taskAssignmentDTO.getTaskAssignmentTypeId()) || notIsDispatcherTaskAssignment(taskAssignmentDTO))
+            return;
 
 
         if(StringUtils.isBlank(taskAssignmentDTO.getTaskIdForDispatcher()) && !taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
-            throw new MissingParameterException();
+            throw new MissingParameterException("TaskIdForDispatcher is missing");
         }
 
         if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.XQueryTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getxQuerySolution())){
                 updateXQExercise(taskAssignmentDTO);
             }else{
-                throw new MissingParameterException();
+                throw new MissingParameterException("XQuerySolution is missing");
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) || taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
                 updateSQLExercise(taskAssignmentDTO);
             }else{
-                throw new MissingParameterException();
+                throw new MissingParameterException("SqlSolution is missing");
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getDatalogQuery())){
                 updateDLGExercise(taskAssignmentDTO);
             }else{
-                throw new MissingParameterException();
+                throw new MissingParameterException("DatalogSolution or DatalogQuery is missing");
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.BpmnTask.toString())) {
             if (StringUtils.isNotBlank(taskAssignmentDTO.getBpmnTestConfig())) {
                 updateBpmnExercise(taskAssignmentDTO);
             } else {
-                throw new MissingParameterException();
+                throw new MissingParameterException("BpmnTestConfig is missing");
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())){
             if(StringUtils.isNotBlank(taskAssignmentDTO.getConfigNum()) && taskAssignmentDTO.getMaxActivity() != 0 && taskAssignmentDTO.getMinActivity() != 0 &&
             taskAssignmentDTO.getMaxLogSize() !=0 && taskAssignmentDTO.getMinLogSize() != 0){
                 updatePmConfiguration(taskAssignmentDTO);
             }else{
-                throw new MissingParameterException();
+                throw new MissingParameterException("ConfigNum, MaxActivity, MinActivity, MaxLogSize or MinLogSize is missing");
             }
         }else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.CalcTask.toString())) {
             try{
                 handleCalcTaskCreation(taskAssignmentDTO);
             }catch (WrongCalcParametersException e) {
-                throw new MissingParameterException();
+                throw new MissingParameterException("CalcTask parameters are missing");
             }
         }
     }
@@ -998,7 +951,8 @@ public class DispatcherProxyService {
 
         List<String> sortings = new ArrayList<>();
         String dtoSorting = taskAssignmentDTO.getxQueryXPathSorting();
-        if (dtoSorting != null) sortings.add(dtoSorting);
+        if (dtoSorting != null)
+            sortings.add(dtoSorting);
         body.setQuery(taskAssignmentDTO.getxQuerySolution());
         body.setSortedNodes(sortings);
 

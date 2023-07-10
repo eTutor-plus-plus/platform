@@ -17,6 +17,16 @@
     "xqueryXMLInfo": "XMLs can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
     "xqFileUrlInfo": "The file URL can be used in the doc() function of the query to reference the corresponding XML-Files",
     "fileUploadInfo": "The uploaded file can be downloaded by students who working on the task",
+
+    "datasetInfo": "If you want to create a new data set or task configuration, or use an existing task configuration, please press the appropriate buttons. The task configuration ID must be copied from the apriori extension into the corresponding input field.",
+
+    "textAprioriLinks": {
+      "create": "Create new Apriori-Dataset",
+      "stored": "choose an existing Apriori-Dataset",
+      "alternative": "fill in an existing ID manually (UUID)",
+      "or": " or "
+    },
+
     "difficulties": {
       "easy": "Easy",
       "medium": "Medium",
@@ -32,8 +42,9 @@
       "dlgTask": "Datalog task",
       "calcTask": "Calc task",
       "dlgTask": "Datalog task",
-      "pmTask": "ProcessMining task",
-      "FDTask": "Functional dependency task"
+      "FDTask": "Functional dependency task",
+      "aprioriTask": "Apriori Task",
+      "pmTask": "ProcessMining task"
     },
     "fields": {
       "header": "Header:",
@@ -78,7 +89,11 @@
         "key": "Schlüssel bestimmen",
         "normalform": "Normalform bestimmen",
         "normalization": "Normalisierung"
-      }
+      },
+      "datasetApriori": "Apriori task configuration ID: ",
+      "create": "Create task configuration",
+      "load": "Load task configuration",
+      "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field"
     },
     "error": {
       "required": "This field is required!",
@@ -137,7 +152,8 @@
           "sqlType": "SQL Group",
           "xQueryType": "XQuery Group",
           "datalogType": "Datalog Group",
-          "fDType": "Functional Dependency Group"
+          "fDType": "Functional Dependency Group",
+          "aprioriType": "Apriori Group"
         }
       }
     }

@@ -4,6 +4,7 @@ import { LecturerTaskAssignmentService } from './lecturer-task-assignment.servic
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LecturerGradeAssignmentComponent } from './lecturer-grade-assignment/lecturer-grade-assignment.component';
 import { COUNT_HEADER, ITEMS_PER_PAGE } from 'app/config/pagination.constants';
+import {lastValueFrom} from "rxjs";
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -94,13 +95,12 @@ export class LecturerTaskAssignmentOverviewComponent {
    * Asynchronously loads the page.
    */
   private async loadPageAsync(): Promise<any> {
-    const response = await this.lecturerAssignmentService
+    const response = await lastValueFrom(this.lecturerAssignmentService
       .getStudentAssignmentInfoPage(this.assignedSheetInfo, {
         page: this.page - 1,
         size: this.itemsPerPage,
         sort: [],
-      })
-      .toPromise();
+      }));
 
     this.totalItems = Number(response.headers.get(COUNT_HEADER));
     this.entries = response.body ?? [];

@@ -28,11 +28,26 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements,
-                        String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML,
-                        String xquerySubmissionXML, String datalogFacts, String fDependencies, String id, String creator, Instant changeDate) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission,
-            sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts, fDependencies);
+    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String fDependencies, String id, String creator, Instant changeDate
+    		
+/** start apriori   */  
+            ,
+            String aprioriID
+            
+/** apriori end */
+    		
+    		) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts, fDependencies
+        	
+/** start apriori   */  
+                ,
+                aprioriID
+                
+/** apriori end */
+        		
+        		
+        		
+        		);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -65,9 +80,27 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
         Statement fDependenciesStatement = resource.getProperty(ETutorVocabulary.hasFDependencies);
 
+        
+/** start apriori   */       
+        Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
+        
+/** apriori end */
+        
+        
+        
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
         }
+        
+        
+/** start apriori   */       
+        if (aprioriStatement != null) {
+        	setAprioriID(aprioriStatement.getString());
+        }
+/** apriori end */
+        
+        
+        
         if (sqlCreateStatement != null) {
             setSqlCreateStatements(sqlCreateStatement.getString());
         }

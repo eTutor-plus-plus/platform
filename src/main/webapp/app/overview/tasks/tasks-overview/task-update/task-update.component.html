@@ -3,10 +3,11 @@
     <h4 class="modal-title" [hidden]="!isNew" jhiTranslate="taskManagement.modal.newHeader">Create new task</h4>
     <h4 class="modal-title" [hidden]="isNew">{{ 'taskManagement.modal.editHeader' | translate: { taskHeader: taskModel?.header } }}</h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
   <div class="modal-body">
     <jhi-alert-error></jhi-alert-error>
+
     <div class="form-group">
       <label class="form-control-label" for="header" jhiTranslate="taskManagement.fields.header">Header:</label>
       <input type="text" class="form-control" name="header" id="header" formControlName="header" />
@@ -75,7 +76,6 @@
         <option value="" disabled>{{ 'taskManagement.difficultyPlaceholder' | translate }}</option>
         <option *ngFor="let difficulty of difficulties" [ngValue]="difficulty">{{ difficulty.text | translate }}</option>
       </select>
-
       <div *ngIf="updateForm.get('taskDifficulty')!.invalid">
         <small
           class="form-text text-danger"
@@ -109,27 +109,37 @@
         </small>
       </div>
     </div>
-
-    <div class="form-group" *ngIf="isBpmnTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value">
       <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"></label>
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
       <ngx-monaco-editor [options]="editorOptions" id="bpmnTestConfig" formControlName="bpmnTestConfig"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask">
-      <label class="form-control-label" for="taskIdForDispatcher">
-        {{ 'taskManagement.fields.taskIdForDispatcher' | translate }}
-        <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.dispatcherIdInfo' | translate }}" placement="right"></fa-icon>
-      </label>
-      <input
-        (change)="taskIdForDispatcherEntered()"
-        type="number"
-        class="form-control"
-        name="taskIdForDispatcher"
-        id="taskIdForDispatcher"
-        formControlName="taskIdForDispatcher"
-      />
-    </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isCalcTask || isBpmnTask || isPmTask">
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.RATask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value
+      "
+    ></div>
+
+    <!-- APRIORI element start -->
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.RATask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value
+      "
+    >
+      <!-- APRIORI element end -->
+
       <label class="form-control-label" for="maxPoints" jhiTranslate="taskManagement.fields.maxPoints">Maximum Points:</label>
       <input
         type="number"
@@ -151,7 +161,48 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask || isXQueryTask || isDLQTask || isPmTask">
+
+    <!-- APRIORI start -->
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value">
+      <label class="form-control-label" for="aprioriDatasetId" jhiTranslate="taskManagement.fields.datasetApriori"
+        >Apriori task configuration ID:
+      </label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datasetInfo' | translate }}" placement="right"></fa-icon>
+      <input type="text" class="form-control" name="aprioriDatasetId" id="aprioriDatasetId" formControlName="aprioriDatasetId" />
+
+      <button type="button" class="btn btn-primary" style="margin-top: 10px" (click)="getAprioriLink()">
+        <span jhiTranslate="taskManagement.fields.create">Create dataset and task config</span>
+      </button>
+
+      <button type="button" class="btn btn-primary" style="margin-top: 10px" (click)="getAprioriLinkTable()">
+        <span jhiTranslate="taskManagement.fields.load">Load dataset and task config</span>
+      </button>
+
+      <p jhiTranslate="taskManagement.fields.taskIdApriori">
+        Please copy the task configuration id from the extension and paste it into the field
+      </p>
+      <div *ngIf="updateForm.get('aprioriDatasetId')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('aprioriDatasetId')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+    <!-- APRIORI end  -->
+
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.RATask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.PmTask.value
+      "
+    >
       <label class="form-control-label" for="diagnoseLevelWeighting">
         {{ 'taskManagement.fields.diagnoseLevelWeighting' | translate }}
         <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.diagnoseLevelWeightingInfo' | translate }}" placement="right"></fa-icon>
@@ -175,7 +226,12 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask">
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value || selectedTaskAssignmentType === TaskAssignmentType.RATask.value
+      "
+    >
       <label class="form-control-label" for="sqlCreateStatements" jhiTranslate="taskManagement.fields.sqlCreateStatements"
         >SQL Create-Table-Statements:</label
       >
@@ -186,7 +242,7 @@
         formControlName="sqlCreateStatements"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isXQueryTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="xQueryDiagnoseXML" jhiTranslate="taskManagement.fields.xQueryDiagnoseXML"
         >XQuery: XML (Diagnose)</label
       >
@@ -197,7 +253,7 @@
         formControlName="xQueryDiagnoseXML"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isXQueryTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="xQuerySubmissionXML" jhiTranslate="taskManagement.fields.xQuerySubmissionXML"
         >XQuery: XML (Submit)</label
       >
@@ -207,7 +263,12 @@
         formControlName="xQuerySubmissionXML"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask || isRATask">
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value || selectedTaskAssignmentType === TaskAssignmentType.RATask.value
+      "
+    >
       <label
         class="form-control-label"
         for="sqlInsertStatementsSubmission"
@@ -220,7 +281,7 @@
         formControlName="sqlInsertStatementsSubmission"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isSQLTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value">
       <label class="form-control-label" for="sqlInsertStatementsDiagnose" jhiTranslate="taskManagement.fields.sqlInsertStatementsDiagnose"
         >SQL Insert-Into-Statements (Diagnose):</label
       >
@@ -230,46 +291,58 @@
         formControlName="sqlInsertStatementsDiagnose"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isDLQTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value">
       <label class="form-control-label" for="datalogFacts" jhiTranslate="taskManagement.fields.datalogFacts">Datalog Facts</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogFactsInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLGReadOnly" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
     </div>
 
-    <div class="form-group" *ngIf="isSQLTask || isRATask">
+    <div
+      class="form-group"
+      *ngIf="
+        selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value || selectedTaskAssignmentType === TaskAssignmentType.RATask.value
+      "
+    >
       <label class="form-control-label" for="sqlSolution" jhiTranslate="taskManagement.fields.sqlSolution">SQL solution:</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
-      <button type="button" class="btn btn-secondary" *ngIf="!isNew && isRATask" (click)="openSolutionRunnerWindow(true)">Try - SQL</button>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        *ngIf="!isNew && selectedTaskAssignmentType === TaskAssignmentType.RATask.value"
+        (click)="openSolutionRunnerWindow(true)"
+      >
+        Try - SQL
+      </button>
       <ngx-monaco-editor [options]="editorOptions" id="sqlSolution" formControlName="sqlSolution"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isXQueryTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="xQuerySolution" jhiTranslate="taskManagement.fields.xQuerySolution">XQuery Solution:</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.trySolutionInfo' | translate }}" placement="right"></fa-icon>
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptionsXQ" id="xQuerySolution" formControlName="xQuerySolution"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isXQueryTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="xQueryXPathSorting" jhiTranslate="taskManagement.fields.xQuerySorting"
         >XQuery: XPath sorting</label
       >
       <ngx-monaco-editor [options]="editorOptions" id="xQueryXPathSorting" formControlName="xQueryXPathSorting"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isDLQTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value">
       <label class="form-control-label" for="datalogSolution" jhiTranslate="taskManagement.fields.datalogSolution">Datalog: Solution</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogSolutionInfo' | translate }}" placement="right"></fa-icon>
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogSolution" formControlName="datalogSolution"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isDLQTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value">
       <label class="form-control-label" for="datalogQuery" jhiTranslate="taskManagement.fields.datalogQuery"> Datalog: Query </label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogQueryInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLG" id="datalogQuery" formControlName="datalogQuery"></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isDLQTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value">
       <label class="form-control-label" for="datalogUncheckedTerms" jhiTranslate="taskManagement.fields.datalogUncheckedTerms"
         >Datalog: Unchecked Terms</label
       >
@@ -280,14 +353,14 @@
         formControlName="datalogUncheckedTerms"
       ></ngx-monaco-editor>
     </div>
-    <div class="form-group" *ngIf="isXQueryTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="processingTime" jhiTranslate="taskManagement.fields.xQueryFileURL">XQuery- file url:</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.xqFileUrlInfo' | translate }}" placement="right"></fa-icon>
       <input type="text" [disabled]="true" class="form-control" name="xQueryFileURL" id="xQueryFileURL" formControlName="xQueryFileURL" />
     </div>
 
     <!-- PM Task Input -->
-    <div class="form-group" *ngIf="isPmTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="maxActivity" jhiTranslate="taskManagement.fields.maxActivity"
         >Maximal Activity per Trace:</label
       >
@@ -302,7 +375,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isPmTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="minActivity" jhiTranslate="taskManagement.fields.minActivity"
         >Minimal Activity per Trace:</label
       >
@@ -317,7 +390,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isPmTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="maxLogSize" jhiTranslate="taskManagement.fields.maxLogSize"
         >Maximal Log Size (Number of Traces):</label
       >
@@ -332,7 +405,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isPmTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="minLogSize" jhiTranslate="taskManagement.fields.minLogSize"
         >Minimal Log Size (Number of Traces):</label
       >
@@ -347,7 +420,7 @@
         </small>
       </div>
     </div>
-    <div class="form-group" *ngIf="isPmTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
       <label class="form-control-label" for="configNum" jhiTranslate="taskManagement.fields.configNum"
         >Configuration Number (e.g. config1):</label
       >
@@ -363,7 +436,7 @@
       </div>
     </div>
 
-    <div class="form-group" *ngIf="isCalcTask">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value">
       <label class="form-control-label" for="calcInstructionFileUpload">Upload Instruction Writer: </label>
       <jhi-file-upload
         id="writerInstructionFileUpload"
@@ -484,7 +557,7 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.cancel">Cancel</span>
     </button>
 
-    <ng-container *ngIf="isCalcTask">
+    <ng-container *ngIf="selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value">
       <button
         type="submit"
         [disabled]="
@@ -503,7 +576,7 @@
         <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>
       </button>
     </ng-container>
-    <ng-container *ngIf="!isCalcTask">
+    <ng-container *ngIf="selectedTaskAssignmentType !== TaskAssignmentType.CalcTask.value">
       <button type="submit" [disabled]="updateForm.invalid || isSaving" class="btn btn-primary">
         <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
         <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span jhiTranslate="courseManagement.form.save">Save</span>

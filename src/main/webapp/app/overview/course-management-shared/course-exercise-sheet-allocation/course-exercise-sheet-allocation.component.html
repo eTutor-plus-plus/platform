@@ -4,7 +4,7 @@
       Adjust exercise sheet allocation
     </h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
 
   <div class="modal-body">
@@ -23,7 +23,7 @@
           <tr *ngFor="let item of exerciseSheets; trackBy: trackIdentity">
             <td>{{ item.name }}</td>
             <td><span class="bold-span" *ngIf="isSelected(item)">X</span></td>
-            <td class="text-right">
+            <td class="text-end">
               <div class="btn-group">
                 <button [disabled]="isSelected(item)" (click)="markAsSelected(item)" class="btn btn-secondary">Zuordnen</button>
                 <button [disabled]="!isSelected(item)" (click)="openLecturerAssignmentOverview(item)" class="btn btn-info">

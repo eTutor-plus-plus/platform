@@ -2,11 +2,11 @@
   <div class="modal-header">
     <h4 class="modal-title" jhiTranslate="taskManagement.taskGroup.manage">Manage task groups</h4>
 
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
 
   <div class="modal-body">
-    <button type="button" class="btn btn-primary float-right" (click)="createNewTaskGroup()">
+    <button type="button" class="btn btn-primary float-end" (click)="createNewTaskGroup()">
       <fa-icon icon="plus"></fa-icon>
       <span jhiTranslate="taskManagement.taskGroup.createNewTaskGroup">Create new task group</span>
     </button>
@@ -23,7 +23,7 @@
         <tbody>
           <tr *ngFor="let item of taskGroups; trackBy: trackIdentity">
             <td>{{ item.name }}</td>
-            <td class="text-right">
+            <td class="text-end">
               <div class="btn-group">
                 <button type="button" class="btn btn-info btn-sm" (click)="editTaskGroup(item)">
                   <fa-icon icon="pencil-alt"> </fa-icon>

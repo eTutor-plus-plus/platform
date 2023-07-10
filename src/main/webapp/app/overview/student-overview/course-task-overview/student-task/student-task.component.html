@@ -59,66 +59,93 @@
         <span>{{ taskModel?.creator }}</span>
       </dd>
     </dl>
-    <div class="assignment-component">
-      <jhi-dispatcher-assignment
-        *ngIf="isDispatcherTask"
-        (submissionUUIDReceived)="handleDispatcherUUID($event)"
-        [exercise_id]="exercise_id"
-        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
-        [task_type]="task_type"
-        [submission]="submission"
-        [points]="achievedDispatcherPoints"
-        [maxPoints]="maxPoints"
-        [highestDiagnoseLevel]="diagnoseLevel"
-        [showSubmitButton]="!exerciseSheetAlreadyClosed"
-      >
-      </jhi-dispatcher-assignment>
-    </div>
-    <div class="assignment-component">
-      <jhi-pm-assignment
-        *ngIf="isPmTask"
-        (submissionUUIDReceived)="handleDispatcherUUID($event)"
-        [exercise_id]="exercise_id"
-        [task_type]="task_type"
-        [submission]="submission"
-        [highestDiagnoseLevel]="diagnoseLevel"
-        [maxPoints]="maxPoints"
-        [diagnoseLevelWeighting]="diagnoseLevelWeighting"
-        [showSubmitButton]="!exerciseSheetAlreadyClosed"
-        [exerciseSheetUUID]="_exerciseSheetUUID"
-        [points]="achievedDispatcherPoints"
-        [taskNo]="_taskNo"
-        [courseInstanceUUID]="_instance!.instanceId"
-        [isSubmitted]="isSubmitted"
-      >
-      </jhi-pm-assignment>
-    </div>
-    <jhi-file-upload
-      *ngIf="isUploadTask || isDispatcherTask"
-      [fileId]="uploadTaskFileId"
-      (fileAdded)="handleFileAddedAsync($event)"
-      (fileRemoved)="handleFileRemovedAsync($event)"
-      (fileModified)="handleFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
-    >
-    </jhi-file-upload>
-    <jhi-file-upload
-      *ngIf="isCalcTask"
-      [fileId]="uploadCalcSubmissionFileId"
-      (fileAdded)="handleCalcFileAddedAsync($event)"
-      (fileRemoved)="handleCalcFileRemovedAsync($event)"
-      (fileModified)="handleCalcFileMovedAsync($event[0], $event[1])"
-      [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
-    >
-    </jhi-file-upload>
-    <div *ngIf="uploadCalcSubmissionFileId == -2">
-      <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
-        Please upload the correct content type of the file!
-      </small>
-    </div>
+  </div>
+</div>
+<div class="assignment-component">
+  <jhi-dispatcher-assignment
+    *ngIf="isDispatcherTask"
+    (submissionUUIDReceived)="handleDispatcherUUID($event)"
+    [exercise_id]="exercise_id"
+    [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+    [task_type]="task_type"
+    [submission]="submission"
+    [points]="achievedDispatcherPoints"
+    [maxPoints]="maxPoints"
+    [highestDiagnoseLevel]="diagnoseLevel"
+    [showSubmitButton]="!exerciseSheetAlreadyClosed"
+  >
+  </jhi-dispatcher-assignment>
+</div>
+<div class="assignment-component">
+  <jhi-pm-assignment
+    *ngIf="isPmTask"
+    (submissionUUIDReceived)="handleDispatcherUUID($event)"
+    [exercise_id]="exercise_id"
+    [task_type]="task_type"
+    [submission]="submission"
+    [highestDiagnoseLevel]="diagnoseLevel"
+    [maxPoints]="maxPoints"
+    [diagnoseLevelWeighting]="diagnoseLevelWeighting"
+    [showSubmitButton]="!exerciseSheetAlreadyClosed"
+    [exerciseSheetUUID]="_exerciseSheetUUID"
+    [points]="achievedDispatcherPoints"
+    [taskNo]="_taskNo"
+    [courseInstanceUUID]="_instance!.instanceId"
+    [isSubmitted]="isSubmitted"
+    [taskAssignmentId]="_taskUUID"
+  >
+  </jhi-pm-assignment>
+  <jhi-file-upload
+    *ngIf="isUploadTask || isDispatcherTask"
+    [fileId]="uploadTaskFileId"
+    (fileAdded)="handleFileAddedAsync($event)"
+    (fileRemoved)="handleFileRemovedAsync($event)"
+    (fileModified)="handleFileMovedAsync($event[0], $event[1])"
+    [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
+  >
+  </jhi-file-upload>
+  <jhi-file-upload
+    *ngIf="isCalcTask"
+    [fileId]="uploadCalcSubmissionFileId"
+    (fileAdded)="handleCalcFileAddedAsync($event)"
+    (fileRemoved)="handleCalcFileRemovedAsync($event)"
+    (fileModified)="handleCalcFileMovedAsync($event[0], $event[1])"
+    [disabled]="isSubmitted || exerciseSheetAlreadyClosed"
+  >
+  </jhi-file-upload>
+  <div *ngIf="uploadCalcSubmissionFileId == -2">
+    <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+      Please upload the correct content type of the file!
+    </small>
+  </div>
 
+  <!-- apriori start -->
+
+  <div *ngIf="taskModel?.taskAssignmentTypeId === TaskAssignmentType.AprioriTask.value; else normal">
+    <jhi-apriori-student-task [courseInstance]="courseInstance" [taskDifficultyId]="taskModel?.taskDifficultyId">
+    </jhi-apriori-student-task>
+    <!-- apriori start-->
     <button
       *ngIf="!isDispatcherTask && !isCalcTask && !isPmTask"
+      type="button"
+      class="btn btn-primary"
+      style="margin-top: 10px"
+      [disabled]="isSubmitted || isSaving || exerciseSheetAlreadyClosed"
+      (click)="markTaskAsSubmittedAsync()"
+    >
+      <span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>
+      <fa-icon *ngIf="!isSaving" icon="save"></fa-icon>&nbsp;<span *ngIf="!isSubmitted" jhiTranslate="overview.student.tasks.submit"
+        >Submit Apriori</span
+      >
+      <span *ngIf="isSubmitted">Apriori Submitted</span>
+    </button>
+    <br /><br /><br /><br /><br /><br /><br /><br />
+  </div>
+
+  <ng-template #normal>
+    <!-- template for apriori; buttons original -->
+    <button
+      *ngIf="!isDispatcherTask && !isPmTask"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"
@@ -131,6 +158,8 @@
       >
       <span *ngIf="isSubmitted" jhiTranslate="overview.student.tasks.submitted">Submitted</span>
     </button>
+    <br />
+    <br />
 
     <td class="text-right" *ngIf="isCalcTask">
       <button
@@ -163,5 +192,9 @@
       <span jhiTranslate="overview.student.tasks.calcTaskPointsDescription">Reached Points</span>
       <span>{{ calcTaskPoints }}</span>
     </ng-container>
-  </div>
+  </ng-template>
+
+  <!-- apriori end -->
 </div>
+<br />
+<br />

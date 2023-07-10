@@ -61,9 +61,16 @@ export class DispatcherAssignmentService {
    * @param exerciseSheetUUID the exercise sheet UUID
    * @param taskNo the task number
    */
-  public getPmLogForIndividualTask(courseInstanceId: string, exerciseSheetUUID: string, taskNo: number): Observable<PmLogModel> {
+  public getPmLogForIndividualTask(
+    courseInstanceId: string,
+    exerciseSheetUUID: string,
+    taskNo: number,
+    taskAssignmentId: string
+  ): Observable<PmLogModel> {
     const instanceUUID = courseInstanceId.substr(courseInstanceId.lastIndexOf('#') + 1);
-    return this.http.get<PmLogModel>(`api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/pmlog`);
+    return this.http.get<PmLogModel>(
+      `api/student/courses/${instanceUUID}/exercises/${exerciseSheetUUID}/task/${taskNo}/taskassignment/${taskAssignmentId}/pmlog`
+    );
   }
 
   /**

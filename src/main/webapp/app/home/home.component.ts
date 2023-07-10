@@ -55,20 +55,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   public login(): void {
     this.loginService
       .login({
-        username: this.loginForm.get('username')!.value,
-        password: this.loginForm.get('password')!.value,
-        rememberMe: this.loginForm.get('rememberMe')!.value,
+        username: this.loginForm.get('username')!.value ?? '',
+        password: this.loginForm.get('password')!.value ?? '',
+        rememberMe: this.loginForm.get('rememberMe')!.value ?? false,
       })
-      .subscribe(
-        () => {
+      .subscribe({
+        next: () => {
           this.authenticationError = false;
-
-          this.router.navigate([this.OVERVIEW_ROUTE]);
-        },
-        () => {
-          this.authenticationError = true;
-        }
-      );
+          this.router.navigate([this.OVERVIEW_ROUTE])},
+        error: () => {this.authenticationError = true;}
+  }
+  );
   }
 
   public requestResetPassword(): void {

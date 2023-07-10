@@ -180,7 +180,9 @@ public class StudentResource {
                                                             @PathVariable String exerciseSheetUUID) {
         String matriculationNumber = SecurityUtils.getCurrentUserLogin().orElse("");
         try {
-            studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            if(!courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID)){
+                studentService.openExerciseSheetForStudent(matriculationNumber, courseInstanceUUID, exerciseSheetUUID);
+            }
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.ExerciseSheetAlreadyOpenedException esaoe) {
             throw new ExerciseSheetAlreadyOpenedException();
@@ -729,20 +731,25 @@ public class StudentResource {
      * @param taskNo the task number
      * @return the log of the exercise
      */
-    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/pmlog")
+    @GetMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/task/{taskNo}/taskassignment/{taskAssignmentUUID}/pmlog")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo){
+    public ResponseEntity<PmExerciseLogDTO> getLogToCorrespondingExerciseId(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @PathVariable int taskNo, @PathVariable String taskAssignmentUUID){
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
         PmExerciseLogDTO pmExerciseLogDTO = null;
 
         // fetches the dispatcher exercise id corresponding to the assigned exercise
-        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskId(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+        Optional<Integer> dispatcherExerciseId = studentService.getDispatcherTaskIdOfIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
+        if(dispatcherExerciseId.isEmpty()){
+            dispatcherExerciseId = studentService.randomizePmTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, taskAssignmentUUID);
+        }
 
-        try{
-            // fetches the log information corresponding to exercise, wrapped in DTO
-            pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElse(-1));
-        }catch(DispatcherRequestFailedException e){
-            e.printStackTrace();
+        if(dispatcherExerciseId.isPresent()){
+            try{
+                // fetches the log information corresponding to exercise, wrapped in DTO
+                pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElseThrow());
+            }catch(DispatcherRequestFailedException e){
+                e.printStackTrace();
+            }
         }
         return ResponseEntity.ok(pmExerciseLogDTO);
     }

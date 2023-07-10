@@ -5,6 +5,7 @@ import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/ta
 import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
 import { HttpClient } from '@angular/common/http';
 import { values } from 'lodash';
+import {lastValueFrom} from "rxjs";
 
 /**
  * Component for adding / manipulation task groups.
@@ -64,19 +65,19 @@ export class TaskGroupUpdateComponent {
     (async () => {
       const name = value.substr(value.lastIndexOf('#') + 1);
 
-      this.taskGroupToEdit = await this.taskGroupService.getTaskGroup(name).toPromise();
+      this.taskGroupToEdit = await lastValueFrom(this.taskGroupService.getTaskGroup(name));
 
       this.taskGroup.patchValue({
-        name: this.taskGroupToEdit.name,
-        description: this.taskGroupToEdit.description,
-        sqlCreateStatements: this.taskGroupToEdit.sqlCreateStatements,
-        sqlInsertStatementsSubmission: this.taskGroupToEdit.sqlInsertStatementsSubmission,
-        sqlInsertStatementsDiagnose: this.taskGroupToEdit.sqlInsertStatementsDiagnose,
-        diagnoseXML: this.taskGroupToEdit.xQueryDiagnoseXML,
-        submissionXML: this.taskGroupToEdit.xQuerySubmissionXML,
-        datalogFacts: this.taskGroupToEdit.datalogFacts,
-        taskGroupType: this.taskGroupToEdit.taskGroupTypeId,
-        fDependencies: this.taskGroupToEdit.fDependencies,
+        name: this.taskGroupToEdit!.name,
+        description: this.taskGroupToEdit!.description,
+        sqlCreateStatements: this.taskGroupToEdit!.sqlCreateStatements,
+        sqlInsertStatementsSubmission: this.taskGroupToEdit!.sqlInsertStatementsSubmission,
+        sqlInsertStatementsDiagnose: this.taskGroupToEdit!.sqlInsertStatementsDiagnose,
+        diagnoseXML: this.taskGroupToEdit!.xQueryDiagnoseXML,
+        submissionXML: this.taskGroupToEdit!.xQuerySubmissionXML,
+        datalogFacts: this.taskGroupToEdit!.datalogFacts,
+        fDependencies: this.taskGroupToEdit!.fDependencies,
+        taskGroupType: TaskGroupType.getTaskGroup(this.taskGroupToEdit!.taskGroupTypeId),
       });
       if (this.taskGroupToEdit.taskGroupTypeId === TaskGroupType.SQLType.value) {
         this.adjustFormForSQLType();
@@ -115,7 +116,7 @@ export class TaskGroupUpdateComponent {
     const fDependencies = this.taskGroup.get(['fDependencies'])!.value as string | undefined;
     try {
       if (this.isNew) {
-        const newTaskGroup = await this.taskGroupService
+        const newTaskGroup = await lastValueFrom(this.taskGroupService
           .createNewTaskGroup({
             name,
             description,
@@ -127,8 +128,7 @@ export class TaskGroupUpdateComponent {
             xQuerySubmissionXML,
             datalogFacts,
             fDependencies,
-          })
-          .toPromise();
+          }));
 
         this.isSaving = false;
         this.activeModal.close(newTaskGroup);

@@ -19,7 +19,7 @@ export class StudentAssignmentModalComponent implements OnInit {
   public isSaving = false;
   public fileSelected = false;
   public assignmentForm = this.fb.group({
-    students: [[], []],
+    students: [[''], []],
     csvFile: [null, []],
   });
 

@@ -184,14 +184,14 @@ public class CourseInstanceSPARQLEndpointServiceTest {
 
         var optionalCourseInstance = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
         assertThat(optionalCourseInstance).isPresent();
-        assertThat(optionalCourseInstance.get().getStudents()).hasSize(2);
-        assertThat(optionalCourseInstance.get().getStudents().stream().map(StudentInfoDTO::getMatriculationNumber).toArray())
+        assertThat(optionalCourseInstance.orElseThrow().getStudents()).hasSize(2);
+        assertThat(optionalCourseInstance.orElseThrow().getStudents().stream().map(StudentInfoDTO::getMatriculationNumber).toArray())
             .containsExactlyInAnyOrder(student1.getLogin(), student2.getLogin());
 
         courseInstanceSPARQLEndpointService.setStudentsOfCourseInstance(Collections.emptyList(), uri);
         optionalCourseInstance = courseInstanceSPARQLEndpointService.getCourseInstance(uuid);
         assertThat(optionalCourseInstance).isPresent();
-        assertThat(optionalCourseInstance.get().getStudents()).isEmpty();
+        assertThat(optionalCourseInstance.orElseThrow().getStudents()).isEmpty();
     }
 
     /**

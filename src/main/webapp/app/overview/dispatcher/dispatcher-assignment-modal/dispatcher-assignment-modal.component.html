@@ -3,7 +3,7 @@
     <h4 class="modal-title" *ngIf="showHeader">
       {{ 'lecturerOverview.runSubmissionWindow.modalHeader' | translate: { student: matriculationNo } }}
     </h4>
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="close()">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true" (click)="close()"></button>
   </div>
   <div class="assignment-component">
     <jhi-dispatcher-assignment

@@ -77,7 +77,7 @@ public class UploadFileService {
      * @return Creates a randomised instruction and returns a list with the file ids (calc instruction, calc solution, writer instruction)
      */
     @Transactional
-    public List<Long> createRandomInstruction (Long calcInstructionFileId, Long calcSolutionFileId, Long writerInstructionFileId, String login) throws WrongCalcParametersException {
+    public List<Long> createRandomCalcInstruction(Long calcInstructionFileId, Long calcSolutionFileId, Long writerInstructionFileId, String login) throws WrongCalcParametersException {
         try {
             FileEntity calcInstructionFileOld = fileRepository.getById(calcInstructionFileId);
             FileEntity calcSolutionFileOld = fileRepository.getById(calcSolutionFileId);
@@ -145,11 +145,7 @@ public class UploadFileService {
     @Transactional(readOnly = true)
     public FileEntity getFile(long fileId) throws FileNotExistsException {
         Optional<FileEntity> file = fileRepository.findById(fileId);
-
-        if (file.isPresent()) {
-            return file.get();
-        }
-        throw new FileNotExistsException();
+        return file.orElseThrow(FileNotExistsException::new);
     }
 
     /**
