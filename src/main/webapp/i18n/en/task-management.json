@@ -69,7 +69,16 @@
       "minActivity": "Minimal activity ",
       "maxLogSize": "Maximal logsize ",
       "minLogSize": "Minimal logsize",
-      "configNum": "Configuration number"
+      "configNum": "Configuration number",
+      "fDSubtypeTitle": "Functional dependencies exercise type",
+      "fDSubtypePlaceHolder": "--No exercise type selected--",
+      "fDSubtype": {
+        "minimalCover": "Minimale Überdeckung bestimmen",
+        "closure": "Attributhülle bestimmen",
+        "key": "Schlüssel bestimmen",
+        "normalform": "Normalform bestimmen",
+        "normalization": "Normalisierung"
+      }
     },
     "error": {
       "required": "This field is required!",

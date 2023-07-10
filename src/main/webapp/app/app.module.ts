@@ -31,6 +31,7 @@ import { ErrorComponent } from './layouts/error/error.component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { QuillModule } from 'ngx-quill';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FdtasksComponent } from './fd/fdtasks/fdtasks.component';
 // import {MaterialModule} from "./material.model";
 
 @NgModule({
@@ -71,7 +72,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     httpInterceptorProviders,
   ],
-  declarations: [MainComponent, NavbarComponent, ErrorComponent, PageRibbonComponent, ActiveMenuDirective, FooterComponent],
+  declarations: [
+    MainComponent,
+    NavbarComponent,
+    ErrorComponent,
+    PageRibbonComponent,
+    ActiveMenuDirective,
+    FooterComponent,
+    FdtasksComponent,
+  ],
   bootstrap: [MainComponent],
   exports: [ActiveMenuDirective],
 })

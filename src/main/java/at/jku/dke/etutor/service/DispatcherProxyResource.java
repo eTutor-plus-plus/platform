@@ -11,7 +11,6 @@ import at.jku.dke.etutor.service.dto.fd.FDExerciseDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.InputStreamResource;
@@ -786,4 +785,9 @@ public class DispatcherProxyResource {
         return id;
     }
 
+
+    public ResponseEntity<Void> deleteFDTaskGroup(String id) throws DispatcherRequestFailedException {
+        var request = getDeleteRequest(dispatcherURL + "/fd/exercise?id=" + id);
+        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
 }

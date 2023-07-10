@@ -122,7 +122,8 @@ public class TaskGroupResource {
             // Update task group in dispatcher if applicable
             if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()) ||
             taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()) ||
-            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())||
+            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.FDTypeTaskGroup.toString())){
                 dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
             }
 
@@ -134,6 +135,8 @@ public class TaskGroupResource {
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
             }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
                 taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
+            } else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.FDTypeTaskGroup.toString())){
+                taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyFDTaskGroup(taskGroupDTOFromService);
             }
 
             return ResponseEntity.ok(taskGroupDTOFromService);

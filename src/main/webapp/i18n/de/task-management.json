@@ -71,7 +71,16 @@
       "minActivity": "Minimale Anzahl Aktivitäten",
       "maxLogSize": "Maximale Log Größe",
       "minLogSize": "Minimale Log Größe",
-      "configNum": "Konfigurationsnummer"
+      "configNum": "Konfigurationsnummer",
+      "fDSubtypeTitle": "Funktionale Abhängigkeiten Aufgabenart",
+      "fDSubtypePlaceHolder": "--Keine Aufgabenart ausgewählt--",
+      "fDSubtypes": {
+        "minimalCover": "Minimale Überdeckung bestimmen",
+        "closure": "Attributhülle bestimmen",
+        "key": "Schlüssel bestimmen",
+        "normalform": "Normalform bestimmen",
+        "normalization": "Normalisierung"
+      }
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

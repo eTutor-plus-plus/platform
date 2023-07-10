@@ -1344,6 +1344,45 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         return taskGroupDTO;
     }
 
+    public TaskGroupDTO modifyFDTaskGroup(TaskGroupDTO taskGroupDTO){
+        Objects.requireNonNull(taskGroupDTO);
+
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+
+        DELETE {
+          ?group etutor:hasFDependencies ?oldFD.
+        } INSERT {
+        """);
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getfDependencies())) {
+            query.append("  ?group etutor:hasFDependencies ?newFD.");
+            query.append("\n");
+        }
+
+
+        query.append("""
+        } WHERE {
+          ?group a etutor:TaskGroup.
+          OPTIONAL {
+            ?group etutor:hasFDependencies ?oldFD.
+          }
+        }
+        """);
+
+        query.setIri("?group", taskGroupDTO.getId());
+
+        if (StringUtils.isNotBlank(taskGroupDTO.getfDependencies())) {
+            query.setLiteral("?newFD", taskGroupDTO.getfDependencies().trim());
+        }
+
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+
+        return taskGroupDTO;
+    }
+
     /**
      * Returns the task group by name.
      *

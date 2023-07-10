@@ -151,4 +151,8 @@ export class TasksService {
 
     return this.http.get<ITaskAssignmentDisplay[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
   }
+
+  // public getFDExercise(name: string) {
+  //
+  // }
 }

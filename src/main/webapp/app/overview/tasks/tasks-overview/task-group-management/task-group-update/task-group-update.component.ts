@@ -207,10 +207,12 @@ export class TaskGroupUpdateComponent {
 
   private adjustFormForFDType(): void {
     this.isFDGroup = true;
-    this.taskGroupService.nextFdID().then(body => {
-      this.taskGroup.get(['name'])?.setValue('FunctionalDependencies-' + body);
-    });
-    this.taskGroup.get(['name'])?.disable();
+    if (!this.taskGroupToEdit) {
+      this.taskGroupService.nextFdID().then(body => {
+        this.taskGroup.get(['name'])?.setValue('FunctionalDependencies-' + body);
+        this.taskGroup.get(['name'])?.disable();
+      });
+    }
     this.taskGroup.get(['fDependencies'])?.setValidators(Validators.required);
     this.taskGroup.get(['fDependencies'])?.updateValueAndValidity();
     this.clearDLGValidators();

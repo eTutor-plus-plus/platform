@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TasksService } from '../../tasks.service';
-import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
+import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty, FDSubtype } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
@@ -23,6 +23,7 @@ export class TaskUpdateComponent implements OnInit {
   public isSaving = false;
   public readonly difficulties = TaskDifficulty.Values;
   public readonly taskTypes = TaskAssignmentType.Values;
+  public readonly fDSubtypes = FDSubtype.Values;
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
   public editorOptionsXQ = { theme: 'xquery-light', language: 'xquery' };
   public editorOptionsReadOnly = { theme: 'vs-light', language: 'pgsql', readOnly: true };
@@ -36,6 +37,7 @@ export class TaskUpdateComponent implements OnInit {
   public isBpmnTask = false;
   public isPmTask = false; // boolean flag
   public isCalcTask = false;
+  public isFDTask = false;
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
   public writerInstructionFileId = -1;
@@ -43,6 +45,7 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
+  public fDSubtype: string | undefined = '';
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -80,6 +83,7 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
+    fDSubtype: [''],
   });
 
   private _taskModel?: ITaskModel;
@@ -417,6 +421,8 @@ export class TaskUpdateComponent implements OnInit {
       this.patchDatalogTaskGroupValues(taskGroupId);
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
+    } else if (taskAssignmentTypeId === TaskAssignmentType.FDTask.value) {
+      this.isFDTask = true;
     }
   }
   /**
@@ -452,6 +458,11 @@ export class TaskUpdateComponent implements OnInit {
     } else if (taskAssignmentTypeId === TaskAssignmentType.CalcTask.value) {
       this.isCalcTask = true;
       this.setMaxPointsRequired();
+    } else if (taskAssignmentTypeId === TaskAssignmentType.FDTask.value) {
+      this.isFDTask = true;
+      this.setTaskGroupRequired();
+      this.updateForm.get('fDSubtype')!.setValidators(Validators.required);
+      this.updateForm.get('fDSubtype')!.updateValueAndValidity();
     }
 
     if (this.isDkeDispatcherTask(taskAssignmentTypeId)) {
@@ -475,7 +486,17 @@ export class TaskUpdateComponent implements OnInit {
       this.patchXQueryTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       this.patchDatalogTaskGroupValues(taskGroupId);
+    } else if (taskT === TaskAssignmentType.FDTask.value) {
+      this.patchFDTaskGroupValues(taskGroupId);
     }
+  }
+  /**
+   * Reacts to a change of the fDSubtype by patching the relevant data
+   */
+  public fDSubtypeChanged(): void {
+    this.fDSubtype = this.updateForm.get(['fDSubtype'])!.value as string | undefined;
+
+    const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
   }
 
   /**
@@ -562,9 +583,6 @@ export class TaskUpdateComponent implements OnInit {
     this.uploadFileId = newFileId;
   }
 
-  /*
-  Opaque ID transformation. Thomas Hollin
-   */
   public createMoodleId(id: string | undefined): string {
     let moodleId = '';
     if (id) {
@@ -752,6 +770,17 @@ export class TaskUpdateComponent implements OnInit {
       });
     }
   }
+  private patchFDTaskGroupValues(taskGroupId: string | undefined): void {
+    if (taskGroupId) {
+      const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
+      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
+        this.updateForm.patchValue({
+          fDependencies: taskGroupDTO.fDependencies,
+        });
+      });
+    }
+  }
+
   private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
   }
@@ -768,6 +797,7 @@ export class TaskUpdateComponent implements OnInit {
     this.isBpmnTask = false;
     this.isPmTask = false;
     this.isCalcTask = false;
+    this.isFDTask = false;
   }
 
   private clearAllTaskTypeDependentValidators(): void {
@@ -777,6 +807,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    // this.updateForm.get('fDSubtype')!.clearValidators();
+    // this.updateForm.get('fDSubtype')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 

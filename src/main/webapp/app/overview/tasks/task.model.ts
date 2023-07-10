@@ -360,3 +360,63 @@ export interface ITaskAssignmentDisplay {
    */
   id: string;
 }
+/**
+ * Represents a fdsubtask assignment type.
+ */
+export class FDSubtype {
+  public static readonly MinimalCover = new FDSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover',
+    'taskManagement.fields.fDSubtypes.minimalCover'
+  );
+  public static readonly Closure = new FDSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure',
+    'taskManagement.fields.fDSubtypes.closure'
+  );
+  public static readonly Key = new FDSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key',
+    'taskManagement.fields.fDSubtypes.key'
+  );
+  public static readonly Normalform = new FDSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform',
+    'taskManagement.fields.fDSubtypes.normalform'
+  );
+  public static readonly Normalization = new FDSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalization',
+    'taskManagement.fields.fDSubtypes.normalization'
+  );
+
+  public static readonly Values = [FDSubtype.MinimalCover, FDSubtype.Closure, FDSubtype.Key, FDSubtype.Normalform, FDSubtype.Normalization];
+
+  private readonly _value: string;
+  private readonly _text: string;
+
+  /**
+   * Constructor.
+   *
+   * @param value the value
+   * @param text the text
+   */
+  constructor(value: string, text: string) {
+    this._value = value;
+    this._text = text;
+  }
+
+  /**
+   * Returns the value.
+   */
+  public get value(): string {
+    return this._value;
+  }
+
+  /**
+   * Returns the text.
+   */
+  public get text(): string {
+    return this._text;
+  }
+
+  /**
+   * Overridden toString method.
+   */
+  public toString = (): string => this._text;
+}

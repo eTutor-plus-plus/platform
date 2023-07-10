@@ -109,6 +109,7 @@
         </small>
       </div>
     </div>
+
     <div class="form-group" *ngIf="isBpmnTask">
       <label class="form-control-label" for="bpmnTestConfig" jhiTranslate="taskManagement.fields.bpmnCreateStatements"></label>
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.sqlStatementsInfo' | translate }}" placement="right"></fa-icon>-->
@@ -434,6 +435,35 @@
         <option value="">{{ 'taskManagement.fields.taskGroupPlaceHolder' | translate }}</option>
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>
+    </div>
+    <div class="form-group" *ngIf="isFDTask">
+      <label class="form-control-label" for="fDSubtype" jhiTranslate="taskManagement.fields.fDSubtypeTitle"
+        >Functional Dependency Subtype:</label
+      >
+      <select class="form-control" name="fDSubtype" (change)="fDSubtypeChanged()" id="fDSubtype" formControlName="fDSubtype">
+        <option value="">{{ 'taskManagement.fields.fDSubtypePlaceHolder' | translate }}</option>
+        <option *ngFor="let subtype of fDSubtypes" [value]="subtype.value">{{ subtype.text | translate }}</option>
+      </select>
+      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
+        <label>{{ fDSubtype }}</label>
+        <datalist>{{ fDSubtype }}</datalist>
+      </div>
+      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure'">
+        <label>{{ fDSubtype }}</label>
+        <datalist>{{ fDSubtype }}</datalist>
+      </div>
+      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key'">
+        <label>{{ fDSubtype }}</label>
+        <datalist>{{ fDSubtype }}</datalist>
+      </div>
+      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
+        <label>{{ fDSubtype }}</label>
+        <datalist>{{ fDSubtype }}</datalist>
+      </div>
+      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalization'">
+        <label>{{ fDSubtype }}</label>
+        <datalist>{{ fDSubtype }}</datalist>
+      </div>
     </div>
 
     <div class="form-group">

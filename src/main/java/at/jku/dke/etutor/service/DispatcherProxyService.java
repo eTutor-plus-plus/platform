@@ -398,7 +398,8 @@ public class DispatcherProxyService {
             int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(taskGroupDTO);
             if (id != -1) proxyResource.deleteDLGTaskGroup(id);
         } else if (taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.FDTypeTaskGroup.toString())) {
-            String id = taskGroupDTO.getName();
+            String id = taskGroupDTO.getName().replace("FunctionalDependencies-","");
+            proxyResource.deleteFDTaskGroup(id);
         }
     }
 
