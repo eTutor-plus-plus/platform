@@ -144,9 +144,7 @@ export class DispatcherAssignmentComponent {
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
       this.submissionIdDto = submissionId;
       this.submissionDto.submissionId = submissionId.submissionId;
-      setTimeout(() => {
-        this.getGrading();
-      }, 2000);
+      this.getGrading();
     });
   }
 
