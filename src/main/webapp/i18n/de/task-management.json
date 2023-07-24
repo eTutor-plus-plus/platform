@@ -41,7 +41,7 @@
       "xqTask": "XQuery Aufgabe",
       "dlgTask": "Datalog Aufgabe",
       "calcTask": "Calc Aufgabe",
-      "dlgTask": "Datalog Aufgabe",
+      "umlTask": "UML Aufgabe",
 
       "aprioriTask": "Apriori Aufgabe",
       "bpmnTask": "Bpmn Aufgabe",
@@ -71,6 +71,7 @@
       "xQuerySubmissionXML": "XQuery: XML (Submit)",
       "xQuerySorting": "XQuery- Sortierung (XPath):",
       "xQuerySolution": "XQuery Lösung",
+      "umlSolution": "UML Lösung",
       "xQueryFileURL": "XQuery- XML-URL:",
       "datalogSolution": "Datalog Lösung:",
       "datalogQuery": "Datalog Query:",

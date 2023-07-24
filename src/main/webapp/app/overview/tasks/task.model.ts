@@ -79,6 +79,10 @@ export interface INewTaskModel {
    */
   xQuerySolution?: string;
   /**
+   * Optional solution for a UML-assignment
+   */
+  umlSolution?: string;
+  /**
    * Optional XPath-expression defining the sorting of an XQuery-assignment
    */
   xQueryXPathSorting?: string;
@@ -241,6 +245,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.aprioriTask'
   );
 
+  public static readonly UmlTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UmlTask',
+    'taskManagement.taskTypes.umlTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -252,6 +261,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
+    TaskAssignmentType.UmlTask,
   ];
 
   private readonly _value: string;
