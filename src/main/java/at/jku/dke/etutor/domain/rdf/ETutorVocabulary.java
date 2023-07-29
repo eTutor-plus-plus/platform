@@ -97,6 +97,11 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DIAGNOSE_XML_FILE = "hasDiagnoseXMLFile";
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
+    private static final String PROP_HAS_JDBC_CREATE_STATEMENTS = "hasJDBCCreateStatements";
+    private static final String PROP_HAS_JDBC_INSERT_BEGIN_DIAGNOSE = "hasJDBCInsertBeginDiagnose";
+    private static final String PROP_HAS_JDBC_INSERT_BEGIN_SUBMISSION = "hasJDBCInsertBeginSubmission";
+    private static final String PROP_HAS_JDBC_INSERT_SHADOW_BEGIN_DIAGNOSE = "hasJDBCInsertShadowBeginDiagnose";
+    private static final String PROP_HAS_JDBC_INSERT_SHADOW_BEGIN_SUBMISSION = "hasJDBCInsertShadowBeginSubmission";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
     private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
@@ -146,6 +151,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_JDBC_TASK = "JDBCTask";
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
@@ -155,6 +161,7 @@ public final class ETutorVocabulary {
 
 
     private static final String INSTANCE_SQL_TYPE_TASK_GROUP = "SQLType";
+    private static final String INSTANCE_JDBC_TYPE_TASK_GROUP = "JDBCType";
     private static final String INSTANCE_NO_TYPE_TASK_GROUP ="NoType";
     private static final String INSTANCE_XQUERY_TASK_GROUP = "XQueryType";
     private static final String INSTANCE_DATALOG_TASK_GROUP = "DatalogType";
@@ -359,6 +366,26 @@ public final class ETutorVocabulary {
      * The hasSQLInsertStatementsDiagnose property.
      */
     public static final Property hasSQLInsertStatementsDiagnose = m.createProperty(URI + PROP_HAS_SQL_INSERT_STATEMENTS_DIAGNOSE);
+    /**
+     * The hasJDBCCreateStatements property.
+     */
+    public static final Property hasJDBCCreateStatements = m.createProperty(URI + PROP_HAS_JDBC_CREATE_STATEMENTS);
+    /**
+     * The hasSQLInsertBeginDiagnose property.
+     */
+    public static final Property hasJDBCInsertBeginDiagnose = m.createProperty(URI + PROP_HAS_JDBC_INSERT_BEGIN_DIAGNOSE);
+    /**
+     * The hasSQLInsertBeginSubmission property.
+     */
+    public static final Property hasJDBCInsertBeginSubmission = m.createProperty(URI + PROP_HAS_JDBC_INSERT_BEGIN_SUBMISSION);
+    /**
+     * The hasSQLInsertShadowBeginDiagnose property.
+     */
+    public static final Property hasJDBCInsertShadowBeginDiagnose = m.createProperty(URI + PROP_HAS_JDBC_INSERT_SHADOW_BEGIN_DIAGNOSE);
+    /**
+     * The hasSQLInsertShadowBeginSubmission property.
+     */
+    public static final Property hasJDBCInsertShadowBeginSubmission = m.createProperty(URI + PROP_HAS_JDBC_INSERT_SHADOW_BEGIN_SUBMISSION);
     /**
      * The hasDiagnoseXMLFile property
      */
@@ -661,6 +688,10 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
+    /**
+     * The JDBC task assignment type instance.
+     */
+    public static final Resource JDBCTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_JDBC_TASK);
     /***
      * The relational algebra type instance
      */
@@ -695,6 +726,10 @@ public final class ETutorVocabulary {
      * The SQL task group type
      */
     public static final Resource SQLTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_SQL_TYPE_TASK_GROUP);
+    /**
+     * The JDBC task group type
+     */
+    public static final Resource JDBCTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_JDBC_TYPE_TASK_GROUP);
     /**
      * The XQuery task group type
      */

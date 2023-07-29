@@ -20,6 +20,9 @@ public class NewTaskGroupDTO {
     private String sqlCreateStatements;
     private String sqlInsertStatementsSubmission;
     private String sqlInsertStatementsDiagnose;
+    private String jdbcCreateStatements;
+    private String jdbcInsertBeginDiagnose;
+    private String jdbcInsertBeginSubmission;
     private String xQueryDiagnoseXML;
     private String xQuerySubmissionXML;
     private String fileUrl;
@@ -36,6 +39,9 @@ public class NewTaskGroupDTO {
                            String sqlCreateStatements,
                            String sqlInsertStatementsSubmission,
                            String sqlInsertStatementsDiagnose,
+                           String jdbcCreateStatements,
+                           String jdbcInsertBeginDiagnose,
+                           String jdbcInsertBeginSubmission,
                            String xQueryDiagnoseXML,
                            String xQuerySubmissionXML,
                            String datalogFacts) {
@@ -45,6 +51,9 @@ public class NewTaskGroupDTO {
         this.sqlCreateStatements =sqlCreateStatements;
         this.sqlInsertStatementsSubmission=sqlInsertStatementsSubmission;
         this.sqlInsertStatementsDiagnose=sqlInsertStatementsDiagnose;
+        this.jdbcCreateStatements = jdbcCreateStatements;
+        this.jdbcInsertBeginDiagnose = jdbcInsertBeginDiagnose;
+        this.jdbcInsertBeginSubmission = jdbcInsertBeginSubmission;
         this.xQueryDiagnoseXML=xQueryDiagnoseXML;
         this.xQuerySubmissionXML=xQuerySubmissionXML;
         this.datalogFacts=datalogFacts;
@@ -203,5 +212,23 @@ public class NewTaskGroupDTO {
 
     public void setDatalogFacts(String datalogFacts) {
         this.datalogFacts = datalogFacts;
+    }
+    public String getJdbcCreateStatements() {
+        return jdbcCreateStatements;
+    }
+    public void setJdbcCreateStatements(String jdbcCreateStatements) {
+        this.jdbcCreateStatements = jdbcCreateStatements;
+    }
+    public String getJdbcInsertBeginDiagnose() {
+        return jdbcInsertBeginDiagnose;
+    }
+    public void setJdbcInsertBeginDiagnose(String jdbcInsertBeginDiagnose) {
+        this.jdbcInsertBeginDiagnose = jdbcInsertBeginDiagnose;
+    }
+    public String getJdbcInsertBeginSubmission() {
+        return jdbcInsertBeginSubmission;
+    }
+    public void setJdbcInsertBeginSubmission(String jdbcInsertBeginSubmission) {
+        this.jdbcInsertBeginSubmission = jdbcInsertBeginSubmission;
     }
 }

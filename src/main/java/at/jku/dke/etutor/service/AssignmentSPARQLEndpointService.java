@@ -896,7 +896,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
 
         return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
-            newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
+            newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(), newTaskGroupDTO.getJdbcCreateStatements(), newTaskGroupDTO.getJdbcInsertBeginDiagnose(),newTaskGroupDTO.getJdbcInsertBeginDiagnose(),
             newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now);
     }
 
@@ -1585,6 +1585,15 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         if (StringUtils.isNotBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasSQLInsertStatementsDiagnose, newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim());
         }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getJdbcCreateStatements())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasJDBCCreateStatements, newTaskGroupDTO.getJdbcCreateStatements().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getJdbcInsertBeginDiagnose())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasJDBCInsertShadowBeginDiagnose, newTaskGroupDTO.getJdbcInsertBeginDiagnose().trim());
+        }
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getJdbcInsertBeginSubmission())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasJDBCInsertShadowBeginSubmission, newTaskGroupDTO.getJdbcInsertBeginSubmission().trim());
+        }
         if(StringUtils.isNotBlank(newTaskGroupDTO.getxQueryDiagnoseXML())){
             taskGroupResource.addProperty(ETutorVocabulary.hasDiagnoseXMLFile, newTaskGroupDTO.getxQueryDiagnoseXML().trim());
         }
@@ -1652,6 +1661,14 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+            resource.addProperty(ETutorVocabulary.hasJDBCInsertShadowBeginDiagnose, newTaskAssignmentDTO.getJdbcShadowDiagnose().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
+            resource.addProperty(ETutorVocabulary.hasJDBCInsertShadowBeginSubmission, newTaskAssignmentDTO.getJdbcShadowSubmission().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())){

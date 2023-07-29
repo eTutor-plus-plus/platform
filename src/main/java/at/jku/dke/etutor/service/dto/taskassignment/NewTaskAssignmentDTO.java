@@ -36,6 +36,8 @@ public class NewTaskAssignmentDTO {
 
     private String taskIdForDispatcher;
     private String sqlSolution;
+    private String jdbcShadowDiagnose;
+    private String jdbcShadowSubmission;
     private String maxPoints;
     private String diagnoseLevelWeighting;
     private String xQuerySolution;
@@ -494,5 +496,17 @@ public class NewTaskAssignmentDTO {
 
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
+    }
+    public String getJdbcShadowSubmission() {
+        return jdbcShadowSubmission;
+    }
+    public void setJdbcShadowSubmission(String jdbcShadowSubmission) {
+        this.jdbcShadowSubmission = jdbcShadowSubmission;
+    }
+    public String getJdbcShadowDiagnose() {
+        return jdbcShadowDiagnose;
+    }
+    public void setJdbcShadowDiagnose(String jdbcShadowDiagnose) {
+        this.jdbcShadowDiagnose = jdbcShadowDiagnose;
     }
 }

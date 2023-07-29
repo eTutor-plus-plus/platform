@@ -47,6 +47,7 @@
       "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Solution:",
+      "jdbcSolution": "JDBC: Solution:",
       "maxPoints": "Maximum Points:",
       "diagnoseLevelWeighting": "Weighting of the diagnose-level:",
       "processingTime": "Processing time:",

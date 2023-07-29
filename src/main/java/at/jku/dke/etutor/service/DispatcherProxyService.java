@@ -117,6 +117,8 @@ public class DispatcherProxyService {
             statusCode = createSQLTaskGroup(newTaskGroupDTO, isNew);
         } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())) {
             statusCode = createDLGTaskGroup(newTaskGroupDTO);
+        } else if (newTaskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.JDBCTypeTaskGroup.toString())) {
+            statusCode = createJDBCTaskGroup(newTaskGroupDTO);
         }
         if (statusCode != 200) {
             throw new DispatcherRequestFailedException();
@@ -187,6 +189,74 @@ public class DispatcherProxyService {
 
         // Initialize DTO
         SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
+
+        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
+        body.setSchemaName(schemaName);
+
+        List<String> createStatements = Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).filter(StringUtils::isNotBlank).toList();
+        body.setCreateStatements(createStatements);
+
+        List<String> insertStatements;
+
+        if (newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null) {
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsDiagnose(insertStatements);
+        }
+        if (newTaskGroupDTO.getSqlInsertStatementsSubmission() != null) {
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsSubmission(insertStatements);
+        }
+
+        // Proxy request to disptacher
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+
+        try {
+            jsonBody = mapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return 500;
+        }
+        var response = proxyResource.executeDDLForSQL(jsonBody);
+        var statusCode = response.getStatusCodeValue();
+
+        // Update task group description with links and schema info and set id from dispatcher in RDF-Graph
+        if (statusCode == 200) { // update succesful
+            try {
+                var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
+                updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
+                if (schemaInfo.getDiagnoseConnectionId() != -1)
+                    assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // return status code
+        return statusCode;
+    }
+
+    /**
+     * Adds task group related resources for an SQL task group in the dispatcher.
+     * Appends the links to the tables to the task group description
+     *
+     * @param newTaskGroupDTO the task group
+     */
+    private int createJDBCTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
+        // Check if both insert statements are blank (if only one is blank, the dispatcher will use the other)
+        if (StringUtils.isBlank(newTaskGroupDTO.getJdbcInsertBeginSubmission())
+            && StringUtils.isBlank(newTaskGroupDTO.getJdbcInsertBeginDiagnose())) {
+            throw new MissingParameterException();
+        }
+
+        // Initialize DTO
+        JDBCDataDefinitionDTO body = new JDBCDataDefinitionDTO();
 
         String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
         body.setSchemaName(schemaName);

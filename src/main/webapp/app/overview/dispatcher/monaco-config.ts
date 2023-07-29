@@ -468,6 +468,8 @@ function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string 
       return 'xquery';
     case TaskAssignmentType.BpmnTask.value:
       return 'bpmn';
+    case TaskAssignmentType.JDBCTask.value:
+      return 'jdbc';
     default:
       return 'pgsql';
   }
@@ -485,6 +487,8 @@ function getThemeForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string {
       return 'xquery-light';
     case TaskAssignmentType.BpmnTask.value:
       return 'xml';
+    case TaskAssignmentType.JDBCTask.value:
+      return 'jdbc';
     default:
       return 'vs-light';
   }
