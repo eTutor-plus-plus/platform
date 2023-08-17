@@ -41,10 +41,9 @@
       "xqTask": "XQuery task",
       "dlgTask": "Datalog task",
       "calcTask": "Calc task",
-      "dlgTask": "Datalog task",
-      "FDTask": "Functional dependency task",
       "aprioriTask": "Apriori Task",
-      "pmTask": "ProcessMining task"
+      "pmTask": "ProcessMining task",
+      "fDTask": "Functional dependency task"
     },
     "fields": {
       "header": "Header:",
@@ -84,12 +83,23 @@
       "fDSubtypeTitle": "Functional dependencies exercise type",
       "fDSubtypePlaceHolder": "--No exercise type selected--",
       "fDSubtype": {
-        "minimalCover": "Minimale Überdeckung bestimmen",
-        "closure": "Attributhülle bestimmen",
-        "key": "Schlüssel bestimmen",
-        "normalform": "Normalform bestimmen",
-        "normalization": "Normalisierung"
+        "minimalCover": "Determine minimal cover",
+        "closure": "Determine closure",
+        "key": "Determine keys",
+        "normalform": "Determine normal forms",
+        "normalization": "Normalize"
       },
+      "fDPreviewTitle": "Selected functional dependency:",
+      "fDRelation": "relation: ",
+      "fDependencies": "functional dependencies:",
+      "minimalCover": {
+        "decomposition": "decomposition",
+        "leftReduction": "left reduction",
+        "rightReduction": "right reduction"
+      },
+      "possibleClosures": "possible closures",
+      "fDNormalform": "normal-form",
+      "fDViolates": "violates",
       "datasetApriori": "Apriori task configuration ID: ",
       "create": "Create task configuration",
       "load": "Load task configuration",

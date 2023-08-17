@@ -3,6 +3,8 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel } from './task.model';
 import { Observable } from 'rxjs';
 import { createRequestOption } from 'app/core/request/request-util';
+import {SERVER_API_URL} from "../../app.constants";
+import {FdModel} from "../../fd/fdModel";
 
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
@@ -161,9 +163,9 @@ export class TasksService {
     return this.http.get<ITaskAssignmentDisplay[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
   }
 
-  // public getFDExercise(name: string) {
-  //
-  // }
+  public getFDExercise(id: string): Observable<FdModel> {
+    return this.http.get<FdModel>(`api/tasks/fd/exercise/${id}`)
+  }
 }
 /**
  * interface for apriori base url and key

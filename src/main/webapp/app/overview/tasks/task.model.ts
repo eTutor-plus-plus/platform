@@ -160,6 +160,10 @@ export interface INewTaskModel {
   aprioriDatasetId?: string;
 
   /** apriori start */
+
+  fDSubtype?: string;
+  fDClosureIds?: string [];
+
 }
 
 /**
@@ -240,10 +244,9 @@ export class TaskAssignmentType {
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#AprioriTask',
     'taskManagement.taskTypes.aprioriTask'
   );
-
   public static readonly FDTask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#FDTask',
-    'taskManagement.taskTypes.FDTask'
+    'taskManagement.taskTypes.fDTask'
   );
 
   public static readonly Values = [

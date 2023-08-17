@@ -88,12 +88,13 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        
+
 /** start apriori   */
         setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
-        
-/** apriori end */  
-        
+
+/** apriori end */
+        setfDSubtype(newTaskAssignmentDTO.getfDSubtype());
+
     }
 
     /**
@@ -177,18 +178,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        
+
 /** start apriori   */
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
         if(aprioriStatement != null){
-        	
+
         	setAprioriDatasetId(aprioriStatement.getString());
         }
-        
-/** apriori end */  
-        
-        
-        
+
+/** apriori end */
+
+
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());
@@ -283,6 +284,15 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         Statement taskGroupStatement = resource.getProperty(ETutorVocabulary.hasTaskGroup);
         if (taskGroupStatement != null) {
             setTaskGroupId(taskGroupStatement.getObject().asResource().getURI());
+        }
+
+        Statement fDSubtypeStatement = resource.getProperty(ETutorVocabulary.hasFDSubtype);
+        if (fDSubtypeStatement != null) {
+            setfDSubtype(fDSubtypeStatement.getString());
+        }
+        Statement fDClosuresStatement = resource.getProperty(ETutorVocabulary.hasFDClosures);
+        if (fDClosuresStatement != null) {
+            setfDClosureIds(fDClosuresStatement.getString().replaceAll("[\\[\\]]","").split(", "));
         }
     }
 

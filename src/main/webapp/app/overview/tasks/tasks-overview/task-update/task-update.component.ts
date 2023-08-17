@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { Component, OnInit, Input } from '@angular/core';
+import {FormArray, FormBuilder, Validators} from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AprioriConfig, TasksService } from '../../tasks.service';
 import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty, FDSubtype } from '../../task.model';
@@ -14,6 +14,9 @@ import { FileUploadService } from '../../../shared/file-upload/file-upload.servi
 import { AccountService } from 'app/core/auth/account.service';
 import * as CryptoJS from 'crypto-js';
 import { v4 as uuid } from 'uuid';
+import {FdModel} from 'app/fd/fdModel'
+import {toBoolean} from "@rxweb/reactive-form-validators";
+import {toNumber} from "lodash";
 
 /**
  * Component for creating / updating tasks.
@@ -42,6 +45,9 @@ export class TaskUpdateComponent implements OnInit {
   public startTime = null;
   public endTime = null;
   public fDSubtype: string | undefined = '';
+  public fDExercise: FdModel | undefined ;
+  public fDClosureIds: Array<string> = [];
+  public previousFDTaskGroup: string | null = null;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -78,8 +84,10 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
-    fDependencies:[''],
+    // fDependencies:[''],
     fDSubtype: [''],
+    fDExercise: [''],
+    fDSelectedClosures: [''],
 
     /** apriori start */
     aprioriDatasetId: [''],
@@ -101,6 +109,7 @@ export class TaskUpdateComponent implements OnInit {
    * @param taskGroupService the task group service
    * @param sqlExerciseService the injected SQL exercise service
    * @param fileService the injected File service
+   * @param accountService
    */
   constructor(
     private fb: FormBuilder,
@@ -135,7 +144,6 @@ export class TaskUpdateComponent implements OnInit {
    */
   public save(): void {
     this.isSaving = true;
-
     const taskDifficultyId = (this.updateForm.get(['taskDifficulty'])!.value as TaskDifficulty).value;
     const taskAssignmentTypeId = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
 
@@ -250,6 +258,14 @@ export class TaskUpdateComponent implements OnInit {
     if (configNum) {
       newTask.configNum = configNum;
     }
+    if (this.fDSubtype) {
+      newTask.fDSubtype = this.fDSubtype;
+    }
+    if (this.fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure') {
+      newTask.fDClosureIds = this.fDClosureIds
+    }
+
+
 
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
@@ -297,6 +313,8 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
+        fDSubtype: newTask.fDSubtype,
+        fDClosureIds: newTask.fDClosureIds,
 
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
@@ -354,6 +372,7 @@ export class TaskUpdateComponent implements OnInit {
       const maxLogSize: string = (value.maxLogSize ?? '').toString();
       const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
+      const fDSubtype = value.fDSubtype;
 
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
@@ -391,11 +410,15 @@ export class TaskUpdateComponent implements OnInit {
         maxLogSize,
         minLogSize,
         configNum,
-
+        fDSubtype,
+        fDSelectedClosures: '',
         /** apriori start */
         aprioriDatasetId,
         /** apriori end */
       });
+
+
+      this.fDClosureIds = value.fDClosureIds ?? [];
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
       this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
@@ -469,6 +492,9 @@ export class TaskUpdateComponent implements OnInit {
       this.setAprioriDatasetIdRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.FDTask.value) {
       this.setTaskGroupRequired();
+      if (this.updateForm.get(['taskGroup'])) {
+        this.patchFDTaskGroupValues(this.updateForm.get(['taskGroup'])!.value as string)
+      }
       this.updateForm.get('fDSubtype')!.setValidators(Validators.required);
       this.updateForm.get('fDSubtype')!.updateValueAndValidity();
     }
@@ -488,6 +514,9 @@ export class TaskUpdateComponent implements OnInit {
       this.patchDatalogTaskGroupValues(taskGroupId);
     } else if (taskT === TaskAssignmentType.FDTask.value) {
       this.patchFDTaskGroupValues(taskGroupId);
+      if (this.updateForm.get(['fDSubtype'])) {
+        this.fDSubtypeChanged()
+      }
     }
   }
   /**
@@ -495,8 +524,13 @@ export class TaskUpdateComponent implements OnInit {
    */
   public fDSubtypeChanged(): void {
     this.fDSubtype = this.updateForm.get(['fDSubtype'])!.value as string | undefined;
-
-    const taskT = (this.updateForm.get(['taskAssignmentType'])!.value as TaskAssignmentType).value;
+    if (this.fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure'
+        && this.fDClosureIds.length > 0) {
+      //
+      // this.updateForm.get(['fDSelectedClosures'])?.id
+    } else {
+      this.fDClearClosureValidator();
+    }
   }
 
   /**
@@ -769,14 +803,17 @@ export class TaskUpdateComponent implements OnInit {
   }
   private patchFDTaskGroupValues(taskGroupId: string | undefined): void {
     if (taskGroupId) {
+      if (!(this.previousFDTaskGroup == null)) {
+        this.fDClosureIds = []
+      }
+      this.previousFDTaskGroup = taskGroupId;
       const taskGroupName = taskGroupId.substring(taskGroupId.indexOf('#') + 1);
-      this.taskGroupService.getTaskGroup(taskGroupName).subscribe(taskGroupDTO => {
-        this.updateForm.patchValue({
-          fDependencies: taskGroupDTO.fDependencies,
-        });
-      });
+      const id = taskGroupName.substring(taskGroupName.indexOf('-') + 1)
+      this.getFDExercise(id)
     }
+    this.fDSubtype = this._taskModel?.fDSubtype
   }
+
 
   private isSqlOrRaTask(taskAssignmentTypeId: string): boolean {
     return taskAssignmentTypeId === TaskAssignmentType.SQLTask.value || taskAssignmentTypeId === TaskAssignmentType.RATask.value;
@@ -845,6 +882,16 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
+  public fDSetClosureValidator() {
+    this.updateForm.get(['fDSelectedClosures'])!.setValidators(Validators.required)
+    this.updateForm.get('fDSelectedClosures')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+  private fDClearClosureValidator() {
+    this.updateForm.get(['fDSelectedClosures'])!.clearValidators();
+    this.updateForm.get('fDSelectedClosures')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
 
   /**
    * for creating initial parameter for apriori task creation
@@ -874,6 +921,28 @@ export class TaskUpdateComponent implements OnInit {
           key: (data as any).key,
         })
     );
+  }
+  public getFDExercise(id:string): void {
+    this.tasksService.getFDExercise(id).subscribe(response =>  {
+      this.fDExercise = response
+    });
+  }
+
+  public fDClosureChange (id:string, isChecked: boolean ) {
+    if (isChecked) {
+      this.fDClosureIds.push(id.toString());
+    } else {
+      const index = this.fDClosureIds.indexOf(id.toString());
+      this.fDClosureIds.splice(index, 1);
+    }
+  }
+
+  public fDClosureValidatorNeeded() {
+    if (this.fDClosureIds.length > 0) {
+      this.fDClearClosureValidator();
+    } else if (this.fDSubtype === "http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure" ){
+      this.fDSetClosureValidator();
+    }
   }
 
   /** apriori end */

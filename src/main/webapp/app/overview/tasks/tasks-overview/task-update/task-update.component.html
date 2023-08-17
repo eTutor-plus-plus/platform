@@ -1,4 +1,4 @@
-<form name="updateForm" role="form" (ngSubmit)="save()" [formGroup]="updateForm">
+<form name="updateForm" role="form" (ngSubmit)="save()" [formGroup]="updateForm" xmlns="http://www.w3.org/1999/html">
   <div class="modal-header">
     <h4 class="modal-title" [hidden]="!isNew" jhiTranslate="taskManagement.modal.newHeader">Create new task</h4>
     <h4 class="modal-title" [hidden]="isNew">{{ 'taskManagement.modal.editHeader' | translate: { taskHeader: taskModel?.header } }}</h4>
@@ -192,7 +192,6 @@
       </div>
     </div>
     <!-- APRIORI end  -->
-
     <div
       class="form-group"
       *ngIf="
@@ -509,36 +508,93 @@
         <option *ngFor="let group of taskGroups" [value]="group.id">{{ group.name }}</option>
       </select>
     </div>
-    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.PmTask.value">
-      <label class="form-control-label" for="fDSubtype" jhiTranslate="taskManagement.fields.fDSubtypeTitle"
-        >Functional Dependency Subtype:</label
-      >
+    <label class="form-control-label" for="fDPreview" jhiTranslate="taskManagement.fields.fDPreviewTitle">Preview Title:</label>
+    <div class="form-group" name="fDPreview" id="fDPreview" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.FDTask.value">
+      {{ 'taskManagement.fields.fDRelation' | translate }} {{fDExercise?.attributes}}<br>
+      <label class="form-control-label" for="fDDependencies" jhiTranslate="taskManagement.fields.fDependencies">dependencies:</label>
+      <table name="fDDependencies" id="fDDependencies" *ngFor="let dependency of fDExercise?.functionalDependencies">
+        <tr>
+          <td>{{ dependency.leftSide }}</td>
+          <td>-></td>
+          <td>{{ dependency.rightSide }}</td>
+        </tr>
+      </table>
+      <label class="form-control-label" for="fDSubtype" jhiTranslate="taskManagement.fields.fDSubtypeTitle">
+        Functional Dependency Subtype:
+      </label>
       <select class="form-control" name="fDSubtype" (change)="fDSubtypeChanged()" id="fDSubtype" formControlName="fDSubtype">
-        <option value="">{{ 'taskManagement.fields.fDSubtypePlaceHolder' | translate }}</option>
+        <option value="">{{ 'taskManagement.fields.fDSubtypePlaceHolder' | translate}}</option>
         <option *ngFor="let subtype of fDSubtypes" [value]="subtype.value">{{ subtype.text | translate }}</option>
       </select>
-      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
-        <label>{{ fDSubtype }}</label>
-        <datalist>{{ fDSubtype }}</datalist>
+      <div *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
+        <table>
+        <ng-container *ngFor="let dependency of fDExercise?.functionalDependencies" >
+          <ng-container *ngIf="dependency.minimalCover.length > 0; else elseBlock">
+            <tr *ngFor="let minimalCover of dependency.minimalCover">
+              <td>{{minimalCover.leftSide}}</td>
+              <td> -> </td>
+              <td>{{minimalCover.rightSide}}</td>
+              <td> : </td>
+              <td>
+                <ng-container *ngFor="let reason of minimalCover.reasons">
+                   {{reason | translate}}
+                </ng-container>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #elseBlock>
+            <tr>
+              <td>{{dependency.leftSide}}</td>
+              <td> -> </td>
+              <td>{{dependency.rightSide}}</td>
+              <td></td>
+            </tr>
+          </ng-template>
+        </ng-container>
+        </table>
       </div>
-      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure'">
-        <label>{{ fDSubtype }}</label>
-        <datalist>{{ fDSubtype }}</datalist>
+      <div *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure'">
+        <table>
+          <tr *ngFor="let closure of fDExercise?.closures" >
+              <td>
+                <input type="checkbox" #selectedClosuresBox id="{{closure.id}}" name="fDSelectedClosures"
+                       (change)="fDClosureChange(closure.id, selectedClosuresBox.checked)"
+                        *ngIf="fDClosureIds.indexOf(closure.id.toString()) != -1;
+                          else unSelectedClosuresBox" [checked]="true"/>
+                <ng-template #unSelectedClosuresBox>
+                  <input type="checkbox" #selectedClosuresBox id="{{closure.id}}" name="fDSelectedClosures"
+                         (change)="fDClosureChange(closure.id, selectedClosuresBox.checked)" [checked]="false">
+                </ng-template>
+              </td>
+              <td>{{ closure.leftSide}}</td>
+              <td> -> </td>
+              <td>{{ closure.rightSide}}</td>
+          </tr>
+        </table>
+        {{fDClosureValidatorNeeded()}}
       </div>
-      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key'">
-        <label>{{ fDSubtype }}</label>
-        <datalist>{{ fDSubtype }}</datalist>
+      <div *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key'">
+        <table>
+          <tr *ngFor="let key of fDExercise?.keys">
+            <td>{{ key.leftSide}}</td>
+            <td> -> </td>
+            <td>{{ key.rightSide}} </td>
+          </tr>
+        </table>
       </div>
-      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
-        <label>{{ fDSubtype }}</label>
-        <datalist>{{ fDSubtype }}</datalist>
-      </div>
-      <div *ngIf="fDSubtype == 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalization'">
-        <label>{{ fDSubtype }}</label>
-        <datalist>{{ fDSubtype }}</datalist>
+      <ng-container *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
+        {{ 'taskManagement.fields.fDNormalform' | translate}}: {{fDExercise?.normalForm}}
+        <div *ngFor="let dependency of fDExercise?.functionalDependencies">
+          <ng-container *ngIf="dependency.violates">
+            {{dependency.leftSide}} -> {{dependency.rightSide}} {{'taskManagement.fields.fDViolates' | translate}}:
+            {{dependency.violates}}
+          </ng-container>
+        </div>
+      </ng-container>
+      <div *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalization'">
+        {{ fDSubtype }}
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-control-label" for="fileUpload">Upload: </label>
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->

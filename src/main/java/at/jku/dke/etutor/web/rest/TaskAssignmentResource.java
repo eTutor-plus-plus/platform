@@ -282,4 +282,12 @@ public class TaskAssignmentResource {
         List<TaskAssignmentDisplayDTO> taskHeaders = assignmentSPARQLEndpointService.getTasksOfLearningGoal(goalName, goalOwner);
         return ResponseEntity.ok(taskHeaders);
     }
+
+    @GetMapping("tasks/fd/exercise/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getFDExerciseById(@PathVariable String id) {
+        String fdExercise = dispatcherProxyService.getFDExerciseById(id);
+
+        return ResponseEntity.ok(fdExercise);
+    }
 }

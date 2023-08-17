@@ -15,7 +15,9 @@ import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XMLDefinitionDTO;
 import at.jku.dke.etutor.objects.dispatcher.xq.XQExerciseDTO;
 import at.jku.dke.etutor.repository.FileRepository;
-import at.jku.dke.etutor.service.dto.fd.FDExerciseDTO;
+import at.jku.dke.etutor.service.dto.fd.FDTaskDTO;
+import at.jku.dke.etutor.service.dto.fd.NewFDTaskDTO;
+import at.jku.dke.etutor.service.dto.fd.FDGroupDTO;
 import at.jku.dke.etutor.service.dto.fd.FDependenciesDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
@@ -251,7 +253,7 @@ public class DispatcherProxyService {
      */
     private int createFDTaskGroup(TaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
         // Initialize DTO
-        FDExerciseDTO fdExercise = new FDExerciseDTO();
+        FDGroupDTO fdExercise = new FDGroupDTO();
         Set < FDependenciesDTO> fDependenciesDTOSet = new HashSet<>();
         Long id = Long.parseLong(newTaskGroupDTO.getName().trim().replace("FunctionalDependencies-", ""));
         fdExercise.setId(id);
@@ -277,9 +279,9 @@ public class DispatcherProxyService {
             return 420;
         }
 
-        fdExercise.setDependencies(fDependenciesDTOSet);
+        fdExercise.setFunctionalDependencies(fDependenciesDTOSet);
 
-        var response = proxyResource.createFDExercise(fdExercise);
+        var response = proxyResource.createFDGroup(fdExercise);
         var statusCode = response.getStatusCodeValue();
 
         // return status code
@@ -589,6 +591,43 @@ public class DispatcherProxyService {
             throw new WrongCalcParametersException();
         }
     }
+    private void handleFDTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+        boolean isClosureTask = newTaskAssignmentDTO.getfDSubtype().
+            toString().equals("http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure");
+        if (!isClosureTask) {
+            newTaskAssignmentDTO.setfDClosureIds(null);
+        }
+        Long id;
+        // Create task
+        var optId = this.createFDTask(newTaskAssignmentDTO);
+        // Set the returned id of the task
+        if (optId.isPresent()) {
+            id = optId.get();
+            if (isClosureTask) {
+                newTaskAssignmentDTO.setTaskIdForDispatcher("Closure-"+ id);
+            } else {
+                newTaskAssignmentDTO.setTaskIdForDispatcher(Long.toString(id));
+            }
+        }
+    }
+    private void handleFDTaskUpdate(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        boolean isClosureTask = taskAssignmentDTO.getfDSubtype().
+            toString().equals("http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure");
+        if (!isClosureTask) {
+            taskAssignmentDTO.setfDClosureIds(null);
+        }
+        Long id;
+        var optId = this.updateFDTask(taskAssignmentDTO);
+        // Set the returned id of the task
+        if (optId.isPresent()) {
+            id = optId.get();
+            if (taskAssignmentDTO.getfDSubtype().toString().equals("http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure")) {
+                taskAssignmentDTO.setTaskIdForDispatcher("Closure-"+ id);
+            } else {
+                taskAssignmentDTO.setTaskIdForDispatcher(Long.toString(id));
+            }
+        }
+    }
 
 
     /**
@@ -621,17 +660,17 @@ public class DispatcherProxyService {
         else return -1;
     }
 
-    private void handleFDTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException, NotAValidTaskGroupException, MissingParameterException {
-
+    private NewFDTaskDTO getFDExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        return new NewFDTaskDTO(newTaskAssignmentDTO.getTaskGroupId(), newTaskAssignmentDTO.getfDSubtype(), newTaskAssignmentDTO.getfDClosureIds());
     }
-    private FDExerciseDTO getFDExerciseDTOFromTaskAssignment(NewTaskAssignmentDTO newTaskAssignmentDTO) {
-        return null;
-    }
-    private int createFDTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
-        var exerciseDTO = getFDExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
-        var response = proxyResource.createFDExercise(exerciseDTO);
-        if(response.getBody() != null) return response.getBody();
-        else return -1;
+    private Optional<Long> createFDTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
+        var newFDTaskDTO = getFDExerciseDTOFromTaskAssignment(newTaskAssignmentDTO);
+        var response = proxyResource.createFDTask(newFDTaskDTO);
+        if (response.getBody() != null) {
+            return Optional.of(response.getBody());
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
@@ -886,8 +925,11 @@ public class DispatcherProxyService {
             }catch (WrongCalcParametersException e) {
                 throw new MissingParameterException("CalcTask parameters are missing");
             }
+        } else if(taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.FDTask.toString())) {
+            handleFDTaskUpdate(taskAssignmentDTO);
         }
     }
+
 
     /**
      * Checks whether the given task assignment has a type related to the dispatcher
@@ -902,7 +944,8 @@ public class DispatcherProxyService {
             !type.equals(ETutorVocabulary.XQueryTask.toString()) &&
             !type.equals(ETutorVocabulary.BpmnTask.toString()) &&
             !type.equals(ETutorVocabulary.PmTask.toString()) &&
-            !type.equals(ETutorVocabulary.CalcTask.toString());
+            !type.equals(ETutorVocabulary.CalcTask.toString()) &&
+            !type.equals(ETutorVocabulary.FDTask.toString());
     }
 
 
@@ -980,6 +1023,20 @@ public class DispatcherProxyService {
 
     }
 
+    private Optional<Long> updateFDTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException{
+        //Initialize DTO from TaskAssignment DTO
+        var fdTaskDTO = new FDTaskDTO(taskAssignmentDTO);
+
+        // Proxy request to dispatcher
+        var response = proxyResource.updateFDTask(fdTaskDTO);
+        if (response.getBody() != null) {
+            return Optional.of(response.getBody());
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
     /**
      * Deletes a task assignment (exercise) in the dispatcher according to the task-type
      *
@@ -1054,9 +1111,19 @@ public class DispatcherProxyService {
         }
     }
 
+    /**
+     * @return next ID from Postgres fd/dependency table
+     */
     public Long nextFdId() {
-        Long id = proxyResource.nextFdId();
-        return id;
+        return proxyResource.nextFdId();
+    }
+
+    /**
+     * @param id of the functional dependency task group
+     * @return String representing the json of the exercise object
+     */
+    public String getFDExerciseById(String id) {
+        return proxyResource.getFDExerciseById(id);
     }
 }
 

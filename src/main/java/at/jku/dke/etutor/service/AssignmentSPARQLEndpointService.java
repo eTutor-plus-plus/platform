@@ -7,7 +7,9 @@ import at.jku.dke.etutor.service.dto.taskassignment.*;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.datatypes.xsd.impl.RDFLangString;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -484,6 +486,22 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.append("?assignment etutor:isPrivateTask ");
             query.appendLiteral(String.valueOf(taskAssignment.isPrivateTask()), XSDDatatype.XSDboolean);
             query.append(".\n");
+
+            if (StringUtils.isNotBlank(taskAssignment.getfDSubtype())) {
+                query.append("?assignment etutor:hasFDSubtype ");
+                query.appendLiteral(taskAssignment.getfDSubtype());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getfDClosureIds() != null) {
+                query.append("?assignment etutor:hasFDClosures ");
+                query.appendLiteral(Arrays.toString(taskAssignment.getfDClosureIds()));
+                query.append(".\n");
+            }
+
+
+
+
 
             query.append(
                 """
@@ -1814,6 +1832,12 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         if (newTaskAssignmentDTO.getTaskGroupId() != null) {
             Resource taskGroup = model.createResource(newTaskAssignmentDTO.getTaskGroupId());
             taskGroup.addProperty(ETutorVocabulary.hasTask, resource);
+        }
+        if (newTaskAssignmentDTO.getfDSubtype() != null) {
+            resource.addProperty(ETutorVocabulary.hasFDSubtype, newTaskAssignmentDTO.getfDSubtype().trim());
+        }
+        if (newTaskAssignmentDTO.getfDClosureIds() != null) {
+            resource.addProperty(ETutorVocabulary.hasFDClosures, Arrays.toString(newTaskAssignmentDTO.getfDClosureIds()) );
         }
 
         return resource;

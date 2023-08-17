@@ -34,6 +34,7 @@ import { QuillModule } from 'ngx-quill';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { monacoConfig, myMonacoLoad } from './overview/dispatcher/monaco-config';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+import { FdtasksComponent } from "./fd/fdtasks/fdtasks.component";
 
 @NgModule({
   imports: [
@@ -65,6 +66,7 @@ import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2'
     }),
     TranslationModule,
     MonacoEditorModule.forRoot(monacoConfig),
+    FdtasksComponent,
   ],
   providers: [
     Title,

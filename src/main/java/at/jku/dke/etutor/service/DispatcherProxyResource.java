@@ -4,11 +4,12 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
-import at.jku.dke.etutor.service.dto.dispatcher.AprioriExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
-import at.jku.dke.etutor.service.dto.fd.FDExerciseDTO;
+import at.jku.dke.etutor.service.dto.fd.FDTaskDTO;
+import at.jku.dke.etutor.service.dto.fd.NewFDTaskDTO;
+import at.jku.dke.etutor.service.dto.fd.FDGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 /**
@@ -499,23 +501,90 @@ public class DispatcherProxyResource {
         var id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
-    public ResponseEntity<Integer> createFDExercise(FDExerciseDTO exerciseDTO) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/fd/new_exercise";
+    public ResponseEntity<Long> createFDGroup(FDGroupDTO fdGroupDTO) throws DispatcherRequestFailedException {
+//        String url = dispatcherURL+"/fd/new_group";
+//        HttpRequest request;
+//        try {
+//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(fdGroupDTO)).build();
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body(null);
+//        }
+//        var response = getResponseEntity(request, stringHandler);
+//
+//        if (response.getBody() == null) {
+//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+//        } else {
+//            Long id = Long.parseLong(response.getBody());
+//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+//        }
+        return sendFD("new_group", fdGroupDTO);
+    }
+    /**
+     * Requests the creation of a Functional Dependency Task, sends Post-request
+     * @param newFDTaskDTO the {@link NewFDTaskDTO} wrapping the necessary Information
+     * @return an {@link ResponseEntity} wrapping the assigned task id or in case of a Closure Task the id of the task group
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<Long> createFDTask(NewFDTaskDTO newFDTaskDTO) throws DispatcherRequestFailedException {
+//        String url = dispatcherURL+"/fd/new_task";
+//        HttpRequest request;
+//        try {
+//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(newFDTaskDTO)).build();
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body(null);
+//        }
+//        var response = getResponseEntity(request, stringHandler);
+//
+//        if (response.getBody() == null) {
+//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+//        } else {
+//            Long id = Long.parseLong(response.getBody());
+//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+//        }
+        return sendFD("new_task", newFDTaskDTO);
+    }
+    public ResponseEntity<Long> updateFDTask (FDTaskDTO fdTaskDTO) throws DispatcherRequestFailedException {
+//        String url = dispatcherURL+"/fd/update_task";
+//        HttpRequest request;
+//        try {
+//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(fdTaskDTO)).build();
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body(null);
+//        }
+//        var response = getResponseEntity(request, stringHandler);
+//
+//        if (response.getBody() == null) {
+//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+//        } else {
+//            Long id = Long.parseLong(response.getBody());
+//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+//        }
+        return sendFD("update_task", fdTaskDTO);
+    }
 
-        HttpRequest request = null;
+    private ResponseEntity<Long> sendFD (String target, Object objectToSend) throws DispatcherRequestFailedException {
+        String url = dispatcherURL+"/fd/"+target;
+        HttpRequest request;
         try {
-            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseDTO)).build();
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(objectToSend)).build();
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(-1);
+            return ResponseEntity.status(500).body(null);
         }
         var response = getResponseEntity(request, stringHandler);
 
-        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
-
-        var id = Integer.parseInt(response.getBody());
-        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+        if (response.getBody() == null) {
+            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+        } else {
+            Long id = Long.parseLong(response.getBody());
+            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+        }
     }
+
+
 
     /**
      * Sends the request to update the parameters of an existing configuration to the dispatcher
@@ -788,8 +857,32 @@ public class DispatcherProxyResource {
     }
 
 
+    /**
+     * @param id of the functional dependency task group
+     * @return the http response without body
+     * @throws DispatcherRequestFailedException
+     */
     public ResponseEntity<Void> deleteFDTaskGroup(String id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest(dispatcherURL + "/fd/exercise?id=" + id);
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+
+    /**
+     * @param id of the functional dependency task group
+     * @return json of the exercise object as a String
+     */
+    public String getFDExerciseById(String id) {
+        var request = getGetRequest(dispatcherURL + "/fd/exercise?id=" + id);
+        ResponseEntity<String> response;
+        try {
+            response = getResponseEntity(request, stringHandler);
+            if (response.getBody() == null) {
+                return null;
+            } else {
+                return response.getBody();
+            }
+        } catch (DispatcherRequestFailedException e) {
+            return null;
+        }
     }
 }

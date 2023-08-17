@@ -97,7 +97,7 @@ export class TaskGroupManagementService {
   }
 
   public nextFdID(): Observable<string> {
-    let returnValue;
+    // let returnValue;
     const url = `${SERVER_API_URL}/api/task-group/fd/next_id`;
 
     return this.http.get<string>(url);

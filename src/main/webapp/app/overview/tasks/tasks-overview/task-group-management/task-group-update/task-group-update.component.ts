@@ -3,8 +3,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TaskGroupManagementService } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.service';
 import { ITaskGroupDTO, TaskGroupType } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-management.model';
-import { HttpClient } from '@angular/common/http';
-import { values } from 'lodash';
 import {lastValueFrom} from "rxjs";
 
 /**
@@ -27,6 +25,7 @@ export class TaskGroupUpdateComponent {
   public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
   public editorOptionsFD = { theme: 'vs-light', language: 'fd' };
+
 
   public taskGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -52,7 +51,6 @@ export class TaskGroupUpdateComponent {
     private activeModal: NgbActiveModal,
     private fb: FormBuilder,
     private taskGroupService: TaskGroupManagementService,
-    private http: HttpClient
   ) {}
 
   /**
@@ -205,7 +203,7 @@ export class TaskGroupUpdateComponent {
     this.clearFDAdjustment();
   }
 
-  private adjustFormForFDType(): void {
+  public adjustFormForFDType(): void {
     this.isFDGroup = true;
     if (!this.taskGroupToEdit) {
       this.taskGroupService.nextFdID().subscribe(body => {

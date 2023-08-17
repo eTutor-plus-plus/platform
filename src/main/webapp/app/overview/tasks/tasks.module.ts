@@ -12,22 +12,24 @@ import { TaskGroupManagementComponent } from 'app/overview/tasks/tasks-overview/
 import { TaskGroupUpdateComponent } from 'app/overview/tasks/tasks-overview/task-group-management/task-group-update/task-group-update.component';
 import { monacoConfig } from '../dispatcher/monaco-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import {FdtasksComponent} from "../../fd/fdtasks/fdtasks.component";
 
 /**
  * Module for task related components.
  */
 @NgModule({
-  imports: [
-    SharedModule,
-    OverviewSharedModule,
-    RouterModule.forChild(tasksRoutes),
-    ConfirmationPopoverModule.forRoot({
-      confirmButtonType: 'danger',
-      closeOnOutsideClick: true,
-      appendToBody: true,
-    }),
-    MonacoEditorModule.forRoot(monacoConfig),
-  ],
+    imports: [
+        SharedModule,
+        OverviewSharedModule,
+        RouterModule.forChild(tasksRoutes),
+        ConfirmationPopoverModule.forRoot({
+            confirmButtonType: 'danger',
+            closeOnOutsideClick: true,
+            appendToBody: true,
+        }),
+        MonacoEditorModule.forRoot(monacoConfig),
+        FdtasksComponent,
+    ],
   declarations: [
     TasksOverviewComponent,
     TaskUpdateComponent,

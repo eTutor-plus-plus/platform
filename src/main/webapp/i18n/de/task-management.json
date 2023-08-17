@@ -41,12 +41,10 @@
       "xqTask": "XQuery Aufgabe",
       "dlgTask": "Datalog Aufgabe",
       "calcTask": "Calc Aufgabe",
-      "dlgTask": "Datalog Aufgabe",
-
       "aprioriTask": "Apriori Aufgabe",
       "bpmnTask": "Bpmn Aufgabe",
       "pmTask": "ProcessMining Aufgabe",
-      "FDTask": "Funktonale Abhängigkeitsaufgabe"
+      "fDTask": "Funktonale Abhängigkeiten Aufgabe"
     },
     "fields": {
       "header": "Überschrift:",
@@ -93,6 +91,17 @@
         "normalform": "Normalform bestimmen",
         "normalization": "Normalisierung"
       },
+      "fDPreviewTitle": "Ausgewählte Funktionale Abhängigkeit:",
+      "fDRelation": "Relation: ",
+      "fDependencies": "Funktionale Abhängigkeiten:",
+      "minimalCover": {
+        "decomposition": "Zerlegung",
+        "leftReduction": "Linksreduktion",
+        "rightReduction": "Rechtsreduktion"
+      },
+      "possibleClosures": "mögliche Attributhüllen",
+      "fDNormalform": "Normalform",
+      "fDViolates": "verstößt gegen",
       "datasetApriori": "Apriori Aufgabenkonfigurations ID: ",
       "create": "Aufgabenkonfiguration erzeugen",
       "load": "Bestehende Aufgabenkonfiguration laden",
