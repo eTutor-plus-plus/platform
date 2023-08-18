@@ -1045,6 +1045,11 @@ public class DispatcherProxyService {
     public void deleteTaskAssignment(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
         if(notIsDispatcherTaskAssignment(taskAssignmentDTO) || taskAssignmentDTO.getTaskIdForDispatcher() == null) return;
+        // ID for FD Task not always parseable. ID is Long and can contain a String
+        if (taskType.equals(ETutorVocabulary.FDTask.toString())) {
+            proxyResource.deleteFDTask(taskAssignmentDTO);
+            return;
+        }
 
         // Parse the id of the task
         int id = -1;

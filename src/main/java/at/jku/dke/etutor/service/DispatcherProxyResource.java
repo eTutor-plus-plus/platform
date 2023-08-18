@@ -10,6 +10,7 @@ import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
 import at.jku.dke.etutor.service.dto.fd.FDTaskDTO;
 import at.jku.dke.etutor.service.dto.fd.NewFDTaskDTO;
 import at.jku.dke.etutor.service.dto.fd.FDGroupDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +32,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 
 /**
@@ -863,8 +863,22 @@ public class DispatcherProxyResource {
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<Void> deleteFDTaskGroup(String id) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest(dispatcherURL + "/fd/exercise?id=" + id);
+        var request = getDeleteRequest(dispatcherURL + "/fd/group?id=" + id);
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+    }
+
+    public ResponseEntity<Void> deleteFDTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        String taskIdForDispatcher = taskAssignmentDTO.getTaskIdForDispatcher();
+        Long id;
+        if (taskIdForDispatcher.contains("Closure-")) {
+            id = Long.parseLong(taskIdForDispatcher.replace("Closure-",""));
+            var request = getDeleteRequest(dispatcherURL + "/fd/delete_closure_task?id="+id);
+            return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        } else {
+            id = Long.parseLong(taskIdForDispatcher);
+            var request = getDeleteRequest(dispatcherURL + "/fd/delete_task?id="+id);
+            return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        }
     }
 
     /**
@@ -872,7 +886,7 @@ public class DispatcherProxyResource {
      * @return json of the exercise object as a String
      */
     public String getFDExerciseById(String id) {
-        var request = getGetRequest(dispatcherURL + "/fd/exercise?id=" + id);
+        var request = getGetRequest(dispatcherURL + "/fd/group?id=" + id);
         ResponseEntity<String> response;
         try {
             response = getResponseEntity(request, stringHandler);
@@ -885,4 +899,6 @@ public class DispatcherProxyResource {
             return null;
         }
     }
+
+
 }
