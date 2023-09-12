@@ -79,10 +79,6 @@ export interface INewTaskModel {
    */
   xQuerySolution?: string;
   /**
-   * Optional solution for a UML-assignment
-   */
-  umlSolution?: string;
-  /**
    * Optional XPath-expression defining the sorting of an XQuery-assignment
    */
   xQueryXPathSorting?: string;
@@ -246,7 +242,7 @@ export class TaskAssignmentType {
   );
 
   public static readonly UmlTask = new TaskAssignmentType(
-    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UmlTask',
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UMLTask',
     'taskManagement.taskTypes.umlTask'
   );
 

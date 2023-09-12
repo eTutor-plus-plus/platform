@@ -120,7 +120,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.SQLTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.RATask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value
       "
     ></div>
 
@@ -135,6 +136,7 @@
         selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value
       "
     >
@@ -200,7 +202,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.RATask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.PmTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value
       "
     >
       <label class="form-control-label" for="diagnoseLevelWeighting">
@@ -323,11 +326,6 @@
       <br />
       <button type="button" class="btn btn-secondary" *ngIf="!isNew" (click)="openSolutionRunnerWindow()">Try</button>
       <ngx-monaco-editor [options]="editorOptionsXQ" id="xQuerySolution" formControlName="xQuerySolution"></ngx-monaco-editor>
-    </div>
-    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value">
-      <label class="form-control-label" for="umlSolution" jhiTranslate="taskManagement.fields.umlSolution">UML Solution:</label>
-      <br />
-      <ngx-monaco-editor [options]="editorOptions" id="umlSolution" formControlName="umlSolution"></ngx-monaco-editor>
     </div>
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value">
       <label class="form-control-label" for="xQueryXPathSorting" jhiTranslate="taskManagement.fields.xQuerySorting"

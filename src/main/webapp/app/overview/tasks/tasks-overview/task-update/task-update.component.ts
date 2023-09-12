@@ -80,9 +80,6 @@ export class TaskUpdateComponent implements OnInit {
     /** apriori start */
     aprioriDatasetId: [''],
     /** apriori end */
-
-    // UML related
-    umlSolution: [''],
   });
 
   private _taskModel?: ITaskModel;
@@ -250,12 +247,6 @@ export class TaskUpdateComponent implements OnInit {
       newTask.configNum = configNum;
     }
 
-    // UML related
-    const umlSolution: string | null = this.updateForm.get('umlSolution')!.value;
-    if (umlSolution) {
-      newTask.umlSolution = umlSolution;
-    }
-
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -306,8 +297,6 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
         /** apriori end */
-
-        umlSolution: newTask.umlSolution,
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -365,7 +354,6 @@ export class TaskUpdateComponent implements OnInit {
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
       /** apriori end */
-      const umlSolution = value.umlSolution;
 
       this.updateForm.get('xQueryFileURL')!.disable();
 
@@ -403,8 +391,6 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori start */
         aprioriDatasetId,
         /** apriori end */
-
-        umlSolution,
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
