@@ -283,11 +283,23 @@ public class TaskAssignmentResource {
         return ResponseEntity.ok(taskHeaders);
     }
 
-    @GetMapping("tasks/fd/exercise/{id}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<String> getFDExerciseById(@PathVariable String id) {
-        String fdExercise = dispatcherProxyService.getFDExerciseById(id);
-
-        return ResponseEntity.ok(fdExercise);
+    @GetMapping("tasks/assignments/fd/closure/{closureGroupId}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getLeftSidesClosure(@PathVariable String closureGroupId) {
+        String leftSidesClosure = dispatcherProxyService.getLeftSidesClosure(closureGroupId);
+        return ResponseEntity.ok(leftSidesClosure);
     }
+    @PostMapping ("tasks/assignments/fd/solve")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> fdSolve(@RequestBody String fdTaskSolve) {
+        String fdTaskSolveResponse = dispatcherProxyService.fdTaskSolve(fdTaskSolve);
+        return ResponseEntity.ok(fdTaskSolveResponse);
+    }
+
+    @PostMapping ("tasks/assignments/fd/grade")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<Void> fdGrade(@RequestBody String fdTaskSolve) {
+        return dispatcherProxyService.fdTaskGrade(fdTaskSolve);
+    }
+
 }

@@ -1,0 +1,61 @@
+{
+  "fDAssignment": {
+    "assignment": {
+      "minimalCoverTaskDescription": "Geben Sie für die Menge F an Funktionalen Abhängigkeiten eine minimale Überdeckung an.",
+      "closureTaskDescription": "Berechnen Sie die Hülle der Attribut Kombination A bezüglich der Menge an Funktionalen Abhängigkeiten F der Relation R.",
+      "keyTaskDescription": "Berechnen Sie alle Schlüssel der Relation R auf Basis der Funktionalen Abhängigkeiten F.",
+      "normalformTaskDescription": "Geben Sie an, in welcher Normalform sich die Relation R mit den Funktionalen Abhängigkeiten F befindet. Geben Sie weiters für jede Funktionale Abhängigkeit Fi an, welche Normalform durch Fi verletzt wird.",
+      "normalizeBCNFTaskDescription": "Finden Sie eine verlustfreie Zerlegung der Relation R mit den Funktionalen Abhängigkeiten F in Boyce-Codd Normalform. Geben Sie für jede Teilrelation die Schlüssel und die von F ableitbaren Funktionalen Abhängigkeiten an. Die Zerlegung muss nicht abängigkeitstreu sein.",
+      "normalize3rdTaskDescription": "Finden Sie eine verlustfreie Zerlegung der Relation R mit den Funktionalen Abhängigkeiten F in dritter Normalform. Geben Sie für jede Teilrelation die Schlüssel und die von F ableitbaren Funktionalen Abhängigkeiten an. Sie dürfen bei der Zerlegung keine Funktionale Abhängigkeit verlieren!"
+    },
+    "normalform": {
+      "placeholder": "Normalform auswählen",
+      "bcnf": "BCNF",
+      "third": "Dritte",
+      "second": "Zweite",
+      "first": "Erste",
+      "none": "keine Normalform verletzt"
+    },
+    "info": {
+      "minimalCover": "Geben Sie alle funktionalen Abhängigkeiten, die die minimale Überdeckung repräsentieren, an.",
+      "closure": "",
+      "key": "",
+      "normalform": ""
+    },
+    "hint" : {
+      "closure": {
+        "illegalArgument": "Es befindet sich ein illegales Element in diesem Eingabefeld.",
+        "duplicate": "Die Eingabe beinhaltet doppelte Attribute.",
+        "more": "Die Eingabe beinhaltet mehr Attribute als erwartet.",
+        "less": "Die Eingabe beinhaltet weniger Attribute als erwartet.",
+        "wrong": "Die Eingabe ist nicht korrekt."
+      },
+      "normalform": {
+        "notSelected": "Keine Normalform ausgewählt.",
+        "violates": "Es ist nicht möglich, dass die Relation in einer Normalform ist, gegen welche eine Funktionale Abhängigkeit verstößt.",
+        "wrong": "Die gewählte Normalform ist falsch."
+      },
+      "key": {
+        "empty": "Die Eingabe ist leer.",
+        "illegalArgument": "In Zeile {{line}} befindet sich ein illegales Attribut.",
+        "duplicate": "In Zeile {{line}} befinden sich doppelte Attribute.",
+        "less": "Nicht alle Schlüssel eingegeben.",
+        "more": "Zu viele Schlüssel angegeben.",
+        "wrong": "Die Eingabe ist nicht korrekt."
+      },
+      "minimalCover": {
+        "empty": "Die Eingabe ist leer.",
+        "sideMissing": "In Zeile {{line}} fehlt eine Seite der Abhängigkeit.",
+        "format": "Zeile {{line}} ist falsch formatiert.",
+        "duplicateLeft": "In Zeile {{line}} befinden sich auf der linken Seite doppelte Attribute.",
+        "duplicateRight": "In Zeile {{line}} befinden sich auf der rechten Seite doppelte Attribute.",
+        "illegalArgumentLeft": "In Zeile {{line}} befindet auf der linken Seite der Abhängigkeit ein illegales Attribut.",
+        "illegalArgumentRight": "In Zeile {{line}} befindet auf der rechten Seite der Abhängigkeit ein illegales Attribut.",
+        "less": "Nicht alle Abhängigkeiten eingegeben.",
+        "more": "Zu viele Abhängigkeiten eingegeben.",
+        "wrong": "Die Eingabe ist nicht korrekt.",
+        "canonical": "Die Eingabe in Zeile {{line}} ist nicht in kanonischer Form."
+      }
+    }
+  }
+}

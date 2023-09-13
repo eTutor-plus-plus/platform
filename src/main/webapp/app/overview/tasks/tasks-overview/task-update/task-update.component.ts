@@ -14,7 +14,7 @@ import { FileUploadService } from '../../../shared/file-upload/file-upload.servi
 import { AccountService } from 'app/core/auth/account.service';
 import * as CryptoJS from 'crypto-js';
 import { v4 as uuid } from 'uuid';
-import {FdModel} from 'app/fd/fdModel'
+import {FDModel} from 'app/fd/FDModel'
 import {toBoolean} from "@rxweb/reactive-form-validators";
 import {toNumber} from "lodash";
 
@@ -45,7 +45,7 @@ export class TaskUpdateComponent implements OnInit {
   public startTime = null;
   public endTime = null;
   public fDSubtype: string | undefined = '';
-  public fDExercise: FdModel | undefined ;
+  public fDExercise: FDModel | undefined ;
   public fDClosureIds: Array<string> = [];
   public previousFDTaskGroup: string | null = null;
 
@@ -923,7 +923,7 @@ export class TaskUpdateComponent implements OnInit {
     );
   }
   public getFDExercise(id:string): void {
-    this.tasksService.getFDExercise(id).subscribe(response =>  {
+    this.tasksService.getFDGroup(id).subscribe(response =>  {
       this.fDExercise = response
     });
   }

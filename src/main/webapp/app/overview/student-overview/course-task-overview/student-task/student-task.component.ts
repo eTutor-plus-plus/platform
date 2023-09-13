@@ -33,6 +33,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public isPmTask = false;
   public uploadTaskFileId = -1;
   public uploadCalcSubmissionFileId = -1;
+  public fDSubtype = '';
 
   public exercise_id = '';
   public task_type = '';
@@ -57,6 +58,7 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
   public _taskUUID = '';
   private _paramMapSubscription?: Subscription;
   private _taskModel?: ITaskModel;
+
 
   /**
    * Constructor.
@@ -117,13 +119,19 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
 
         this.isPmTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.PmTask.value;
 
-        // really this.isPmTask?
+        if (this._taskModel.taskIdForDispatcher) {
+          this.exercise_id = this._taskModel.taskIdForDispatcher;
+        }
+        if (this._taskModel.fDSubtype) {
+          this.fDSubtype = this._taskModel.fDSubtype
+        }
+
+
+        // really this.isPmTask? +1
         if (this.isDispatcherTask || this.isPmTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
 
-          if (this._taskModel.taskIdForDispatcher) {
-            this.exercise_id = this._taskModel.taskIdForDispatcher;
-          }
+
 
           if (this._taskModel.maxPoints) {
             this.maxPoints = this._taskModel.maxPoints;

@@ -49,6 +49,7 @@ public class DispatcherProxyResource {
     private final HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
 
+
     public DispatcherProxyResource(ApplicationProperties properties){
         this.dispatcherURL = properties.getDispatcher().getUrl();
         this.bpmnDispatcherURL = properties.getBpmnDispatcher().getUrl();
@@ -501,88 +502,7 @@ public class DispatcherProxyResource {
         var id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
-    public ResponseEntity<Long> createFDGroup(FDGroupDTO fdGroupDTO) throws DispatcherRequestFailedException {
-//        String url = dispatcherURL+"/fd/new_group";
-//        HttpRequest request;
-//        try {
-//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(fdGroupDTO)).build();
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body(null);
-//        }
-//        var response = getResponseEntity(request, stringHandler);
-//
-//        if (response.getBody() == null) {
-//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
-//        } else {
-//            Long id = Long.parseLong(response.getBody());
-//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
-//        }
-        return sendFD("new_group", fdGroupDTO);
-    }
-    /**
-     * Requests the creation of a Functional Dependency Task, sends Post-request
-     * @param newFDTaskDTO the {@link NewFDTaskDTO} wrapping the necessary Information
-     * @return an {@link ResponseEntity} wrapping the assigned task id or in case of a Closure Task the id of the task group
-     * @throws DispatcherRequestFailedException
-     */
-    public ResponseEntity<Long> createFDTask(NewFDTaskDTO newFDTaskDTO) throws DispatcherRequestFailedException {
-//        String url = dispatcherURL+"/fd/new_task";
-//        HttpRequest request;
-//        try {
-//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(newFDTaskDTO)).build();
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body(null);
-//        }
-//        var response = getResponseEntity(request, stringHandler);
-//
-//        if (response.getBody() == null) {
-//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
-//        } else {
-//            Long id = Long.parseLong(response.getBody());
-//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
-//        }
-        return sendFD("new_task", newFDTaskDTO);
-    }
-    public ResponseEntity<Long> updateFDTask (FDTaskDTO fdTaskDTO) throws DispatcherRequestFailedException {
-//        String url = dispatcherURL+"/fd/update_task";
-//        HttpRequest request;
-//        try {
-//            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(fdTaskDTO)).build();
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body(null);
-//        }
-//        var response = getResponseEntity(request, stringHandler);
-//
-//        if (response.getBody() == null) {
-//            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
-//        } else {
-//            Long id = Long.parseLong(response.getBody());
-//            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
-//        }
-        return sendFD("update_task", fdTaskDTO);
-    }
 
-    private ResponseEntity<Long> sendFD (String target, Object objectToSend) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/fd/"+target;
-        HttpRequest request;
-        try {
-            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(objectToSend)).build();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(null);
-        }
-        var response = getResponseEntity(request, stringHandler);
-
-        if (response.getBody() == null) {
-            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
-        } else {
-            Long id = Long.parseLong(response.getBody());
-            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
-        }
-    }
 
 
 
@@ -827,8 +747,6 @@ public class DispatcherProxyResource {
             .DELETE()
             .build();
     }
-
-
     /**
      * Encodes a string for URL compatibility
      * @param value the value to encode
@@ -848,14 +766,46 @@ public class DispatcherProxyResource {
         } catch (DispatcherRequestFailedException e) {
             return null;
         }
-
         if (response.getBody() == null) {
           return null;
         }
         var id = Long.parseLong(response.getBody());
         return id;
     }
+    public ResponseEntity<Long> createFDGroup(FDGroupDTO fdGroupDTO) throws DispatcherRequestFailedException {
+        return sendFD("new_group", fdGroupDTO);
+    }
+    /**
+     * Requests the creation of a Functional Dependency Task, sends Post-request
+     * @param newFDTaskDTO the {@link NewFDTaskDTO} wrapping the necessary Information
+     * @return an {@link ResponseEntity} wrapping the assigned task id or in case of a Closure Task the id of the task group
+     * @throws DispatcherRequestFailedException
+     */
+    public ResponseEntity<Long> createFDTask(NewFDTaskDTO newFDTaskDTO) throws DispatcherRequestFailedException {
+        return sendFD("new_task", newFDTaskDTO);
+    }
+    public ResponseEntity<Long> updateFDTask (FDTaskDTO fdTaskDTO) throws DispatcherRequestFailedException {
+        return sendFD("update_task", fdTaskDTO);
+    }
 
+    private ResponseEntity<Long> sendFD (String target, Object objectToSend) throws DispatcherRequestFailedException {
+        String url = dispatcherURL+"/fd/"+target;
+        HttpRequest request;
+        try {
+            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(objectToSend)).build();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+        var response = getResponseEntity(request, stringHandler);
+
+        if (response.getBody() == null) {
+            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+        } else {
+            Long id = Long.parseLong(response.getBody());
+            return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+        }
+    }
 
     /**
      * @param id of the functional dependency task group
@@ -885,7 +835,7 @@ public class DispatcherProxyResource {
      * @param id of the functional dependency task group
      * @return json of the exercise object as a String
      */
-    public String getFDExerciseById(String id) {
+    public String getFDGroupById(String id) {
         var request = getGetRequest(dispatcherURL + "/fd/group?id=" + id);
         ResponseEntity<String> response;
         try {
@@ -899,6 +849,48 @@ public class DispatcherProxyResource {
             return null;
         }
     }
+    public String getLeftSidesClosure(String closureGroupId) {
+        var request = getGetRequest(dispatcherURL + "/fd/assignment/closure?id=" + closureGroupId);
+        ResponseEntity<String> response;
+        try {
+            response = getResponseEntity(request, stringHandler);
+            if (response.getBody() == null) {
+                return null;
+            } else {
+                return response.getBody();
+            }
+        } catch (DispatcherRequestFailedException e) {
+            return null;
+        }
+    }
 
+    public String fdTaskSolve(String fdTaskSolve) {
+        var request = getPostRequestWithBody(dispatcherURL + "/fd/assignment/solve", fdTaskSolve).build();
+        ResponseEntity<String> response;
+        try {
+            response = getResponseEntity(request, stringHandler);
+            if (response.getBody() == null) {
+                return null;
+            } else {
+                return response.getBody();
+            }
+        } catch (DispatcherRequestFailedException e) {
+            return null;
+        }
+    }
 
+    public ResponseEntity<String> fdTaskGrade(String fdTaskSolve) {
+        var request = getPostRequestWithBody(dispatcherURL + "/fd/assignment/solve", fdTaskSolve).build();
+        ResponseEntity<String> response;
+        try {
+            response = getResponseEntity(request, stringHandler);
+            if (response.getBody() == null) {
+                return null;
+            } else {
+                return ResponseEntity.ok().body(response.getBody());
+            }
+        } catch (DispatcherRequestFailedException e) {
+            return null;
+        }
+    }
 }

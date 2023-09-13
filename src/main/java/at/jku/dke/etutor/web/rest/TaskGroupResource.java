@@ -11,9 +11,6 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.jena.base.Sys;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
@@ -23,8 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,6 +157,24 @@ public class TaskGroupResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+    @GetMapping("/fd-create/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getFDGroupById(@PathVariable String id) {
+        String fdExercise = dispatcherProxyService.getFDGroupById(id);
+
+        return ResponseEntity.ok(fdExercise);
+    }
+
+    @GetMapping("/fd-solve/{id}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    public ResponseEntity<String> getFDGroupByIdStudents(@PathVariable String id) {
+        String fdExercise = dispatcherProxyService.getFDGroupById(id);
+
+
+
+        return ResponseEntity.ok(fdExercise);
+    }
+
 
     @GetMapping("/fd/next_id")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")

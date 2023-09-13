@@ -118,6 +118,12 @@
       Please upload the correct content type of the file!
     </small>
   </div>
+  <jhi-fdtasks *ngIf="taskGroup?.taskGroupTypeId === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#FDType'"
+    [taskGroup]="taskGroup"
+    [exercise_id]="exercise_id"
+    [fDSubtype]="fDSubtype"
+  >
+  </jhi-fdtasks>
 
   <!-- apriori start -->
 
@@ -145,7 +151,7 @@
   <ng-template #normal>
     <!-- template for apriori; buttons original -->
     <button
-      *ngIf="!isDispatcherTask && !isPmTask"
+      *ngIf="!isDispatcherTask && !isPmTask && !(taskGroup?.taskGroupTypeId === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#FDType')"
       type="button"
       class="btn btn-primary"
       style="margin-top: 10px"

@@ -19,6 +19,7 @@ import { StudentExerciseSheetGoalsComponent } from './student-overview/course-ta
 /* apriori start */
 
 import { StudentAprioriTaskComponent } from './student-overview/student-apriori-task/student-apriori-task.component';
+import {FdtasksComponent} from "../fd/fdtasks/fdtasks.component";
 
 /* apriori end */
 
@@ -26,14 +27,15 @@ import { StudentAprioriTaskComponent } from './student-overview/student-apriori-
  * Module for the overview component.
  */
 @NgModule({
-  imports: [
-    SharedModule,
-    RouterModule.forChild(overviewRoute),
-    OverviewSharedModule,
-    DispatcherModule,
-    CourseManagementSharedModule,
-    NgxSpinnerModule,
-  ],
+    imports: [
+        SharedModule,
+        RouterModule.forChild(overviewRoute),
+        OverviewSharedModule,
+        DispatcherModule,
+        CourseManagementSharedModule,
+        NgxSpinnerModule,
+        FdtasksComponent,
+    ],
   declarations: [
     OverviewComponent,
     StudentOverviewComponent,

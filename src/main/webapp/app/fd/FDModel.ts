@@ -1,4 +1,4 @@
-export interface FdModel {
+export interface FDModel {
   id: string;
   attributes: string[];
   functionalDependencies: FunctionalDependencies[];

@@ -24,7 +24,7 @@ export class TaskGroupUpdateComponent {
   public editorOptions = { theme: 'vs-light', language: 'pgsql' };
   public editorOptionsXML = { theme: 'vs-light', language: 'xml' };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
-  public editorOptionsFD = { theme: 'vs-light', language: 'fd' };
+  public editorOptionsFD = { theme: 'vs-light'};
 
 
   public taskGroup = this.fb.group({

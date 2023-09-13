@@ -29,6 +29,7 @@ import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -267,6 +268,7 @@ public class DispatcherProxyService {
         //TODO sauberer mit .lines().filter(String::isBlank)
         String [] lines = newTaskGroupDTO.getfDependencies().trim().replace("\r", "\n").
             replaceAll("\n{2,}","\n").split("\n");
+//        String [] lines = newTaskGroupDTO.getfDependencies().lines().toArray(String[]::new);
         try {
             for (String line : lines) {
                 String[] sides = line.split(arrowSeperator, 2);
@@ -1127,8 +1129,27 @@ public class DispatcherProxyService {
      * @param id of the functional dependency task group
      * @return String representing the json of the exercise object
      */
-    public String getFDExerciseById(String id) {
-        return proxyResource.getFDExerciseById(id);
+    public String getFDGroupById(String id) {
+        return proxyResource.getFDGroupById(id);
+    }
+
+    public String getLeftSidesClosure(String closureGroupId) {
+        return proxyResource.getLeftSidesClosure(closureGroupId);
+    }
+
+    public String fdTaskSolve(String fdTaskSolve) {
+        return proxyResource.fdTaskSolve(fdTaskSolve);
+    }
+    public ResponseEntity<Void> fdTaskGrade(String fdTaskSolve) {
+        ResponseEntity<String> response = proxyResource.fdTaskGrade(fdTaskSolve);
+        if (response.hasBody()) {
+
+
+
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
 

@@ -4,7 +4,7 @@ import { INewTaskModel, ITaskAssignmentDisplay, ITaskDisplayModel, ITaskModel } 
 import { Observable } from 'rxjs';
 import { createRequestOption } from 'app/core/request/request-util';
 import {SERVER_API_URL} from "../../app.constants";
-import {FdModel} from "../../fd/fdModel";
+import {FDModel} from "../../fd/FDModel";
 
 type TaskDisplayArrayResponseType = HttpResponse<ITaskDisplayModel[]>;
 type TaskResponseType = HttpResponse<ITaskModel>;
@@ -163,8 +163,8 @@ export class TasksService {
     return this.http.get<ITaskAssignmentDisplay[]>(`api/tasks/of/${goalOwner}/${encodedName}`, { observe: 'response' });
   }
 
-  public getFDExercise(id: string): Observable<FdModel> {
-    return this.http.get<FdModel>(`api/tasks/fd/exercise/${id}`)
+  public getFDGroup(id: string): Observable<FDModel> {
+    return this.http.get<FDModel>(`/api/task-group/fd-create/${id}`)
   }
 }
 /**
