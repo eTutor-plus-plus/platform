@@ -43,6 +43,7 @@
       "calcTask": "Calc task",
       "dlgTask": "Datalog task",
       "aprioriTask": "Apriori Task",
+      "umlTask": "UML task",
       "pmTask": "ProcessMining task"
     },
     "fields": {
@@ -69,6 +70,7 @@
       "xQuerySubmissionXML": "XQuery- XML (submit)",
       "xQuerySorting": "XQuery- XPath (sorting):",
       "xQuerySolution": "XQuery solution",
+      "umlSolution": "UML solution",
       "xQueryFileURL": "XQuery- file url:",
       "datalogSolution": "Datalog solution:",
       "datalogQuery": "Datalog query:",

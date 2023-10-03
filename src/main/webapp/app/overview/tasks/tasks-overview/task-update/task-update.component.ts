@@ -450,6 +450,9 @@ export class TaskUpdateComponent implements OnInit {
       this.setTaskGroupRequired();
       this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value) {
+      this.setMaxPointsRequired();
+      this.setDiagnoseLevelWeightingRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.RATask.value) {
       this.setTaskGroupRequired();
       this.setMaxPointsRequired();

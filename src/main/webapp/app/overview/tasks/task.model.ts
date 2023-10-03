@@ -241,6 +241,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.aprioriTask'
   );
 
+  public static readonly UmlTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#UMLTask',
+    'taskManagement.taskTypes.umlTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -252,6 +257,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.BpmnTask,
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
+    TaskAssignmentType.UmlTask,
   ];
 
   private readonly _value: string;

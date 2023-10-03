@@ -155,6 +155,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
+    private static final String INSTANCE_UML_TASK = "UMLTask";
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
@@ -698,6 +699,10 @@ public final class ETutorVocabulary {
      * The Datalog type instance
      */
     public static final Resource DatalogTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DLG_TASK);
+    /**
+     * The UML type instance
+     */
+    public static final Resource UmlTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_UML_TASK);
     /**
      * The Bpmn type instance
      */
