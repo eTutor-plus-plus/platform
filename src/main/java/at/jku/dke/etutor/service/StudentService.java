@@ -11,6 +11,7 @@ import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.repository.StudentRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
+import at.jku.dke.etutor.service.tasktypes.implementation.ProcessMiningService;
 import at.jku.dke.etutor.service.dto.AdminUserDTO;
 import at.jku.dke.etutor.service.dto.MultipartFileImpl;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
@@ -340,37 +341,6 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         }
         """;
 
-//    private static final String QRY_INSERT_CALC_FILE_ID_FOR_INDIVIDUAL_TASK = """
-//        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-//
-//        INSERT {
-//              ?individualTask etutor:hasCalcAssignmentFileId ?id.
-//        }
-//        WHERE {
-//              ?courseInstance a etutor:CourseInstance.
-//                ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-//                ?individualAssignment etutor:fromExerciseSheet ?sheet;
-//            etutor:fromCourseInstance ?courseInstance.
-//                ?individualAssignment etutor:hasIndividualTask ?individualTask.
-//                ?individualTask etutor:hasOrderNo ?orderNo.
-//        }
-//        """;
-//
-//
-//    private static final String QRY_ASK_CALC_FILE_ID_OF_INDIVIDUAL_TASK = """
-//        PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
-//
-//
-//        SELECT ?id WHERE {
-//               ?courseInstance a etutor:CourseInstance.
-//               ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
-//               ?individualAssignment etutor:fromExerciseSheet ?sheet;
-//                            etutor:fromCourseInstance ?courseInstance.
-//               ?individualAssignment etutor:hasIndividualTask ?individualTask.
-//               ?individualTask etutor:hasOrderNo ?orderNo;
-//                               etutor:hasCalcAssignmentFileId ?id.
-//        }
-//        """;
 
     private static final String QRY_INSERT_CALC_INSTRUCTION_FILE_ID_FOR_INDIVIDUAL_TASK = """
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -529,7 +499,9 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
     private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
-    private final DispatcherProxyService dispatcherProxyService;
+    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
+    private final ProcessMiningService processMiningService;
+    private final DispatcherSubmissionsService dispatcherSubmissionsService;
 
     /**
      * Constructor.
@@ -538,17 +510,26 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
      * @param studentRepository    the injected student repository
      * @param rdfConnectionFactory the injected rdf connection factory
      */
-    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService, UserService userService, StudentRepository studentRepository, FileRepository fileRepository,
-                          AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, RDFConnectionFactory rdfConnectionFactory
-        , UploadFileService uploadFileService, DispatcherProxyService dispatcherProxyService) {
+    public StudentService(ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService,
+                          UserService userService,
+                          StudentRepository studentRepository,
+                          FileRepository fileRepository,
+                          AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
+                          RDFConnectionFactory rdfConnectionFactory,
+                          ProcessMiningService processMiningService,
+                          DispatcherSubmissionsService dispatcherSubmissionsService,
+                          UploadFileService uploadFileService,
+                          TaskTypeServiceAggregator taskTypeServiceAggregator) {
         super(rdfConnectionFactory);
+        this.dispatcherSubmissionsService = dispatcherSubmissionsService;
         this.userService = userService;
         this.studentRepository = studentRepository;
         this.fileRepository = fileRepository;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
         this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
-        this.dispatcherProxyService = dispatcherProxyService;
+        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
+        this.processMiningService = processMiningService;
 
         random = new Random();
     }
@@ -1575,7 +1556,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
                     submissions.add(new IndividualTaskSubmissionDTO(
                         instantFromRDFString(instantLiteral.getString()),
-                        dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
+                        dispatcherSubmissionsService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
                         hasBeenSubmittedLiteral.getBoolean(),
                         hasBeenSolvedLiteral.getBoolean(),
                         dispatcherIdLiteral.getInt(),
@@ -1639,7 +1620,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                     var taskAssignmentTypeURI = solution.getResource("?taskAssignmentType").getURI();
 
                     if (submissionLiteral != null) {
-                        return dispatcherProxyService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
+                        return dispatcherSubmissionsService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
                             taskAssignmentTypeURI);
                     }
                 }
@@ -2705,7 +2686,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                 id.ifPresent(i -> {
                     try{
                         // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                        var optDispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                        var optDispatcherTaskId = processMiningService.createRandomPmTask(i);
                         // only now insert new task assignment, in case request to disptacher failed
                         // store id of generated exercise in RDF in IndividualTask
                         optDispatcherTaskId.ifPresent(dispatcherTaskId -> assignmentSPARQLEndpointService.setDispatcherIdForIndividualTask(courseInstanceUrl, exerciseSheetUrl,
@@ -2788,7 +2769,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         id.ifPresent(i -> {
             try {
                 // fetch id of randomly generated exercise (id corresponds to dispatcher exerciseId)
-                var optDispatcherTaskId = dispatcherProxyService.createRandomPmTask(i);
+                var optDispatcherTaskId = processMiningService.createRandomPmTask(i);
                 // only now insert new task assignment, in case request to disptacher failed
                 // store id of generated exercise in RDF in IndividualTask
                 optDispatcherTaskId.ifPresent(dispatcherTaskId ->
@@ -2800,39 +2781,5 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
         });
         return getDispatcherTaskIdOfIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo);
     }
-
-    public static void persistGradingOfCalcTaskSubmission(String matriculationNo, String courseInstance, String exerciseSheet, int taskNumber, double maxPoints, double achievedPoints, String submitType, String feedback) {
-        // TODO: find out what is going on here and adjust accordingly
-        // ks: commented out, as no mysql instance available
-//        try{
-//            Class.forName("com.mysql.jdbc.Driver");
-//            Connection con= DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/etutor","root","Georg221099");
-//
-//            String sql = " insert into calc_task_points (matriculationNo, courseInstance, exerciseSheet, taskNumber, maxPoints, achievedPoints, currentTime, submitType, feedback)"
-//                + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//
-//            PreparedStatement preparedStmt = con.prepareStatement(sql);
-//            preparedStmt.setString(1, matriculationNo);
-//            preparedStmt.setString(2, courseInstance);
-//            preparedStmt.setString(3, exerciseSheet);
-//            preparedStmt.setInt(4, taskNumber);
-//            preparedStmt.setDouble(5, maxPoints);
-//            preparedStmt.setDouble(6,  achievedPoints);
-//            preparedStmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
-//            preparedStmt.setString(8, submitType);
-//            preparedStmt.setString(9, feedback);
-//
-//            preparedStmt.execute();
-//
-//            con.close();
-//
-//        }catch(Exception e) {
-//            System.out.println(e);
-//        }
-    }
-
-    //endregion
 }
-    //endregion
 

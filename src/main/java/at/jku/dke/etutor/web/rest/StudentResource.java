@@ -6,6 +6,8 @@ import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.*;
+import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
+import at.jku.dke.etutor.service.tasktypes.implementation.ProcessMiningService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceProgressOverviewDTO;
@@ -39,23 +41,34 @@ public class StudentResource {
 
     private final UserService userService;
     private final StudentService studentService;
-    private final DispatcherProxyService dispatcherProxyService;
+    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     private final CourseInstanceSPARQLEndpointService courseInstanceService;
+    private final ProcessMiningService processMiningService;
+    private final DispatcherSubmissionsService dispatcherSubmissionsService;
 
     /**
      * Constructor.
      *
-     * @param userService    the injected user service
-     * @param studentService the injected student service
+     * @param userService          the injected user service
+     * @param studentService       the injected student service
+     * @param processMiningService the injected process mining service
      */
-    public StudentResource(UserService userService, StudentService studentService, DispatcherProxyService dispatcherProxyService, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, CourseInstanceSPARQLEndpointService courseInstanceService) {
+    public StudentResource(UserService userService,
+                           StudentService studentService,
+                           TaskTypeServiceAggregator taskTypeServiceAggregator,
+                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
+                           CourseInstanceSPARQLEndpointService courseInstanceService,
+                           ProcessMiningService processMiningService,
+                           DispatcherSubmissionsService dispatcherSubmissionsService) {
         this.userService = userService;
         this.studentService = studentService;
-        this.dispatcherProxyService = dispatcherProxyService;
+        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.courseInstanceService = courseInstanceService;
+        this.processMiningService = processMiningService;
+        this.dispatcherSubmissionsService = dispatcherSubmissionsService;
     }
 
     /**
@@ -465,7 +478,6 @@ public class StudentResource {
         if (!feedback.isCorrect()) {
             achievedPoints = 0.0;
         }
-        StudentService.persistGradingOfCalcTaskSubmission(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo, maxPoints.get(), achievedPoints, "submit", feedback.getTextualFeedback());
         return ResponseEntity.ok().build();
     }
 
@@ -556,9 +568,9 @@ public class StudentResource {
 
         // Get submission and grading according to UUID from dispatcher
         try {
-            submission = dispatcherProxyService.getSubmission(dispatcherUUID);
+            submission = dispatcherSubmissionsService.getSubmission(dispatcherUUID);
             Objects.requireNonNull(submission);
-            grading = dispatcherProxyService.getGrading(dispatcherUUID);
+            grading = dispatcherSubmissionsService.getGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException | NullPointerException e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
@@ -604,8 +616,8 @@ public class StudentResource {
         SubmissionDTO submission = null;
         GradingDTO grading = null;
         try {
-            submission = dispatcherProxyService.getBpmnSubmission(dispatcherUUID);
-            grading = dispatcherProxyService.getBpmnGrading(dispatcherUUID);
+            submission = dispatcherSubmissionsService.getBpmnSubmission(dispatcherUUID);
+            grading = dispatcherSubmissionsService.getBpmnGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException e) {
             e.printStackTrace();
         }
@@ -746,7 +758,7 @@ public class StudentResource {
         if(dispatcherExerciseId.isPresent()){
             try{
                 // fetches the log information corresponding to exercise, wrapped in DTO
-                pmExerciseLogDTO = dispatcherProxyService.getLogToExercise(dispatcherExerciseId.orElseThrow());
+                pmExerciseLogDTO = processMiningService.fetchLogToExercise(dispatcherExerciseId.orElseThrow());
             }catch(DispatcherRequestFailedException e){
                 e.printStackTrace();
             }

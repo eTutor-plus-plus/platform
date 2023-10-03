@@ -4,7 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.DispatcherProxyService;
+import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
@@ -33,17 +33,17 @@ import java.util.Optional;
 public class TaskGroupResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
-    private final DispatcherProxyService dispatcherProxyService;
+    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment SPARQL endpoint service
-     * @param dispatcherProxyService the injected dispatcher proxy service
+     * @param taskTypeServiceAggregator the injected dispatcher proxy service
      */
-    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, DispatcherProxyService dispatcherProxyService) {
+    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, TaskTypeServiceAggregator taskTypeServiceAggregator) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
-        this.dispatcherProxyService = dispatcherProxyService;
+        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
     }
 
     /**
@@ -59,7 +59,7 @@ public class TaskGroupResource {
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
             taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            dispatcherProxyService.createTaskGroup(taskGroupDTO, true);
+            taskTypeServiceAggregator.createOrUpdateTaskGroup(taskGroupDTO, true);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
@@ -83,7 +83,7 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         try {
-            dispatcherProxyService.deleteDispatcherResourcesForTaskGroup(getTaskGroup(name).getBody());
+            taskTypeServiceAggregator.deleteTaskGroup(getTaskGroup(name).getBody());
         } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
             e.printStackTrace();
         }
@@ -114,12 +114,7 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
         try{
-            // Update task group in dispatcher if applicable
-            if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()) ||
-            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()) ||
-            taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-                dispatcherProxyService.createTaskGroup(taskGroupDTO, false);
-            }
+            taskTypeServiceAggregator.createOrUpdateTaskGroup(taskGroupDTO, false);
 
             // Update task group in RDF
             TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);

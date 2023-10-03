@@ -2,7 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.DispatcherProxyService;
+import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -15,7 +15,6 @@ import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
 import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -43,18 +42,18 @@ import java.util.SortedSet;
 public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
-    private final DispatcherProxyService dispatcherProxyService;
+    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment sparql endoinpoint service
-     * @param dispatcherProxyService  the injected dispatcher proxy service
+     * @param taskTypeServiceAggregator  the injected dispatcher proxy service
      */
     public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
-                                  DispatcherProxyService dispatcherProxyService) {
+                                  TaskTypeServiceAggregator taskTypeServiceAggregator) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
-        this.dispatcherProxyService = dispatcherProxyService;
+        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
     }
 
     /**
@@ -69,11 +68,10 @@ public class TaskAssignmentResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         TaskAssignmentDTO assignment = null;
         try {
-            newTaskAssignmentDTO = dispatcherProxyService.createTask(newTaskAssignmentDTO);
-            // note: if step before has worked out ->  save task/ config in etutor/ save in RDF
+            newTaskAssignmentDTO = taskTypeServiceAggregator.createTask(newTaskAssignmentDTO);
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
-        } catch (JsonProcessingException | at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+        } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
             throw new DispatcherRequestFailedException(e);
         } catch (MissingParameterException mpe) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
@@ -119,7 +117,7 @@ public class TaskAssignmentResource {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
         taskAssignmentDTOOptional.ifPresent(t -> {
             try {
-                dispatcherProxyService.deleteTaskAssignment(t);
+                taskTypeServiceAggregator.deleteTask(t);
             } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -146,7 +144,7 @@ public class TaskAssignmentResource {
         }
 
         try {
-            dispatcherProxyService.updateTask(taskAssignmentDTO);
+            taskTypeServiceAggregator.updateTask(taskAssignmentDTO);
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
 
