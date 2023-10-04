@@ -71,7 +71,7 @@ public class TaskAssignmentResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         TaskAssignmentDTO assignment = null;
         try {
-            newTaskAssignmentDTO = taskTypeServiceAggregator.createTask(newTaskAssignmentDTO);
+            taskTypeServiceAggregator.createTask(newTaskAssignmentDTO);
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {

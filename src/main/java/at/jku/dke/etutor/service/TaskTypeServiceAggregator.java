@@ -97,15 +97,13 @@ public class TaskTypeServiceAggregator {
      * A call to this method may alter the passed object.
      * @param newTaskAssignmentDTO the task assignment
      */
-    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException, WrongCalcParametersException {
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
 
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
         if(taskTypeService != null){
             taskTypeService.createTask(newTaskAssignmentDTO);
         }
-
-        return newTaskAssignmentDTO;
     }
 
 
