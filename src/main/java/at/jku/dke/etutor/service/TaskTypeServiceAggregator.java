@@ -2,6 +2,8 @@ package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.*;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
+import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -51,25 +53,37 @@ public class TaskTypeServiceAggregator {
 
 
     /**
-     * Adds task group related resources to the dispatcher.
-     * If task-group-type is not related to the dispatcher, ignores the request.
-     *
+     * Calls the task-group-type specific service to create a new task group.
+     * If no task-group-type-specific service is available, ignores the request.
+     * A call to this method may alter the passed object.
      * @param newTaskGroupDTO the new task group
      */
-    public void createOrUpdateTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws DispatcherRequestFailedException, MissingParameterException {
+    public void createTaskGroup(NewTaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
         var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(newTaskGroupDTO.getTaskGroupTypeId());
         if(taskTypeService != null){
-            taskTypeService.createOrUpdateTaskGroup(newTaskGroupDTO, isNew);
+            taskTypeService.createTaskGroup(newTaskGroupDTO);
         }
     }
 
+    /**
+     * Calls the task-group-type specific service to update a task group.
+     * If no task-group-type-specific service is available, ignores the request.
+     * A call to this method may alter the passed object.
+     * @param newTaskGroupDTO the new task group
+     */
+    public void updateTaskGroup(TaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
+        var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(newTaskGroupDTO.getTaskGroupTypeId());
+        if(taskTypeService != null){
+            taskTypeService.updateTaskGroup(newTaskGroupDTO);
+        }
+    }
 
     /**
-     * Triggers the deletion of task-group related resources by the dispatcher
-     * If task-group-type is not related to the dispatcher, ignores the request.
+     * Calls the task-group-type specific service to delete a task group.
+     * If no task-group-type-specific service is available, ignores the request.
      * @param taskGroupDTO the task group
      */
-    public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
+    public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws TaskTypeSpecificOperationFailedException {
         Objects.requireNonNull(taskGroupDTO);
 
         var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(taskGroupDTO.getTaskGroupTypeId());
@@ -78,12 +92,12 @@ public class TaskTypeServiceAggregator {
     }
 
     /**
-     * Handles the Dispatcher-related tasks for the creation of a new task assignment
+     * Calls the task-group-type specific service to delete a task.
      * If task-type is not related to the dispatcher, ignores the request.
      * A call to this method may alter the passed object.
      * @param newTaskAssignmentDTO the task assignment
      */
-    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, NotAValidTaskGroupException, DispatcherRequestFailedException, WrongCalcParametersException {
+    public NewTaskAssignmentDTO createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException, WrongCalcParametersException {
         Objects.requireNonNull(newTaskAssignmentDTO);
 
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
@@ -98,10 +112,10 @@ public class TaskTypeServiceAggregator {
     /**
      * Updates an exercise in the dispatcher according to the task-type.
      * If task-type is not related to the dispatcher, ignores the request.
-     *
+     * A call to this method may alter the passed object.
      * @param taskAssignmentDTO the task assignment to be updated
      */
-    public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
+    public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
 
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(taskAssignmentDTO.getTaskAssignmentTypeId());
@@ -111,11 +125,11 @@ public class TaskTypeServiceAggregator {
     }
 
     /**
-     * Deletes a task assignment (exercise) in the dispatcher according to the task-type
-     * If task-type is not related to the dispatcher, ignores the request.
+     * Calls the task-type-specific service to delete a task.
+     * If no service is available, ignores the request.
      * @param taskAssignmentDTO the task assignment to be deleted
      */
-    public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+    public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(taskType);
         if(taskTypeService != null){
@@ -123,11 +137,16 @@ public class TaskTypeServiceAggregator {
         }
     }
 
-
+    /**
+     * Returns the task-type-specific service for the given task assignment type id.
+     * @param taskAssignmentTypId the task assignment type id
+     * @return the task-type-specific service {@link TaskTypeService
+     */
     private TaskTypeService getTaskTypeSpecificServiceForTaskAssignmentTypeId(String taskAssignmentTypId){
         if(ETutorVocabulary.XQueryTask.toString().equals(taskAssignmentTypId)) {
             return xQueryService;
-        } else if(ETutorVocabulary.SQLTask.toString().equals(taskAssignmentTypId)){
+        } else if(ETutorVocabulary.SQLTask.toString().equals(taskAssignmentTypId) ||
+            ETutorVocabulary.RATask.toString().equals(taskAssignmentTypId)){
             return sqlService;
         } else if(ETutorVocabulary.DatalogTask.toString().equals(taskAssignmentTypId)){
             return datalogService;
@@ -141,6 +160,11 @@ public class TaskTypeServiceAggregator {
         return null;
     }
 
+    /**
+     * Returns the task-group-type-specific service for the given task group type id.
+     * @param taskGroupTypeId the task group type id
+     * @return the task-group-type-specific service {@link TaskGroupTypeService}
+     */
     private TaskGroupTypeService getTaskTypeSpecificServiceForTaskGroupTypeId(String taskGroupTypeId){
         if (ETutorVocabulary.XQueryTypeTaskGroup.toString().equals(taskGroupTypeId)) {
             return xQueryService;

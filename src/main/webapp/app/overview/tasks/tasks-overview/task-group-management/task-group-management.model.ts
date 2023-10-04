@@ -43,6 +43,11 @@ export interface INewTaskGroupDTO {
    * Optional file url for a task group
    */
   fileUrl?: string;
+
+  /**
+   * Optional file url for a task group
+   */
+  dispatcherId?: string;
 }
 
 /**
@@ -102,7 +107,7 @@ export class TaskGroupType {
   );
 
   public static readonly Values = [TaskGroupType.NoType, TaskGroupType.SQLType, TaskGroupType.XQueryType, TaskGroupType.DatalogType];
-  public static getTaskGroup(id: string): TaskGroupType | undefined{
+  public static getTaskGroup(id: string): TaskGroupType | undefined {
     return TaskGroupType.Values.find(group => group.value === id);
   }
 

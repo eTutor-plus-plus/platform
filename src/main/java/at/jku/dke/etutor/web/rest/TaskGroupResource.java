@@ -9,6 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
+import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskGroupAlreadyExistentException;
 import org.springframework.data.domain.Page;
@@ -48,7 +49,8 @@ public class TaskGroupResource {
 
     /**
      * REST endpoint which is used to create a new task group.
-     *
+     * First, the task-group-type specific service is called to create the task group {@link at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService}
+     * If this call succeeds, the task group is created in the RDF graph.
      * @param newTaskGroupDTO the validated new task group from the request body
      * @return {@link ResponseEntity} containing the created task group
      */
@@ -58,24 +60,26 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
+            taskTypeServiceAggregator.createTaskGroup(newTaskGroupDTO);
             taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
-            taskTypeServiceAggregator.createOrUpdateTaskGroup(taskGroupDTO, true);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
             throw new TaskGroupAlreadyExistentException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
-            assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
-            assignmentSPARQLEndpointService.deleteTaskGroup(taskGroupDTO.getName());
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch (TaskTypeSpecificOperationFailedException e) {
+            // Should not happen - all specific exceptions should be handled above
+            throw new RuntimeException(e);
         }
     }
 
 
     /**
      * REST endpoint for deleting task groups.
-     *
+     * First the task-group-type specific service is called to delete the task group {@link at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService}
+     * Success of this call is ignored, and the task group is deleted from the RDF graph.
      * @param name the task group's name from the request path
      * @return empty {@link ResponseEntity}
      */
@@ -84,7 +88,7 @@ public class TaskGroupResource {
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         try {
             taskTypeServiceAggregator.deleteTaskGroup(getTaskGroup(name).getBody());
-        } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+        } catch (TaskTypeSpecificOperationFailedException e) {
             e.printStackTrace();
         }
         assignmentSPARQLEndpointService.deleteTaskGroup(name);
@@ -106,7 +110,8 @@ public class TaskGroupResource {
 
     /**
      * REST endpoint for manipulation task groups.
-     *
+     * First the task-group-type specific service is called to manipulate the task group {@link at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService}
+     * If this call succeeds, the task group is updated in the RDF graph.
      * @param taskGroupDTO the task group from teh request body
      * @return the {@link ResponseEntity} containing the modified task group
      */
@@ -114,23 +119,17 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
         try{
-            taskTypeServiceAggregator.createOrUpdateTaskGroup(taskGroupDTO, false);
-
-            // Update task group in RDF
+            taskTypeServiceAggregator.updateTaskGroup(taskGroupDTO);
             TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
-            if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
-                taskGroupDTOFromService = assignmentSPARQLEndpointService.modifySQLTaskGroup(taskGroupDTOFromService);
-            }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
-                taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyXQueryTaskGroup(taskGroupDTOFromService);
-            }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
-                taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyDLGTaskGroup(taskGroupDTOFromService);
-            }
 
             return ResponseEntity.ok(taskGroupDTOFromService);
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             throw new DispatcherRequestFailedException(drfe);
         } catch (MissingParameterException e) {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
+        } catch (TaskTypeSpecificOperationFailedException e) {
+            // Should not happen - all specific exceptions should be handled above
+            throw new RuntimeException(e);
         }
 
     }

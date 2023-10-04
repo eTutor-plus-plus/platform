@@ -28,26 +28,18 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
      * @param creator     the creator
      * @param changeDate  the change date
      */
-    public TaskGroupDTO(String name, String description, String taskGroupType, String sqlCreateStatements, String sqlInsertStatementsSubmission, String sqlInsertStatementsDiagnose, String xqueryDiagnoseXML, String xquerySubmissionXML, String datalogFacts, String id, String creator, Instant changeDate
-    		
-/** start apriori   */  
-            ,
-            String aprioriID
-            
-/** apriori end */
-    		
-    		) {
-        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, datalogFacts
-        	
-/** start apriori   */  
-                ,
-                aprioriID
-                
-/** apriori end */
-        		
-        		
-        		
-        		);
+    public TaskGroupDTO(String name,
+                        String description,
+                        String taskGroupType,
+                        String sqlCreateStatements,
+                        String sqlInsertStatementsSubmission,
+                        String sqlInsertStatementsDiagnose,
+                        String xqueryDiagnoseXML,
+                        String xquerySubmissionXML,
+                        String fileUrl,
+                        String datalogFacts,
+                        String id, String creator, Instant changeDate, String aprioriID, String dispatcherId) {
+        super(name, description, taskGroupType, sqlCreateStatements, sqlInsertStatementsSubmission, sqlInsertStatementsDiagnose, xqueryDiagnoseXML, xquerySubmissionXML, fileUrl, datalogFacts, aprioriID, dispatcherId);
         this.id = id;
         this.creator = creator;
         this.changeDate = changeDate;
@@ -78,30 +70,22 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         Statement submissionXMLFileStatement = resource.getProperty(ETutorVocabulary.hasSubmissionXMLFile);
         Statement fileUrlStatement = resource.getProperty(ETutorVocabulary.hasFileUrl);
         Statement datalogFactsStatement = resource.getProperty(ETutorVocabulary.hasDatalogFacts);
-        
-/** start apriori   */       
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
-        
-/** apriori end */
-        
-        
-        
+        Statement dispatcherIdStatement = resource.getProperty(ETutorVocabulary.hasTaskGroupIdForDispatcher);
+
+
         if (descriptionStatement != null) {
             setDescription(descriptionStatement.getString());
         }
-        
-        
-/** start apriori   */       
+
         if (aprioriStatement != null) {
         	setAprioriID(aprioriStatement.getString());
         }
-/** apriori end */
-        
-        
-        
+
         if (sqlCreateStatement != null) {
             setSqlCreateStatements(sqlCreateStatement.getString());
         }
+
         if (sqlInsertSubmissionStatement!= null) {
             setSqlInsertStatementsSubmission(sqlInsertSubmissionStatement.getString());
         }
@@ -119,6 +103,10 @@ public class TaskGroupDTO extends NewTaskGroupDTO {
         }
         if(datalogFactsStatement != null){
             setDatalogFacts(datalogFactsStatement.getString());
+        }
+
+        if(dispatcherIdStatement != null){
+            setDispatcherId(dispatcherIdStatement.getString());
         }
 
         setCreator(resource.getProperty(ETutorVocabulary.hasTaskGroupCreator).getString());

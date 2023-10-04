@@ -89,6 +89,7 @@ public final class ETutorVocabulary {
 
 
     private static final String PROP_HAS_TASK_ID_FOR_DISPATCHER = "hasTaskIdForDispatcher";
+    private static final String PROP_HAS_TASK_GROUP_ID_FOR_DISPATCHER = "hasDispatcherTaskGroupId";
     private static final String PROP_HAS_SQL_SCHEMA_NAME = "hasSQLSchemaName";
     private static final String PROP_HAS_SQL_CREATE_STATEMENTS = "hasSQLCreateStatements";
     private static final String PROP_HAS_SQL_INSERT_STATEMENTS_SUBMISSION = "hasSQLInsertStatementsSubmission";
@@ -97,12 +98,8 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
 
-/** start apriori   */
-
+    private static final String PROP_HAS_FILE_URL = "hasFileURL";
     private static final String PROP_HAS_APRIORI_ID = "hasAprioriID";
-
-/** apriori end */
-
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
     private static final String PROP_HAS_MAX_ACTIVITY = "hasMaxActivity";
     private static final String PROP_HAS_MIN_ACTIVITY = "hasMinActivity";
@@ -146,7 +143,6 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP_CREATOR = "hasTaskGroupCreator";
     private static final String PROP_HAS_TASK_GROUP_CHANGE_DATE = "hasTaskGroupChangeDate";
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
-    private static final String PROP_HAS_FILE_URL = "hasFileURL";
     private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
@@ -356,6 +352,7 @@ public final class ETutorVocabulary {
      * The hasTaskIdForDispatcher property.
      */
     public static final Property hasTaskIdForDispatcher = m.createProperty(URI + PROP_HAS_TASK_ID_FOR_DISPATCHER);
+    public static final Property hasTaskGroupIdForDispatcher = m.createProperty(URI + PROP_HAS_TASK_GROUP_ID_FOR_DISPATCHER);
     /**
      * The hasSQLSchemaName property.
      */
@@ -384,18 +381,14 @@ public final class ETutorVocabulary {
      * The hasSQLSolution property.
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
-
-
-/** start apriori   */
-
+    /**
+     * The hasFileUrl property.
+     */
+    public static final Property hasFileUrl = m.createProperty(URI + PROP_HAS_FILE_URL);
     /**
      * The hasAprioriID property.
      */
     public static final Property hasAprioriID = m.createProperty(URI + PROP_HAS_APRIORI_ID);
-
-
-/** apriori end */
-
 
     /**
      * The hasXQuerySolution property.
@@ -592,10 +585,6 @@ public final class ETutorVocabulary {
      * The hasTaskGroupType property.
      */
     public static final Property hasTaskGroupType = m.createProperty(URI+PROP_HAS_TASK_GROUP_TYPE);
-    /**
-     * The hasFileUrl property
-     */
-    public static final Property hasFileUrl = m.createProperty(URI+PROP_HAS_FILE_URL);
     /**
      * The hasDatalogFacts property
      */

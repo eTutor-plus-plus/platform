@@ -905,18 +905,19 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             connection.load(model);
         }
 
-        return new TaskGroupDTO(newTaskGroupDTO.getName(), newTaskGroupDTO.getDescription(), newTaskGroupDTO.getTaskGroupTypeId(),
-            newTaskGroupDTO.getSqlCreateStatements(), newTaskGroupDTO.getSqlInsertStatementsSubmission(),
-            newTaskGroupDTO.getSqlInsertStatementsDiagnose(), newTaskGroupDTO.getxQueryDiagnoseXML(), newTaskGroupDTO.getxQuerySubmissionXML(), newTaskGroupDTO.getDatalogFacts(), resource.getURI(), creator, now
-
-/** start apriori   */
-            ,
-            newTaskGroupDTO.getAprioriID()
-
-/** apriori end */
-
-
-        		);
+        return new TaskGroupDTO(newTaskGroupDTO.getName(),
+            newTaskGroupDTO.getDescription(),
+            newTaskGroupDTO.getTaskGroupTypeId(),
+            newTaskGroupDTO.getSqlCreateStatements(),
+            newTaskGroupDTO.getSqlInsertStatementsSubmission(),
+            newTaskGroupDTO.getSqlInsertStatementsDiagnose(),
+            newTaskGroupDTO.getxQueryDiagnoseXML(),
+            newTaskGroupDTO.getxQuerySubmissionXML(),
+            newTaskGroupDTO.getFileUrl(),
+            newTaskGroupDTO.getDatalogFacts(),
+            resource.getURI(), creator, now,
+            newTaskGroupDTO.getAprioriID(),
+            newTaskGroupDTO.getDispatcherId());
     }
 
     /**
@@ -1166,6 +1167,15 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         try (RDFConnection connection = getConnection()) {
             connection.update(query.asUpdate());
         }
+
+        // Call helper methods for task-group-type-specific modifications if necessary
+        if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())) {
+            return modifySQLTaskGroup(taskGroupDTO);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString())) {
+            return modifyXQueryTaskGroup(taskGroupDTO);
+        }else if(taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())){
+            return  modifyDLGTaskGroup(taskGroupDTO);
+        }
         return taskGroupDTO;
     }
 
@@ -1308,7 +1318,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
           }
           OPTIONAL {
-            ?group etutor:hasSubmissionXMLFile ?oldSubmissionFile.
+            ?group etutor:hasDiagnoseXMLFile ?oldDiagnoseFile.
           }
         }
         """);
@@ -1620,15 +1630,17 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             taskGroupResource.addProperty(ETutorVocabulary.hasDatalogFacts, newTaskGroupDTO.getDatalogFacts().trim());
         }
 
-
-/** start apriori   */
         if (StringUtils.isNotBlank(newTaskGroupDTO.getAprioriID())) {
             taskGroupResource.addProperty(ETutorVocabulary.hasAprioriID, newTaskGroupDTO.getAprioriID().trim());
         }
 
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getDispatcherId())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupIdForDispatcher, newTaskGroupDTO.getDispatcherId().trim());
+        }
 
-/** apriori end */
-
+        if (StringUtils.isNotBlank(newTaskGroupDTO.getFileUrl())) {
+            taskGroupResource.addProperty(ETutorVocabulary.hasFileUrl, newTaskGroupDTO.getFileUrl().trim());
+        }
 
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupCreator, creator);
         taskGroupResource.addProperty(ETutorVocabulary.hasTaskGroupChangeDate, instantToRDFString(creationDate), XSDDatatype.XSDdateTime);

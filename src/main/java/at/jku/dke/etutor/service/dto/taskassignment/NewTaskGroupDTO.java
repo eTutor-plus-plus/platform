@@ -24,23 +24,8 @@ public class NewTaskGroupDTO {
     private String xQuerySubmissionXML;
     private String fileUrl;
     private String datalogFacts;
-    
-    
-/** start apriori   */  
-    
+    private String dispatcherId;
     private String aprioriID;
-    
-    
-    public String getAprioriID() {
-	return aprioriID;
-    }
-
-	public void setAprioriID(String aprioriID) {
-		this.aprioriID = aprioriID;
-	}
-
-/** apriori end */
-
 
 
 	/**
@@ -49,21 +34,18 @@ public class NewTaskGroupDTO {
      * @param name        the mandatory name
      * @param description the optional description
      */
-    public NewTaskGroupDTO(String name, String description,
+    public NewTaskGroupDTO(String name,
+                           String description,
                            String taskGroupTypeId,
                            String sqlCreateStatements,
                            String sqlInsertStatementsSubmission,
                            String sqlInsertStatementsDiagnose,
                            String xQueryDiagnoseXML,
                            String xQuerySubmissionXML,
-                           String datalogFacts
-            
-/** start apriori   */  
-                           ,
-                           String aprioriID
-                           
-/** apriori end */
-    		
+                           String fileUrl,
+                           String datalogFacts,
+                           String aprioriID,
+                           String dispatcherId
     		) {
         this.name = name;
         this.description = description;
@@ -74,10 +56,9 @@ public class NewTaskGroupDTO {
         this.xQueryDiagnoseXML=xQueryDiagnoseXML;
         this.xQuerySubmissionXML=xQuerySubmissionXML;
         this.datalogFacts=datalogFacts;
-        
-        /** start apriori   */  
         this.aprioriID=aprioriID;
-        /** apriori end */
+        this.dispatcherId = dispatcherId;
+        this.fileUrl = fileUrl;
     }
 
     /**
@@ -233,5 +214,21 @@ public class NewTaskGroupDTO {
 
     public void setDatalogFacts(String datalogFacts) {
         this.datalogFacts = datalogFacts;
+    }
+
+    public String getDispatcherId() {
+        return dispatcherId;
+    }
+
+    public void setDispatcherId(String dispatcherId) {
+        this.dispatcherId = dispatcherId;
+    }
+
+    public String getAprioriID() {
+        return aprioriID;
+    }
+
+    public void setAprioriID(String aprioriID) {
+        this.aprioriID = aprioriID;
     }
 }

@@ -40,7 +40,7 @@ public class DatalogProxyService extends DispatcherProxyService{
      * @param newFacts the new facts to be updated
      * @return an {@link ResponseEntity} indicating whether the update has been successful
      */
-    public ResponseEntity<Void> updateDLGTaskGroup( int id,  String newFacts) throws DispatcherRequestFailedException {
+    public ResponseEntity<Void> updateDLGTaskGroup(String id, String newFacts) throws DispatcherRequestFailedException {
         String url = dispatcherURL+"/datalog/taskgroup/"+id;
         var request = getPostRequestWithBody(url, newFacts).build();
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());

@@ -11,6 +11,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
+import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
 import at.jku.dke.etutor.web.rest.errors.DispatcherRequestFailedException;
 import at.jku.dke.etutor.web.rest.errors.TaskAssignmentNonexistentException;
@@ -58,6 +59,8 @@ public class TaskAssignmentResource {
 
     /**
      * REST endpoint which is used to create a new task assignment ({@code POST /api/tasks/assignments}).
+     * First, the task-type-specific, if available, task creation is triggered {@link at.jku.dke.etutor.service.tasktypes.TaskTypeService}
+     * If the operation succeeds, the task assignment is persisted in the RDF graph.
      *
      * @param newTaskAssignmentDTO the validated new task assignment from the request body
      * @return {@link ResponseEntity} containing the newly created task assignment
@@ -79,6 +82,9 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
         } catch (WrongCalcParametersException wcpe) {
             throw new BadRequestAlertException("Calc Parameters not valid", "taskManagement", "wrongCalcFiles");
+        } catch (TaskTypeSpecificOperationFailedException e) {
+            // Should not happen - all task type specific exceptions should be handled above
+            throw new RuntimeException(e);
         }
 
     }
@@ -107,7 +113,8 @@ public class TaskAssignmentResource {
 
     /**
      * REST endpoint for deleting a task assignment ({@code DELETE /api/tasks/assignments/:id}).
-     *
+     * First, the task-type-specific, if available, task deletion is triggered {@link at.jku.dke.etutor.service.tasktypes.TaskTypeService}.
+     * Success of this call is ignored and the task assignment is removed from the RDF graph afterwards.
      * @param id the internal id of the task (path variable)
      * @return empty {@link ResponseEntity}
      */
@@ -118,7 +125,7 @@ public class TaskAssignmentResource {
         taskAssignmentDTOOptional.ifPresent(t -> {
             try {
                 taskTypeServiceAggregator.deleteTask(t);
-            } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
+            } catch (TaskTypeSpecificOperationFailedException e) {
                 e.printStackTrace();
             }
         });
@@ -130,7 +137,8 @@ public class TaskAssignmentResource {
 
     /**
      * REST endpoint for updating a task assignment ({@code PUT /api/tasks/assignments})
-     *
+     * First, the task-type-specific, if available, task update is triggered {@link at.jku.dke.etutor.service.tasktypes.TaskTypeService}.
+     * If the operation succeeds, the task assignment is updated in the RDF graph.
      * @param taskAssignmentDTO the validated task assignment from the request body
      * @return empty {@link ResponseEntity}
      */
@@ -154,6 +162,9 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.MissingParameterException();
         } catch(at.jku.dke.etutor.service.exception.DispatcherRequestFailedException drfe){
             throw new DispatcherRequestFailedException(drfe);
+        } catch (TaskTypeSpecificOperationFailedException e) {
+            // Should not happen - all possible task type specific exceptions should be handled above
+            throw new RuntimeException(e);
         }
     }
 

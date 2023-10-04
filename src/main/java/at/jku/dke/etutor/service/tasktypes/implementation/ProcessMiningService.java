@@ -38,7 +38,7 @@ public class ProcessMiningService implements TaskTypeService {
             // set Dispatcher id of configuration
             optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
         }else{
-            throw new MissingParameterException();
+            throw new MissingParameterException("Not enough values provided to create a Process Mining Task");
         }
     }
 

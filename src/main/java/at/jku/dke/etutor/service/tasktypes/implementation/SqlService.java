@@ -5,6 +5,8 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
+import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import at.jku.dke.etutor.service.tasktypes.proxy.SqlProxyService;
@@ -17,10 +19,14 @@ import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * Service that handles all SQL task-type specific operations.
+ */
 @Service
 public class SqlService implements TaskTypeService, TaskGroupTypeService {
     private final SqlProxyService sqlProxyService;
@@ -35,92 +41,48 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
     }
 
     /**
-     * Prepares the request body for the creation of a new SQL task group the dispatcher and sends it to the dispatcher.
-     * If the request was successful, the task group description is updated with links to the tables and the schema info.
-     * The id received from the dispatcher of the task group is also set in the RDF-Graph.
-     * If the request was not successful, the task group is not created.
+     * Creates the SQL schema and connection of the task group on the dispatcher.
      * @param newTaskGroupDTO the task group to be created
-     * @param isNew true if the task group is new, false if it already exists
      * @throws MissingParameterException if neither the insert statements for submission nor the insert statements for diagnose are set
      * @throws DispatcherRequestFailedException if the request to the dispatcher failed
      */
     @Override
-    public void createOrUpdateTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws MissingParameterException, DispatcherRequestFailedException {
-        // Check if both insert statements are blank (if only one is blank, the dispatcher will use the other)
-        if (StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())
-            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
-            throw new MissingParameterException();
-        }
-
-        // Initialize DTO
-        SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
-
-        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
-        body.setSchemaName(schemaName);
-
-        List<String> createStatements = Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).filter(StringUtils::isNotBlank).toList();
-        body.setCreateStatements(createStatements);
-
-        List<String> insertStatements;
-
-        if (newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null) {
-            insertStatements = Arrays
-                .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
-                .filter(StringUtils::isNotBlank)
-                .toList();
-            body.setInsertStatementsDiagnose(insertStatements);
-        }
-        if (newTaskGroupDTO.getSqlInsertStatementsSubmission() != null) {
-            insertStatements = Arrays
-                .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
-                .filter(StringUtils::isNotBlank)
-                .toList();
-            body.setInsertStatementsSubmission(insertStatements);
-        }
-
-        // Proxy request to disptacher
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonBody = "";
-
-        try {
-            jsonBody = mapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            throw new DispatcherRequestFailedException(e.getMessage());
-        }
-        var response = sqlProxyService.executeDDLForSQL(jsonBody);
-        var statusCode = response.getStatusCodeValue();
-
-        // Update task group description with links and schema info and set id from dispatcher in RDF-Graph
-        if (statusCode == 200) { // update successful
-            try {
-                var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
-                updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
-                if (schemaInfo.getDiagnoseConnectionId() != -1)
-                    assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, schemaInfo.getDiagnoseConnectionId());
-            } catch (JsonProcessingException e) {
-                throw new DispatcherRequestFailedException(e.getMessage());
-            }
-        }
+    public void createTaskGroup(NewTaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
+        createOrUpdateTaskGroup(newTaskGroupDTO, true);
     }
+
+    /**
+     * Updates the SQL schema and connection of the task group on the dispatcher.
+      * @param taskGroupDTO the task group to be updated
+     * @throws TaskTypeSpecificOperationFailedException if an error occurs during the update
+     */
+    @Override
+    public void updateTaskGroup(TaskGroupDTO taskGroupDTO) throws TaskTypeSpecificOperationFailedException {
+        createOrUpdateTaskGroup(taskGroupDTO, false);
+    }
+
 
     /**
      * Deletes the SQL schema and connection of the task group from the dispatcher.
      * @param taskGroupDTO the task group to be deleted
-     * @throws DispatcherRequestFailedException if the request to the dispatcher failed
      */
     @Override
-    public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
+    public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) {
         if (!taskGroupDTO.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
             return;
 
         String taskGroupName = taskGroupDTO.getName().trim().replace(" ", "_");
-        sqlProxyService.deleteSQLSchema(taskGroupName);
-        sqlProxyService.deleteSQLConnection(taskGroupName);
+        try {
+            sqlProxyService.deleteSQLSchema(taskGroupName);
+            sqlProxyService.deleteSQLConnection(taskGroupName);
+        } catch (DispatcherRequestFailedException ignore) {
+            // we ignore this
+        }
     }
 
     /**
      * Creates an SQL task by sending a request to the dispatcher.
-     * If the request was successful, the id received from the dispatcher is set in the RDF-Graph.
+     * If the request was successful, the id received from the dispatcher is set for the passed object.
      * @param newTaskAssignmentDTO the task assignment to be created
      * @throws MissingParameterException if the task group id or the solution is not set
      * @throws DispatcherRequestFailedException if the request to the dispatcher failed
@@ -129,25 +91,28 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
     @Override
     public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException, NotAValidTaskGroupException {
         Objects.requireNonNull(newTaskAssignmentDTO);
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString())
-            && !newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString()))
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.SQLTask.toString()) &&
+            !newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.RATask.toString()))
             return;
 
-        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId()) && StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
-            // Fetch group to compare type
-            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
-            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString()))
-                .orElseThrow(NotAValidTaskGroupException::new);
-
-            // Create task
-            var optId = this.handleTaskCreation(newTaskAssignmentDTO);
-
-            // Set dispatcher id of task
-            optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
-        } else {
+        if (StringUtils.isBlank(newTaskAssignmentDTO.getTaskGroupId()) ||
+            StringUtils.isBlank(newTaskAssignmentDTO.getSqlSolution())) {
             throw new MissingParameterException("Either the task group id or the solution is not set");
         }
+
+        if(!taskGroupTypeFitsTaskType(newTaskAssignmentDTO)){
+            throw new NotAValidTaskGroupException();
+        }
+
+        // Create task
+        var optId = this.handleTaskCreation(newTaskAssignmentDTO);
+
+        // Set dispatcher id of task
+        newTaskAssignmentDTO.setTaskIdForDispatcher(
+            optId.map(String::valueOf)
+            .orElseThrow(() -> new DispatcherRequestFailedException("Dispatcher returned invalid id")));
     }
+
 
     /**
      * Updates an SQL task by sending a request to the dispatcher.
@@ -171,10 +136,9 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
      * Deletes an SQL task by sending a request to the dispatcher.
      *
      * @param taskAssignmentDTO the task assignment to be deleted
-     * @throws DispatcherRequestFailedException does not happen as we ignore it if deletion is not successful
      */
     @Override
-    public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+    public void deleteTask(TaskAssignmentDTO taskAssignmentDTO)  {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
             sqlProxyService.deleteSQLExercise(id);
@@ -184,13 +148,41 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
 
     }
 
+    // Private reqion
+
+    /**
+     * Creates or updates an SQL task group by sending a request to the dispatcher.
+     * Sets the received dispatcher id for the task-group.
+     * Updates the description of the task-group to contain schema-info and links to view the tables.
+     * @param newTaskGroupDTO the task group to be created or updated
+     * @param isNew true if the task group is new, false if it already exists
+     * @throws TaskTypeSpecificOperationFailedException if an error occurs during the creation or update
+     */
+    private void createOrUpdateTaskGroup(NewTaskGroupDTO newTaskGroupDTO, boolean isNew) throws TaskTypeSpecificOperationFailedException {
+        SqlDataDefinitionDTO body = constructTaskGroupDto(newTaskGroupDTO);
+
+        ResponseEntity<String> response = proxyTaskGroupRequestToDispatcher(body);
+
+        if (response.getStatusCodeValue() != 200) {
+            throw new DispatcherRequestFailedException("REST-Request to dispatcher failed. Dispatcher returned status code: " + response.getStatusCodeValue());
+        }
+
+        try {
+            var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
+            newTaskGroupDTO.setDispatcherId(String.valueOf(schemaInfo.getDiagnoseConnectionId()));
+            updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
+        } catch (JsonProcessingException e) {
+            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
+        }
+    }
+
     /**
      * Updates the description of an SQL task group by appending links
      * to the specified tables and information about the schema of the tables
      *
      * @param newTaskGroupDTO the {@link TaskGroupDTO}
      */
-    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, TaskGroupDTO newTaskGroupDTO, boolean isNew) {
+    private void updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(SQLSchemaInfoDTO info, NewTaskGroupDTO newTaskGroupDTO, boolean isNew) {
         // Check if schema info or connection id is invalid
         if (info.getDiagnoseConnectionId() == -1 || info.getTableColumns().isEmpty()) return;
 
@@ -221,9 +213,8 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         }
         description += sb.toString();
 
-        // Set updated description and update group in RDF-graph to reflect the changes
+        // Set updated description
         newTaskGroupDTO.setDescription(description);
-        assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
     }
 
     /**
@@ -246,8 +237,78 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         // Return dispatcher-id of the exercise
         try{
             return response.getBody() != null ? Optional.of(Integer.parseInt(response.getBody())) : Optional.empty();
-        }catch(NumberFormatException ignored){
+        }catch(NumberFormatException e){
             throw new DispatcherRequestFailedException("Dispatcher returned invalid id");
         }
+    }
+
+    /**
+     * Constructs the DTO for the request to the dispatcher
+     * @param newTaskGroupDTO the task group to be created
+     * @return the DTO
+     * @throws MissingParameterException if neither the insert statements for submission nor the insert statements for diagnose are set
+     */
+    private SqlDataDefinitionDTO constructTaskGroupDto(NewTaskGroupDTO newTaskGroupDTO) throws MissingParameterException {
+        // Check if both insert statements are blank (if only one is blank, the dispatcher will use the other)
+        if (StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsSubmission())
+            && StringUtils.isBlank(newTaskGroupDTO.getSqlInsertStatementsDiagnose())) {
+            throw new MissingParameterException("Either the insert statements for submission or the insert statements for diagnose must be set");
+        }
+        // Initialize DTO
+        SqlDataDefinitionDTO body = new SqlDataDefinitionDTO();
+
+        String schemaName = newTaskGroupDTO.getName().trim().replace(" ", "_");
+        body.setSchemaName(schemaName);
+
+        List<String> createStatements = Arrays.stream(newTaskGroupDTO.getSqlCreateStatements().trim().split(";")).filter(StringUtils::isNotBlank).toList();
+        body.setCreateStatements(createStatements);
+
+        List<String> insertStatements;
+
+        if (newTaskGroupDTO.getSqlInsertStatementsDiagnose() != null) {
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsDiagnose().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsDiagnose(insertStatements);
+        }
+        if (newTaskGroupDTO.getSqlInsertStatementsSubmission() != null) {
+            insertStatements = Arrays
+                .stream(newTaskGroupDTO.getSqlInsertStatementsSubmission().trim().split(";"))
+                .filter(StringUtils::isNotBlank)
+                .toList();
+            body.setInsertStatementsSubmission(insertStatements);
+        }
+        return body;
+    }
+
+    /**
+     * Proxies the request to the dispatcher
+     * @param body the body of the request
+     * @return the response
+     * @throws TaskTypeSpecificOperationFailedException if an error occurs during the request
+     */
+    private ResponseEntity<String> proxyTaskGroupRequestToDispatcher(SqlDataDefinitionDTO body) throws TaskTypeSpecificOperationFailedException {
+        // Proxy request to disptacher
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = "";
+
+        try {
+            jsonBody = mapper.writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
+        }
+        return sqlProxyService.executeDDLForSQL(jsonBody);
+    }
+
+    /**
+     * Checks if the task group type fits the task type
+     * @param newTaskAssignmentDTO the task assignment
+     * @return true if the task group type fits the task type, false otherwise
+     */
+    private boolean taskGroupTypeFitsTaskType(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        // Fetch group to compare type
+        var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1));
+        return group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.SQLTypeTaskGroup.toString())).isPresent();
     }
 }

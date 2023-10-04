@@ -39,7 +39,7 @@ public class BpmnProxyService extends DispatcherProxyService{
 
         var response = getResponseEntity(request, stringHandler);
 
-        if (response.getBody() == null) throw new DispatcherRequestFailedException();
+        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id returned");
 
         int id = Integer.parseInt(response.getBody());
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);

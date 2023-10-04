@@ -6,6 +6,7 @@ import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTermDescriptionDTO;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
+import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import at.jku.dke.etutor.service.tasktypes.proxy.DatalogProxyService;
@@ -40,49 +41,34 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
     }
 
     /**
-     * Creates or updates a task group in the dispatcher.
-     * If the task group is new, it will be created in the dispatcher and the id will be set in the RDF-graph.
-     * If the task group already exists, it will be updated in the dispatcher.
-     *
-     * @param newTaskGroupDTO the task group to create or update
-     * @param isNew          true if the task group is new, false if it already exists
-     * @throws MissingParameterException not thrown currently
+     * Creates a task group in the dispatcher.
+     * Sets the received dispatcher-id for the group.
+     * Updates the description to contain a link to the facts.
+     * @param newTaskGroupDTO the task group to create
      * @throws DispatcherRequestFailedException if the request to the dispatcher fails
      */
     @Override
-    public void createOrUpdateTaskGroup(TaskGroupDTO newTaskGroupDTO, boolean isNew) throws MissingParameterException, DispatcherRequestFailedException {
-        Objects.requireNonNull(newTaskGroupDTO);
-        int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(newTaskGroupDTO);
-        if (!isNew) {
-            datalogProxyService.updateDLGTaskGroup(id, newTaskGroupDTO.getDatalogFacts()).getStatusCodeValue();
-            return;
-        }// group is new
-
+    public void createTaskGroup(NewTaskGroupDTO newTaskGroupDTO) throws DispatcherRequestFailedException {
         // Initialize DTO
-        var group = new DatalogTaskGroupDTO();
-        group.setFacts(newTaskGroupDTO.getDatalogFacts());
-        group.setName(newTaskGroupDTO.getName());
+        DatalogTaskGroupDTO datalogTaskGroupDTO = constructDatalogTaskGroupDto(newTaskGroupDTO);
+        String dispatcherTaskGroupId = proxyTaskGroupCreationRequestToDispatcher(datalogTaskGroupDTO);
 
-        // Proxy request
-        Integer body = null;
-        try {
-            var response = datalogProxyService.createDLGTaskGroup(new ObjectMapper().writeValueAsString(group));
-            body = response.getBody();
-        } catch (JsonProcessingException e) {
-            throw new DispatcherRequestFailedException("Could not parse task group to JSON. " + e.getMessage());
+        newTaskGroupDTO.setDispatcherId(dispatcherTaskGroupId);
+        setDispatcherLinkInTaskGroupDescription(dispatcherTaskGroupId, newTaskGroupDTO);
+    }
+
+    /**
+     * Updates a task group in the dispatcher.
+     * @param taskGroupDTO the task group to update
+     * @throws DispatcherRequestFailedException if the request to the dispatcher fails
+     */
+    @Override
+    public void updateTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
+        Objects.requireNonNull(taskGroupDTO);
+        int id = Integer.parseInt(taskGroupDTO.getDispatcherId());
+        if (id != -1) {
+            datalogProxyService.updateDLGTaskGroup(String.valueOf(id), taskGroupDTO.getDatalogFacts()).getStatusCodeValue();
         }
-        if(body == null) throw new DispatcherRequestFailedException("Request to dispatcher to create DLG task group failed.");
-        id = body;
-
-        // Set received id for task group in RDF-graph
-        assignmentSPARQLEndpointService.setDispatcherIdForTaskGroup(newTaskGroupDTO, id);
-
-        // Update description of task group with link to the facts
-        String link = "<br> <a href='" + properties.getDispatcher().getDatalogFactsUrlPrefix() + id + "' target='_blank'>Facts</a>";
-        newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() + link : link);
-
-        // Update task group in RDF to include the new description
-        assignmentSPARQLEndpointService.modifyTaskGroup(newTaskGroupDTO);
     }
 
     /**
@@ -112,23 +98,22 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
         if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DatalogTask.toString()))
             return;
 
-        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTaskGroupId())
-            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogSolution())
-            && StringUtils.isNotBlank(newTaskAssignmentDTO.getDatalogQuery())) {
-
-            // Fetch assigned task-group to check if the group-type matches the task type
-            var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-            group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString())).orElseThrow(NotAValidTaskGroupException::new);
-
-            // Create task
-            var optId = this.handleTaskCreation(newTaskAssignmentDTO);
-
-            // Set the returned id of the task
-            optId.map(String::valueOf)
-                .ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
-        } else{
-            throw new MissingParameterException("Not enough parameters have been provided to create a Datalog task");
+        if (StringUtils.isBlank(newTaskAssignmentDTO.getTaskGroupId()) ||
+            StringUtils.isBlank(newTaskAssignmentDTO.getDatalogSolution()) ||
+            StringUtils.isBlank(newTaskAssignmentDTO.getDatalogQuery())) {
+            throw new MissingParameterException("Not enough parameters have been provided to create a Datalog task. Either task-group-id, datalog-solution or datalog-query is missing.");
         }
+
+        if(!taskTypeFitsTaskGroupType(newTaskAssignmentDTO)){
+            throw new NotAValidTaskGroupException();
+        }
+
+        // Create task
+        var optId = this.handleTaskCreation(newTaskAssignmentDTO);
+
+        // Set the returned id of the task
+        newTaskAssignmentDTO.setTaskIdForDispatcher(optId.map(String::valueOf)
+            .orElseThrow(() -> new DispatcherRequestFailedException("Could not create task in dispatcher. Dispatcher did not return an id.")));
     }
 
     /**
@@ -139,16 +124,15 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
      */
     @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
-        if(StringUtils.isNotBlank(taskAssignmentDTO.getDatalogSolution()) && StringUtils.isNotBlank(taskAssignmentDTO.getDatalogQuery())){
-            // Initialize DTO from task assignment
-            var exercise = constructDatalogDtoFromAssignmentDto(taskAssignmentDTO);
-
-            // Proxy request to dispatcher
-            datalogProxyService.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
-        }else{
+        if(StringUtils.isBlank(taskAssignmentDTO.getDatalogSolution()) ||
+            StringUtils.isBlank(taskAssignmentDTO.getDatalogQuery())){
             throw new MissingParameterException("DatalogSolution or DatalogQuery is missing");
         }
+        // Initialize DTO from task assignment
+        var exercise = constructDatalogExerciseDtoFromAssignmentDto(taskAssignmentDTO);
 
+        // Proxy request to dispatcher
+        datalogProxyService.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
     }
 
     /**
@@ -167,8 +151,60 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
 
     }
 
+    // Private region
+
+    /**
+     * Sets the link to the facts in the description of the task group.
+     * @param dispatcherTaskGroupId the id of the task group in the dispatcher
+     * @param newTaskGroupDTO the task group
+     */
+    private void setDispatcherLinkInTaskGroupDescription(String dispatcherTaskGroupId, NewTaskGroupDTO newTaskGroupDTO) {
+        // Update description of task group with link to the facts
+        String link = "<br> <a href='" + properties.getDispatcher().getDatalogFactsUrlPrefix() + dispatcherTaskGroupId + "' target='_blank'>Facts</a>";
+        newTaskGroupDTO.setDescription(newTaskGroupDTO.getDescription() != null ? newTaskGroupDTO.getDescription() + link : link);
+    }
+
+    /**
+     * Proxies the request to create a task group to the dispatcher.
+     * @param datalogTaskGroupDTO the task group to create
+     * @return the id of the task group in the dispatcher
+     * @throws DispatcherRequestFailedException if the request to the dispatcher fails
+     */
+    private String proxyTaskGroupCreationRequestToDispatcher(DatalogTaskGroupDTO datalogTaskGroupDTO) throws DispatcherRequestFailedException {
+        // Proxy request
+        String body = null;
+        try {
+            var response = datalogProxyService.createDLGTaskGroup(new ObjectMapper().writeValueAsString(datalogTaskGroupDTO));
+            body = String.valueOf(response.getBody());
+        } catch (JsonProcessingException | DispatcherRequestFailedException e) {
+            throw new DispatcherRequestFailedException("Could not parse task group to JSON. " + e.getMessage());
+        }
+        if(body == null) throw new DispatcherRequestFailedException("Request to dispatcher to create DLG task group failed.");
+        return body;
+    }
+
+    /**
+     * Constructs a {@link DatalogTaskGroupDTO} from a {@link NewTaskGroupDTO}.
+     * @param newTaskGroupDTO the task group to construct from
+     * @return the constructed task group
+     */
+    private DatalogTaskGroupDTO constructDatalogTaskGroupDto(NewTaskGroupDTO newTaskGroupDTO) {
+        var group = new DatalogTaskGroupDTO();
+        group.setFacts(newTaskGroupDTO.getDatalogFacts());
+        group.setName(newTaskGroupDTO.getName());
+        return group;
+    }
+
+    /**
+     * Handles the creation of a task in the dispatcher.
+     *
+     *
+     * @param newTaskAssignmentDTO the task to create
+     * @return the id of the task in the dispatcher
+     * @throws DispatcherRequestFailedException if the request to the dispatcher fails
+     */
     private Optional<Integer> handleTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
-        var exerciseDTO = constructDatalogDtoFromAssignmentDto(newTaskAssignmentDTO);
+        DatalogExerciseDTO exerciseDTO = constructDatalogExerciseDtoFromAssignmentDto(newTaskAssignmentDTO);
         var response = datalogProxyService.createDLGExercise(exerciseDTO);
         if(response.getBody() != null)
             return Optional.of(response.getBody());
@@ -176,7 +212,12 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
             return Optional.empty();
     }
 
-    private DatalogExerciseDTO constructDatalogDtoFromAssignmentDto(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+    /**
+     * Constructs a {@link DatalogExerciseDTO} from a {@link NewTaskAssignmentDTO}.
+     * @param newTaskAssignmentDTO the task to construct from
+     * @return the constructed task
+     */
+    private DatalogExerciseDTO constructDatalogExerciseDtoFromAssignmentDto(NewTaskAssignmentDTO newTaskAssignmentDTO) {
         // Initialize DTO
         DatalogExerciseDTO exerciseDTO = new DatalogExerciseDTO();
         List<String> queries = new ArrayList<>();
@@ -236,5 +277,17 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
             }
         }
         return list;
+    }
+
+    /**
+     * Checks if the task type fits the task group type.
+     * @param newTaskAssignmentDTO the task assignment
+     * @return true if the task type fits the task group type, false otherwise
+     */
+    private boolean taskTypeFitsTaskGroupType(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        // Fetch assigned task-group to check if the group-type matches the task type
+        var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
+        return group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.DatalogTypeTaskGroup.toString()))
+            .isPresent();
     }
 }
