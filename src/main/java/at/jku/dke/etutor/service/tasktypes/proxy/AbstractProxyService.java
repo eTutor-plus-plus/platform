@@ -14,9 +14,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
-public abstract sealed class AbstractProxyService permits
-    AbstractBpmnDispatcherProxyService,
-    AbstractDispatcherProxyService {
+public abstract class AbstractProxyService{
     private final String baseUrl;
     protected HttpClient client;
 

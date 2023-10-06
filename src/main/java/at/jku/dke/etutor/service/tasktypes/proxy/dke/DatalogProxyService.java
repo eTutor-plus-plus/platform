@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy;
+package at.jku.dke.etutor.service.tasktypes.proxy.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;

@@ -3,7 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.DkeSubmissionProxyService;
+import at.jku.dke.etutor.service.tasktypes.proxy.dke.DkeSubmissionProxyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 /**
  * Service class for fetching submissions and gradings
- * from the DKE and BPMN dispatcher components via the proxy services.
+ * from the DKE component via the proxy service.
  */
 @Service
 public class DispatcherSubmissionService {

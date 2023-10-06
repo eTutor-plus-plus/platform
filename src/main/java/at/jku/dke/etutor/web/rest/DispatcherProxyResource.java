@@ -2,10 +2,10 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.DatalogProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.DkeSubmissionProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.SqlProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.XQueryProxyService;
+import at.jku.dke.etutor.service.tasktypes.proxy.dke.DatalogProxyService;
+import at.jku.dke.etutor.service.tasktypes.proxy.dke.DkeSubmissionProxyService;
+import at.jku.dke.etutor.service.tasktypes.proxy.dke.SqlProxyService;
+import at.jku.dke.etutor.service.tasktypes.proxy.dke.XQueryProxyService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

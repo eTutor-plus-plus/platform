@@ -1,16 +1,17 @@
-package at.jku.dke.etutor.service.tasktypes.proxy;
+package at.jku.dke.etutor.service.tasktypes.proxy.dke;
 import at.jku.dke.etutor.config.ApplicationProperties;
+import at.jku.dke.etutor.service.tasktypes.proxy.AbstractProxyService;
 
 /**
  * Abstract class offering some utility methods for the proxy services,
  * to interact with the dke-dispatcher.
  */
 public abstract sealed class AbstractDispatcherProxyService extends AbstractProxyService permits
-    DatalogProxyService,
-    DkeSubmissionProxyService,
-    PmProxyService,
-    SqlProxyService,
-    XQueryProxyService {
+        DatalogProxyService,
+        DkeSubmissionProxyService,
+        PmProxyService,
+        SqlProxyService,
+        XQueryProxyService {
     protected AbstractDispatcherProxyService(ApplicationProperties properties){
         super(properties.getDispatcher().getUrl());
     }

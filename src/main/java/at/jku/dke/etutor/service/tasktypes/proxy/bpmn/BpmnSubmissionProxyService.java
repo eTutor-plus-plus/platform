@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy;
+package at.jku.dke.etutor.service.tasktypes.proxy.bpmn;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class BpmnSubmissionProxyService extends AbstractBpmnDispatcherProxyService{
+public final class BpmnSubmissionProxyService extends AbstractBpmnDispatcherProxyService {
     public BpmnSubmissionProxyService(ApplicationProperties properties) {
         super(properties);
     }
