@@ -3,7 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.client.dke.DkeSubmissionClient;
+import at.jku.dke.etutor.service.client.dke.DkeSubmissionClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;

@@ -1,14 +1,16 @@
-package at.jku.dke.etutor.service.tasktypes.client.dke;
+package at.jku.dke.etutor.service.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
+import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.net.http.HttpRequest;
+import java.util.Objects;
 
 @Service
 public final class SqlClient extends AbstractDispatcherClient {
@@ -20,9 +22,14 @@ public final class SqlClient extends AbstractDispatcherClient {
      * @param ddl the statements
      * @return an response entity
      */
-    public ResponseEntity<String> executeDDLForSQL(String ddl) throws DispatcherRequestFailedException {
-        var request = getPostRequestWithBody("/sql/schema", ddl).build();
-        return getResponseEntity(request, stringHandler);
+    public SQLSchemaInfoDTO executeDDLForSQL(SqlDataDefinitionDTO ddl) throws DispatcherRequestFailedException {
+        HttpRequest request = null;
+        try {
+            request = getPostRequestWithBody("/sql/schema", serialize(ddl)).build();
+            return deserialize(getResponseEntity(request, stringHandler).getBody(), SQLSchemaInfoDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new DispatcherRequestFailedException("Could not serialize the DDL-Statements");
+        }
     }
 
     /**
@@ -31,26 +38,25 @@ public final class SqlClient extends AbstractDispatcherClient {
      * @param schemaName the schema/task-group
      * @return a ResponseEntity
      */
-    public ResponseEntity<String> createSQLExercise(String solution, String schemaName) throws DispatcherRequestFailedException {
+    public Integer createSQLExercise(String solution, String schemaName) throws DispatcherRequestFailedException {
         var exerciseDTO = new SQLExerciseDTO(schemaName, solution);
         HttpRequest request = null;
         try {
-            request = getPutRequestWithBody("/sql/exercise", new ObjectMapper().writeValueAsString(exerciseDTO));
-            return getResponseEntity(request, stringHandler);
+            request = getPutRequestWithBody("/sql/exercise", serialize(exerciseDTO));
+            return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler).getBody()));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new DispatcherRequestFailedException("Could not serialize the exercise");
         }
-        return null;
     }
 
     /**
      * Sends the GET-request for retrieving the solution for an SQL-exercise to the dispatcher
      * @return a ResponseEntity
      */
-    public ResponseEntity<String> getSQLSolution(int id) throws DispatcherRequestFailedException {
+    public String getSQLSolution(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/sql/exercise/"+id+"/solution");
 
-        return getResponseEntity(request, stringHandler);
+        return getResponseEntity(request, stringHandler).getBody();
     }
 
     /**
@@ -59,41 +65,41 @@ public final class SqlClient extends AbstractDispatcherClient {
      * @param newSolution the new solution
      * @return a ResponseEntity as received by the dispatcher
      */
-    public ResponseEntity<String> updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
+    public Integer updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
 
-        return getResponseEntity(request, stringHandler);
+        return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler).getBody()));
     }
 
     /**
      * Sends the request to delete a schema to the dispatcher
+     *
      * @param schemaName the schema
-     * @return a ResponseEntity
      */
-    public ResponseEntity<String> deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
+    public void deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName));
-        return getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler);
     }
 
 
     /**
      * Sends the reuqest for deleting a connection associated with a given schema to the dispatcher
+     *
      * @param schemaName the schema
-     * @return a ResponseEntity as received by the dispatcher
      */
-    public ResponseEntity<String> deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
+    public void deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName)+"/connection");
-        return getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler);
     }
 
     /**
      * Sends the request to delete an exercise to the dispatcher
+     *
      * @param id the exercise-id
-     * @return the response from the dispatcher
      */
-    public ResponseEntity<String> deleteSQLExercise(int id) throws DispatcherRequestFailedException {
+    public void deleteSQLExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/exercise/"+id);
-        return getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler);
     }
 
     public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {

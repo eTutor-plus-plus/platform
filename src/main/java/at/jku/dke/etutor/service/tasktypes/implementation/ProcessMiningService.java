@@ -4,7 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.client.dke.PmClient;
+import at.jku.dke.etutor.service.client.dke.PmClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;

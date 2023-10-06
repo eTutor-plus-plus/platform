@@ -9,7 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.client.dke.SqlClient;
+import at.jku.dke.etutor.service.client.dke.SqlClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.xml.validation.Schema;
 import java.util.*;
 
 /**
@@ -161,19 +162,9 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
     private void createOrUpdateTaskGroup(NewTaskGroupDTO newTaskGroupDTO, boolean isNew) throws TaskTypeSpecificOperationFailedException {
         SqlDataDefinitionDTO body = constructTaskGroupDto(newTaskGroupDTO);
 
-        ResponseEntity<String> response = proxyTaskGroupRequestToDispatcher(body);
-
-        if (response.getStatusCodeValue() != 200) {
-            throw new DispatcherRequestFailedException("REST-Request to dispatcher failed. Dispatcher returned status code: " + response.getStatusCodeValue());
-        }
-
-        try {
-            var schemaInfo = new ObjectMapper().readValue(response.getBody(), SQLSchemaInfoDTO.class);
-            newTaskGroupDTO.setDispatcherId(String.valueOf(schemaInfo.getDiagnoseConnectionId()));
-            updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
-        } catch (JsonProcessingException e) {
-            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
-        }
+        SQLSchemaInfoDTO schemaInfo = proxyTaskGroupRequestToDispatcher(body);
+        newTaskGroupDTO.setDispatcherId(String.valueOf(schemaInfo.getDiagnoseConnectionId()));
+        updateSQLTaskGroupDescriptionWithLinksAndSchemaInfo(schemaInfo, newTaskGroupDTO, isNew);
     }
 
     /**
@@ -236,7 +227,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
 
         // Return dispatcher-id of the exercise
         try{
-            return response.getBody() != null ? Optional.of(Integer.parseInt(response.getBody())) : Optional.empty();
+            return Optional.of(response);
         }catch(NumberFormatException e){
             throw new DispatcherRequestFailedException("Dispatcher returned invalid id");
         }
@@ -288,17 +279,8 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
      * @return the response
      * @throws TaskTypeSpecificOperationFailedException if an error occurs during the request
      */
-    private ResponseEntity<String> proxyTaskGroupRequestToDispatcher(SqlDataDefinitionDTO body) throws TaskTypeSpecificOperationFailedException {
-        // Proxy request to disptacher
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonBody = "";
-
-        try {
-            jsonBody = mapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
-        }
-        return sqlClient.executeDDLForSQL(jsonBody);
+    private SQLSchemaInfoDTO proxyTaskGroupRequestToDispatcher(SqlDataDefinitionDTO body) throws TaskTypeSpecificOperationFailedException {
+        return sqlClient.executeDDLForSQL(body);
     }
 
     /**

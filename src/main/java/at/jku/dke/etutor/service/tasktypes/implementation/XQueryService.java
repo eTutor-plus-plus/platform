@@ -9,7 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.client.dke.XQueryClient;
+import at.jku.dke.etutor.service.client.dke.XQueryClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -143,9 +143,8 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
             throw new MissingParameterException("XQuery Solution is missing. Cannot update task.");
 
         XQExerciseDTO dto = constructXqExerciseDto(taskAssignmentDTO);
-        String body = serializeXqExerciseDto(dto);
 
-        xQueryClient.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), body);
+        xQueryClient.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), dto);
     }
 
     /**
@@ -176,9 +175,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
         }
         XMLDefinitionDTO xmlDefinitionDTO = constructXmlDefinitionDTO(newTaskGroupDTO);
 
-        String body = serializeXmlDefinitionDto(xmlDefinitionDTO);
-        var response = xQueryClient.addXMLForXQTaskGroup(newTaskGroupDTO.getName().trim().replace(" ", "_"), body);
-        var fileURL = response.getBody();
+        var fileURL = xQueryClient.addXMLForXQTaskGroup(newTaskGroupDTO.getName().trim().replace(" ", "_"), xmlDefinitionDTO);
 
         if(isNew){
             setFileUrlForTaskGroup(newTaskGroupDTO, fileURL);
@@ -237,21 +234,6 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
     }
 
     /**
-     * Serializes a XMLDefinitionDTO to a JSON string.
-     * @param xmlDefinitionDTO the XMLDefinitionDTO
-     * @return the JSON string
-     * @throws TaskTypeSpecificOperationFailedException if an error occurs during the serialization
-     */
-    private String serializeXmlDefinitionDto(XMLDefinitionDTO xmlDefinitionDTO) throws TaskTypeSpecificOperationFailedException {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(xmlDefinitionDTO);
-        } catch (JsonProcessingException e) {
-            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
-        }
-    }
-
-    /**
      * Constructs a XQExerciseDTO from a TaskAssignmentDTO.
      * Serializes the DTO.
      * Sends the DTO to the dispatcher.
@@ -265,29 +247,13 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
 
         XQExerciseDTO dto = constructXqExerciseDto(newTaskAssignmentDTO);
 
-        String body = serializeXqExerciseDto(dto);
         String taskGroupName = newTaskAssignmentDTO
             .getTaskGroupId()
             .substring(newTaskAssignmentDTO.getTaskGroupId()
                 .indexOf("#") + 1).trim().replace(" ", "_");
-        var response = xQueryClient.createXQExercise(taskGroupName, body);
+        var response = xQueryClient.createXQExercise(taskGroupName, dto);
 
-        return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
-    }
-
-    /**
-     * Serializes a XQExerciseDTO to a JSON string.
-     * @param dto the XQExerciseDTO
-     * @return the JSON string
-     * @throws TaskTypeSpecificOperationFailedException if an error occurs during the serialization
-     */
-    private String serializeXqExerciseDto(XQExerciseDTO dto) throws TaskTypeSpecificOperationFailedException {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            throw new TaskTypeSpecificOperationFailedException(e.getMessage());
-        }
+        return Optional.of(response);
     }
 
     /**

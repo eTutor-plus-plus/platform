@@ -1,7 +1,7 @@
-package at.jku.dke.etutor.service.tasktypes.client.bpmn;
+package at.jku.dke.etutor.service.client.bpmn;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
-import at.jku.dke.etutor.service.tasktypes.client.AbstractClient;
+import at.jku.dke.etutor.service.client.AbstractClient;
 
 public abstract sealed class AbstractBpmnDispatcherClient extends AbstractClient permits
     BpmnSubmissionClient,

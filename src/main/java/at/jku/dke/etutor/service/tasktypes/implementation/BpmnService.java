@@ -2,7 +2,7 @@ package at.jku.dke.etutor.service.tasktypes.implementation;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.client.bpmn.BpmnClient;
+import at.jku.dke.etutor.service.client.bpmn.BpmnClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;

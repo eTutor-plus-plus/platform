@@ -1,6 +1,6 @@
-package at.jku.dke.etutor.service.tasktypes.client.dke;
+package at.jku.dke.etutor.service.client.dke;
 import at.jku.dke.etutor.config.ApplicationProperties;
-import at.jku.dke.etutor.service.tasktypes.client.AbstractClient;
+import at.jku.dke.etutor.service.client.AbstractClient;
 
 /**
  * Abstract class offering some utility methods for the proxy services,

@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.client.dke;
+package at.jku.dke.etutor.service.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
@@ -29,10 +29,9 @@ public final class PmClient extends AbstractDispatcherClient {
         HttpRequest request = null;
 
         try{
-            request = getPutRequestWithBody(path, new ObjectMapper().writeValueAsString(exerciseConfigDTO));
+            request = getPutRequestWithBody(path,serialize(exerciseConfigDTO));
         }catch(JsonProcessingException e){
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(-1);
+            throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
 
         var response = getResponseEntity(request, stringHandler);
@@ -55,10 +54,9 @@ public final class PmClient extends AbstractDispatcherClient {
         HttpRequest request = null;
 
         try {
-            request = getPostRequestWithBody(path, new ObjectMapper().writeValueAsString(exerciseConfigDTO)).build();
+            request = getPostRequestWithBody(path, serialize(exerciseConfigDTO)).build();
         }catch (JsonProcessingException e){
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
         return getResponseEntity(request, stringHandler);
     }

@@ -1,6 +1,8 @@
-package at.jku.dke.etutor.service.tasktypes.client;
+package at.jku.dke.etutor.service.client;
 
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +18,21 @@ import java.util.concurrent.Executors;
 
 public abstract class AbstractClient {
     private final String baseUrl;
+    private final ObjectMapper mapper;
     protected HttpClient client;
 
     protected HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
     protected AbstractClient(String baseUrl){
         this.baseUrl = baseUrl;
-        init();
+        this.mapper = new ObjectMapper();
+        initHttpClient();
     }
 
-    private void init(){
+    private void initHttpClient(){
         this.client = HttpClient
             .newBuilder()
-            .executor(Executors.newFixedThreadPool(20))
+            .executor(Executors.newFixedThreadPool(10))
             .build();
     }
 
@@ -107,5 +111,13 @@ public abstract class AbstractClient {
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    protected String serialize(Object object) throws JsonProcessingException {
+        return mapper.writeValueAsString(object);
+    }
+
+    protected <T> T deserialize(String json, Class<T> clazz) throws JsonProcessingException {
+        return mapper.readValue(json, clazz);
     }
 }

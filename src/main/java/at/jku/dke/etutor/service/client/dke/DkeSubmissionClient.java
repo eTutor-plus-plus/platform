@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.client.dke;
+package at.jku.dke.etutor.service.client.dke;
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import org.springframework.http.HttpHeaders;

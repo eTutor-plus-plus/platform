@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.client.bpmn;
+package at.jku.dke.etutor.service.client.bpmn;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
