@@ -14,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 
 public abstract class AbstractClient {
@@ -101,12 +102,34 @@ public abstract class AbstractClient {
     /**
      * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<T>
      * @param request the HttpRequest
+     * @param handler the HttpResponse.BodyHandler
      * @return the ResponseEntity
+     * @throws DispatcherRequestFailedException if the status code is 500
      */
     protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
             HttpResponse<T> response = this.client.send(request, handler);
-            if (response.statusCode() == 500) throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
+            if (response.statusCode() == 500)
+                throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+        } catch (IOException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Utility method that sends an HttpRequest and returns the response-body wrapped inside an ResponseEntity<T>
+     * @param request the HttpRequest
+     * @param handler the HttpResponse.BodyHandler
+     * @param ignoredStatusCodes the expected status code
+     * @return the ResponseEntity
+     * @throws DispatcherRequestFailedException if the status code does not match one of the ignored status codes
+     */
+    protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler, int... ignoredStatusCodes) throws DispatcherRequestFailedException {
+        try {
+            HttpResponse<T> response = this.client.send(request, handler);
+            if (Arrays.stream(ignoredStatusCodes).filter(i -> i == response.statusCode()).findAny().isEmpty())
+                throw new DispatcherRequestFailedException("Expected status codes " + Arrays.toString(ignoredStatusCodes) + " but got " + response.statusCode() + " instead.");
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

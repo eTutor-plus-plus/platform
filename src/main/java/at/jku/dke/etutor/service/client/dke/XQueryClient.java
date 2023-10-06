@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 
 @Service
 public final class XQueryClient extends AbstractDispatcherClient {
@@ -38,7 +39,7 @@ public final class XQueryClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException(e.getMessage());
         }
-        return getResponseEntity(request, stringHandler).getBody();
+        return getResponseEntity(request, stringHandler, 200).getBody();
     }
 
     /**
@@ -49,24 +50,24 @@ public final class XQueryClient extends AbstractDispatcherClient {
     public void deleteXMLofXQTaskGroup(String taskGroup) throws DispatcherRequestFailedException {
         String path = "/xquery/xml/taskGroup/"+encodeValue(taskGroup);
         var request = getDeleteRequest(path);
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**
      * Creates an XQuery exercise
      * @param taskGroup the taskGroup to associate the exercise with
      * @param exercise the exercise
-     * @return a ResponseEntity
+     * @return the id of the created exercise
      */
     public Integer createXQExercise(String taskGroup, XQExerciseDTO exercise) throws DispatcherRequestFailedException {
         String path = "/xquery/exercise/taskGroup/"+encodeValue(taskGroup);
         HttpRequest.Builder request = null;
-        HttpResponse<String> response = null;
+        ResponseEntity<String> response = null;
         try {
             request = getPostRequestWithBody(path, serialize(exercise));
-            response = client.send(request.build(), stringHandler);
-            return Integer.parseInt(response.body());
-        } catch (RuntimeException | IOException | InterruptedException e) {
+            response = getResponseEntity(request.build(), stringHandler, 200);
+            return Integer.parseInt(Objects.requireNonNull(response.getBody()));
+        } catch (RuntimeException | IOException e) {
             throw new DispatcherRequestFailedException(e.getMessage());
         }
     }
@@ -83,7 +84,7 @@ public final class XQueryClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException(e.getMessage());
         }
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**
@@ -98,7 +99,7 @@ public final class XQueryClient extends AbstractDispatcherClient {
     public ResponseEntity<String> getXQExerciseInfo(int id) throws DispatcherRequestFailedException {
         var path = "/xquery/exercise/solution/id/"+id;
         var request = getGetRequest(path);
-        return getResponseEntity(request, stringHandler);
+        return getResponseEntity(request, stringHandler, 200);
     }
 
     /**
@@ -110,14 +111,14 @@ public final class XQueryClient extends AbstractDispatcherClient {
         String path = "/xquery/exercise/id/"+id;
         var request = getDeleteRequest(path);
 
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     public ResponseEntity<String> getXMLForXQByFileId(int id) throws DispatcherRequestFailedException {
         String path = "/xquery/xml/fileid/"+id;
         var request = getGetRequest(path);
 
-        return getResponseEntity(request, stringHandler);
+        return getResponseEntity(request, stringHandler, 200);
     }
 
     public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(int id) throws DispatcherRequestFailedException {

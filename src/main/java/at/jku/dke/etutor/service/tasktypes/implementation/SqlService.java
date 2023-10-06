@@ -226,11 +226,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         var response = sqlClient.createSQLExercise(solution, taskGroup);
 
         // Return dispatcher-id of the exercise
-        try{
-            return Optional.of(response);
-        }catch(NumberFormatException e){
-            throw new DispatcherRequestFailedException("Dispatcher returned invalid id");
-        }
+        return Optional.of(response);
     }
 
     /**

@@ -26,7 +26,7 @@ public final class DatalogClient extends AbstractDispatcherClient {
     /**
      * Proxies the request to create a datalog task group to the dispatcher
      * @param groupDTO the {@link DatalogTaskGroupDTO} containing the name and the facts
-     * @return a {@link ResponseEntity} wrapping the id of the newly created task group
+     * @return the id of the newly created taskgroup
      */
     public Integer createDLGTaskGroup(DatalogTaskGroupDTO groupDTO) throws DispatcherRequestFailedException {
         String path = "/datalog/taskgroup";
@@ -38,7 +38,8 @@ public final class DatalogClient extends AbstractDispatcherClient {
         }
         var response = getResponseEntity(request, stringHandler);
 
-        if(response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+        if(response.getBody() == null)
+            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
         return Integer.parseInt(response.getBody());
     }
@@ -47,30 +48,28 @@ public final class DatalogClient extends AbstractDispatcherClient {
      * Proxies the request to update a datalog task group to the dispatcher
      * @param id the dispatcher id of the task group
      * @param newFacts the new facts to be updated
-     * @return an {@link ResponseEntity} indicating whether the update has been successful
      */
     public void updateDLGTaskGroup(String id, String newFacts) throws DispatcherRequestFailedException {
         String path = "/datalog/taskgroup/"+id;
         var request = getPostRequestWithBody(path, newFacts).build();
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
      * Requests the deletion of a datalog task group from the dispatcher
      * @param id the id of the group
-     * @return a {@link ResponseEntity} indicating if deletion has been successful
      */
     public void deleteDLGTaskGroup(int id) throws DispatcherRequestFailedException {
         String path = "/datalog/taskgroup/"+id;
 
         var request = getDeleteRequest(path);
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
      * Requests the creation of a datalog exercise
      * @param exerciseDTO the {@link DatalogExerciseDTO} wrapping the exercise information
-     * @return an {@link ResponseEntity} wrapping the assigned exercise id
+     * @return the id of the newly created exercise
      */
     public Integer createDLGExercise(DatalogExerciseDTO exerciseDTO) throws DispatcherRequestFailedException {
         String path = "/datalog/exercise";
@@ -81,9 +80,10 @@ public final class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise.");
         }
-        var response = getResponseEntity(request, stringHandler);
+        var response = getResponseEntity(request, stringHandler,200);
 
-        if (response.getBody() == null) throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
+        if (response.getBody() == null)
+            throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
 
         return Integer.parseInt(response.getBody());
     }
@@ -92,7 +92,6 @@ public final class DatalogClient extends AbstractDispatcherClient {
      * Requests modification of a datalog exercise
      * @param exerciseDTO the {@link DatalogExerciseDTO} with the new attributes
      * @param id the id of the exercise
-     * @return a {@link ResponseEntity} indicating if the udpate has been successful
      */
     public void modifyDLGExercise(DatalogExerciseDTO exerciseDTO,  int id) throws DispatcherRequestFailedException {
         String path = "/datalog/exercise/"+id;
@@ -103,24 +102,23 @@ public final class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise.");
         }
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
      * Deletes resources associated with a given datalog exercise in the dispatcher
      * @param id the id of the datalog exercise
-     * @return a {@link ResponseEntity} indicating if deletion has been successful
      */
     public void deleteDLGExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/datalog/exercise/" + id);
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     // methods called by controller return response entities
 
     public ResponseEntity<String> getDLGFacts(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/datalog/taskgroup/"+id);
-        return getResponseEntity(request, stringHandler);
+        return getResponseEntity(request, stringHandler, 200);
     }
 
     public ResponseEntity<Resource> getDLGFactsAsInputStream(int id) throws DispatcherRequestFailedException {

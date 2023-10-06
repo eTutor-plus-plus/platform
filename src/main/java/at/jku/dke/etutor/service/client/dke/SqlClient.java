@@ -20,15 +20,15 @@ public final class SqlClient extends AbstractDispatcherClient {
     /**
      * Sends the DDL-Statements for creating an SQL-schema for an SQL-task-group to the dispatcher
      * @param ddl the statements
-     * @return an response entity
+     * @return the dto containing information about the created schema
      */
     public SQLSchemaInfoDTO executeDDLForSQL(SqlDataDefinitionDTO ddl) throws DispatcherRequestFailedException {
         HttpRequest request = null;
         try {
             request = getPostRequestWithBody("/sql/schema", serialize(ddl)).build();
-            return deserialize(getResponseEntity(request, stringHandler).getBody(), SQLSchemaInfoDTO.class);
+            return deserialize(getResponseEntity(request, stringHandler, 200).getBody(), SQLSchemaInfoDTO.class);
         } catch (JsonProcessingException e) {
-            throw new DispatcherRequestFailedException("Could not serialize the DDL-Statements");
+            throw new DispatcherRequestFailedException("Could not serialize the DDL-Statements, or deserialize the returned dto.");
         }
     }
 
@@ -43,7 +43,7 @@ public final class SqlClient extends AbstractDispatcherClient {
         HttpRequest request = null;
         try {
             request = getPutRequestWithBody("/sql/exercise", serialize(exerciseDTO));
-            return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler).getBody()));
+            return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler, 200).getBody()));
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise");
         }
@@ -56,7 +56,7 @@ public final class SqlClient extends AbstractDispatcherClient {
     public String getSQLSolution(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/sql/exercise/"+id+"/solution");
 
-        return getResponseEntity(request, stringHandler).getBody();
+        return getResponseEntity(request, stringHandler, 200).getBody();
     }
 
     /**
@@ -68,7 +68,7 @@ public final class SqlClient extends AbstractDispatcherClient {
     public Integer updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
 
-        return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler).getBody()));
+        return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler, 200).getBody()));
     }
 
     /**
@@ -78,7 +78,7 @@ public final class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName));
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
 
@@ -89,7 +89,7 @@ public final class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName)+"/connection");
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/exercise/"+id);
-        getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
@@ -114,6 +114,6 @@ public final class SqlClient extends AbstractDispatcherClient {
         }
         var request = getGetRequest(url);
 
-        return getResponseEntity(request, stringHandler);
+        return getResponseEntity(request, stringHandler, 200);
     }
 }
