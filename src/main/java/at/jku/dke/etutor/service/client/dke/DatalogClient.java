@@ -17,8 +17,11 @@ import java.io.ByteArrayInputStream;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+/**
+ * Client for interacting with the datalog endpoint of the dispatcher.
+ */
 @Service
-public final class DatalogClient extends AbstractDispatcherClient {
+public non-sealed class DatalogClient extends AbstractDispatcherClient {
     public DatalogClient(ApplicationProperties properties) {
         super(properties);
     }

@@ -18,8 +18,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
+/**
+ * Client for interacting with the xquery endpoint of the dispatcher.
+ */
 @Service
-public final class XQueryClient extends AbstractDispatcherClient {
+public non-sealed class XQueryClient extends AbstractDispatcherClient {
 
     public XQueryClient(ApplicationProperties properties) {
         super(properties);

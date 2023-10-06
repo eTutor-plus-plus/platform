@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.net.http.HttpRequest;
 
+/**
+ * Client for interacting with the process mining endpoint of the dispatcher.
+ */
 @Service
-public final class PmClient extends AbstractDispatcherClient {
+public non-sealed class PmClient extends AbstractDispatcherClient {
 
     public PmClient(ApplicationProperties properties) {
         super(properties);

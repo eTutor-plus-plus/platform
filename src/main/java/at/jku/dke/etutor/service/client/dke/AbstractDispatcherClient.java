@@ -3,8 +3,7 @@ import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.client.AbstractClient;
 
 /**
- * Abstract class offering some utility methods for the proxy services,
- * to interact with the dke-dispatcher.
+ * Abstract class to interact with the dke-dispatcher
  */
 public abstract sealed class AbstractDispatcherClient extends AbstractClient permits
     DatalogClient,

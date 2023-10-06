@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class BpmnSubmissionClient extends AbstractBpmnDispatcherClient {
+public non-sealed class BpmnSubmissionClient extends AbstractBpmnDispatcherClient {
     public BpmnSubmissionClient(ApplicationProperties properties) {
         super(properties);
     }

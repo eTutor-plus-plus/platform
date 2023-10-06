@@ -12,8 +12,11 @@ import org.springframework.stereotype.Service;
 import java.net.http.HttpRequest;
 import java.util.Objects;
 
+/**
+ * Client for interacting with the sql endpoint of the dispatcher.
+ */
 @Service
-public final class SqlClient extends AbstractDispatcherClient {
+public non-sealed class SqlClient extends AbstractDispatcherClient {
     public SqlClient(ApplicationProperties properties) {
         super(properties);
     }
@@ -63,12 +66,11 @@ public final class SqlClient extends AbstractDispatcherClient {
      * Sends the request to update the solution of an existing exercise to the dispatcher
      * @param id the id
      * @param newSolution the new solution
-     * @return a ResponseEntity as received by the dispatcher
      */
-    public Integer updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
+    public void updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
 
-        return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler, 200).getBody()));
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**

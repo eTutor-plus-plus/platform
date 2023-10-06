@@ -10,7 +10,7 @@ import java.net.http.HttpResponse;
 
 // NOTE: Do not at this client for an best-practice implementation of a client.
 @Service
-public final class BpmnClient extends AbstractBpmnDispatcherClient {
+public non-sealed class BpmnClient extends AbstractBpmnDispatcherClient {
     public BpmnClient(ApplicationProperties properties) {
         super(properties);
     }

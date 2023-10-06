@@ -4,9 +4,11 @@ import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+/**
+ * Client for interacting with the submission endpoint of the dispatcher.
+ */
 @Service
-public final class DkeSubmissionClient extends AbstractDispatcherClient {
+public non-sealed class DkeSubmissionClient extends AbstractDispatcherClient {
 
     public DkeSubmissionClient(ApplicationProperties properties) {
         super(properties);
