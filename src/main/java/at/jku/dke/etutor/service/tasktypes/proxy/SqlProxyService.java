@@ -7,12 +7,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.net.http.HttpRequest;
 
 @Service
-public class SqlProxyService extends DispatcherProxyService{
+public final class SqlProxyService extends AbstractDispatcherProxyService {
     public SqlProxyService(ApplicationProperties properties) {
         super(properties);
     }
@@ -22,7 +21,7 @@ public class SqlProxyService extends DispatcherProxyService{
      * @return an response entity
      */
     public ResponseEntity<String> executeDDLForSQL(String ddl) throws DispatcherRequestFailedException {
-        var request = getPostRequestWithBody(dispatcherURL+"/sql/schema", ddl).build();
+        var request = getPostRequestWithBody("/sql/schema", ddl).build();
         return getResponseEntity(request, stringHandler);
     }
 
@@ -36,7 +35,7 @@ public class SqlProxyService extends DispatcherProxyService{
         var exerciseDTO = new SQLExerciseDTO(schemaName, solution);
         HttpRequest request = null;
         try {
-            request = getPutRequestWithBody(dispatcherURL+"/sql/exercise", new ObjectMapper().writeValueAsString(exerciseDTO));
+            request = getPutRequestWithBody("/sql/exercise", new ObjectMapper().writeValueAsString(exerciseDTO));
             return getResponseEntity(request, stringHandler);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -48,8 +47,8 @@ public class SqlProxyService extends DispatcherProxyService{
      * Sends the GET-request for retrieving the solution for an SQL-exercise to the dispatcher
      * @return a ResponseEntity
      */
-    public ResponseEntity<String> getSQLSolution(@PathVariable int id) throws DispatcherRequestFailedException {
-        var request = getGetRequest(dispatcherURL+"/sql/exercise/"+id+"/solution");
+    public ResponseEntity<String> getSQLSolution(int id) throws DispatcherRequestFailedException {
+        var request = getGetRequest("/sql/exercise/"+id+"/solution");
 
         return getResponseEntity(request, stringHandler);
     }
@@ -61,7 +60,7 @@ public class SqlProxyService extends DispatcherProxyService{
      * @return a ResponseEntity as received by the dispatcher
      */
     public ResponseEntity<String> updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
-        var request = getPostRequestWithBody(dispatcherURL+"/sql/exercise/"+id+"/solution", newSolution).build();
+        var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
 
         return getResponseEntity(request, stringHandler);
     }
@@ -72,7 +71,7 @@ public class SqlProxyService extends DispatcherProxyService{
      * @return a ResponseEntity
      */
     public ResponseEntity<String> deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+encodeValue(schemaName));
+        var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName));
         return getResponseEntity(request, stringHandler);
     }
 
@@ -83,7 +82,7 @@ public class SqlProxyService extends DispatcherProxyService{
      * @return a ResponseEntity as received by the dispatcher
      */
     public ResponseEntity<String> deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest(dispatcherURL+"/sql/schema/"+encodeValue(schemaName)+"/connection");
+        var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName)+"/connection");
         return getResponseEntity(request, stringHandler);
     }
 
@@ -93,7 +92,22 @@ public class SqlProxyService extends DispatcherProxyService{
      * @return the response from the dispatcher
      */
     public ResponseEntity<String> deleteSQLExercise(int id) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest(dispatcherURL+"/sql/exercise/"+id);
+        var request = getDeleteRequest("/sql/exercise/"+id);
+        return getResponseEntity(request, stringHandler);
+    }
+
+    public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
+        String url = "/sql/table/"+encodeValue(tableName);
+        // Table names are only unique in the namespace of a task group, which can be identified in the dispatcher by the connection-id, the exercise-id, or the taskgroup-name
+        if(connId != -1){
+            url += "?connId="+connId;
+        } else if(exerciseId != -1){
+            url += "?exerciseId="+exerciseId;
+        }else if(!taskGroup.equalsIgnoreCase("")){
+            url+="?taskGroup="+taskGroup;
+        }
+        var request = getGetRequest(url);
+
         return getResponseEntity(request, stringHandler);
     }
 }

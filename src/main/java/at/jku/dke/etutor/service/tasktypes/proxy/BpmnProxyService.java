@@ -9,33 +9,22 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Service
-public class BpmnProxyService extends DispatcherProxyService{
+public final class BpmnProxyService extends AbstractBpmnDispatcherProxyService {
     public BpmnProxyService(ApplicationProperties properties) {
         super(properties);
     }
 
-    /**
-     * Deletes an XQuery exercise
-     * @param id the exercise id
-     * @return a ResponseEntity
-     */
     public ResponseEntity<String> deleteBpmnExercise(int id) throws DispatcherRequestFailedException {
-        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
-        var request = getDeleteRequest(url);
+        String path = "/bpmn/exercise/id/"+id;
+        var request = getDeleteRequest(path);
 
         return getResponseEntity(request, stringHandler);
     }
 
-    /**
-     *
-     * @param bpmnExercise
-     * @return
-     * @throws DispatcherRequestFailedException
-     */
     public ResponseEntity<Integer> createBpmnExercise(String bpmnExercise) throws DispatcherRequestFailedException {
-        String url = this.bpmnDispatcherURL +"/bpmn/exercise";
+        String path = "/bpmn/exercise";
         HttpRequest request = null;
-        request = getPostRequestWithBody(url, bpmnExercise).build();
+        request = getPostRequestWithBody(path, bpmnExercise).build();
 
         var response = getResponseEntity(request, stringHandler);
 
@@ -45,15 +34,11 @@ public class BpmnProxyService extends DispatcherProxyService{
         return ResponseEntity.status(response.getStatusCodeValue()).body(id);
     }
 
-    /**
-     * Requests modification of a datalog exercise
-     * @return a {@link ResponseEntity} indicating if the udpate has been successful
-     */
     public ResponseEntity<Void> modifyBpmnExercise(String exercise, int id) throws DispatcherRequestFailedException {
-        String url = bpmnDispatcherURL+"/bpmn/exercise/id/"+id;
+        String path = "/bpmn/exercise/id/"+id;
 
         HttpRequest request = null;
-        request = getPostRequestWithBody(url, exercise).build();
+        request = getPostRequestWithBody(path, exercise).build();
         return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
     }
 }

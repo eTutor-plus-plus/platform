@@ -1,10 +1,9 @@
 package at.jku.dke.etutor.web.rest;
 
-import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
+import at.jku.dke.etutor.service.TaskTypeServiceDelegate;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDisplayDTO;
@@ -34,17 +33,17 @@ import java.util.Optional;
 public class TaskGroupResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
-    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
+    private final TaskTypeServiceDelegate taskTypeServiceDelegate;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment SPARQL endpoint service
-     * @param taskTypeServiceAggregator the injected dispatcher proxy service
+     * @param taskTypeServiceDelegate the injected dispatcher proxy service
      */
-    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, TaskTypeServiceAggregator taskTypeServiceAggregator) {
+    public TaskGroupResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, TaskTypeServiceDelegate taskTypeServiceDelegate) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
-        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
+        this.taskTypeServiceDelegate = taskTypeServiceDelegate;
     }
 
     /**
@@ -60,7 +59,7 @@ public class TaskGroupResource {
         String currentLogin = SecurityUtils.getCurrentUserLogin().orElse("");
         TaskGroupDTO taskGroupDTO = new TaskGroupDTO();
         try {
-            taskTypeServiceAggregator.createTaskGroup(newTaskGroupDTO);
+            taskTypeServiceDelegate.createTaskGroup(newTaskGroupDTO);
             taskGroupDTO = assignmentSPARQLEndpointService.createNewTaskGroup(newTaskGroupDTO, currentLogin);
             return ResponseEntity.ok(taskGroupDTO);
         } catch (at.jku.dke.etutor.service.exception.TaskGroupAlreadyExistentException tgaee) {
@@ -87,7 +86,7 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteTaskGroup(@PathVariable String name) {
         try {
-            taskTypeServiceAggregator.deleteTaskGroup(getTaskGroup(name).getBody());
+            taskTypeServiceDelegate.deleteTaskGroup(getTaskGroup(name).getBody());
         } catch (TaskTypeSpecificOperationFailedException e) {
             e.printStackTrace();
         }
@@ -119,7 +118,7 @@ public class TaskGroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskGroupDTO> modifyTaskGroup(@Valid @RequestBody TaskGroupDTO taskGroupDTO) {
         try{
-            taskTypeServiceAggregator.updateTaskGroup(taskGroupDTO);
+            taskTypeServiceDelegate.updateTaskGroup(taskGroupDTO);
             TaskGroupDTO taskGroupDTOFromService = assignmentSPARQLEndpointService.modifyTaskGroup(taskGroupDTO);
 
             return ResponseEntity.ok(taskGroupDTOFromService);

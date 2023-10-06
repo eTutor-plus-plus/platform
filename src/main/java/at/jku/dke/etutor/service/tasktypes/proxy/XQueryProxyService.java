@@ -2,14 +2,19 @@ package at.jku.dke.etutor.service.tasktypes.proxy;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 
 @Service
-public class XQueryProxyService extends DispatcherProxyService {
+public final class XQueryProxyService extends AbstractDispatcherProxyService {
 
     public XQueryProxyService(ApplicationProperties properties) {
         super(properties);
@@ -22,8 +27,8 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
     public ResponseEntity<String> addXMLForXQTaskGroup(String taskGroup, String dto) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/xquery/xml/taskGroup/"+encodeValue(taskGroup);
-        var request = getPostRequestWithBody(url, dto).build();
+        String path = "/xquery/xml/taskGroup/"+encodeValue(taskGroup);
+        var request = getPostRequestWithBody(path, dto).build();
         return getResponseEntity(request, stringHandler);
     }
 
@@ -33,8 +38,8 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return the file id of the created xml file from the dispatcher for retrieving
      */
     public ResponseEntity<String> deleteXMLofXQTaskGroup(String taskGroup) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/xquery/xml/taskGroup/"+encodeValue(taskGroup);
-        var request = getDeleteRequest(url);
+        String path = "/xquery/xml/taskGroup/"+encodeValue(taskGroup);
+        var request = getDeleteRequest(path);
         return getResponseEntity(request, stringHandler);
     }
 
@@ -45,8 +50,8 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return a ResponseEntity
      */
     public ResponseEntity<Integer> createXQExercise(String taskGroup, String exercise) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/xquery/exercise/taskGroup/"+encodeValue(taskGroup);
-        var request = getPostRequestWithBody(url, exercise);
+        String path = "/xquery/exercise/taskGroup/"+encodeValue(taskGroup);
+        var request = getPostRequestWithBody(path, exercise);
         HttpResponse<String> response = null;
         try {
             response = client.send(request.build(), stringHandler);
@@ -64,8 +69,8 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return a ResponseEntity
      */
     public ResponseEntity<String> updateXQExercise(int id, String dto) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/xquery/exercise/id/"+id;
-        var request = getPostRequestWithBody(url, dto).build();
+        String path = "/xquery/exercise/id/"+id;
+        var request = getPostRequestWithBody(path, dto).build();
 
         return getResponseEntity(request, stringHandler);
     }
@@ -76,8 +81,8 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return a ResponseEntity
      */
     public ResponseEntity<String> getXQExerciseInfo(int id) throws DispatcherRequestFailedException {
-        var url = dispatcherURL + "/xquery/exercise/solution/id/"+id;
-        var request = getGetRequest(url);
+        var path = "/xquery/exercise/solution/id/"+id;
+        var request = getGetRequest(path);
         return getResponseEntity(request, stringHandler);
     }
 
@@ -87,9 +92,36 @@ public class XQueryProxyService extends DispatcherProxyService {
      * @return a ResponseEntity
      */
     public ResponseEntity<String> deleteXQExercise(int id) throws DispatcherRequestFailedException {
-        String url = dispatcherURL+"/xquery/exercise/id/"+id;
-        var request = getDeleteRequest(url);
+        String path = "/xquery/exercise/id/"+id;
+        var request = getDeleteRequest(path);
 
         return getResponseEntity(request, stringHandler);
+    }
+
+    public ResponseEntity<String> getXMLForXQByFileId(int id) throws DispatcherRequestFailedException {
+        String path = "/xquery/xml/fileid/"+id;
+        var request = getGetRequest(path);
+
+        return getResponseEntity(request, stringHandler);
+    }
+
+    public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(int id) throws DispatcherRequestFailedException {
+        String xml = this.getXMLForXQByFileId(id).getBody();
+        if(xml == null) throw new DispatcherRequestFailedException("XML cannot be null");
+
+        ByteArrayInputStream ssInput = new ByteArrayInputStream(xml.getBytes());
+        InputStreamResource fileInputStream = new InputStreamResource(ssInput);
+        String fileName = id+".xml";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/xml");
+
+
+        return new ResponseEntity<>(
+            fileInputStream,
+            headers,
+            HttpStatus.OK
+        );
     }
 }

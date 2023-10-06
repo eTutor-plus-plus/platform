@@ -499,9 +499,9 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final UploadFileService uploadFileService;
     private final ExerciseSheetSPARQLEndpointService exerciseSheetSPARQLEndpointService;
-    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
     private final ProcessMiningService processMiningService;
-    private final DispatcherSubmissionsService dispatcherSubmissionsService;
+    private final DispatcherSubmissionService dispatcherSubmissionService;
+    private final BpmnDispatcherSubmissionService bpmnDispatcherSubmissionService;
 
     /**
      * Constructor.
@@ -517,19 +517,20 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
                           RDFConnectionFactory rdfConnectionFactory,
                           ProcessMiningService processMiningService,
-                          DispatcherSubmissionsService dispatcherSubmissionsService,
+                          DispatcherSubmissionService dispatcherSubmissionService,
                           UploadFileService uploadFileService,
-                          TaskTypeServiceAggregator taskTypeServiceAggregator) {
+                          BpmnDispatcherSubmissionService bpmnDispatcherSubmissionService
+                          ) {
         super(rdfConnectionFactory);
-        this.dispatcherSubmissionsService = dispatcherSubmissionsService;
+        this.dispatcherSubmissionService = dispatcherSubmissionService;
         this.userService = userService;
         this.studentRepository = studentRepository;
         this.fileRepository = fileRepository;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.uploadFileService = uploadFileService;
         this.exerciseSheetSPARQLEndpointService = exerciseSheetSPARQLEndpointService;
-        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
         this.processMiningService = processMiningService;
+        this.bpmnDispatcherSubmissionService = bpmnDispatcherSubmissionService;
 
         random = new Random();
     }
@@ -1556,7 +1557,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
                     submissions.add(new IndividualTaskSubmissionDTO(
                         instantFromRDFString(instantLiteral.getString()),
-                        dispatcherSubmissionsService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
+                        dispatcherSubmissionService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskTypeUri).orElse(""),
                         hasBeenSubmittedLiteral.getBoolean(),
                         hasBeenSolvedLiteral.getBoolean(),
                         dispatcherIdLiteral.getInt(),
@@ -1620,8 +1621,9 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                     var taskAssignmentTypeURI = solution.getResource("?taskAssignmentType").getURI();
 
                     if (submissionLiteral != null) {
-                        return dispatcherSubmissionsService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(),
-                            taskAssignmentTypeURI);
+                        return taskAssignmentTypeURI.equals(ETutorVocabulary.BpmnTask.toString()) ?
+                            bpmnDispatcherSubmissionService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString()):
+                            dispatcherSubmissionService.getSubmissionStringFromSubmissionUUID(submissionLiteral.getString(), taskAssignmentTypeURI);
                     }
                 }
                 return Optional.empty();

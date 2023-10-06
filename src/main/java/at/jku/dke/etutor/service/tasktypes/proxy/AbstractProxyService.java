@@ -1,11 +1,9 @@
 package at.jku.dke.etutor.service.tasktypes.proxy;
 
-import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,17 +13,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
-@Service
-public class DispatcherProxyService {
-    final String dispatcherURL;
-    final String bpmnDispatcherURL;
-    HttpClient client;
 
-    HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
+public abstract sealed class AbstractProxyService permits
+    AbstractBpmnDispatcherProxyService,
+    AbstractDispatcherProxyService {
+    private final String baseUrl;
+    protected HttpClient client;
 
-    public DispatcherProxyService(ApplicationProperties properties){
-        this.dispatcherURL = properties.getDispatcher().getUrl();
-        this.bpmnDispatcherURL = properties.getBpmnDispatcher().getUrl();
+    protected HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
+
+    protected AbstractProxyService(String baseUrl){
+        this.baseUrl = baseUrl;
         init();
     }
 
@@ -41,33 +39,33 @@ public class DispatcherProxyService {
      * @param value the value to encode
      * @return the encoded value
      */
-    String encodeValue(String value) {
+    protected String encodeValue(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     /**
-     * Utility method that returns a Post-HttpRequest
-     * @param url the url
+     * Utility method that returns a Post-HttpRequest builder
+     * @param path the url
      * @param json the body
-     * @return the HttpRequest
+     * @return the HttpRequest builder
      */
-    HttpRequest.Builder getPostRequestWithBody(String url, String json){
+    protected HttpRequest.Builder getPostRequestWithBody(String path, String json){
         return HttpRequest.newBuilder()
-            .uri(URI.create(url))
+            .uri(URI.create(baseUrl + path))
             .POST(HttpRequest.BodyPublishers.ofString(json))
             .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json");
     }
 
     /**
      * Utility method that returns a Put-HttpRequest
-     * @param url the url
+     * @param path the url
      * @param json the body
      * @return the HttpRequest
      */
     @NotNull
-    HttpRequest getPutRequestWithBody(String url, String json){
+    protected HttpRequest getPutRequestWithBody(String path, String json){
         return HttpRequest.newBuilder()
-            .uri(URI.create(url))
+            .uri(URI.create(baseUrl + path))
             .PUT(HttpRequest.BodyPublishers.ofString(json))
             .setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/json")
             .build();
@@ -75,25 +73,25 @@ public class DispatcherProxyService {
 
     /**
      * Utility method that returns a GET-HttpRequest
-     * @param url the url
+     * @param path the path
      * @return the HttpRequest
      */
-    HttpRequest getGetRequest(String url){
+    protected HttpRequest getGetRequest(String path){
         return HttpRequest.newBuilder()
-            .uri(URI.create(url))
+            .uri(URI.create(baseUrl + path))
             .GET()
             .build();
     }
 
     /**
      * Utility method that returns a DELETE-HttpRequest
-     * @param url the url
+     * @param path the url
      * @return the HttpRequest
      */
     @NotNull
-    HttpRequest getDeleteRequest(String url){
+    protected HttpRequest getDeleteRequest(String path){
         return HttpRequest.newBuilder()
-            .uri(URI.create(url))
+            .uri(URI.create(baseUrl + path))
             .DELETE()
             .build();
     }
@@ -103,7 +101,7 @@ public class DispatcherProxyService {
      * @param request the HttpRequest
      * @return the ResponseEntity
      */
-    <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
+    protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
             HttpResponse<T> response = this.client.send(request, handler);
             if (response.statusCode() == 500) throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());

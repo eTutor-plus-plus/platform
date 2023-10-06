@@ -1,7 +1,6 @@
 package at.jku.dke.etutor.service;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import at.jku.dke.etutor.objects.dispatcher.*;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
@@ -9,17 +8,11 @@ import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
-import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
-import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import at.jku.dke.etutor.service.tasktypes.implementation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
 import java.util.Objects;
 
 /**
@@ -28,8 +21,8 @@ import java.util.Objects;
  * {@link TaskGroupTypeService} is the interface for all task-group-type specific services.
  */
 @Service
-@Transactional
-public class TaskTypeServiceAggregator {
+@Primary
+public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeService {
     private final XQueryService xQueryService;
     private final SqlService sqlService;
     private final DatalogService datalogService;
@@ -37,12 +30,12 @@ public class TaskTypeServiceAggregator {
     private final ProcessMiningService processMiningService;
     private final BpmnService bpmnService;
 
-    public TaskTypeServiceAggregator(XQueryService xQueryService,
-                                     SqlService sqlService,
-                                     DatalogService datalogService,
-                                     CalcService calcService,
-                                     ProcessMiningService processMiningService,
-                                     BpmnService bpmnService) {
+    public TaskTypeServiceDelegate(XQueryService xQueryService,
+                                   SqlService sqlService,
+                                   DatalogService datalogService,
+                                   CalcService calcService,
+                                   ProcessMiningService processMiningService,
+                                   BpmnService bpmnService) {
         this.sqlService = sqlService;
         this.calcService = calcService;
         this.processMiningService = processMiningService;
@@ -58,6 +51,7 @@ public class TaskTypeServiceAggregator {
      * A call to this method may alter the passed object.
      * @param newTaskGroupDTO the new task group
      */
+    @Override
     public void createTaskGroup(NewTaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
         var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(newTaskGroupDTO.getTaskGroupTypeId());
         if(taskTypeService != null){
@@ -71,6 +65,7 @@ public class TaskTypeServiceAggregator {
      * A call to this method may alter the passed object.
      * @param newTaskGroupDTO the new task group
      */
+    @Override
     public void updateTaskGroup(TaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
         var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(newTaskGroupDTO.getTaskGroupTypeId());
         if(taskTypeService != null){
@@ -83,6 +78,7 @@ public class TaskTypeServiceAggregator {
      * If no task-group-type-specific service is available, ignores the request.
      * @param taskGroupDTO the task group
      */
+    @Override
     public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws TaskTypeSpecificOperationFailedException {
         Objects.requireNonNull(taskGroupDTO);
 
@@ -97,7 +93,8 @@ public class TaskTypeServiceAggregator {
      * A call to this method may alter the passed object.
      * @param newTaskAssignmentDTO the task assignment
      */
-    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException, WrongCalcParametersException {
+    @Override
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException{
         Objects.requireNonNull(newTaskAssignmentDTO);
 
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
@@ -113,6 +110,7 @@ public class TaskTypeServiceAggregator {
      * A call to this method may alter the passed object.
      * @param taskAssignmentDTO the task assignment to be updated
      */
+    @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         Objects.requireNonNull(taskAssignmentDTO);
 
@@ -127,6 +125,7 @@ public class TaskTypeServiceAggregator {
      * If no service is available, ignores the request.
      * @param taskAssignmentDTO the task assignment to be deleted
      */
+    @Override
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         String taskType = taskAssignmentDTO.getTaskAssignmentTypeId();
         var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(taskType);

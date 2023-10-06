@@ -2,7 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
-import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
+import at.jku.dke.etutor.service.TaskTypeServiceDelegate;
 import at.jku.dke.etutor.service.InternalModelException;
 import at.jku.dke.etutor.service.dto.TaskDisplayDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
@@ -43,18 +43,18 @@ import java.util.SortedSet;
 public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
-    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
+    private final TaskTypeServiceDelegate taskTypeServiceDelegate;
 
     /**
      * Constructor.
      *
      * @param assignmentSPARQLEndpointService the injected assignment sparql endoinpoint service
-     * @param taskTypeServiceAggregator  the injected dispatcher proxy service
+     * @param taskTypeServiceDelegate  the injected dispatcher proxy service
      */
     public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
-                                  TaskTypeServiceAggregator taskTypeServiceAggregator) {
+                                  TaskTypeServiceDelegate taskTypeServiceDelegate) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
-        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
+        this.taskTypeServiceDelegate = taskTypeServiceDelegate;
     }
 
     /**
@@ -71,7 +71,7 @@ public class TaskAssignmentResource {
         String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
         TaskAssignmentDTO assignment = null;
         try {
-            taskTypeServiceAggregator.createTask(newTaskAssignmentDTO);
+            taskTypeServiceDelegate.createTask(newTaskAssignmentDTO);
             assignment = assignmentSPARQLEndpointService.insertNewTaskAssignment(newTaskAssignmentDTO, currentLogin);
             return ResponseEntity.ok(assignment);
         } catch (at.jku.dke.etutor.service.exception.DispatcherRequestFailedException e) {
@@ -124,7 +124,7 @@ public class TaskAssignmentResource {
         var taskAssignmentDTOOptional = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(id);
         taskAssignmentDTOOptional.ifPresent(t -> {
             try {
-                taskTypeServiceAggregator.deleteTask(t);
+                taskTypeServiceDelegate.deleteTask(t);
             } catch (TaskTypeSpecificOperationFailedException e) {
                 e.printStackTrace();
             }
@@ -152,7 +152,7 @@ public class TaskAssignmentResource {
         }
 
         try {
-            taskTypeServiceAggregator.updateTask(taskAssignmentDTO);
+            taskTypeServiceDelegate.updateTask(taskAssignmentDTO);
             assignmentSPARQLEndpointService.updateTaskAssignment(taskAssignmentDTO);
             return ResponseEntity.noContent().build();
 

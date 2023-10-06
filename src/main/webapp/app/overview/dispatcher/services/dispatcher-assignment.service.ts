@@ -30,7 +30,7 @@ export class DispatcherAssignmentService {
   postSubmission(submission: SubmissionDTO): Observable<SubmissionIdDTO> {
     let url: string | undefined = undefined;
     if (submission.taskType === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#BpmnTask') {
-      url = `${SERVER_API_URL}api/dispatcher/bpmn/submission`;
+      url = `${SERVER_API_URL}api/bpmn/dispatcher/submission`;
     } else {
       url = `${SERVER_API_URL}api/dispatcher/submission`;
     }
@@ -48,7 +48,7 @@ export class DispatcherAssignmentService {
   getGrading(submissionId: SubmissionIdDTO): Observable<GradingDTO> {
     let url: string | undefined = undefined;
     if (submissionId.isBpmnTask !== undefined) {
-      url = `${SERVER_API_URL}api/dispatcher/grading/bpmn/${submissionId.submissionId}`;
+      url = `${SERVER_API_URL}api/bpmn/dispatcher/grading/${submissionId.submissionId}`;
     } else {
       url = `${SERVER_API_URL}api/dispatcher/grading/${submissionId.submissionId}`;
     }

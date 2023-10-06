@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.net.http.HttpRequest;
 
 @Service
-public class PmProxyService extends DispatcherProxyService{
+public final class PmProxyService extends AbstractDispatcherProxyService {
 
     public PmProxyService(ApplicationProperties properties) {
         super(properties);
@@ -25,11 +25,11 @@ public class PmProxyService extends DispatcherProxyService{
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<Integer> createPmExerciseConfiguration(PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
-        String url = dispatcherURL+"/pm/configuration";
+        String path = "/pm/configuration";
         HttpRequest request = null;
 
         try{
-            request = getPutRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseConfigDTO));
+            request = getPutRequestWithBody(path, new ObjectMapper().writeValueAsString(exerciseConfigDTO));
         }catch(JsonProcessingException e){
             e.printStackTrace();
             return ResponseEntity.status(500).body(-1);
@@ -51,11 +51,11 @@ public class PmProxyService extends DispatcherProxyService{
      * @return a ResponseEntitiy as received by the dispatcher
      */
     public ResponseEntity<String> updatePmExerciseConfiguration(int id, PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
-        String url = dispatcherURL + "/pm/configuration/"+id+"/values";
+        String path = "/pm/configuration/"+id+"/values";
         HttpRequest request = null;
 
         try {
-            request = getPostRequestWithBody(url, new ObjectMapper().writeValueAsString(exerciseConfigDTO)).build();
+            request = getPostRequestWithBody(path, new ObjectMapper().writeValueAsString(exerciseConfigDTO)).build();
         }catch (JsonProcessingException e){
             e.printStackTrace();
             return ResponseEntity.status(500).build();
@@ -70,8 +70,8 @@ public class PmProxyService extends DispatcherProxyService{
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<String> deletePmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
-        String url = dispatcherURL+"/pm/configuration/"+id;
-        var request = getDeleteRequest(url);
+        String path = "/pm/configuration/"+id;
+        var request = getDeleteRequest(path);
 
         return getResponseEntity(request, stringHandler);
     }
@@ -83,8 +83,8 @@ public class PmProxyService extends DispatcherProxyService{
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<PmExerciseConfigDTO> getPmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
-        String url = dispatcherURL+"/pm/configurations/"+id;
-        var request = getGetRequest(url);
+        String path = "/pm/configurations/"+id;
+        var request = getGetRequest(path);
         var response = getResponseEntity(request,stringHandler);
         PmExerciseConfigDTO exerciseConfigDTO = null;
 
@@ -104,8 +104,8 @@ public class PmProxyService extends DispatcherProxyService{
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<PmExerciseLogDTO> fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
-        String url = dispatcherURL+"/pm/log/"+exerciseId;
-        var request = getGetRequest(url);
+        String path = "/pm/log/"+exerciseId;
+        var request = getGetRequest(path);
         var response = getResponseEntity(request, stringHandler);
         PmExerciseLogDTO pmExerciseLogDTO = null;
 
@@ -126,8 +126,8 @@ public class PmProxyService extends DispatcherProxyService{
      * @throws DispatcherRequestFailedException
      */
     public ResponseEntity<Integer> createRandomPmExercise(int configId) throws DispatcherRequestFailedException{
-        String url = dispatcherURL+"/pm/exercise/"+configId;
-        var request = getGetRequest(url);
+        String path = "/pm/exercise/"+configId;
+        var request = getGetRequest(path);
         var response = getResponseEntity(request, stringHandler);
 
         if(response.getBody() == null){

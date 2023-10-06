@@ -6,7 +6,6 @@ import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.*;
-import at.jku.dke.etutor.service.TaskTypeServiceAggregator;
 import at.jku.dke.etutor.service.tasktypes.implementation.ProcessMiningService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
@@ -41,34 +40,34 @@ public class StudentResource {
 
     private final UserService userService;
     private final StudentService studentService;
-    private final TaskTypeServiceAggregator taskTypeServiceAggregator;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
 
     private final CourseInstanceSPARQLEndpointService courseInstanceService;
     private final ProcessMiningService processMiningService;
-    private final DispatcherSubmissionsService dispatcherSubmissionsService;
+    private final DispatcherSubmissionService dispatcherSubmissionService;
+    private final BpmnDispatcherSubmissionService bpmnDispatcherSubmissionService;
 
     /**
      * Constructor.
      *
-     * @param userService          the injected user service
-     * @param studentService       the injected student service
-     * @param processMiningService the injected process mining service
+     * @param userService                     the injected user service
+     * @param studentService                  the injected student service
+     * @param processMiningService            the injected process mining service
+     * @param bpmnDispatcherSubmissionService
      */
     public StudentResource(UserService userService,
                            StudentService studentService,
-                           TaskTypeServiceAggregator taskTypeServiceAggregator,
                            AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
                            CourseInstanceSPARQLEndpointService courseInstanceService,
                            ProcessMiningService processMiningService,
-                           DispatcherSubmissionsService dispatcherSubmissionsService) {
+                           DispatcherSubmissionService dispatcherSubmissionService, BpmnDispatcherSubmissionService bpmnDispatcherSubmissionService) {
         this.userService = userService;
         this.studentService = studentService;
-        this.taskTypeServiceAggregator = taskTypeServiceAggregator;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.courseInstanceService = courseInstanceService;
         this.processMiningService = processMiningService;
-        this.dispatcherSubmissionsService = dispatcherSubmissionsService;
+        this.dispatcherSubmissionService = dispatcherSubmissionService;
+        this.bpmnDispatcherSubmissionService = bpmnDispatcherSubmissionService;
     }
 
     /**
@@ -552,13 +551,14 @@ public class StudentResource {
      * @param exerciseSheetUUID the exercise sheet
      * @param taskNo the task number
      * @param dispatcherUUID the UUID identifying the submission
-     * @param token the JWT-Token needed to call the proxy to the dispatcher
      * @return
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
-    public ResponseEntity<Integer> processDispatcherSubmissionForIndividualTask(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+    public ResponseEntity<Integer> processDispatcherSubmissionForIndividualTask(@PathVariable String courseInstanceUUID,
+                                                                                @PathVariable String exerciseSheetUUID,
+                                                                                @PathVariable int taskNo,
+                                                                                @PathVariable String dispatcherUUID) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
         SubmissionDTO submission;
         GradingDTO grading;
@@ -568,15 +568,13 @@ public class StudentResource {
 
         // Get submission and grading according to UUID from dispatcher
         try {
-            submission = dispatcherSubmissionsService.getSubmission(dispatcherUUID);
+            submission = dispatcherSubmissionService.getSubmission(dispatcherUUID);
             Objects.requireNonNull(submission);
-            grading = dispatcherSubmissionsService.getGrading(dispatcherUUID);
+            grading = dispatcherSubmissionService.getGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException | NullPointerException e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
-
-        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
 
         // Get required information about task assignment, diagnose-level-weighting, max-points, dispatcher id
         var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
@@ -591,6 +589,8 @@ public class StudentResource {
         if(submission.getExerciseId() != dispatcherId)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
+
+        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
         // Process
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, isExerciseSheetClosed);
@@ -605,19 +605,18 @@ public class StudentResource {
      * @param exerciseSheetUUID the exercise sheet
      * @param taskNo the task number
      * @param dispatcherUUID the UUID identifying the submission
-     * @param token the JWT-Token needed to call the proxy to the dispatcher
      * @return
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/bpmn/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<Void> handleBpmnDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
-                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID, @RequestHeader(name="Authorization") String token, HttpServletRequest request) {
+                                                     @PathVariable int taskNo, @PathVariable String dispatcherUUID) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
         SubmissionDTO submission = null;
         GradingDTO grading = null;
         try {
-            submission = dispatcherSubmissionsService.getBpmnSubmission(dispatcherUUID);
-            grading = dispatcherSubmissionsService.getBpmnGrading(dispatcherUUID);
+            submission = bpmnDispatcherSubmissionService.getBpmnSubmission(dispatcherUUID);
+            grading = bpmnDispatcherSubmissionService.getBpmnGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException e) {
             e.printStackTrace();
         }
