@@ -9,7 +9,7 @@ import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.DatalogProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.DatalogClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -28,14 +28,14 @@ import java.util.*;
  */
 @Service
 public class DatalogService implements TaskTypeService, TaskGroupTypeService {
-    private final DatalogProxyService datalogProxyService;
+    private final DatalogClient datalogClient;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final ApplicationProperties properties;
 
-    public DatalogService(DatalogProxyService datalogProxyService,
+    public DatalogService(DatalogClient datalogClient,
                           AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
                           ApplicationProperties properties) {
-        this.datalogProxyService = datalogProxyService;
+        this.datalogClient = datalogClient;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.properties = properties;
     }
@@ -67,7 +67,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
         Objects.requireNonNull(taskGroupDTO);
         int id = Integer.parseInt(taskGroupDTO.getDispatcherId());
         if (id != -1) {
-            datalogProxyService.updateDLGTaskGroup(String.valueOf(id), taskGroupDTO.getDatalogFacts()).getStatusCodeValue();
+            datalogClient.updateDLGTaskGroup(String.valueOf(id), taskGroupDTO.getDatalogFacts()).getStatusCodeValue();
         }
     }
 
@@ -80,7 +80,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
     public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
         try{
             int id = assignmentSPARQLEndpointService.getDispatcherIdForTaskGroup(taskGroupDTO);
-            datalogProxyService.deleteDLGTaskGroup(id);
+            datalogClient.deleteDLGTaskGroup(id);
         }catch (DispatcherRequestFailedException ignored){
             // Ignore exception, as we do not want to throw an exception if deletion fails
         }
@@ -132,7 +132,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
         var exercise = constructDatalogExerciseDtoFromAssignmentDto(taskAssignmentDTO);
 
         // Proxy request to dispatcher
-        datalogProxyService.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
+        datalogClient.modifyDLGExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
     }
 
     /**
@@ -144,7 +144,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            datalogProxyService.deleteDLGExercise(id);
+            datalogClient.deleteDLGExercise(id);
         }catch(NumberFormatException | DispatcherRequestFailedException ignore){
             // ignore exception, as we do not want to throw an exception if deletion fails
         }
@@ -174,7 +174,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
         // Proxy request
         String body = null;
         try {
-            var response = datalogProxyService.createDLGTaskGroup(new ObjectMapper().writeValueAsString(datalogTaskGroupDTO));
+            var response = datalogClient.createDLGTaskGroup(new ObjectMapper().writeValueAsString(datalogTaskGroupDTO));
             body = String.valueOf(response.getBody());
         } catch (JsonProcessingException | DispatcherRequestFailedException e) {
             throw new DispatcherRequestFailedException("Could not parse task group to JSON. " + e.getMessage());
@@ -205,7 +205,7 @@ public class DatalogService implements TaskTypeService, TaskGroupTypeService {
      */
     private Optional<Integer> handleTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         DatalogExerciseDTO exerciseDTO = constructDatalogExerciseDtoFromAssignmentDto(newTaskAssignmentDTO);
-        var response = datalogProxyService.createDLGExercise(exerciseDTO);
+        var response = datalogClient.createDLGExercise(exerciseDTO);
         if(response.getBody() != null)
             return Optional.of(response.getBody());
         else

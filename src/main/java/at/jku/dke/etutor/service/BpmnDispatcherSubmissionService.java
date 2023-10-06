@@ -3,7 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.bpmn.BpmnSubmissionProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.bpmn.BpmnSubmissionClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import java.util.UUID;
 
 @Service
 public class BpmnDispatcherSubmissionService {
-    private final BpmnSubmissionProxyService bpmnSubmissionProxyService;
+    private final BpmnSubmissionClient bpmnSubmissionClient;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public BpmnDispatcherSubmissionService(BpmnSubmissionProxyService bpmnSubmissionProxyService) {
-        this.bpmnSubmissionProxyService = bpmnSubmissionProxyService;
+    public BpmnDispatcherSubmissionService(BpmnSubmissionClient bpmnSubmissionClient) {
+        this.bpmnSubmissionClient = bpmnSubmissionClient;
     }
 
     /**
@@ -28,7 +28,7 @@ public class BpmnDispatcherSubmissionService {
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
     public SubmissionDTO getBpmnSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(bpmnSubmissionProxyService.getBpmnSubmission(UUID).getBody(), SubmissionDTO.class);
+        return mapper.readValue(bpmnSubmissionClient.getBpmnSubmission(UUID).getBody(), SubmissionDTO.class);
     }
 
     /**
@@ -39,7 +39,7 @@ public class BpmnDispatcherSubmissionService {
      * @throws JsonProcessingException if the returned value cannot be parsed
      */
     public GradingDTO getBpmnGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(bpmnSubmissionProxyService.getBpmnGrading(UUID).getBody(), GradingDTO.class);
+        return mapper.readValue(bpmnSubmissionClient.getBpmnGrading(UUID).getBody(), GradingDTO.class);
     }
 
     /**

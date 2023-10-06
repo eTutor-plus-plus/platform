@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.bpmn;
+package at.jku.dke.etutor.service.tasktypes.client.bpmn;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -9,8 +9,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Service
-public final class BpmnProxyService extends AbstractBpmnDispatcherProxyService {
-    public BpmnProxyService(ApplicationProperties properties) {
+public final class BpmnClient extends AbstractBpmnDispatcherClient {
+    public BpmnClient(ApplicationProperties properties) {
         super(properties);
     }
 

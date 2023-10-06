@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.dke;
+package at.jku.dke.etutor.service.tasktypes.client.dke;
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import org.springframework.http.HttpHeaders;
@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class DkeSubmissionProxyService extends AbstractDispatcherProxyService {
+public final class DkeSubmissionClient extends AbstractDispatcherClient {
 
-    public DkeSubmissionProxyService(ApplicationProperties properties) {
+    public DkeSubmissionClient(ApplicationProperties properties) {
         super(properties);
     }
 

@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.dke;
+package at.jku.dke.etutor.service.tasktypes.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import java.net.http.HttpRequest;
 
 @Service
-public final class SqlProxyService extends AbstractDispatcherProxyService {
-    public SqlProxyService(ApplicationProperties properties) {
+public final class SqlClient extends AbstractDispatcherClient {
+    public SqlClient(ApplicationProperties properties) {
         super(properties);
     }
     /**

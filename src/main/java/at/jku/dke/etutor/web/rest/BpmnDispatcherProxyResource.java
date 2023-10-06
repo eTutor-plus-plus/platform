@@ -2,7 +2,7 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.bpmn.BpmnSubmissionProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.bpmn.BpmnSubmissionClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/bpmn/dispatcher")
 public class BpmnDispatcherProxyResource {
 
-    private final BpmnSubmissionProxyService dispatcherSubmissionProxyService;
+    private final BpmnSubmissionClient bpmnSubmissionClient;
 
-    public BpmnDispatcherProxyResource(BpmnSubmissionProxyService dispatcherSubmissionProxyService) {
-        this.dispatcherSubmissionProxyService = dispatcherSubmissionProxyService;
+    public BpmnDispatcherProxyResource(BpmnSubmissionClient bpmnSubmissionClient) {
+        this.bpmnSubmissionClient = bpmnSubmissionClient;
     }
 
 
@@ -27,7 +27,7 @@ public class BpmnDispatcherProxyResource {
     @GetMapping(value = "/grading/{submissionId}")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getBpmnGrading(@PathVariable String submissionId) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.getBpmnGrading(submissionId);
+        return bpmnSubmissionClient.getBpmnGrading(submissionId);
     }
 
     /**
@@ -39,7 +39,7 @@ public class BpmnDispatcherProxyResource {
     @PostMapping(value = "/submission")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> postBpmnSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.postBpmnSubmission(submissionDto, language);
+        return bpmnSubmissionClient.postBpmnSubmission(submissionDto, language);
     }
 
     /**
@@ -51,7 +51,7 @@ public class BpmnDispatcherProxyResource {
     @GetMapping(value = "/submission/{submissionUUID}")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getBpmnSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.getBpmnSubmission(submissionUUID);
+        return bpmnSubmissionClient.getBpmnSubmission(submissionUUID);
     }
 
 }

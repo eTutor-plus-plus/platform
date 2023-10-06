@@ -2,10 +2,10 @@ package at.jku.dke.etutor.web.rest;
 
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.DatalogProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.DkeSubmissionProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.SqlProxyService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.XQueryProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.DatalogClient;
+import at.jku.dke.etutor.service.tasktypes.client.dke.DkeSubmissionClient;
+import at.jku.dke.etutor.service.tasktypes.client.dke.SqlClient;
+import at.jku.dke.etutor.service.tasktypes.client.dke.XQueryClient;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,18 +19,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/dispatcher")
 public class DispatcherProxyResource {
-    private final DkeSubmissionProxyService dispatcherSubmissionProxyService;
-    private final SqlProxyService sqlProxyService;
-    private final DatalogProxyService datalogProxyService;
-    private final XQueryProxyService xQueryProxyService;
-    public DispatcherProxyResource(DkeSubmissionProxyService dispatcherSubmissionProxyService,
-                                   SqlProxyService sqlProxyService,
-                                   DatalogProxyService datalogProxyService,
-                                   XQueryProxyService xQueryProxyService){
-        this.dispatcherSubmissionProxyService = dispatcherSubmissionProxyService;
-        this.sqlProxyService = sqlProxyService;
-        this.datalogProxyService = datalogProxyService;
-        this.xQueryProxyService = xQueryProxyService;
+    private final DkeSubmissionClient dkeSubmissionClient;
+    private final SqlClient sqlCLient;
+    private final DatalogClient datalogClient;
+    private final XQueryClient xQueryClient;
+    public DispatcherProxyResource(DkeSubmissionClient dkeSubmissionClient,
+                                   SqlClient sqlCLient,
+                                   DatalogClient datalogClient,
+                                   XQueryClient xQueryClient){
+        this.dkeSubmissionClient = dkeSubmissionClient;
+        this.sqlCLient = sqlCLient;
+        this.datalogClient = datalogClient;
+        this.xQueryClient = xQueryClient;
     }
 
     /**
@@ -45,7 +45,7 @@ public class DispatcherProxyResource {
     @GetMapping(value="/grading/{submissionId}")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.getGrading(submissionId);
+        return dkeSubmissionClient.getGrading(submissionId);
 
     }
 
@@ -57,7 +57,7 @@ public class DispatcherProxyResource {
     @PostMapping(value="/submission")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> postSubmission(@RequestBody String submissionDto, @RequestHeader("Accept-Language") String language) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.postSubmission(submissionDto, language);
+        return dkeSubmissionClient.postSubmission(submissionDto, language);
     }
 
     /**
@@ -68,13 +68,13 @@ public class DispatcherProxyResource {
     @GetMapping(value="/submission/{submissionUUID}")
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getSubmission(@PathVariable String submissionUUID) throws DispatcherRequestFailedException {
-        return dispatcherSubmissionProxyService.getSubmission(submissionUUID);
+        return dkeSubmissionClient.getSubmission(submissionUUID);
     }
 
 
     @GetMapping(value="/sql/table/{tableName}")
     public ResponseEntity<String> getHTMLTableForSQL(@PathVariable String tableName, @RequestParam(defaultValue = "-1") int connId, @RequestParam(defaultValue="-1") int exerciseId, @RequestParam(defaultValue = "") String taskGroup) throws DispatcherRequestFailedException {
-        return sqlProxyService.getHTMLTableForSQL(tableName, connId, exerciseId, taskGroup);
+        return sqlCLient.getHTMLTableForSQL(tableName, connId, exerciseId, taskGroup);
     }
 
     /**
@@ -84,7 +84,7 @@ public class DispatcherProxyResource {
      */
     @GetMapping("/datalog/facts/id/{id}")
     public ResponseEntity<String> getDLGFacts(@PathVariable int id) throws DispatcherRequestFailedException {
-        return datalogProxyService.getDLGFacts(id);
+        return datalogClient.getDLGFacts(id);
     }
 
     /**
@@ -94,7 +94,7 @@ public class DispatcherProxyResource {
      */
     @GetMapping("/datalog/facts/id/{id}/asinputstream")
     public ResponseEntity<Resource> getDLGFactsAsInputStream(@PathVariable int id) throws DispatcherRequestFailedException {
-        return datalogProxyService.getDLGFactsAsInputStream(id);
+        return datalogClient.getDLGFactsAsInputStream(id);
     }
 
     /**
@@ -104,7 +104,7 @@ public class DispatcherProxyResource {
      */
     @GetMapping("/xquery/xml/fileid/{id}")
     public ResponseEntity<String> getXMLForXQByFileId(@PathVariable int id) throws DispatcherRequestFailedException {
-        return xQueryProxyService.getXMLForXQByFileId(id);
+        return xQueryClient.getXMLForXQByFileId(id);
     }
 
     /**
@@ -114,6 +114,6 @@ public class DispatcherProxyResource {
      */
     @GetMapping("/xquery/xml/fileid/{id}/asinputstream")
     public ResponseEntity<Resource> getXMLForXQByFileIdAsInputStream(@PathVariable int id) throws DispatcherRequestFailedException {
-        return xQueryProxyService.getXMLForXQByFileIdAsInputStream(id);
+        return xQueryClient.getXMLForXQByFileIdAsInputStream(id);
     }
 }

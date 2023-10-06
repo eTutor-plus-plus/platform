@@ -2,7 +2,7 @@ package at.jku.dke.etutor.service.tasktypes.implementation;
 
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.proxy.bpmn.BpmnProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.bpmn.BpmnClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BpmnService implements TaskTypeService {
-    private final BpmnProxyService bpmnProxyService;
-    public BpmnService(BpmnProxyService bpmnProxyService) {
-        this.bpmnProxyService = bpmnProxyService;
+    private final BpmnClient bpmnClient;
+    public BpmnService(BpmnClient bpmnClient) {
+        this.bpmnClient = bpmnClient;
     }
 
     @Override
@@ -44,14 +44,14 @@ public class BpmnService implements TaskTypeService {
         }
 
         String exercise = taskAssignmentDTO.getBpmnTestConfig();
-        bpmnProxyService.modifyBpmnExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
+        bpmnClient.modifyBpmnExercise(exercise, Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
     }
 
     @Override
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            bpmnProxyService.deleteBpmnExercise(id);
+            bpmnClient.deleteBpmnExercise(id);
         }catch (NumberFormatException e) {
             throw new DispatcherRequestFailedException("Dispatcher id is not a number");
         }
@@ -59,7 +59,7 @@ public class BpmnService implements TaskTypeService {
 
     private int handleTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         String bpmnExercise = newTaskAssignmentDTO.getBpmnTestConfig();
-        ResponseEntity<Integer> response = bpmnProxyService.createBpmnExercise(bpmnExercise);
+        ResponseEntity<Integer> response = bpmnClient.createBpmnExercise(bpmnExercise);
         if(response.getBody() != null) return response.getBody();
         else return -1;
     }

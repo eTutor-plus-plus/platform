@@ -3,7 +3,7 @@ package at.jku.dke.etutor.service;
 import at.jku.dke.etutor.objects.dispatcher.GradingDTO;
 import at.jku.dke.etutor.objects.dispatcher.SubmissionDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.DkeSubmissionProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.DkeSubmissionClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -18,10 +18,10 @@ import java.util.UUID;
  */
 @Service
 public class DispatcherSubmissionService {
-    private final DkeSubmissionProxyService dispatcherSubmissionProxyService;
+    private final DkeSubmissionClient dkeSubmissionClient;
     private final ObjectMapper mapper;
-    public DispatcherSubmissionService(DkeSubmissionProxyService dispatcherSubmissionProxyService){
-        this.dispatcherSubmissionProxyService = dispatcherSubmissionProxyService;
+    public DispatcherSubmissionService(DkeSubmissionClient dkeSubmissionClient){
+        this.dkeSubmissionClient = dkeSubmissionClient;
         this.mapper = new ObjectMapper();
     }
 
@@ -33,7 +33,7 @@ public class DispatcherSubmissionService {
      * @throws JsonProcessingException if the returned value cannot be deserialized
      */
     public SubmissionDTO getSubmission(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(dispatcherSubmissionProxyService.getSubmission(UUID).getBody(), SubmissionDTO.class);
+        return mapper.readValue(dkeSubmissionClient.getSubmission(UUID).getBody(), SubmissionDTO.class);
     }
 
 
@@ -45,7 +45,7 @@ public class DispatcherSubmissionService {
      * @throws JsonProcessingException if the returned value cannot be parsed
      */
     public GradingDTO getGrading(String UUID) throws JsonProcessingException, DispatcherRequestFailedException {
-        return mapper.readValue(dispatcherSubmissionProxyService.getGrading(UUID).getBody(), GradingDTO.class);
+        return mapper.readValue(dkeSubmissionClient.getGrading(UUID).getBody(), GradingDTO.class);
     }
 
     /**

@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy;
+package at.jku.dke.etutor.service.tasktypes.client;
 
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import org.jetbrains.annotations.NotNull;
@@ -14,13 +14,13 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
-public abstract class AbstractProxyService{
+public abstract class AbstractClient {
     private final String baseUrl;
     protected HttpClient client;
 
     protected HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
-    protected AbstractProxyService(String baseUrl){
+    protected AbstractClient(String baseUrl){
         this.baseUrl = baseUrl;
         init();
     }

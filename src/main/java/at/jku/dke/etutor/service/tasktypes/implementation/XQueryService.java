@@ -9,7 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.XQueryProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.XQueryClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -31,13 +31,13 @@ import java.util.Optional;
  */
 @Service
 public class XQueryService implements TaskTypeService, TaskGroupTypeService {
-    private final XQueryProxyService xQueryProxyService;
+    private final XQueryClient xQueryClient;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final ApplicationProperties properties;
-    public XQueryService(XQueryProxyService xQueryProxyService,
+    public XQueryService(XQueryClient xQueryClient,
                          AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
                          ApplicationProperties properties) {
-        this.xQueryProxyService = xQueryProxyService;
+        this.xQueryClient = xQueryClient;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.properties = properties;
     }
@@ -81,7 +81,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
     public void deleteTaskGroup(TaskGroupDTO taskGroupDTO) throws DispatcherRequestFailedException {
         try{
             String taskGroupName = taskGroupDTO.getName().trim().replace(" ", "_");
-            xQueryProxyService.deleteXMLofXQTaskGroup(taskGroupName);
+            xQueryClient.deleteXMLofXQTaskGroup(taskGroupName);
         }catch (DispatcherRequestFailedException ignore){
             // Ignore
         }
@@ -145,7 +145,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
         XQExerciseDTO dto = constructXqExerciseDto(taskAssignmentDTO);
         String body = serializeXqExerciseDto(dto);
 
-        xQueryProxyService.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), body);
+        xQueryClient.updateXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()), body);
     }
 
     /**
@@ -156,7 +156,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
     @Override
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         try{
-            xQueryProxyService.deleteXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
+            xQueryClient.deleteXQExercise(Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()));
         }catch (DispatcherRequestFailedException ignore){
             // Ignore
         }
@@ -177,7 +177,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
         XMLDefinitionDTO xmlDefinitionDTO = constructXmlDefinitionDTO(newTaskGroupDTO);
 
         String body = serializeXmlDefinitionDto(xmlDefinitionDTO);
-        var response = xQueryProxyService.addXMLForXQTaskGroup(newTaskGroupDTO.getName().trim().replace(" ", "_"), body);
+        var response = xQueryClient.addXMLForXQTaskGroup(newTaskGroupDTO.getName().trim().replace(" ", "_"), body);
         var fileURL = response.getBody();
 
         if(isNew){
@@ -270,7 +270,7 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
             .getTaskGroupId()
             .substring(newTaskAssignmentDTO.getTaskGroupId()
                 .indexOf("#") + 1).trim().replace(" ", "_");
-        var response = xQueryProxyService.createXQExercise(taskGroupName, body);
+        var response = xQueryClient.createXQExercise(taskGroupName, body);
 
         return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
     }

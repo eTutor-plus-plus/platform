@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.dke;
+package at.jku.dke.etutor.service.tasktypes.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import java.net.http.HttpRequest;
 
 @Service
-public final class PmProxyService extends AbstractDispatcherProxyService {
+public final class PmClient extends AbstractDispatcherClient {
 
-    public PmProxyService(ApplicationProperties properties) {
+    public PmClient(ApplicationProperties properties) {
         super(properties);
     }
 

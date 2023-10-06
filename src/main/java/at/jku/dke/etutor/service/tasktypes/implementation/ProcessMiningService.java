@@ -4,7 +4,7 @@ import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.PmProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.PmClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -17,10 +17,10 @@ import java.util.Optional;
 
 @Service
 public class ProcessMiningService implements TaskTypeService {
-    private final PmProxyService pmProxyService;
+    private final PmClient processMiningClient;
 
-    public ProcessMiningService(PmProxyService pmProxyService) {
-        this.pmProxyService = pmProxyService;
+    public ProcessMiningService(PmClient processMiningClient) {
+        this.processMiningClient = processMiningClient;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ProcessMiningService implements TaskTypeService {
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
 
             // Proxy request to dispatcher
-            pmProxyService.updatePmExerciseConfiguration(id, configDTO);
+            processMiningClient.updatePmExerciseConfiguration(id, configDTO);
         }else{
             throw new MissingParameterException("ConfigNum, MaxActivity, MinActivity, MaxLogSize or MinLogSize is missing");
         }
@@ -64,7 +64,7 @@ public class ProcessMiningService implements TaskTypeService {
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            pmProxyService.deletePmExerciseConfiguration(id);
+            processMiningClient.deletePmExerciseConfiguration(id);
         }catch (NumberFormatException e){
             throw new DispatcherRequestFailedException("Dispatcher id is not a number");
         }
@@ -79,7 +79,7 @@ public class ProcessMiningService implements TaskTypeService {
         // get PmExerciseConfigDTO required by the dispatcher to create the configuration
         var pmExerciseConfigDTO = getPmExerciseConfigDTOFromTaskAssignment(newTaskAssignmentDTO);
         // Proxy request to dispatcher
-        var response = pmProxyService.createPmExerciseConfiguration(pmExerciseConfigDTO);
+        var response = processMiningClient.createPmExerciseConfiguration(pmExerciseConfigDTO);
         // return dispatcher -id of the exercise configuration
         return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
     }
@@ -103,12 +103,12 @@ public class ProcessMiningService implements TaskTypeService {
 
     public Optional<Integer> createRandomPmTask(int configId) throws DispatcherRequestFailedException {
         // proxy request to dispatcher
-        var response = pmProxyService.createRandomPmExercise(configId);
+        var response = processMiningClient.createRandomPmExercise(configId);
         // return dispatcher id of the random exercise
         return Optional.ofNullable(response.getBody());
     }
 
     public PmExerciseLogDTO fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException {
-        return pmProxyService.fetchLogToExercise(exerciseId).getBody();
+        return processMiningClient.fetchLogToExercise(exerciseId).getBody();
     }
 }

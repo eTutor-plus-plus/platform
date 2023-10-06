@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.dke;
+package at.jku.dke.etutor.service.tasktypes.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 
 @Service
-public final class XQueryProxyService extends AbstractDispatcherProxyService {
+public final class XQueryClient extends AbstractDispatcherClient {
 
-    public XQueryProxyService(ApplicationProperties properties) {
+    public XQueryClient(ApplicationProperties properties) {
         super(properties);
     }
 

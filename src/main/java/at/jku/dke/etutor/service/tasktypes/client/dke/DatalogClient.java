@@ -1,4 +1,4 @@
-package at.jku.dke.etutor.service.tasktypes.proxy.dke;
+package at.jku.dke.etutor.service.tasktypes.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
@@ -18,8 +18,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Service
-public final class DatalogProxyService extends AbstractDispatcherProxyService {
-    public DatalogProxyService(ApplicationProperties properties) {
+public final class DatalogClient extends AbstractDispatcherClient {
+    public DatalogClient(ApplicationProperties properties) {
         super(properties);
     }
 

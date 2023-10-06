@@ -9,7 +9,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.NewTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskGroupTypeService;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
-import at.jku.dke.etutor.service.tasktypes.proxy.dke.SqlProxyService;
+import at.jku.dke.etutor.service.tasktypes.client.dke.SqlClient;
 import at.jku.dke.etutor.service.dto.taskassignment.NewTaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskGroupDTO;
@@ -29,13 +29,13 @@ import java.util.*;
  */
 @Service
 public class SqlService implements TaskTypeService, TaskGroupTypeService {
-    private final SqlProxyService sqlProxyService;
+    private final SqlClient sqlClient;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final ApplicationProperties properties;
-    public SqlService(SqlProxyService sqlProxyService,
+    public SqlService(SqlClient sqlClient,
                       AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
                       ApplicationProperties properties) {
-        this.sqlProxyService = sqlProxyService;
+        this.sqlClient = sqlClient;
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.properties = properties;
     }
@@ -73,8 +73,8 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
 
         String taskGroupName = taskGroupDTO.getName().trim().replace(" ", "_");
         try {
-            sqlProxyService.deleteSQLSchema(taskGroupName);
-            sqlProxyService.deleteSQLConnection(taskGroupName);
+            sqlClient.deleteSQLSchema(taskGroupName);
+            sqlClient.deleteSQLConnection(taskGroupName);
         } catch (DispatcherRequestFailedException ignore) {
             // we ignore this
         }
@@ -126,7 +126,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
             String solution = taskAssignmentDTO.getSqlSolution();
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            sqlProxyService.updateSQLExerciseSolution(id, solution);
+            sqlClient.updateSQLExerciseSolution(id, solution);
         }else{
             throw new MissingParameterException("SqlSolution is missing");
         }
@@ -141,7 +141,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO)  {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            sqlProxyService.deleteSQLExercise(id);
+            sqlClient.deleteSQLExercise(id);
         }catch(NumberFormatException | DispatcherRequestFailedException ignore){
             // we ignore it if deletion is not successful
         }
@@ -232,7 +232,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         String taskGroup = newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#") + 1).trim().replace(" ", "_");
 
         // Proxy request to dispatcher
-        var response = sqlProxyService.createSQLExercise(solution, taskGroup);
+        var response = sqlClient.createSQLExercise(solution, taskGroup);
 
         // Return dispatcher-id of the exercise
         try{
@@ -298,7 +298,7 @@ public class SqlService implements TaskTypeService, TaskGroupTypeService {
         } catch (JsonProcessingException e) {
             throw new TaskTypeSpecificOperationFailedException(e.getMessage());
         }
-        return sqlProxyService.executeDDLForSQL(jsonBody);
+        return sqlClient.executeDDLForSQL(jsonBody);
     }
 
     /**
