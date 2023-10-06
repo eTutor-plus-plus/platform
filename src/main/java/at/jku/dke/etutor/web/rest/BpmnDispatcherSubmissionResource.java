@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/bpmn/dispatcher")
-public class BpmnDispatcherProxyResource {
+public class BpmnDispatcherSubmissionResource {
 
     private final BpmnSubmissionClient bpmnSubmissionClient;
 
-    public BpmnDispatcherProxyResource(BpmnSubmissionClient bpmnSubmissionClient) {
+    public BpmnDispatcherSubmissionResource(BpmnSubmissionClient bpmnSubmissionClient) {
         this.bpmnSubmissionClient = bpmnSubmissionClient;
     }
 

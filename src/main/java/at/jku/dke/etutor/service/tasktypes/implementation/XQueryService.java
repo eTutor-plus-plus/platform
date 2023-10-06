@@ -117,19 +117,6 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
     }
 
     /**
-     * Checks whether the task type fits the task group type.
-     * Fetches the task-group set in the task assignment and compares the group type with the task assignment type.
-     * @param newTaskAssignmentDTO the task assignment
-     * @return a boolean indicating whether the task type fits the task group type
-     */
-    private boolean taskTypeFitsTaskGroupType(NewTaskAssignmentDTO newTaskAssignmentDTO) {
-        // Fetch group to compare the group type with the task assignment type
-        var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
-        return group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()))
-            .isPresent();
-    }
-
-    /**
      * Updates a task.
      * If the task group is of type XQuery, the task is updated in the XQueryProxy.
      *
@@ -274,5 +261,17 @@ public class XQueryService implements TaskTypeService, TaskGroupTypeService {
         return exerciseDTO;
     }
 
+    /**
+     * Checks whether the task type fits the task group type.
+     * Fetches the task-group set in the task assignment and compares the group type with the task assignment type.
+     * @param newTaskAssignmentDTO the task assignment
+     * @return a boolean indicating whether the task type fits the task group type
+     */
+    private boolean taskTypeFitsTaskGroupType(NewTaskAssignmentDTO newTaskAssignmentDTO) {
+        // Fetch group to compare the group type with the task assignment type
+        var group = assignmentSPARQLEndpointService.getTaskGroupByName(newTaskAssignmentDTO.getTaskGroupId().substring(newTaskAssignmentDTO.getTaskGroupId().indexOf("#")+1));
+        return group.filter(g -> g.getTaskGroupTypeId().equals(ETutorVocabulary.XQueryTypeTaskGroup.toString()))
+            .isPresent();
+    }
 
 }

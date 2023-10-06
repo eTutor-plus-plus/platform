@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+// NOTE: Do not at this client for an best-practice implementation of a client.
 @Service
 public final class BpmnClient extends AbstractBpmnDispatcherClient {
     public BpmnClient(ApplicationProperties properties) {

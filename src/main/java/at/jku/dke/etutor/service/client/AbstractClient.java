@@ -18,23 +18,18 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 
 public abstract class AbstractClient {
+    private static final Integer NUMBER_OF_THREADS = 30;
+    private static final HttpClient CLIENT = HttpClient
+        .newBuilder()
+        .executor(Executors.newFixedThreadPool(NUMBER_OF_THREADS))
+        .build();
     private final String baseUrl;
     private final ObjectMapper mapper;
-    protected HttpClient client;
-
-    protected HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
+    protected final HttpResponse.BodyHandler<String> stringHandler = HttpResponse.BodyHandlers.ofString();
 
     protected AbstractClient(String baseUrl){
         this.baseUrl = baseUrl;
         this.mapper = new ObjectMapper();
-        initHttpClient();
-    }
-
-    private void initHttpClient(){
-        this.client = HttpClient
-            .newBuilder()
-            .executor(Executors.newFixedThreadPool(10))
-            .build();
     }
 
     /**
@@ -108,7 +103,7 @@ public abstract class AbstractClient {
      */
     protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
-            HttpResponse<T> response = this.client.send(request, handler);
+            HttpResponse<T> response = this.CLIENT.send(request, handler);
             if (response.statusCode() == 500)
                 throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
             return ResponseEntity.status(response.statusCode()).body(response.body());
@@ -127,7 +122,7 @@ public abstract class AbstractClient {
      */
     protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler, int... ignoredStatusCodes) throws DispatcherRequestFailedException {
         try {
-            HttpResponse<T> response = this.client.send(request, handler);
+            HttpResponse<T> response = this.CLIENT.send(request, handler);
             if (Arrays.stream(ignoredStatusCodes).filter(i -> i == response.statusCode()).findAny().isEmpty())
                 throw new DispatcherRequestFailedException("Expected status codes " + Arrays.toString(ignoredStatusCodes) + " but got " + response.statusCode() + " instead.");
             return ResponseEntity.status(response.statusCode()).body(response.body());

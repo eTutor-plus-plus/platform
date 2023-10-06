@@ -25,39 +25,44 @@ public class ProcessMiningService implements TaskTypeService {
 
     @Override
     public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException, NotAValidTaskGroupException {
-        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString())) return;
+        if(!newTaskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()))
+            return;
 
-        if(newTaskAssignmentDTO.getMaxActivity() != 0
-            && newTaskAssignmentDTO.getMinActivity() != 0
-            && newTaskAssignmentDTO.getMaxLogSize() != 0
-            && newTaskAssignmentDTO.getMinLogSize() != 0
-            && StringUtils.isNotBlank(newTaskAssignmentDTO.getConfigNum())){
-            // creates task and returns dispatcher id
-            var optId = this.createPmTaskConfiguration(newTaskAssignmentDTO);
+        if(newTaskAssignmentDTO.getMaxActivity() == 0 ||
+            newTaskAssignmentDTO.getMinActivity() == 0 ||
+            newTaskAssignmentDTO.getMaxLogSize() == 0 ||
+            newTaskAssignmentDTO.getMinLogSize() == 0 ||
+            StringUtils.isBlank(newTaskAssignmentDTO.getConfigNum())) {
 
-            // set Dispatcher id of configuration
-            optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
-        }else{
             throw new MissingParameterException("Not enough values provided to create a Process Mining Task");
         }
+
+        var optId = this.createPmTaskConfiguration(newTaskAssignmentDTO);
+
+        // set Dispatcher id of configuration
+        optId.map(String::valueOf).ifPresent(newTaskAssignmentDTO::setTaskIdForDispatcher);
     }
 
     @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
-        if(StringUtils.isNotBlank(taskAssignmentDTO.getConfigNum()) && taskAssignmentDTO.getMaxActivity() != 0 && taskAssignmentDTO.getMinActivity() != 0 &&
-            taskAssignmentDTO.getMaxLogSize() !=0 && taskAssignmentDTO.getMinLogSize() != 0){
-            //Initialize DTO from TaskAssignment DTO
-            var configDTO = getPmExerciseConfigDTOFromTaskAssignment(taskAssignmentDTO);
+        if(!taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.PmTask.toString()))
+            return;
 
-            // get id
-            int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
+        if(taskAssignmentDTO.getMaxActivity() == 0 ||
+            taskAssignmentDTO.getMinActivity() == 0 ||
+            taskAssignmentDTO.getMaxLogSize() == 0 ||
+            taskAssignmentDTO.getMinLogSize() == 0 ||
+            StringUtils.isBlank(taskAssignmentDTO.getConfigNum())) {
 
-            // Proxy request to dispatcher
-            processMiningClient.updatePmExerciseConfiguration(id, configDTO);
-        }else{
-            throw new MissingParameterException("ConfigNum, MaxActivity, MinActivity, MaxLogSize or MinLogSize is missing");
+            throw new MissingParameterException("Not enough values provided to create a Process Mining Task");
         }
+        var configDTO = getPmExerciseConfigDTOFromTaskAssignment(taskAssignmentDTO);
 
+        // get id
+        int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
+
+        // Proxy request to dispatcher
+        processMiningClient.updatePmExerciseConfiguration(id, configDTO);
     }
 
     @Override
@@ -81,7 +86,7 @@ public class ProcessMiningService implements TaskTypeService {
         // Proxy request to dispatcher
         var response = processMiningClient.createPmExerciseConfiguration(pmExerciseConfigDTO);
         // return dispatcher -id of the exercise configuration
-        return response.getBody() != null ? Optional.of(response.getBody()) : Optional.empty();
+        return Optional.of(response);
     }
     /**
      * Utility method that takes a task assignment and initializes a {@link PmExerciseConfigDTO} with the required information
@@ -105,10 +110,10 @@ public class ProcessMiningService implements TaskTypeService {
         // proxy request to dispatcher
         var response = processMiningClient.createRandomPmExercise(configId);
         // return dispatcher id of the random exercise
-        return Optional.ofNullable(response.getBody());
+        return Optional.of(response);
     }
 
     public PmExerciseLogDTO fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException {
-        return processMiningClient.fetchLogToExercise(exerciseId).getBody();
+        return processMiningClient.fetchLogToExercise(exerciseId);
     }
 }

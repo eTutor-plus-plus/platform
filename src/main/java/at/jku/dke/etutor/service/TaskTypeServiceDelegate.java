@@ -19,6 +19,8 @@ import java.util.Objects;
  * Service that aggregates all task-type and task-group-type specific services.
  * {@link TaskTypeService} is the interface for all task-type specific services.
  * {@link TaskGroupTypeService} is the interface for all task-group-type specific services.
+ * To add a new task-type or task-group-type specific service, implement the corresponding interface and add it to {@link #getTaskTypeSpecificServiceForTaskAssignmentTypeId(String)}
+ * or {@link #getTaskTypeSpecificServiceForTaskGroupTypeId(String)}.
  */
 @Service
 @Primary
@@ -133,6 +135,8 @@ public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeSe
             taskTypeService.deleteTask(taskAssignmentDTO);
         }
     }
+
+    // private region
 
     /**
      * Returns the task-type-specific service for the given task assignment type id.

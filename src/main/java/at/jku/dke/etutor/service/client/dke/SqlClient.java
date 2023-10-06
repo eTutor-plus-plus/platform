@@ -101,7 +101,7 @@ public final class SqlClient extends AbstractDispatcherClient {
         var request = getDeleteRequest("/sql/exercise/"+id);
         getResponseEntity(request, stringHandler, 200);
     }
-
+    // Method called by controller returns response entity
     public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
         String url = "/sql/table/"+encodeValue(tableName);
         // Table names are only unique in the namespace of a task group, which can be identified in the dispatcher by the connection-id, the exercise-id, or the taskgroup-name

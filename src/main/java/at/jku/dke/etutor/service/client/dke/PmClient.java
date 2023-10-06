@@ -22,9 +22,9 @@ public final class PmClient extends AbstractDispatcherClient {
      * Requests the creation of a pm exercise configuration -> sends the PUT-request for creating an Pm exercise config to the dispatcher
      * @param exerciseConfigDTO the {@link PmExerciseConfigDTO} wrapping the configuration information
      * @return an {@link ResponseEntity} wrapping the assigned configuration id
-     * @throws DispatcherRequestFailedException
+     * @throws DispatcherRequestFailedException if an error occurs
      */
-    public ResponseEntity<Integer> createPmExerciseConfiguration(PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
+    public Integer createPmExerciseConfiguration(PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
         String path = "/pm/configuration";
         HttpRequest request = null;
 
@@ -34,22 +34,20 @@ public final class PmClient extends AbstractDispatcherClient {
             throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
 
-        var response = getResponseEntity(request, stringHandler);
+        var response = getResponseEntity(request, stringHandler, 200);
         if(response.getBody() == null){
             throw new DispatcherRequestFailedException("No id has returned by the dispatcher");
         }
 
-        var id = Integer.parseInt(response.getBody());
-        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+        return Integer.parseInt(response.getBody());
     }
 
     /**
      * Sends the request to update the parameters of an existing configuration to the dispatcher
      * @param id the configuration id
      * @param exerciseConfigDTO the parameters
-     * @return a ResponseEntitiy as received by the dispatcher
      */
-    public ResponseEntity<String> updatePmExerciseConfiguration(int id, PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
+    public void updatePmExerciseConfiguration(int id, PmExerciseConfigDTO exerciseConfigDTO) throws DispatcherRequestFailedException{
         String path = "/pm/configuration/"+id+"/values";
         HttpRequest request = null;
 
@@ -58,80 +56,73 @@ public final class PmClient extends AbstractDispatcherClient {
         }catch (JsonProcessingException e){
             throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
-        return getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**
      * Deletes a Process Mining Exercise Configuration
      * @param id the exercise id
-     * @return a Response Entity
-     * @throws DispatcherRequestFailedException
+     * @throws DispatcherRequestFailedException if an error occurs
      */
-    public ResponseEntity<String> deletePmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
+    public void deletePmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
         String path = "/pm/configuration/"+id;
         var request = getDeleteRequest(path);
 
-        return getResponseEntity(request, stringHandler);
+        getResponseEntity(request, stringHandler, 200);
     }
 
     /**
      * Requests information about a pm exercise configuration from the dispatcher
      * @param id the id of the configuration
      * @return the {@link PmExerciseConfigDTO} wrapping the information
-     * @throws DispatcherRequestFailedException
+     * @throws DispatcherRequestFailedException if an error occurs
      */
-    public ResponseEntity<PmExerciseConfigDTO> getPmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
+    public PmExerciseConfigDTO getPmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
         String path = "/pm/configurations/"+id;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request,stringHandler);
+        var response = getResponseEntity(request,stringHandler, 200);
         PmExerciseConfigDTO exerciseConfigDTO = null;
 
         try{
-            exerciseConfigDTO = new ObjectMapper().readValue(response.getBody(), PmExerciseConfigDTO.class);
+            return deserialize(response.getBody(), PmExerciseConfigDTO.class);
         }catch (JsonProcessingException e){
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(new PmExerciseConfigDTO());
+            throw new DispatcherRequestFailedException("Could not deserialize the response body");
         }
-        return ResponseEntity.status(response.getStatusCodeValue()).body(exerciseConfigDTO);
     }
 
     /**
      * Requests information about a pm exercise log from the dispatcher
      * @param exerciseId the exercise id corresponding to the requested log
      * @return the {@link PmExerciseLogDTO} wrapping the information
-     * @throws DispatcherRequestFailedException
+     * @throws DispatcherRequestFailedException if an error occurs
      */
-    public ResponseEntity<PmExerciseLogDTO> fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
+    public PmExerciseLogDTO fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
         String path = "/pm/log/"+exerciseId;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request, stringHandler);
-        PmExerciseLogDTO pmExerciseLogDTO = null;
+        var response = getResponseEntity(request, stringHandler, 200);
 
         try{
-            pmExerciseLogDTO = new ObjectMapper().readValue(response.getBody(), PmExerciseLogDTO.class);
+            return deserialize(response.getBody(), PmExerciseLogDTO.class);
         }catch(JsonProcessingException e){
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(new PmExerciseLogDTO());
+            throw new DispatcherRequestFailedException("Could not deserialize the response body");
         }
-        return ResponseEntity.status(response.getStatusCodeValue()).body(pmExerciseLogDTO);
     }
 
     /**
      * Requests the creation of a random exercise -> sends the GET- request for creating a random pm exercise
      * based on the configuration id
      * @param configId the configuration id passed by the eTutor
-     * @return {@link ResponseEntity} wrapping the assigned pm exercise id
-     * @throws DispatcherRequestFailedException
+     * @return the assigned pm exercise id
+     * @throws DispatcherRequestFailedException if an error occurs
      */
-    public ResponseEntity<Integer> createRandomPmExercise(int configId) throws DispatcherRequestFailedException{
+    public Integer createRandomPmExercise(int configId) throws DispatcherRequestFailedException{
         String path = "/pm/exercise/"+configId;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request, stringHandler);
+        var response = getResponseEntity(request, stringHandler, 200);
 
         if(response.getBody() == null){
             throw new DispatcherRequestFailedException("No id has returned by the dispatcher");
         }
-        var id = Integer.parseInt(response.getBody());
-        return ResponseEntity.status(response.getStatusCodeValue()).body(id);
+        return Integer.parseInt(response.getBody());
     }
 }
