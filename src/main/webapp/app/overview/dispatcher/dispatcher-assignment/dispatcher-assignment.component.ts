@@ -5,6 +5,7 @@ import { SubmissionIdDTO } from 'app/overview/dispatcher/entities/SubmissionIdDT
 import { DispatcherAssignmentService } from 'app/overview/dispatcher/services/dispatcher-assignment.service';
 import { getEditorOptionsForTaskTypeUrl, MonacoEditorOptions, switchModeOfEditorConfig } from '../monaco-config';
 import { TaskAssignmentType } from '../../tasks/task.model';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Component for handling an Assignment which has to be evaluated by the dispatcher
@@ -120,32 +121,39 @@ export class DispatcherAssignmentComponent {
    * @private
    */
   private submissionIdDto!: SubmissionIdDTO;
-  private action!: string;
 
   /**
    * The constructor
    * @param assignmentService service for communicating with the dispatcher
    */
-  constructor(private assignmentService: DispatcherAssignmentService) {}
+  constructor(private assignmentService: DispatcherAssignmentService, private translate: TranslateService) {}
 
   /**
    * Creates a SubmissionDTO and uses the {@link assignmentService} to send it to the dispatcher
    *
    */
   public processSubmission(action = 'diagnose'): void {
-    this.action = action;
     if (this.diagnoseLevels.includes(this.diagnoseLevelText)) {
+      const confirmedByUser = this.alertUserAboutPossibleDeductionsForDiagnoseLevel(action);
+      if (!confirmedByUser) {
+        return;
+      }
       this.diagnoseLevel = this.diagnoseLevels.indexOf(this.diagnoseLevelText);
+      this.updateHighestChosenDiagnoseLevel();
     } else {
       this.diagnoseLevel = 0;
     }
-    const submissionDto = this.initializeSubmissionDTO();
 
+    const submissionDto = this.initializeSubmissionDTO(action);
     this.assignmentService.postSubmission(submissionDto).subscribe(submissionId => {
       this.submissionIdDto = submissionId;
       this.submissionDto.submissionId = submissionId.submissionId;
       this.getGrading();
     });
+  }
+
+  public switchEditorMode(): void {
+    this.editorOptions = switchModeOfEditorConfig(this.editorOptions);
   }
 
   /**
@@ -178,9 +186,9 @@ export class DispatcherAssignmentComponent {
    * Initializes the {@link SubmissionDTO} as required by the dispatcher
    * @private
    */
-  private initializeSubmissionDTO(): SubmissionDTO {
+  private initializeSubmissionDTO(action: string): SubmissionDTO {
     const attributes = new Map<string, string>();
-    attributes.set('action', this.action);
+    attributes.set('action', action);
     attributes.set('submission', this.submission ?? '');
     attributes.set('diagnoseLevel', this.diagnoseLevel.toFixed());
 
@@ -211,8 +219,20 @@ export class DispatcherAssignmentComponent {
     this.isBpmnTask = this._task_type === TaskAssignmentType.BpmnTask.value;
   }
 
-  switchEditorMode() {
-    const newOptions = switchModeOfEditorConfig(this.editorOptions);
-    this.editorOptions = switchModeOfEditorConfig(this.editorOptions);
+  private alertUserAboutPossibleDeductionsForDiagnoseLevel(action: string): boolean {
+    if (
+      this.diagnoseLevels.indexOf(this.diagnoseLevelText) > this._highestChosenDiagnoseLevel &&
+      +this.diagnoseLevelWeighting > 0 &&
+      action === 'diagnose'
+    ) {
+      const deduction = +this.diagnoseLevelWeighting * this.diagnoseLevels.indexOf(this.diagnoseLevelText);
+      return confirm(this.translate.instant('dispatcherAssignment.assignment.diagnoseLevelWarning', { deduction }) as string);
+    }
+    return true;
+  }
+
+  private updateHighestChosenDiagnoseLevel(): void {
+    this._highestChosenDiagnoseLevel =
+      this.diagnoseLevel > this._highestChosenDiagnoseLevel ? this.diagnoseLevel : this._highestChosenDiagnoseLevel;
   }
 }

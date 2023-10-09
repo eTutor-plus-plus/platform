@@ -10,6 +10,7 @@
       "editorInfoAlpha": "Bitte lösen Sie zuerst die 'OrderingRelations' (Sie brauchen die #Relation nicht einzugeben). Wenden Sie dann den Algorithmus an.",
       "feedbackLabel": "Feedback-Level: ",
       "feedbackInfo": "Sie können das Feedback-Level hier einstellen (default= kein Feedback). Ein höheres Level kann zu Punkteabzügen führen.",
+      "diagnoseLevelWarning": "Achtung! Die Auswahl dieses Diagnoselevels führt zu einem Abzug von {{deduction}} Punkten. Möchten Sie fortfahren?",
       "diagnoseLevel": {
         "none": "Kein Feedback",
         "little": "Wenig Feedback",

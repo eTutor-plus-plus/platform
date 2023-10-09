@@ -10,6 +10,7 @@
       "editorInfoAlpha": "Please solve the ordering solutions first (you don't need to enter the #relation). Then apply the Algorithm.",
       "feedbackLabel": "Feedback-Level: ",
       "feedbackInfo": "You can adjust the feedback-level (default= no feedback). More feedback may lead to less points.",
+      "diagnoseLevelWarning": "Attention! Choosing this diagnose-level causes a deduction of {{deduction}} points. Do you want to proceed?",
       "diagnoseLevel": {
         "none": "No Feedback",
         "little": "Little Feedback",

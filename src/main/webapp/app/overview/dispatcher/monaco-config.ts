@@ -13,9 +13,6 @@ export const monacoConfig: NgxMonacoEditorConfig = {
 };
 
 export function myMonacoLoad(): void {
-  console.log((window as any).monaco);
-  console.log('Hello');
-
   // Register a tokens provider for the language
   (window as any).monaco.languages.register({ id: 'datalog' });
   (window as any).monaco.languages.setMonarchTokensProvider('datalog', {
@@ -538,8 +535,6 @@ export function myMonacoLoad(): void {
       ],
     }),
   });
-  console.log((window as any).monaco);
-  console.log('Hello');
 }
 export interface MonacoEditorOptions {
   theme: string;
