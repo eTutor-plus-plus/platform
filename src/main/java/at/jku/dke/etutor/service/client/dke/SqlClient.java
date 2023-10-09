@@ -29,7 +29,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
         HttpRequest request = null;
         try {
             request = getPostRequestWithBody("/sql/schema", serialize(ddl)).build();
-            return deserialize(getResponseEntity(request, stringHandler, 200).getBody(), SQLSchemaInfoDTO.class);
+            return deserialize(sendRequest(request, stringHandler, 200).getBody(), SQLSchemaInfoDTO.class);
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the DDL-Statements, or deserialize the returned dto.");
         }
@@ -46,7 +46,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
         HttpRequest request = null;
         try {
             request = getPutRequestWithBody("/sql/exercise", serialize(exerciseDTO));
-            return Integer.parseInt(Objects.requireNonNull(getResponseEntity(request, stringHandler, 200).getBody()));
+            return Integer.parseInt(Objects.requireNonNull(sendRequest(request, stringHandler, 200).getBody()));
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise");
         }
@@ -59,7 +59,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
     public String getSQLSolution(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/sql/exercise/"+id+"/solution");
 
-        return getResponseEntity(request, stringHandler, 200).getBody();
+        return sendRequest(request, stringHandler, 200).getBody();
     }
 
     /**
@@ -70,7 +70,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
     public void updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
         var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
 
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
 
     /**
@@ -80,7 +80,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName));
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
 
 
@@ -91,7 +91,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName)+"/connection");
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
 
     /**
@@ -101,7 +101,7 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
      */
     public void deleteSQLExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/exercise/"+id);
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
     // Method called by controller returns response entity
     public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
@@ -116,6 +116,6 @@ public non-sealed class SqlClient extends AbstractDispatcherClient {
         }
         var request = getGetRequest(url);
 
-        return getResponseEntity(request, stringHandler, 200);
+        return sendRequest(request, stringHandler, 200);
     }
 }

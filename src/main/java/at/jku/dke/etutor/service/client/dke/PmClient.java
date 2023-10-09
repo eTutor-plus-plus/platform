@@ -5,7 +5,6 @@ import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseConfigDTO;
 import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
             throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
 
-        var response = getResponseEntity(request, stringHandler, 200);
+        var response = sendRequest(request, stringHandler, 200);
         if(response.getBody() == null){
             throw new DispatcherRequestFailedException("No id has returned by the dispatcher");
         }
@@ -59,7 +58,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
         }catch (JsonProcessingException e){
             throw new DispatcherRequestFailedException("Could not serialize the exercise config");
         }
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
 
     /**
@@ -71,7 +70,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
         String path = "/pm/configuration/"+id;
         var request = getDeleteRequest(path);
 
-        getResponseEntity(request, stringHandler, 200);
+        sendRequest(request, stringHandler, 200);
     }
 
     /**
@@ -83,7 +82,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
     public PmExerciseConfigDTO getPmExerciseConfiguration(int id) throws DispatcherRequestFailedException{
         String path = "/pm/configurations/"+id;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request,stringHandler, 200);
+        var response = sendRequest(request,stringHandler, 200);
         PmExerciseConfigDTO exerciseConfigDTO = null;
 
         try{
@@ -102,7 +101,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
     public PmExerciseLogDTO fetchLogToExercise(int exerciseId) throws DispatcherRequestFailedException{
         String path = "/pm/log/"+exerciseId;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request, stringHandler, 200);
+        var response = sendRequest(request, stringHandler, 200);
 
         try{
             return deserialize(response.getBody(), PmExerciseLogDTO.class);
@@ -121,7 +120,7 @@ public non-sealed class PmClient extends AbstractDispatcherClient {
     public Integer createRandomPmExercise(int configId) throws DispatcherRequestFailedException{
         String path = "/pm/exercise/"+configId;
         var request = getGetRequest(path);
-        var response = getResponseEntity(request, stringHandler, 200);
+        var response = sendRequest(request, stringHandler, 200);
 
         if(response.getBody() == null){
             throw new DispatcherRequestFailedException("No id has returned by the dispatcher");

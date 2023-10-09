@@ -19,7 +19,7 @@ public non-sealed class BpmnClient extends AbstractBpmnDispatcherClient {
         String path = "/bpmn/exercise/id/"+id;
         var request = getDeleteRequest(path);
 
-        return getResponseEntity(request, stringHandler);
+        return sendRequest(request, stringHandler);
     }
 
     public ResponseEntity<Integer> createBpmnExercise(String bpmnExercise) throws DispatcherRequestFailedException {
@@ -27,7 +27,7 @@ public non-sealed class BpmnClient extends AbstractBpmnDispatcherClient {
         HttpRequest request = null;
         request = getPostRequestWithBody(path, bpmnExercise).build();
 
-        var response = getResponseEntity(request, stringHandler);
+        var response = sendRequest(request, stringHandler);
 
         if (response.getBody() == null) throw new DispatcherRequestFailedException("No id returned");
 
@@ -40,6 +40,6 @@ public non-sealed class BpmnClient extends AbstractBpmnDispatcherClient {
 
         HttpRequest request = null;
         request = getPostRequestWithBody(path, exercise).build();
-        return getResponseEntity(request, HttpResponse.BodyHandlers.discarding());
+        return sendRequest(request, HttpResponse.BodyHandlers.discarding());
     }
 }

@@ -5,7 +5,6 @@ import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +38,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the task group.");
         }
-        var response = getResponseEntity(request, stringHandler);
+        var response = sendRequest(request, stringHandler);
 
         if(response.getBody() == null)
             throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
@@ -55,7 +54,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
     public void updateDLGTaskGroup(String id, String newFacts) throws DispatcherRequestFailedException {
         String path = "/datalog/taskgroup/"+id;
         var request = getPostRequestWithBody(path, newFacts).build();
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
+        sendRequest(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
@@ -66,7 +65,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
         String path = "/datalog/taskgroup/"+id;
 
         var request = getDeleteRequest(path);
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
+        sendRequest(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
@@ -83,7 +82,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise.");
         }
-        var response = getResponseEntity(request, stringHandler,200);
+        var response = sendRequest(request, stringHandler,200);
 
         if (response.getBody() == null)
             throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
@@ -105,7 +104,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the exercise.");
         }
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
+        sendRequest(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     /**
@@ -114,19 +113,19 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
      */
     public void deleteDLGExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/datalog/exercise/" + id);
-        getResponseEntity(request, HttpResponse.BodyHandlers.discarding(), 200);
+        sendRequest(request, HttpResponse.BodyHandlers.discarding(), 200);
     }
 
     // methods called by controller return response entities
 
     public ResponseEntity<String> getDLGFacts(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/datalog/taskgroup/"+id);
-        return getResponseEntity(request, stringHandler, 200);
+        return sendRequest(request, stringHandler, 200);
     }
 
     public ResponseEntity<Resource> getDLGFactsAsInputStream(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/datalog/taskgroup/"+id+"/raw");
-        var response = getResponseEntity(request, stringHandler);
+        var response = sendRequest(request, stringHandler);
         var facts = response.getBody();
 
         if(facts != null && response.getStatusCodeValue() == 200){

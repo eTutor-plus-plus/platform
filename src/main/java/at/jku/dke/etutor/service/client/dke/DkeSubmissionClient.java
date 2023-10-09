@@ -17,7 +17,7 @@ public non-sealed class DkeSubmissionClient extends AbstractDispatcherClient {
     public ResponseEntity<String> getGrading(String submissionId) throws DispatcherRequestFailedException {
         var request = getGetRequest("/grading/"+submissionId);
 
-        return getResponseEntity(request, stringHandler);
+        return sendRequest(request, stringHandler);
     }
 
     /**
@@ -28,7 +28,7 @@ public non-sealed class DkeSubmissionClient extends AbstractDispatcherClient {
     public ResponseEntity<String> getSubmission(String submissionUUID) throws DispatcherRequestFailedException {
         var request = getGetRequest("/submission/"+submissionUUID);
 
-        return getResponseEntity(request, stringHandler);
+        return sendRequest(request, stringHandler);
     }
 
     /**
@@ -41,6 +41,6 @@ public non-sealed class DkeSubmissionClient extends AbstractDispatcherClient {
             .setHeader(HttpHeaders.ACCEPT_LANGUAGE, language)
             .build();
 
-        return getResponseEntity(request, stringHandler);
+        return sendRequest(request, stringHandler);
     }
 }

@@ -47,7 +47,7 @@ public abstract class AbstractClient {
      * @param json the body
      * @return the HttpRequest builder
      */
-    protected HttpRequest.Builder getPostRequestWithBody(String path, String json){
+    protected final HttpRequest.Builder getPostRequestWithBody(String path, String json){
         return HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + path))
             .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -61,7 +61,7 @@ public abstract class AbstractClient {
      * @return the HttpRequest
      */
     @NotNull
-    protected HttpRequest getPutRequestWithBody(String path, String json){
+    protected final HttpRequest getPutRequestWithBody(String path, String json){
         return HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + path))
             .PUT(HttpRequest.BodyPublishers.ofString(json))
@@ -74,7 +74,7 @@ public abstract class AbstractClient {
      * @param path the path
      * @return the HttpRequest
      */
-    protected HttpRequest getGetRequest(String path){
+    protected final HttpRequest getGetRequest(String path){
         return HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + path))
             .GET()
@@ -87,7 +87,7 @@ public abstract class AbstractClient {
      * @return the HttpRequest
      */
     @NotNull
-    protected HttpRequest getDeleteRequest(String path){
+    protected final HttpRequest getDeleteRequest(String path){
         return HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + path))
             .DELETE()
@@ -101,9 +101,9 @@ public abstract class AbstractClient {
      * @return the ResponseEntity
      * @throws DispatcherRequestFailedException if the status code is 500
      */
-    protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
+    protected final <T> ResponseEntity<T> sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws DispatcherRequestFailedException {
         try {
-            HttpResponse<T> response = this.CLIENT.send(request, handler);
+            HttpResponse<T> response = CLIENT.send(request, handler);
             if (response.statusCode() == 500)
                 throw new DispatcherRequestFailedException(((HttpResponse<String>)response).body());
             return ResponseEntity.status(response.statusCode()).body(response.body());
@@ -120,9 +120,9 @@ public abstract class AbstractClient {
      * @return the ResponseEntity
      * @throws DispatcherRequestFailedException if the status code does not match one of the ignored status codes
      */
-    protected <T> ResponseEntity<T> getResponseEntity(HttpRequest request, HttpResponse.BodyHandler<T> handler, int... ignoredStatusCodes) throws DispatcherRequestFailedException {
+    protected final <T> ResponseEntity<T> sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> handler, int... ignoredStatusCodes) throws DispatcherRequestFailedException {
         try {
-            HttpResponse<T> response = this.CLIENT.send(request, handler);
+            HttpResponse<T> response = CLIENT.send(request, handler);
             if (Arrays.stream(ignoredStatusCodes).filter(i -> i == response.statusCode()).findAny().isEmpty())
                 throw new DispatcherRequestFailedException("Expected status codes " + Arrays.toString(ignoredStatusCodes) + " but got " + response.statusCode() + " instead.");
             return ResponseEntity.status(response.statusCode()).body(response.body());
@@ -131,11 +131,11 @@ public abstract class AbstractClient {
         }
     }
 
-    protected String serialize(Object object) throws JsonProcessingException {
+    protected final String serialize(Object object) throws JsonProcessingException {
         return mapper.writeValueAsString(object);
     }
 
-    protected <T> T deserialize(String json, Class<T> clazz) throws JsonProcessingException {
+    protected final <T> T deserialize(String json, Class<T> clazz) throws JsonProcessingException {
         return mapper.readValue(json, clazz);
     }
 }
