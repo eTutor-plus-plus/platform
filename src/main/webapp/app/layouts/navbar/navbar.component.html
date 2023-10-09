@@ -41,7 +41,7 @@
       <!--</ul>
             </li>//-->
       <li
-        *jhiHasAnyAuthority="'ROLE_INSTRUCTOR'"
+        *jhiHasAnyAuthority="['ROLE_INSTRUCTOR']"
         ngbDropdown
         class="nav-item dropdown pointer"
         display="dynamic"
@@ -62,7 +62,7 @@
         </ul>
       </li>
       <li
-        *ngSwitchCase="true"
+        *jhiHasAnyAuthority="['ROLE_INSTRUCTOR']"
         ngbDropdown
         class="nav-item dropdown pointer"
         display="dynamic"
