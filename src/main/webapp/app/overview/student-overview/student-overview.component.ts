@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StudentExerciseSheetGoalsComponent } from './course-task-overview/student-exercise-sheet-tasks/student-exercise-sheet-goals/student-exercise-sheet-goals.component';
 import { AccountService } from '../../core/auth/account.service';
-import {lastValueFrom} from "rxjs";
+import { lastValueFrom } from 'rxjs';
 
 // noinspection JSIgnoredPromiseFromCall
 /**
@@ -40,6 +40,10 @@ export class StudentOverviewComponent implements OnInit {
    */
   public ngOnInit(): void {
     this.studentService.getCourseInstancesOfLoggedInStudent().subscribe(values => {
+      // TODO: remove this for-loop to re-enable self-evaluation for students
+      for (const course of values) {
+        course.initialSelfAssessmentCompleted = true;
+      }
       this.courses = values;
     });
     this.loginName = this.accountService.getLoginName()!;
