@@ -6,6 +6,9 @@ import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.LecturerGradi
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.StudentAssignmentOverviewInfoDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.taskassignment.TaskPointEntryDTO;
 import one.util.streamex.StreamEx;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QueryExecution;
@@ -17,16 +20,17 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Service endpoint for managing lecturer related data.
@@ -219,18 +223,21 @@ public /*non-sealed */class LecturerSPARQLEndpointService extends AbstractSPARQL
         PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-        SELECT ?student ?maxPoints ?points ?taskAssignment ?taskAssignmentHeader
+        SELECT ?student ?maxPoints ?points ?taskAssignment ?taskAssignmentHeader ?orderNo
                  WHERE{
                                           ?student etutor:hasIndividualTaskAssignment ?individualAssignment.
                                           ?individualAssignment etutor:fromExerciseSheet ?exerciseSheetId;
                                                                 etutor:fromCourseInstance ?courseInstanceId;
                                                       			etutor:hasIndividualTask ?individualTask.
-                                			OPTIONAL{
-                                			    ?individualTask etutor:hasDispatcherPoints ?points.
-                                			}
-                                		    ?individualTask etutor:refersToTask ?taskAssignment.
-                                			?taskAssignment etutor:hasMaxPoints ?maxPoints;
+                                		  ?individualTask etutor:hasOrderNo ?orderNo.
+
+                                		  ?individualTask etutor:refersToTask ?taskAssignment.
+                                		  ?taskAssignment etutor:hasMaxPoints ?maxPoints;
                                                    etutor:hasTaskHeader ?taskAssignmentHeader.
+
+                                        OPTIONAL{
+                                            ?individualTask etutor:hasDispatcherPoints ?points.
+                                        }
 
                           }
         """;
@@ -632,6 +639,7 @@ public /*non-sealed */class LecturerSPARQLEndpointService extends AbstractSPARQL
                     if (pointsLiteral != null) points = pointsLiteral.getDouble();
                     Literal maxPointsLiteral = solution.getLiteral("?maxPoints");
                     Literal taskAssignmentHeaderLiteral = solution.getLiteral("?taskAssignmentHeader");
+                    Literal orderNoLiteral = solution.getLiteral("?orderNo");
                     Resource taskAssignmentResource = solution.getResource("?taskAssignment");
                     String taskAssignment = taskAssignmentResource.getURI();
 
@@ -640,7 +648,8 @@ public /*non-sealed */class LecturerSPARQLEndpointService extends AbstractSPARQL
                         maxPointsLiteral.getDouble(),
                         points,
                         taskAssignmentHeaderLiteral.getString(),
-                        taskAssignment.substring(taskAssignment.lastIndexOf("#") + 1)));
+                        taskAssignment.substring(taskAssignment.lastIndexOf("#") + 1),
+                        orderNoLiteral.getInt()));
                 }
                 if (overviewInfo.isEmpty()) return Optional.empty();
             }
@@ -744,5 +753,117 @@ public /*non-sealed */class LecturerSPARQLEndpointService extends AbstractSPARQL
         try (RDFConnection connection = getConnection()) {
             connection.update(updateQry.asUpdate());
         }
+    }
+
+    public InputStreamResource getAchievedPointsForExerciseSheet(String courseInstanceUUID, String exerciseSheetUUID, String type) {
+        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
+        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
+
+        if(type.equals("aggregated")){
+            return getAchievedPointsForExerciseSheetAggregatedByStudent(pointsOverviewInfo);
+        }else{
+            return getAchievedPointsForExerciseSheetNonAggregated(pointsOverviewInfo);
+        }
+
+
+    }
+
+    private InputStreamResource getAchievedPointsForExerciseSheetNonAggregated(List<TaskPointEntryDTO> pointsOverviewInfo) {
+        String[] csvHeader = {
+            "matriculationNo", "taskHeader", "maxPoints", "points"
+        };
+
+        ByteArrayInputStream byteArrayOutputStream;
+
+        try (
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVPrinter csvPrinter = new CSVPrinter(
+                new PrintWriter(out),
+                CSVFormat.DEFAULT.withHeader(csvHeader)
+            )
+        ) {
+            List<String> printableRecord;
+            for (TaskPointEntryDTO record : pointsOverviewInfo) {
+                printableRecord = new ArrayList<>();
+                printableRecord.add(record.getMatriculationNo());
+                printableRecord.add(record.getTaskHeader());
+                printableRecord.add(Double.toString(record.getMaxPoints()));
+                printableRecord.add(Double.toString(record.getPoints()));
+                csvPrinter.printRecord(printableRecord);
+            }
+
+            csvPrinter.flush();
+
+            byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return new InputStreamResource(byteArrayOutputStream);
+    }
+
+    private InputStreamResource getAchievedPointsForExerciseSheetAggregatedByStudent(List<TaskPointEntryDTO> pointsOverviewInfo) {
+        OptionalInt optMaxOrderNo = pointsOverviewInfo.stream().mapToInt(TaskPointEntryDTO::getOrderNo).max();
+        int maxOrderNo = optMaxOrderNo.orElse(0);
+
+        List<String> columnHeaders = new ArrayList<>();
+        columnHeaders.add("matriculationNo");
+        for(int i = 1; i <= maxOrderNo; i++){
+            columnHeaders.add("task %d".formatted(i));
+        }
+        columnHeaders.add("sum");
+
+        String[] csvHeader = columnHeaders.toArray(new String[0]);
+        ByteArrayInputStream byteArrayOutputStream;
+
+        try (
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVPrinter csvPrinter = new CSVPrinter(
+                new PrintWriter(out),
+                CSVFormat.DEFAULT.withHeader(csvHeader)
+            )
+        ) {
+            List<String> students = pointsOverviewInfo.stream()
+                .map(TaskPointEntryDTO::getMatriculationNo)
+                .distinct()
+                .toList();
+            for(String matriculationNo : students){
+                List<String> printableRecord = new ArrayList<>();
+                printableRecord.add(matriculationNo);
+
+                List<TaskPointEntryDTO> subListForCurrentStudent = pointsOverviewInfo.stream()
+                    .filter(dto -> dto.getMatriculationNo().equals(matriculationNo))
+                    .sorted(Comparator.comparingInt(TaskPointEntryDTO::getOrderNo))
+                    .toList();
+                for (TaskPointEntryDTO taskPointEntryDTO : subListForCurrentStudent) {
+                    printableRecord.add(Double.toString(taskPointEntryDTO.getPoints()));
+                }
+
+                // fill potentially missing columns due to unequal amount of assigned tasks
+                int maxOrderNoOfStudent = subListForCurrentStudent.stream()
+                    .mapToInt(TaskPointEntryDTO::getOrderNo)
+                    .max().orElse(0);
+                int difference = maxOrderNo - maxOrderNoOfStudent;
+                for(int i = 0; i < difference; i++){
+                    printableRecord.add("");
+                }
+
+                // add sum of achieved points for exercise sheet
+                double sumOfPoints = subListForCurrentStudent.stream()
+                        .mapToDouble(TaskPointEntryDTO::getPoints)
+                            .sum();
+                printableRecord.add(Double.toString(sumOfPoints));
+
+                csvPrinter.printRecord(printableRecord);
+            }
+
+            csvPrinter.flush();
+
+            byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return new InputStreamResource(byteArrayOutputStream);
     }
 }

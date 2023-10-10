@@ -142,47 +142,14 @@ public class LecturerResource {
      */
     @GetMapping(value = "course-instance/{courseInstanceUUID}/exercise-sheet/{exerciseSheetUUID}/csv/points-overview", produces = "text/csv")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID) {
-        String[] csvHeader = {
-            "matriculationNo", "taskHeader", "maxPoints", "points"
-        };
-        Optional<List<TaskPointEntryDTO>> optionalPointsOverviewInfo = lecturerSPARQLEndpointService.getPointsOverviewForExerciseSheet(exerciseSheetUUID, courseInstanceUUID);
-        List<TaskPointEntryDTO> pointsOverviewInfo = optionalPointsOverviewInfo.orElse(null);
-
-        ByteArrayInputStream byteArrayOutputStream;
-
-        try (
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            CSVPrinter csvPrinter = new CSVPrinter(
-                new PrintWriter(out),
-                CSVFormat.DEFAULT.withHeader(csvHeader)
-            )
-        ) {
-            List<String> printableRecord;
-            for (TaskPointEntryDTO record : pointsOverviewInfo) {
-                printableRecord = new ArrayList<>();
-                printableRecord.add(record.getMatriculationNo());
-                printableRecord.add(record.getTaskHeader());
-                printableRecord.add(Double.toString(record.getMaxPoints()));
-                printableRecord.add(Double.toString(record.getPoints()));
-                csvPrinter.printRecord(printableRecord);
-            }
-
-            csvPrinter.flush();
-
-            byteArrayOutputStream = new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        InputStreamResource fileInputStream = new InputStreamResource(byteArrayOutputStream);
+    public ResponseEntity<Resource> getDispatcherPointsForExerciseSheetAsCSV(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID, @RequestParam(required = false, defaultValue = "aggregated") String type) {
+        InputStreamResource fileInputStream = lecturerSPARQLEndpointService.getAchievedPointsForExerciseSheet(courseInstanceUUID, exerciseSheetUUID, type);
 
         String csvFileName = "pointOverview.csv";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + csvFileName);
         headers.set(HttpHeaders.CONTENT_TYPE, "text/csv");
-
 
         return new ResponseEntity<>(
             fileInputStream,

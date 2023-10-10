@@ -24,6 +24,10 @@ public class TaskPointEntryDTO {
      * The task´s UUID
      */
     private String taskUUID;
+    /**
+     * The orderNo of the task as assigned to the student in an exercise sheet
+     */
+    private int orderNo;
 
     /**
      * Empty constructor
@@ -40,12 +44,13 @@ public class TaskPointEntryDTO {
      * @param taskHeader the task´s header
      * @param taskUUID the tasks´s UUID
      */
-    public TaskPointEntryDTO(String matriculationNo, double maxPoints, double points, String taskHeader, String taskUUID){
+    public TaskPointEntryDTO(String matriculationNo, double maxPoints, double points, String taskHeader, String taskUUID, int orderNo){
         this.matriculationNo=matriculationNo;
         this.maxPoints=maxPoints;
         this.points=points;
         this.taskHeader=taskHeader;
         this.taskUUID=taskUUID;
+        this.orderNo=orderNo;
     }
 
     /**
@@ -126,5 +131,13 @@ public class TaskPointEntryDTO {
      */
     public void setMatriculationNo(String matriculationNo) {
         this.matriculationNo = matriculationNo;
+    }
+
+    public int getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(int orderNo) {
+        this.orderNo = orderNo;
     }
 }
