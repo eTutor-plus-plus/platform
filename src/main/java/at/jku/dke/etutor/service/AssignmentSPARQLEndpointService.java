@@ -691,6 +691,7 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
     }
 
+
     //TODO: check if this is needed
     /**
      * Returns the id of the calc solution file by its internal id

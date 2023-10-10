@@ -6,6 +6,7 @@ import at.jku.dke.etutor.objects.dispatcher.processmining.PmExerciseLogDTO;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.security.SecurityUtils;
 import at.jku.dke.etutor.service.*;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.tasktypes.implementation.ProcessMiningService;
 import at.jku.dke.etutor.service.dto.StudentSelfEvaluationLearningGoalDTO;
 import at.jku.dke.etutor.service.dto.courseinstance.CourseInstanceInformationDTO;
@@ -551,7 +552,7 @@ public class StudentResource {
      * @param exerciseSheetUUID the exercise sheet
      * @param taskNo the task number
      * @param dispatcherUUID the UUID identifying the submission
-     * @return
+     * @return the points achieved by the student for this individual task
      */
     @PutMapping("courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/{taskNo}/dispatcherUUID/{dispatcherUUID}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
@@ -560,40 +561,30 @@ public class StudentResource {
                                                                                 @PathVariable int taskNo,
                                                                                 @PathVariable String dispatcherUUID) {
         String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
+
+        // Get Submission and grading
         SubmissionDTO submission;
         GradingDTO grading;
-        int diagnoseLevelWeighting;
-        int maxPoints;
-        int dispatcherId;
-
-        // Get submission and grading according to UUID from dispatcher
         try {
-            submission = dispatcherSubmissionService.getSubmission(dispatcherUUID);
-            Objects.requireNonNull(submission);
+            submission = Objects.requireNonNull(dispatcherSubmissionService.getSubmission(dispatcherUUID));
             grading = dispatcherSubmissionService.getGrading(dispatcherUUID);
         } catch (JsonProcessingException | DispatcherRequestFailedException | NullPointerException e) {
-            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
 
-        // Get required information about task assignment, diagnose-level-weighting, max-points, dispatcher id
-        var optWeightingAndMaxPointsIdArr = studentService.getDiagnoseLevelWeightingAndMaxPointsAndId(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
-        var weightingAndMaxPointsIdArr = optWeightingAndMaxPointsIdArr.orElse(null);
-        if(weightingAndMaxPointsIdArr == null)
-            return ResponseEntity.internalServerError().build();
+        // Get Task-Assignment
+        Optional<String> optTaskUri = studentService.getTaskAssignmentIdByIndividualTask(courseInstanceUUID, exerciseSheetUUID, taskNo, matriculationNo);
+        String taskUri = optTaskUri.orElseThrow(() -> new NoSuchElementException("Could not find task assignment URI for exercise sheet: %s, course instance: %s, taskNo: %d, matriculation-no: %s".formatted(exerciseSheetUUID, courseInstanceUUID, taskNo, matriculationNo)));
+        Optional<TaskAssignmentDTO> optTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(taskUri.substring(taskUri.indexOf("#") + 1));
+        TaskAssignmentDTO taskAssignmentDTO = optTaskAssignmentDTO.orElseThrow(() -> new NoSuchElementException("Could not load task assignment for URI: %s".formatted(taskUri)));
 
-        dispatcherId = weightingAndMaxPointsIdArr[2];
-        diagnoseLevelWeighting = weightingAndMaxPointsIdArr[0];
-        maxPoints = weightingAndMaxPointsIdArr[1];
-
-        if(submission.getExerciseId() != dispatcherId)
+        if(submission.getExerciseId() != Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-
-        boolean isExerciseSheetClosed = courseInstanceService.isAssignedExerciseSheetClosed(courseInstanceUUID, exerciseSheetUUID);
-        // Process
+        // Process submission
         var achievedPoints = studentService.processDispatcherSubmissionForIndividualTask(matriculationNo, courseInstanceUUID, exerciseSheetUUID, taskNo,
-            submission, grading, maxPoints, diagnoseLevelWeighting, isExerciseSheetClosed);
+            submission, grading, taskAssignmentDTO, isExerciseSheetClosed);
 
         return ResponseEntity.ok(achievedPoints);
     }
