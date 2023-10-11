@@ -914,11 +914,7 @@ public /*non-sealed*/ class SPARQLEndpointService extends AbstractSPARQLEndpoint
         Objects.requireNonNull(name);
         Objects.requireNonNull(creator);
 
-        String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
-
-        ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_WITH_OWNER_EXIST);
-        courseExistQry.setIri("?uri", id);
-        courseExistQry.setLiteral("?creator", creator);
+        ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_EXIST.formatted(name));
 
         try (RDFConnection conn = getConnection()) {
             boolean courseExist = conn.queryAsk(courseExistQry.toString());
@@ -928,6 +924,7 @@ public /*non-sealed*/ class SPARQLEndpointService extends AbstractSPARQLEndpoint
             }
 
             ParameterizedSparqlString courseDeleteQry = new ParameterizedSparqlString(QRY_DELETE_ALL_FROM_SUBJECT);
+            String id = ETutorVocabulary.Course.getURI() + "#" + URLEncoder.encode(name.replace(' ', '_').trim(), StandardCharsets.UTF_8);
             courseDeleteQry.setIri("?uri", id);
 
             conn.update(courseDeleteQry.asUpdate());
