@@ -907,12 +907,10 @@ public /*non-sealed*/ class SPARQLEndpointService extends AbstractSPARQLEndpoint
      * Deletes the given course.
      *
      * @param name    the rdf encoded course name
-     * @param creator the creator of the course
      * @throws CourseNotFoundException if the course does not exist or the given creator is not the course's creator
      */
-    public void deleteCourse(String name, String creator) throws CourseNotFoundException {
+    public void deleteCourse(String name) throws CourseNotFoundException {
         Objects.requireNonNull(name);
-        Objects.requireNonNull(creator);
 
         ParameterizedSparqlString courseExistQry = new ParameterizedSparqlString(QRY_ASK_COURSE_EXIST.formatted(name));
 

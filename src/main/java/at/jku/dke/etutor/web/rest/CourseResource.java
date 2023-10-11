@@ -105,10 +105,8 @@ public class CourseResource {
     @DeleteMapping("/course/{name}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<Void> deleteCourse(@PathVariable String name) {
-        String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
         try {
-            sparqlEndpointService.deleteCourse(name, currentLogin);
+            sparqlEndpointService.deleteCourse(name);
             return ResponseEntity.noContent().build();
         } catch (at.jku.dke.etutor.service.exception.CourseNotFoundException e) {
             throw new CourseNotFoundException();
