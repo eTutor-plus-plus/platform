@@ -10,29 +10,20 @@ Before you can build this project, you must install and configure the following 
 
 1. [Node.js][]: We use Node to run a development web server and build the project.
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
+   A verified working version of Node required is 16.18.1, although higher versions might work as well.
 
 After installing Node, you should be able to run the following command to install development tools.
 You will only need to run this command when dependencies change in [package.json](package.json).
 
 ```
-yarn install
+npm install
 ```
 
-We use yarn scripts and [Angular CLI][] with [Webpack][] as our build system.
-
-Run the following commands in two separate terminals to create a blissful development experience where your browser
-auto-refreshes when files change on your hard drive.
-
 ```
-./mvnw
-yarn start
+npm run start
 ```
 
-Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
-
-The `yarn run` command will list all of the scripts available to run for this project.
+The `npm run` command will list all of the scripts available to run for this project.
 
 2. [eTutor++-Objects](https://github.com/eTutor-plus-plus/objects): Objects common to different service of the etutor++ ecosystem are maintained in the [objects-project](https://github.com/eTutor-plus-plus/objects).
    To run a service depending on this project (like this one), you have to clone the repository and build the project with Maven:
@@ -47,7 +38,7 @@ Alternatively, you could donwload the latest jar from the [github action workflo
 
 3. Other dependencies include:
 
-- Java
+- Java  
 - Maven
 - Docker (optional but recommended)
 
