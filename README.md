@@ -46,6 +46,15 @@ Alternatively, you could donwload the latest jar from the [github action workflo
 
 This application requires a [PostgreSQL](https://www.postgresql.org/)-database and a [Apache Jena Fuseki]() RDF graph database.
 Connection details can be configured in the [properties](./src/main/java/at/jku/dke/etutor/config/ApplicationProperties.java).
+The easiest way to setup those locally is to use the [local-deploy](https://github.com/eTutor-plus-plus/local-deploy),
+you can start the databases with 
+
+```
+docker-compose up -d postgres fuseki
+```
+from the root folder of the cloned local-deploy repository.
+
+#### Alternative (outdated) approach
 
 To spin-up the necessary databases in Docker containers with configurations matching the default development settings, execute [this script](src/main/docker/etutor-databases/setup_databases.bat).
 The script executes two commands:
