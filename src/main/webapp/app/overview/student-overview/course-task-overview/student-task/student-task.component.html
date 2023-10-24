@@ -120,8 +120,12 @@
   </div>
   <jhi-fdtasks *ngIf="taskGroup?.taskGroupTypeId === 'http://www.dke.uni-linz.ac.at/etutorpp/TaskGroupType#FDType'"
     [taskGroup]="taskGroup"
-    [exercise_id]="exercise_id"
+    [task_id]="exercise_id"
     [fDSubtype]="fDSubtype"
+    [maxPoints]="maxPoints"
+    [_exerciseSheetUUID]="_exerciseSheetUUID"
+    [courseInstance]="courseInstance"
+    [_taskNo]="_taskNo"
   >
   </jhi-fdtasks>
 

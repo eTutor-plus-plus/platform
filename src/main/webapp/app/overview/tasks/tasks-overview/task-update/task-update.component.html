@@ -135,7 +135,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.CalcTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.FDTask.value
       "
     >
       <!-- APRIORI element end -->
@@ -512,10 +513,10 @@
     <div class="form-group" name="fDPreview" id="fDPreview" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.FDTask.value">
       {{ 'taskManagement.fields.fDRelation' | translate }} {{fDExercise?.attributes}}<br>
       <label class="form-control-label" for="fDDependencies" jhiTranslate="taskManagement.fields.fDependencies">dependencies:</label>
-      <table name="fDDependencies" id="fDDependencies" *ngFor="let dependency of fDExercise?.functionalDependencies">
-        <tr>
+      <table name="fDDependencies" id="fDDependencies" >
+        <tr *ngFor="let dependency of fDExercise?.functionalDependencies">
           <td>{{ dependency.leftSide }}</td>
-          <td>-></td>
+          <td> → </td>
           <td>{{ dependency.rightSide }}</td>
         </tr>
       </table>
@@ -529,10 +530,10 @@
       <div *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
         <table>
         <ng-container *ngFor="let dependency of fDExercise?.functionalDependencies" >
-          <ng-container *ngIf="dependency.minimalCover.length > 0; else elseBlock">
+          <ng-container *ngIf="dependency.minimalCover.length > 0; else minimalCoverElseBlock">
             <tr *ngFor="let minimalCover of dependency.minimalCover">
               <td>{{minimalCover.leftSide}}</td>
-              <td> -> </td>
+              <td> → </td>
               <td>{{minimalCover.rightSide}}</td>
               <td> : </td>
               <td>
@@ -542,10 +543,10 @@
               </td>
             </tr>
           </ng-container>
-          <ng-template #elseBlock>
+          <ng-template #minimalCoverElseBlock>
             <tr>
               <td>{{dependency.leftSide}}</td>
-              <td> -> </td>
+              <td> → </td>
               <td>{{dependency.rightSide}}</td>
               <td></td>
             </tr>

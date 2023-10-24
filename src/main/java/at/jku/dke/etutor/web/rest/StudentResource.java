@@ -753,4 +753,42 @@ public class StudentResource {
         }
         return ResponseEntity.ok(pmExerciseLogDTO);
     }
+
+    @PostMapping("fd/handleDispatcherUUID/courses/{courseInstanceUUID}/exercises/{exerciseSheetUUID}/taskNo/{taskNo}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity handleFDDispatcherUUID(@PathVariable String courseInstanceUUID, @PathVariable String exerciseSheetUUID,
+                                                 @PathVariable int taskNo, @RequestBody List<String> uuids)
+                                                    throws DispatcherRequestFailedException {
+        String matriculationNo = SecurityUtils.getCurrentUserLogin().orElse("");
+        double points = 0.0;
+
+//            if (!responseEntityTaskAndPoints.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+        try {
+            for (String uuid: uuids) {
+                ResponseEntity<String> responseEntityTaskAndPoints = dispatcherProxyService.requestSolvedFDPoints(uuid);
+                String pointsToConvert = responseEntityTaskAndPoints.getBody();
+                points += Double.parseDouble(pointsToConvert);
+            }
+            handleFDDispatcherUUID(courseInstanceUUID.strip(), exerciseSheetUUID.strip(), matriculationNo.strip(), taskNo,
+                points);
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(102).build();
+        }
+//            } else {
+//                return ResponseEntity.status(102).build();
+//            }
+    }
+
+    public ResponseEntity<String> handleFDDispatcherUUID(String courseInstanceUUID, String exerciseSheetUUID,
+                                                         String matriculationNo, int taskNo, double points) {
+
+        studentService.setDispatcherPointsForIndividualTask(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo, points);
+        studentService.markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
+
+
+        return ResponseEntity.ok().build();
+    }
+
 }

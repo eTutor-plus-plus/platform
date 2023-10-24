@@ -8,6 +8,7 @@ import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogExerciseDTO;
 import at.jku.dke.etutor.objects.dispatcher.dlg.DatalogTaskGroupDTO;
 import at.jku.dke.etutor.objects.dispatcher.sql.SQLExerciseDTO;
 import at.jku.dke.etutor.service.dto.fd.FDTaskDTO;
+import at.jku.dke.etutor.service.dto.fd.FDTaskSolve;
 import at.jku.dke.etutor.service.dto.fd.NewFDTaskDTO;
 import at.jku.dke.etutor.service.dto.fd.FDGroupDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
@@ -396,7 +397,7 @@ public class DispatcherProxyResource {
      * @param id the exercise id
      * @return a ResponseEntity
      */
-   public ResponseEntity<String> deleteXQExercise(int id) throws DispatcherRequestFailedException {
+    public ResponseEntity<String> deleteXQExercise(int id) throws DispatcherRequestFailedException {
         String url = dispatcherURL+"/xquery/exercise/id/"+id;
         var request = getDeleteRequest(url);
 
@@ -836,36 +837,22 @@ public class DispatcherProxyResource {
      * @return json of the exercise object as a String
      */
     public String getFDGroupById(String id) {
-        var request = getGetRequest(dispatcherURL + "/fd/group?id=" + id);
-        ResponseEntity<String> response;
-        try {
-            response = getResponseEntity(request, stringHandler);
-            if (response.getBody() == null) {
-                return null;
-            } else {
-                return response.getBody();
-            }
-        } catch (DispatcherRequestFailedException e) {
-            return null;
-        }
+        HttpRequest request = getGetRequest(dispatcherURL + "/fd/group?id=" + id);
+        return forwardFDString(request);
+    }
+    public String getFDGroupByIdStudent(String id) {
+        HttpRequest request = getGetRequest(dispatcherURL + "/fd/group_student?id=" + id);
+        return forwardFDString(request);
     }
     public String getLeftSidesClosure(String closureGroupId) {
-        var request = getGetRequest(dispatcherURL + "/fd/assignment/closure?id=" + closureGroupId);
-        ResponseEntity<String> response;
-        try {
-            response = getResponseEntity(request, stringHandler);
-            if (response.getBody() == null) {
-                return null;
-            } else {
-                return response.getBody();
-            }
-        } catch (DispatcherRequestFailedException e) {
-            return null;
-        }
+        HttpRequest request = getGetRequest(dispatcherURL + "/fd/assignment/closure?id=" + closureGroupId);
+        return forwardFDString(request);
     }
-
     public String fdTaskSolve(String fdTaskSolve) {
-        var request = getPostRequestWithBody(dispatcherURL + "/fd/assignment/solve", fdTaskSolve).build();
+        HttpRequest request = getPostRequestWithBody(dispatcherURL + "/fd/assignment/solve", fdTaskSolve).build();
+        return forwardFDString(request);
+    }
+    public String forwardFDString(HttpRequest request) {
         ResponseEntity<String> response;
         try {
             response = getResponseEntity(request, stringHandler);
@@ -879,18 +866,31 @@ public class DispatcherProxyResource {
         }
     }
 
-    public ResponseEntity<String> fdTaskGrade(String fdTaskSolve) {
-        var request = getPostRequestWithBody(dispatcherURL + "/fd/assignment/solve", fdTaskSolve).build();
-        ResponseEntity<String> response;
-        try {
-            response = getResponseEntity(request, stringHandler);
-            if (response.getBody() == null) {
-                return null;
-            } else {
-                return ResponseEntity.ok().body(response.getBody());
-            }
-        } catch (DispatcherRequestFailedException e) {
-            return null;
-        }
+
+
+    @PostMapping ("fd/submission")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
+    public ResponseEntity<String> fdGrade(@RequestBody FDTaskSolve fdTaskSolve,
+                                          @RequestHeader("Accept-Language") String language)
+        throws DispatcherRequestFailedException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        HttpRequest request = getPostRequestWithBody(dispatcherURL + "/fd/submission",
+            objectMapper.writeValueAsString(fdTaskSolve)).setHeader(HttpHeaders.ACCEPT_LANGUAGE, language).build();
+
+        String response = getResponseEntity(request, stringHandler).getBody();
+
+        return ResponseEntity.ok(response);
     }
+
+
+
+    public ResponseEntity<String> requestSolvedFDPoints(String uuid) throws DispatcherRequestFailedException {
+        HttpRequest requestPoints = getGetRequest(dispatcherURL + "/fd/points?uuid="+uuid);
+        return getResponseEntity(requestPoints, stringHandler);
+    }
+
+
+
+
+
 }

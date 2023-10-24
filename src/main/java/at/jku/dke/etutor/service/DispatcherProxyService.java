@@ -29,7 +29,6 @@ import at.jku.dke.etutor.calc.exception.WrongCalcParametersException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -1133,6 +1132,7 @@ public class DispatcherProxyService {
         return proxyResource.getFDGroupById(id);
     }
 
+
     public String getLeftSidesClosure(String closureGroupId) {
         return proxyResource.getLeftSidesClosure(closureGroupId);
     }
@@ -1140,16 +1140,16 @@ public class DispatcherProxyService {
     public String fdTaskSolve(String fdTaskSolve) {
         return proxyResource.fdTaskSolve(fdTaskSolve);
     }
-    public ResponseEntity<Void> fdTaskGrade(String fdTaskSolve) {
-        ResponseEntity<String> response = proxyResource.fdTaskGrade(fdTaskSolve);
-        if (response.hasBody()) {
+
+
+    public String getFDGroupByIdStudent(String id) {
+        return proxyResource.getFDGroupByIdStudent(id);
+    }
 
 
 
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<String> requestSolvedFDPoints(String uuid) throws DispatcherRequestFailedException {
+        return proxyResource.requestSolvedFDPoints(uuid);
     }
 }
 

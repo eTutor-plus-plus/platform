@@ -491,6 +491,7 @@ export class TaskUpdateComponent implements OnInit {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.FDTask.value) {
+      this.setMaxPointsRequired();
       this.setTaskGroupRequired();
       if (this.updateForm.get(['taskGroup'])) {
         this.patchFDTaskGroupValues(this.updateForm.get(['taskGroup'])!.value as string)
@@ -826,8 +827,6 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
-    // this.updateForm.get('fDSubtype')!.clearValidators();
-    // this.updateForm.get('fDSubtype')!.updateValueAndValidity();
     this.updateForm.get('aprioriDatasetId')!.clearValidators();
     this.updateForm.get('aprioriDatasetId')!.updateValueAndValidity();
     this.updateForm.get('maxActivity')!.clearValidators();
@@ -840,6 +839,10 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.get('minLogSize')!.clearValidators();
     this.updateForm.get('minLogSize')!.updateValueAndValidity();
+
+    this.updateForm.get('fDSubtype')!.clearValidators();
+    this.updateForm.get('fDSubtype')!.updateValueAndValidity();
+
     this.updateForm.updateValueAndValidity();
   }
 

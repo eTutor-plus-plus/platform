@@ -166,10 +166,9 @@ public class TaskGroupResource {
     }
 
     @GetMapping("/fd-solve/{id}")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> getFDGroupByIdStudents(@PathVariable String id) {
-        String fdExercise = dispatcherProxyService.getFDGroupById(id);
-
+        String fdExercise = dispatcherProxyService.getFDGroupByIdStudent(id);
 
 
         return ResponseEntity.ok(fdExercise);
@@ -182,4 +181,7 @@ public class TaskGroupResource {
         Long id = dispatcherProxyService.nextFdId();
         return id;
     }
+
+
+
 }

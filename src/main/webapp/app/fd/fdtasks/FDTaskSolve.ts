@@ -4,6 +4,7 @@ export interface FDTaskSolve {
   solution?: string | null,
   closureSolutions?: Solve[]
   normalFormSolutions?: Solve[]
+  maxPoints?: string | null
 }
 
 export interface Solve {
@@ -14,7 +15,7 @@ export interface Solve {
 export interface FDTaskSolveResponse {
   id: string
   solved: boolean
-  hint?: FDHint[]
+  hints?: FDHint[]
 }
 
 export interface FDHint {

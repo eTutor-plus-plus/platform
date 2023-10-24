@@ -125,17 +125,14 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
         if (this._taskModel.fDSubtype) {
           this.fDSubtype = this._taskModel.fDSubtype
         }
+        if (this._taskModel.maxPoints) {
+          this.maxPoints = this._taskModel.maxPoints;
+        }
 
 
         // really this.isPmTask? +1
         if (this.isDispatcherTask || this.isPmTask) {
           this.task_type = this._taskModel.taskAssignmentTypeId;
-
-
-
-          if (this._taskModel.maxPoints) {
-            this.maxPoints = this._taskModel.maxPoints;
-          }
 
           if (this._taskModel.diagnoseLevelWeighting) {
             this.diagnoseLevelWeighting = this._taskModel.diagnoseLevelWeighting;

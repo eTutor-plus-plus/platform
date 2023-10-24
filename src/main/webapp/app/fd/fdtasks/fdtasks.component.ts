@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, LOCALE_ID} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 import {MonacoEditorModule} from "ngx-monaco-editor-v2";
@@ -7,11 +7,11 @@ import {FormArray, FormControl, FormGroup, ReactiveFormsModule} from "@angular/f
 import {RxReactiveFormsModule} from "@rxweb/reactive-form-validators";
 import {SharedLibsModule} from "../../shared/shared-libs.module";
 import {SharedModule} from "../../shared/shared.module";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {ITaskGroupDTO} from "../../overview/tasks/tasks-overview/task-group-management/task-group-management.model";
 import {FDModel} from "../FDModel";
-import {Observable} from "rxjs";
-import {HttpClient} from "@angular/common/http";
+import {Observable, Subscription} from "rxjs";
+import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {Normalform} from "./normalform";
 import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
 
@@ -22,7 +22,7 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
   imports: [CommonModule, FontAwesomeModule, MonacoEditorModule, NgbTooltipModule, ReactiveFormsModule, RxReactiveFormsModule, SharedLibsModule, SharedModule, TranslateModule],
   template: `
     <h5>
-      Aufgabenstellung
+      {{"fDAssignment.task" | translate}}
     </h5>
     <p *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
       {{'fDAssignment.assignment.minimalCoverTaskDescription' | translate}}
@@ -43,10 +43,16 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
       <div class="row">
         <div class="col-8">
           <dl class="row-md task-details">
+            <ng-container *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
+              <dt></dt>
+              <dd>
+                {{"fDAssignment.detail.normalform" | translate}}
+              </dd>
+            </ng-container>
             <dt>R</dt>
             <dd>
               <div class="row">
-                <div class="col-2">{{fDExercise?.attributes}}</div>
+                <div class="col-2">{{fDGroup?.attributes}}</div>
                 <div class="col-5" *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
                   <select [formControl]="solveFdTaskForm.controls.solution">
                     <option value="">{{ "fDAssignment.normalform.placeholder" | translate }}</option>
@@ -58,7 +64,7 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
               <ng-container *ngFor="let hint of hints">
                 <div class="row error"
                      *ngIf="hint.subId == null && solveFdTaskForm.invalid && fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform'">
-                  {{hint.hint}}
+                  {{hint.hint | translate}}
                 </div>
               </ng-container>
             </dd>
@@ -81,14 +87,14 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
                   <ng-container *ngIf="solveFdTaskForm.invalid">
                     <ng-container *ngFor="let hint of hints">
                       <div class="row error" *ngIf="hint.subId === dependency.value.id">
-                        {{hint.hint}}
+                        {{hint.hint | translate}}
                       </div>
                     </ng-container>
                   </ng-container>
                 </ng-container>
               </ng-container>
               <ng-template #normal>
-                <div class="row" *ngFor="let dependency of fDExercise?.functionalDependencies">
+                <div class="row" *ngFor="let dependency of fDGroup?.functionalDependencies">
                   <div class="col-md-auto">{{dependency.leftSide}} → {{dependency.rightSide}}</div>
                 </div>
               </ng-template>
@@ -97,6 +103,8 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
           <ng-container class="container" class="table"
                         *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure'">
             <div class="fw-bold">A</div>
+            <label class="form-control-label" for="assignment" jhiTranslate="fDAssignment.detail.closure"
+            ></label>
             <ng-container *ngFor="let hint of hints">
               <div class="error row" *ngIf="hint.subId == null">
                 {{hint.hint | translate}}
@@ -117,28 +125,19 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
                     {{hint.hint | translate}}
                   </div>
                 </ng-container>
+
               </ng-container>
             </ng-container>
           </ng-container>
           <ng-container *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key' ||
                                 fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
             <ng-container *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Key'">
-              <label class="form-control-label" for="assignment" jhiTranslate="fDAssignment.info.key"
+              <label class="form-control-label" for="assignment" jhiTranslate="fDAssignment.detail.key"
               ></label>
-              <fa-icon
-                icon="info-circle"
-                ngbTooltip="{{ taskGroup?.taskGroupTypeId }}"
-                placement="right"
-              ></fa-icon>
             </ng-container>
             <ng-container *ngIf="fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#MinimalCover'">
-              <label class="form-control-label" for="assignment" jhiTranslate="fDAssignment.info.minimalCover"
+              <label class="form-control-label" for="assignment" jhiTranslate="fDAssignment.detail.minimalCover"
               ></label>
-              <fa-icon
-                icon="info-circle"
-                ngbTooltip="minimal"
-                placement="right"
-              ></fa-icon>
             </ng-container>
             <ngx-monaco-editor [options]="editorOptionsFD"
                                [formControl]="solveFdTaskForm.controls.solution">
@@ -161,7 +160,6 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
           <input type="submit" value="Submit" id="submit" class="btn btn-primary"/>
         </form>
       </div>
-
     </form>
   `,
   styleUrls: ['./fdtasks.component.scss']
@@ -169,10 +167,15 @@ import {FDHint, FDTaskSolve, FDTaskSolveResponse, Solve} from "./FDTaskSolve";
 export class FdtasksComponent implements OnInit {
   public editorOptionsFD = { theme: 'vs-light'};
   @Input() public taskGroup: ITaskGroupDTO | undefined;
-  @Input() public exercise_id: string | undefined;
+  @Input() public task_id: string | undefined;
   @Input() public fDSubtype: string | undefined;
+  @Input() public maxPoints: string | undefined;
+  @Input() public _exerciseSheetUUID: string | undefined;
+  @Input() public courseInstance: string | undefined;
+  @Input() public _taskNo: number | undefined;
+  public _courseInstanceUUID: string | undefined;
   public taskGroupId: string = '';
-  public fDExercise: FDModel | undefined ;
+  public fDGroup: FDModel | undefined ;
   public solved: boolean = false;
   public readonly normalforms = Normalform.Values;
   public solveFdTaskForm = new FormGroup({
@@ -189,19 +192,28 @@ export class FdtasksComponent implements OnInit {
     ])
   });
   public hints: FDHint[] | null | undefined;
+  public points: number | undefined;
+  public langKey: string;
+  private translateService: TranslateService;
+  private uuids: Array<string> | undefined;
+  private pollResponse: HttpResponse<any> | undefined;
 
   constructor(
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    translateService: TranslateService,
+  ) {
+    this.translateService = translateService
+    this.langKey = translateService.currentLang;
+  }
 
   ngOnInit(): void {
     this.taskGroupId = this.taskGroup!.id.substring(this.taskGroup!.id.lastIndexOf("-")+1)
     this.getFDGroup(this.taskGroupId).subscribe(response =>  {
-      this.fDExercise = response
+      this.fDGroup = response
       if (this.fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Normalform' &&
-        this.fDExercise?.functionalDependencies !== undefined) {
+        this.fDGroup?.functionalDependencies !== undefined) {
         const normalformForm = this.solveFdTaskForm.controls.normalForm
-        for (let dependency of this.fDExercise.functionalDependencies) {
+        for (let dependency of this.fDGroup.functionalDependencies) {
           normalformForm.push(new FormGroup({id: new FormControl(dependency.id),
             text: new FormControl(dependency.leftSide.toString() +" → "+ dependency.rightSide.toString()),
             solution: new FormControl('')}))
@@ -209,8 +221,8 @@ export class FdtasksComponent implements OnInit {
       }
     })
     ;
-    if (this.fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure' && this.exercise_id !== undefined) {
-      let id = this.exercise_id?.replace("Closure-", "")
+    if (this.fDSubtype === 'http://www.dke.uni-linz.ac.at/etutorpp/FDSubtype#Closure' && this.task_id !== undefined) {
+      let id = this.task_id?.replace("Closure-", "")
       const closureForm = this.solveFdTaskForm.controls.closure
       this.getLeftSidesClosure(id).subscribe(response => Object.entries(response).forEach(
         function fillClosureForm(entry: [string,string[]]){
@@ -235,7 +247,7 @@ export class FdtasksComponent implements OnInit {
     const fdSolve = this.buildFDTaskSolve()
     this.getTaskSolveResponse(fdSolve).subscribe(response => {
       this.solved = response.solved
-      this.hints = response.hint
+      this.hints = response.hints
       if (!(response.solved)) {
         this.solveFdTaskForm.setErrors({"incorrect": true})
       } else {
@@ -249,13 +261,50 @@ export class FdtasksComponent implements OnInit {
   }
 
   submitGrade() {
+    this._courseInstanceUUID = this.courseInstance?.slice(this.courseInstance?.lastIndexOf('#')+1)
+    this.langKey = this.translateService.currentLang;
+    const headerDict = {
+      'Accept-Language': this.langKey,
+    }
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict)
+    };
     const fdTaskSolve = this.buildFDTaskSolve()
-    this.http.post<FDTaskSolveResponse>(`/api/tasks/assignments/fd/grade`, fdTaskSolve)
+
+    this.http.post<Array<string>>(`/api/dispatcher/fd/submission`, fdTaskSolve, requestOptions).subscribe(
+      response => this.uuids = response
+    )
+
+    const repeatCheckCondition = (counter: number) => {
+      if (this.uuids === undefined) {
+        setTimeout(repeatCheckCondition, 100,0)
+      } else {
+        saveToRDF();
+        if (this.pollResponse?.status !== 200 && counter < 11) {
+          counter++;
+          setTimeout(repeatCheckCondition, 500, counter);
+        }
+      }
+    }
+    repeatCheckCondition(0);
+
+    const saveToRDF = () => {
+      this.http.post(`/api/student/fd/handleDispatcherUUID/courses/${this._courseInstanceUUID}/exercises/
+      ${this._exerciseSheetUUID}/taskNo/${this._taskNo}`,
+        this.uuids, {observe: 'response'}).subscribe(res => this.pollResponse = res)
+    }
+
   }
+
+
+
+
   private buildFDTaskSolve(): FDTaskSolve {
     const fdSolve: FDTaskSolve = {
-      id: this.exercise_id,
-      type: this.fDSubtype
+      id: this.task_id,
+      type: this.fDSubtype,
+      maxPoints: this.maxPoints
     };
     if (this.solveFdTaskForm.controls.solution.value) {
       fdSolve.solution = this.solveFdTaskForm.controls.solution.value

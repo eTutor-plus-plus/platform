@@ -1,0 +1,65 @@
+{
+  "fDAssignment": {
+    "task": "Task description",
+    "assignment": {
+      "minimalCoverTaskDescription": "Enter the set F of functional dependencies that represent the minimal cover.",
+      "closureTaskDescription": "Enter the closure for the attribute combination A in the set of functional dependencies F of the relation R.",
+      "keyTaskDescription": "Enter all keys of the relation R based on the functional dependencies F.",
+      "normalformTaskDescription": "Select the normal form of the relation R based on the functional dependencies F. Further select for every functional dependency Fi the normal form it violates.",
+      "normalizeBCNFTaskDescription": "",
+      "normalize3rdTaskDescription": ""
+    },
+    "normalform": {
+      "placeholder": "Select a normal form",
+      "bcnf": "BCNF",
+      "third": "Third",
+      "second": "Second",
+      "first": "First",
+      "none": "no normal form is violated"
+    },
+    "detail": {
+      "minimalCover": "Enter one functional dependency per line. Separate attributes by comma and sides by one of the following (->,-,>).",
+      "closure": "Enter all attributes of A's closure, separated by comma.",
+      "key": "Enter one key per line. Separate the attributes by comma.",
+      "normalform": "Choose the normal form of the relation. Choose for every functional dependency the normal form it violates."
+    },
+    "hint" : {
+      "closure": {
+        "empty": "Nothing entered.",
+        "illegalArgument": "Illegal argument detected.",
+        "duplicate": "Duplicate argument detected.",
+        "more": "Too many attributes detected.",
+        "less": "Too few attributes detected.",
+        "wrong": "The solution is wrong."
+      },
+      "normalform": {
+        "notSelected": "Normal form not selected.",
+        "violates": "The relation can not be in a normal form that is violated by a functional dependency.",
+        "wrong": "The solution is wrong."
+      },
+      "key": {
+        "empty": "Nothing entered.",
+        "illegalArgument": "Illegal argument in line {{line}}.",
+        "duplicate": "Duplicate argument in line {{line}}.",
+        "more": "Too many keys detected.",
+        "less": "Too view keys detected.",
+        "wrong": "The solution is wrong."
+      },
+      "minimalCover": {
+        "empty": "Nothing entered.",
+        "sideMissing": "In line {{line}} one side of the dependency is missing.",
+        "format": "Line {{line}} is not formatted correctly.",
+        "duplicateLeft": "In line {{line}} there are duplicate arguments on the left side.",
+        "duplicateRight": "In line {{line}} there are duplicate arguments on the right side.",
+        "illegalArgumentLeft": "In line {{line}} there is an illegal argument on the left side.",
+        "illegalArgumentRight": "In line {{line}} there is an illegal argument on the rights side.",
+        "more": "Too many functional dependencies detected.",
+        "less": "Too view functional dependencies detected.",
+        "wrong": "The solution is wrong.",
+        "canonical": "Line {{line}} is not in canonical form.",
+        "trivial": "The functional dependency in line {{line}} is trivial.",
+        "redundantAttribute": "Not all attributes in {{line}} are necessary."
+      }
+    }
+  }
+}

@@ -290,16 +290,12 @@ public class TaskAssignmentResource {
         return ResponseEntity.ok(leftSidesClosure);
     }
     @PostMapping ("tasks/assignments/fd/solve")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\")")
     public ResponseEntity<String> fdSolve(@RequestBody String fdTaskSolve) {
         String fdTaskSolveResponse = dispatcherProxyService.fdTaskSolve(fdTaskSolve);
         return ResponseEntity.ok(fdTaskSolveResponse);
     }
 
-    @PostMapping ("tasks/assignments/fd/grade")
-    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
-    public ResponseEntity<Void> fdGrade(@RequestBody String fdTaskSolve) {
-        return dispatcherProxyService.fdTaskGrade(fdTaskSolve);
-    }
+
 
 }

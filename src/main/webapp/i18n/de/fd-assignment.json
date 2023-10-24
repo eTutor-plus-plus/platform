@@ -1,5 +1,6 @@
 {
   "fDAssignment": {
+    "task": "Aufgabenstellung",
     "assignment": {
       "minimalCoverTaskDescription": "Geben Sie für die Menge F an Funktionalen Abhängigkeiten eine minimale Überdeckung an.",
       "closureTaskDescription": "Berechnen Sie die Hülle der Attribut Kombination A bezüglich der Menge an Funktionalen Abhängigkeiten F der Relation R.",
@@ -16,14 +17,15 @@
       "first": "Erste",
       "none": "keine Normalform verletzt"
     },
-    "info": {
-      "minimalCover": "Geben Sie alle funktionalen Abhängigkeiten, die die minimale Überdeckung repräsentieren, an.",
-      "closure": "",
-      "key": "",
-      "normalform": ""
+    "detail": {
+      "minimalCover": "Geben sie eine funktionale Abhängigkeiten pro Zeile ein. Trennen Sie Attribute durch Beistriche und die beiden Seiten durch eines der folgenden Zeichen (->,-,>)",
+      "closure": "Geben sie alle Attribute, die sich in der Hülle von A befinden, getrennt durch Beistriche ein.",
+      "key": "Trennen sie die Attribute durch Beistriche. Jeder Schlüssel muss in einer eigenen Zeile stehen.",
+      "normalform": "Wählen sie die Normalform der Relation und für jede Funktionale Abhängigkeit, welche diese verletzt."
     },
     "hint" : {
       "closure": {
+        "empty": "Die Eingabe ist leer.",
         "illegalArgument": "Es befindet sich ein illegales Element in diesem Eingabefeld.",
         "duplicate": "Die Eingabe beinhaltet doppelte Attribute.",
         "more": "Die Eingabe beinhaltet mehr Attribute als erwartet.",
@@ -39,8 +41,8 @@
         "empty": "Die Eingabe ist leer.",
         "illegalArgument": "In Zeile {{line}} befindet sich ein illegales Attribut.",
         "duplicate": "In Zeile {{line}} befinden sich doppelte Attribute.",
-        "less": "Nicht alle Schlüssel eingegeben.",
         "more": "Zu viele Schlüssel angegeben.",
+        "less": "Nicht alle Schlüssel eingegeben.",
         "wrong": "Die Eingabe ist nicht korrekt."
       },
       "minimalCover": {
@@ -51,10 +53,12 @@
         "duplicateRight": "In Zeile {{line}} befinden sich auf der rechten Seite doppelte Attribute.",
         "illegalArgumentLeft": "In Zeile {{line}} befindet auf der linken Seite der Abhängigkeit ein illegales Attribut.",
         "illegalArgumentRight": "In Zeile {{line}} befindet auf der rechten Seite der Abhängigkeit ein illegales Attribut.",
-        "less": "Nicht alle Abhängigkeiten eingegeben.",
         "more": "Zu viele Abhängigkeiten eingegeben.",
+        "less": "Nicht alle Abhängigkeiten eingegeben.",
         "wrong": "Die Eingabe ist nicht korrekt.",
-        "canonical": "Die Eingabe in Zeile {{line}} ist nicht in kanonischer Form."
+        "canonical": "Die Eingabe in Zeile {{line}} ist nicht in kanonischer Form.",
+        "trivial": "Die funktionale Abhängigkeit in Zeile {{line}} ist trivial.",
+        "redundantAttribute": "Nicht alle Attribute in Zeile {{line}} sind notwendig."
       }
     }
   }
