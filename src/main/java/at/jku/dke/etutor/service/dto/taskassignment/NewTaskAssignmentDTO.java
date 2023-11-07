@@ -36,6 +36,7 @@ public class NewTaskAssignmentDTO {
 
     private String taskIdForDispatcher;
     private String sqlSolution;
+    private String rtSolution;
     private String maxPoints;
     private String diagnoseLevelWeighting;
     private String xQuerySolution;
@@ -49,10 +50,10 @@ public class NewTaskAssignmentDTO {
     private int maxLogSize;
     private int minLogSize;
     private String configNum;
-    
+
 /** start apriori   */
     private String aprioriDatasetId;
-/** apriori end */  
+/** apriori end */
 
     private String processingTime;
 
@@ -389,6 +390,14 @@ public class NewTaskAssignmentDTO {
         this.datalogSolution = datalogSolution;
     }
 
+    public String getRtSolution() {
+        return rtSolution;
+    }
+
+    public void setRtSolution(String rtSolution) {
+        this.rtSolution = rtSolution;
+    }
+
     public String getDatalogQuery() {
         return datalogQuery;
     }
@@ -499,9 +508,9 @@ public class NewTaskAssignmentDTO {
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
-    
+
 /** start apriori   */
-    
+
     public String getAprioriDatasetId() {
         return aprioriDatasetId;
     }
@@ -509,8 +518,8 @@ public class NewTaskAssignmentDTO {
     public void setAprioriDatasetId(String aprioriDatasetId) {
         this.aprioriDatasetId = aprioriDatasetId;
     }
-    
 
 
-/** apriori end */  
+
+/** apriori end */
 }

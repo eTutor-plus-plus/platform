@@ -5,12 +5,7 @@ import at.jku.dke.etutor.service.client.AbstractClient;
 /**
  * Abstract class to interact with the dke-dispatcher
  */
-public abstract sealed class AbstractDispatcherClient extends AbstractClient permits
-    DatalogClient,
-    DkeSubmissionClient,
-    PmClient,
-    SqlClient,
-    XQueryClient {
+public abstract sealed class AbstractDispatcherClient extends AbstractClient permits DatalogClient, DkeSubmissionClient, PmClient, RTClient, SqlClient, XQueryClient {
     protected AbstractDispatcherClient(ApplicationProperties properties){
         super(properties.getDispatcher().getUrl());
     }

@@ -77,6 +77,7 @@ export interface INewTaskModel {
   /**
    * Optional solution for a XQuery-assignment
    */
+  rtSolution?: string;
   xQuerySolution?: string;
   /**
    * Optional XPath-expression defining the sorting of an XQuery-assignment
@@ -214,6 +215,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.raTask'
   );
 
+  public static readonly rtTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#rtTask',
+    'taskManagement.taskTypes.rtTask'
+  );
+
   public static readonly XQueryTask = new TaskAssignmentType(
     'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#XQTask',
     'taskManagement.taskTypes.xqTask'
@@ -258,6 +264,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
     TaskAssignmentType.UmlTask,
+    TaskAssignmentType.rtTask
   ];
 
   private readonly _value: string;

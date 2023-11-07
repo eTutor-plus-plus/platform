@@ -55,6 +55,7 @@ export class TaskUpdateComponent implements OnInit {
     xQuerySubmissionXML: [''],
     xQueryFileURL: [''],
     sqlSolution: [''],
+    rtSolution:[''],
     xQuerySolution: [''],
     xQueryXPathSorting: [''],
     datalogFacts: [''],
@@ -171,6 +172,10 @@ export class TaskUpdateComponent implements OnInit {
     if (sqlSolution) {
       newTask.sqlSolution = sqlSolution;
     }
+    const rtSolution: string | null = this.updateForm.get('rtSolution')!.value;
+    if (rtSolution) {
+      newTask.rtSolution = rtSolution;
+    }
 
     const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
@@ -264,6 +269,7 @@ export class TaskUpdateComponent implements OnInit {
         taskDifficultyId: newTask.taskDifficultyId,
         taskIdForDispatcher: this.taskModel!.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
+        rtSolution: newTask.rtSolution,
         xQuerySolution: newTask.xQuerySolution,
         xQueryXPathSorting: newTask.xQueryXPathSorting,
         datalogSolution: newTask.datalogSolution,
@@ -330,6 +336,7 @@ export class TaskUpdateComponent implements OnInit {
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
+      const rtSolution = value.rtSolution;
       const xQuerySolution = value.xQuerySolution;
       const xQueryXPathSorting = value.xQueryXPathSorting;
       const datalogSolution = value.datalogSolution;
@@ -366,6 +373,7 @@ export class TaskUpdateComponent implements OnInit {
         privateTask: value.privateTask,
         taskDifficulty,
         taskAssignmentType,
+        rtSolution,
         sqlSolution,
         xQuerySolution,
         xQueryXPathSorting,
@@ -466,6 +474,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
+    }else if (this.selectedTaskAssignmentType === TaskAssignmentType.rtTask.value){
+      this.setMaxPointsRequired();
     }
     this.updateForm.updateValueAndValidity();
   }

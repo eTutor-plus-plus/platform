@@ -32,18 +32,21 @@ public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeSe
     private final ProcessMiningService processMiningService;
     private final BpmnService bpmnService;
 
+    private final RTService rtService;
+
     public TaskTypeServiceDelegate(XQueryService xQueryService,
                                    SqlService sqlService,
                                    DatalogService datalogService,
                                    CalcService calcService,
                                    ProcessMiningService processMiningService,
-                                   BpmnService bpmnService) {
+                                   BpmnService bpmnService, RTService rtService) {
         this.sqlService = sqlService;
         this.calcService = calcService;
         this.processMiningService = processMiningService;
         this.bpmnService = bpmnService;
         this.xQueryService = xQueryService;
         this.datalogService = datalogService;
+        this.rtService = rtService;
     }
 
 
@@ -157,6 +160,8 @@ public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeSe
             return processMiningService;
         } else if(ETutorVocabulary.BpmnTask.toString().equals(taskAssignmentTypId)){
             return bpmnService;
+        }else if(ETutorVocabulary.rtTask.toString().equals(taskAssignmentTypId)){
+            return rtService;
         }
         return null;
     }

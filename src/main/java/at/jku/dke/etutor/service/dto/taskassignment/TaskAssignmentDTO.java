@@ -55,6 +55,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setHeader(newTaskAssignmentDTO.getHeader());
         setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
         setSqlSolution(newTaskAssignmentDTO.getSqlSolution());
+        setRtSolution(newTaskAssignmentDTO.getRtSolution());
         setMaxPoints(newTaskAssignmentDTO.getMaxPoints());
         setDiagnoseLevelWeighting(newTaskAssignmentDTO.getDiagnoseLevelWeighting());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
@@ -88,12 +89,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        
+
 /** start apriori   */
         setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
-        
-/** apriori end */  
-        
+
+/** apriori end */
+
     }
 
     /**
@@ -177,18 +178,21 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        
+
 /** start apriori   */
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
         if(aprioriStatement != null){
-        	
+
         	setAprioriDatasetId(aprioriStatement.getString());
         }
-        
-/** apriori end */  
-        
-        
-        
+
+/** apriori end */
+
+        Statement rtSolutionStatement = resource.getProperty(ETutorVocabulary.hasRTSolution);
+        if (rtSolutionStatement != null){
+            setRtSolution(rtSolutionStatement.getString());
+        }
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());

@@ -415,6 +415,13 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                 query.append(".\n");
             }
 
+            if(StringUtils.isNotBlank(taskAssignment.getRtSolution())){
+                query.append("?assignment etutor:hasRTSolution ");
+                query.appendLiteral(taskAssignment.getRtSolution().trim());
+                query.append(".\n");
+            }
+
+
             if(StringUtils.isNotBlank(taskAssignment.getxQueryXPathSorting())){
                 query.append("?assignment etutor:hasXPathSorting ");
                 query.appendLiteral(taskAssignment.getxQueryXPathSorting().trim());
@@ -1712,9 +1719,14 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }
 
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getRtSolution())){
+            resource.addProperty(ETutorVocabulary.hasRTSolution, newTaskAssignmentDTO.getRtSolution().trim());
+        }
+
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())){
             resource.addProperty(ETutorVocabulary.hasXQuerySolution, newTaskAssignmentDTO.getxQuerySolution().trim());
         }
+
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQueryXPathSorting())){
             resource.addProperty(ETutorVocabulary.hasXQueryXPathSorting, newTaskAssignmentDTO.getxQueryXPathSorting().trim());

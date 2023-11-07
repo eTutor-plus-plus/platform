@@ -155,6 +155,8 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
+    private static final String INSTANCE_RT_TASK = "rtTask";
+    private static final String PROP_HAS_RT_SOLUTION = "hasRTSolution";
 
 
 /** start apriori   */
@@ -390,6 +392,7 @@ public final class ETutorVocabulary {
      */
     public static final Property hasAprioriID = m.createProperty(URI + PROP_HAS_APRIORI_ID);
 
+    public static final Property hasRTSolution = m.createProperty(URI+ PROP_HAS_RT_SOLUTION);
     /**
      * The hasXQuerySolution property.
      */
@@ -691,6 +694,7 @@ public final class ETutorVocabulary {
     /**
      * The UML type instance
      */
+    public static final Resource rtTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_RT_TASK);
     public static final Resource UmlTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_UML_TASK);
     /**
      * The Bpmn type instance
