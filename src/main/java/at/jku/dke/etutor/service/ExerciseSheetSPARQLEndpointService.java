@@ -479,7 +479,8 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
         );
         resource.addProperty(ETutorVocabulary.isGenerateWholeExerciseSheet, String.valueOf(newExerciseSheetDTO.isGenerateWholeExerciseSheet()), XSDDatatype.XSDboolean);
         resource.addProperty(ETutorVocabulary.isCloseAutomatically, String.valueOf(newExerciseSheetDTO.isCloseAutomaticallyAtGivenTime()), XSDDatatype.XSDboolean);
-        resource.addProperty(ETutorVocabulary.hasDeadline, newExerciseSheetDTO.getDeadline().toString(), XSDDatatype.XSDdateTime);
+        if(!Objects.isNull(newExerciseSheetDTO.getDeadline()))
+            resource.addProperty(ETutorVocabulary.hasDeadline, newExerciseSheetDTO.getDeadline().toString(), XSDDatatype.XSDdateTime);
 
         for (LearningGoalAssignmentDTO entry : newExerciseSheetDTO.getLearningGoals()) {
             Resource assignmentResource = model.createResource();
