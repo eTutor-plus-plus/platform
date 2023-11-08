@@ -12,7 +12,9 @@
         "difficulty": "Schwierigkeit:",
         "learningGoals": "Lernziele",
         "taskCount": "Anzahl der Aufgaben:",
-        "generateWholeExerciseSheet": "Den gesamten Übungszettel auf einmal generieren?"
+        "generateWholeExerciseSheet": "Den gesamten Übungszettel auf einmal generieren?",
+        "deadline": "Deadline",
+        "closeAutomatically": "Automatisch schließen?"
       },
       "error": {
         "required": "Dieses Feld ist erforderlich!",

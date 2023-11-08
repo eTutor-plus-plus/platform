@@ -1,5 +1,5 @@
 import { Component, HostListener, Input, OnInit, ViewChild } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDate, NgbDateAdapter, NgbDateNativeAdapter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, Validators } from '@angular/forms';
 import { IExerciseSheetDTO, ILearningGoalAssignmentDTO, INewExerciseSheetDTO } from '../exercise-sheets.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
@@ -10,6 +10,7 @@ import { LearningGoalsService } from '../../learning-goals/learning-goals.servic
 import { AccountService } from 'app/core/auth/account.service';
 import { EventManager } from 'app/core/util/event-manager.service';
 import { ExerciseSheetContextMenuComponent } from '../exercise-sheet-context-menu/exercise-sheet-context-menu.component';
+import dayjs, { Dayjs } from 'dayjs';
 
 /**
  * Modal component which is used for creating / editing an exercise sheet.
@@ -39,6 +40,8 @@ export class ExerciseSheetUpdateComponent implements OnInit {
     difficulty: [this.difficulties[0], [Validators.required]],
     taskCount: [1, [Validators.required, Validators.min(1)]],
     generateWholeExerciseSheet: [false],
+    closeAutomaticallyAtGivenTime: [false],
+    deadline: [dayjs()],
   });
 
   private _exerciseSheet?: IExerciseSheetDTO;
@@ -46,7 +49,6 @@ export class ExerciseSheetUpdateComponent implements OnInit {
   private _loginName: string;
   private _currentContextMenuGoalId = '';
   private _contextMenuComponent?: ExerciseSheetContextMenuComponent;
-
   /**
    * Constructor.
    *
@@ -106,6 +108,10 @@ export class ExerciseSheetUpdateComponent implements OnInit {
     this.isSaving = true;
     const difficultyId = (this.updateForm.get(['difficulty'])!.value as TaskDifficulty).value;
 
+    const deadline: Date | null = this.updateForm.get('deadline')!.value?.toDate() ?? null;
+    deadline?.setHours(1);
+    const deadlineS: string | null = deadline?.toISOString() ?? null;
+
     if (this.isNew) {
       const newExerciseSheet: INewExerciseSheetDTO = {
         name: (this.updateForm.get(['name'])!.value as string).trim(),
@@ -121,6 +127,8 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         }),
         taskCount: this.updateForm.get(['taskCount'])!.value,
         generateWholeExerciseSheet: this.updateForm.get(['generateWholeExerciseSheet'])!.value,
+        closeAutomaticallyAtGivenTime: this.updateForm.get(['closeAutomaticallyAtGivenTime'])!.value,
+        deadline: deadlineS,
       };
 
       this.exerciseSheetService.insertExerciseSheet(newExerciseSheet).subscribe(
@@ -145,6 +153,8 @@ export class ExerciseSheetUpdateComponent implements OnInit {
         id: this.exerciseSheet!.id,
         taskCount: this.updateForm.get(['taskCount'])!.value,
         generateWholeExerciseSheet: this.updateForm.get(['generateWholeExerciseSheet'])!.value,
+        closeAutomaticallyAtGivenTime: this.updateForm.get(['closeAutomaticallyAtGivenTime'])!.value,
+        deadline: deadlineS,
       };
 
       this.exerciseSheetService.updateExerciseSheet(exerciseSheet).subscribe(
@@ -198,13 +208,19 @@ export class ExerciseSheetUpdateComponent implements OnInit {
       this.isNew = false;
 
       const difficulty = TaskDifficulty.fromString(value.difficultyId)!;
-
       this.updateForm.patchValue({
         name: value.name,
         difficulty,
         taskCount: value.taskCount,
         generateWholeExerciseSheet: value.generateWholeExerciseSheet,
+        closeAutomaticallyAtGivenTime: value.closeAutomaticallyAtGivenTime,
       });
+      if (value.closeAutomaticallyAtGivenTime) {
+        const deadline = dayjs(value.deadline);
+        this.updateForm.patchValue({
+          deadline,
+        });
+      }
 
       this.selectedPriorities = value.learningGoals.map(x => [x.learningGoal.id, x.priority]);
 

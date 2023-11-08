@@ -2,11 +2,13 @@ package at.jku.dke.etutor.service.dto.exercisesheet;
 
 import at.jku.dke.etutor.service.dto.taskassignment.LearningGoalDisplayDTO;
 import at.jku.dke.etutor.service.dto.validation.DifficultyRankingConstraint;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,10 @@ public class NewExerciseSheetDTO {
     private int taskCount;
 
     private boolean generateWholeExerciseSheet;
+    private boolean closeAutomaticallyAtGivenTime;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant deadline;
 
     /**
      * Returns the name.
@@ -147,5 +153,21 @@ public class NewExerciseSheetDTO {
      */
     public void setGenerateWholeExerciseSheet(boolean generateWholeExerciseSheet) {
         this.generateWholeExerciseSheet = generateWholeExerciseSheet;
+    }
+
+    public boolean isCloseAutomaticallyAtGivenTime() {
+        return closeAutomaticallyAtGivenTime;
+    }
+
+    public void setCloseAutomaticallyAtGivenTime(boolean closeAutomaticallyAtGivenTime) {
+        this.closeAutomaticallyAtGivenTime = closeAutomaticallyAtGivenTime;
+    }
+
+    public Instant getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Instant deadline) {
+        this.deadline = deadline;
     }
 }

@@ -21,9 +21,17 @@ export interface INewExerciseSheetDTO {
    */
   taskCount: number;
   /**
-   * Indicates whether or not the whole exercise sheet should be generated at once.
+   * Indicates whether the whole exercise sheet should be generated at once.
    */
   generateWholeExerciseSheet: boolean;
+  /**
+   * Indicates whether the exercise-sheet should be closed automatically at the given time (see deadline)
+   */
+  closeAutomaticallyAtGivenTime: boolean;
+  /**
+   * The time at which the exercise sheet should be closed automatically in ISO format
+   */
+  deadline: string | null;
 }
 
 /**

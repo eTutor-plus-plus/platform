@@ -617,6 +617,33 @@ public /*non-sealed */class CourseInstanceSPARQLEndpointService extends Abstract
         }
     }
 
+    /**
+     * Checks if an exercise-sheet is assigned to any course-instance and closes it.
+     * @param exerciseSheetUrl the URI of the sheet
+     */
+    public void closeExerciseSheetIfAssigned(String exerciseSheetUrl){
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+                PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+                DELETE {
+                    ?assignment etutor:isExerciseSheetClosed false.
+                }
+                INSERT {
+                    ?assignment etutor:isExerciseSheetClosed true.
+                }
+                WHERE {
+                    ?instance a etutor:CourseInstance;
+                        etutor:hasExerciseSheetAssignment ?assignment.
+                    ?assignment etutor:hasExerciseSheet ?sheet;
+                        etutor:isExerciseSheetClosed false.
+                }
+            """);
+
+        query.setIri("?sheet", exerciseSheetUrl);
+        try (RDFConnection connection = getConnection()) {
+            connection.update(query.asUpdate());
+        }
+    }
+
     //region Private helper methods
 
     /**

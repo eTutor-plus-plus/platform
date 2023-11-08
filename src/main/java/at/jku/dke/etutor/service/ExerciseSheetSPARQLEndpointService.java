@@ -137,12 +137,16 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
                     ?goalAssignment etutor:hasPriority ?priority.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
                     ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
+                    ?exerciseSheet etutor:isCloseAutomatically ?closeAutomaticallyOld.
+                    ?exerciseSheet etutor:hasDeadline ?oldDeadline.
                 }
                 INSERT {
                     ?exerciseSheet rdfs:label ?newLbl.
                     ?exerciseSheet etutor:hasExerciseSheetDifficulty ?newDifficulty.
                     ?exerciseSheet etutor:hasExerciseSheetTaskCount ?newTaskCount.
                     ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?newGenerate.
+                    ?exerciseSheet etutor:hasDeadline ?newDeadline.
+                    ?exerciseSheet etutor:isCloseAutomatically ?closeAutomaticallyNew.
                 }
                 WHERE {
                   ?exerciseSheet a etutor:ExerciseSheet.
@@ -150,6 +154,12 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
                   ?exerciseSheet etutor:hasExerciseSheetDifficulty ?difficulty.
                   ?exerciseSheet etutor:hasExerciseSheetTaskCount ?taskCount.
                   ?exerciseSheet etutor:isGenerateWholeExerciseSheet ?generate.
+                  OPTIONAL{
+                    ?exerciseSheet etutor:isCloseAutomatically ?closeAutomaticallyOld.
+                  }
+                  OPTIONAL{
+                    ?exerciseSheet etutor:hasDeadline ?oldDeadline.
+                  }
                   OPTIONAL {
                     ?exerciseSheet etutor:containsLearningGoalAssignment ?goalAssignment.
                     ?goalAssignment a etutor:LearningGoalAssignment.
@@ -165,6 +175,8 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
         query.setIri("?newDifficulty", exerciseSheetDTO.getDifficultyId());
         query.setLiteral("?newTaskCount", exerciseSheetDTO.getTaskCount());
         query.setLiteral("?newGenerate", exerciseSheetDTO.isGenerateWholeExerciseSheet());
+        query.setLiteral("?closeAutomaticallyNew", String.valueOf(exerciseSheetDTO.isCloseAutomaticallyAtGivenTime()), XSDDatatype.XSDboolean);
+        query.setLiteral("?newDeadline", exerciseSheetDTO.getDeadline() != null ? exerciseSheetDTO.getDeadline().toString() : Instant.now().toString(), XSDDatatype.XSDdateTime);
 
         ParameterizedSparqlString goalAssignmentInsertQry = new ParameterizedSparqlString("""
             PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
@@ -387,6 +399,38 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
     }
 
     /**
+     * Fetches all exercise sheets that are configured to close automatically.
+     * @return the list of the exercise-sheets
+     * @throws ParseException if query cannot be parsed
+     */
+    public List<ExerciseSheetDTO> getExerciseSheetsWithDeadline() throws ParseException {
+        ParameterizedSparqlString query = new ParameterizedSparqlString("""
+            PREFIX etutor: <http://www.dke.uni-linz.ac.at/etutorpp/>
+            SELECT * WHERE {
+              ?sheet a etutor:ExerciseSheet;
+              etutor:isCloseAutomatically true;
+              etutor:hasDeadline ?deadline.
+            }
+            """);
+
+        List<ExerciseSheetDTO> list = new ArrayList<>();
+        try (RDFConnection connection = getConnection()) {
+
+            try (QueryExecution execution = connection.query(query.asQuery())) {
+                ResultSet set = execution.execSelect();
+
+                while (set.hasNext()) {
+                    QuerySolution querySolution = set.nextSolution();
+
+                    String uri = querySolution.getResource("?sheet").getURI();
+                    String uuid = uri.substring(uri.lastIndexOf('#') + 1);
+                    getExerciseSheetById(uuid).ifPresent(list::add);
+                }
+            }
+        }
+        return list;
+    }
+    /**
      * Deletes an exercise sheet by id.
      *
      * @param internalId the exercise sheet's id
@@ -434,6 +478,8 @@ public /*non-sealed*/ class ExerciseSheetSPARQLEndpointService extends AbstractS
             XSDDatatype.XSDint
         );
         resource.addProperty(ETutorVocabulary.isGenerateWholeExerciseSheet, String.valueOf(newExerciseSheetDTO.isGenerateWholeExerciseSheet()), XSDDatatype.XSDboolean);
+        resource.addProperty(ETutorVocabulary.isCloseAutomatically, String.valueOf(newExerciseSheetDTO.isCloseAutomaticallyAtGivenTime()), XSDDatatype.XSDboolean);
+        resource.addProperty(ETutorVocabulary.hasDeadline, newExerciseSheetDTO.getDeadline().toString(), XSDDatatype.XSDdateTime);
 
         for (LearningGoalAssignmentDTO entry : newExerciseSheetDTO.getLearningGoals()) {
             Resource assignmentResource = model.createResource();

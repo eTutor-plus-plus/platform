@@ -70,6 +70,19 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
         );
         setGenerateWholeExerciseSheet(resource.getProperty(ETutorVocabulary.isGenerateWholeExerciseSheet).getBoolean());
         setTaskCount(resource.getProperty(ETutorVocabulary.hasExerciseSheetTaskCount).getInt());
+
+        var isCloseAutomaticallyProperty = resource.getProperty(ETutorVocabulary.isCloseAutomatically);
+        if(isCloseAutomaticallyProperty != null)
+                setCloseAutomaticallyAtGivenTime(isCloseAutomaticallyProperty.getBoolean());
+
+        var deadlineProperty = resource.getProperty(ETutorVocabulary.hasDeadline);
+        if(isCloseAutomaticallyProperty != null)
+            setDeadline(
+                DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
+                    .parse(deadlineProperty.getString())
+                    .toInstant()
+            );
+
         List<LearningGoalAssignmentDTO> goals = new ArrayList<>();
         StmtIterator stmtIterator = resource.listProperties(ETutorVocabulary.containsLearningGoalAssignment);
         try {

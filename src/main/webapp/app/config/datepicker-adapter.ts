@@ -8,7 +8,7 @@ import dayjs from 'dayjs/esm';
 @Injectable()
 export class NgbDateDayjsAdapter extends NgbDateAdapter<dayjs.Dayjs> {
   fromModel(date: dayjs.Dayjs | null): NgbDateStruct | null {
-    if (date && dayjs.isDayjs(date) && date.isValid()) {
+    if (date?.isValid()) {
       return { year: date.year(), month: date.month() + 1, day: date.date() };
     }
     return null;

@@ -31,7 +31,6 @@ public class DispatcherSubmissionResource {
     @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<String> getGrading(@PathVariable String submissionId) throws DispatcherRequestFailedException {
         return dkeSubmissionClient.getGrading(submissionId);
-
     }
 
     /**

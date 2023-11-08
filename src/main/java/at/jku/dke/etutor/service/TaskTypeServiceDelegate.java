@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Service that aggregates all task-type and task-group-type specific services.
@@ -65,13 +68,13 @@ public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeSe
      * Calls the task-group-type specific service to update a task group.
      * If no task-group-type-specific service is available, ignores the request.
      * A call to this method may alter the passed object.
-     * @param newTaskGroupDTO the new task group
+     * @param taskGroupDTO the new task group
      */
     @Override
-    public void updateTaskGroup(TaskGroupDTO newTaskGroupDTO) throws TaskTypeSpecificOperationFailedException {
-        var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(newTaskGroupDTO.getTaskGroupTypeId());
+    public void updateTaskGroup(TaskGroupDTO taskGroupDTO) throws TaskTypeSpecificOperationFailedException {
+        var taskTypeService = getTaskTypeSpecificServiceForTaskGroupTypeId(taskGroupDTO.getTaskGroupTypeId());
         if(taskTypeService != null){
-            taskTypeService.updateTaskGroup(newTaskGroupDTO);
+            taskTypeService.updateTaskGroup(taskGroupDTO);
         }
     }
 
@@ -138,6 +141,14 @@ public class TaskTypeServiceDelegate implements TaskTypeService, TaskGroupTypeSe
 
     // private region
 
+//    private <T extends NewTaskAssignmentDTO> void executeTaskTypeSpecificOperation(NewTaskAssignmentDTO taskAssignmentDTO, BiConsumer<TaskTypeService, NewTaskAssignmentDTO> methodCall, Function<NewTaskAssignmentDTO,? extends NewTaskAssignmentDTO> typeCastFunction){
+//        Objects.requireNonNull(taskAssignmentDTO);
+//
+//        var taskTypeService = getTaskTypeSpecificServiceForTaskAssignmentTypeId(taskAssignmentDTO.getTaskAssignmentTypeId());
+//        if(taskTypeService != null){
+//            methodCall.accept(taskTypeService, taskAssignmentDTO);
+//        }
+//    }
     /**
      * Returns the task-type-specific service for the given task assignment type id.
      * @param taskAssignmentTypId the task assignment type id

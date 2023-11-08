@@ -12,7 +12,9 @@
         "difficulty": "Difficulty:",
         "learningGoals": "Learning goals",
         "taskCount": "Task count:",
-        "generateWholeExerciseSheet": "Generate whole exercise sheet at once?"
+        "generateWholeExerciseSheet": "Generate whole exercise sheet at once?",
+        "deadline": "Deadline",
+        "closeAutomatically": "Close automatically?"
       },
       "error": {
         "required": "This field is required!",
