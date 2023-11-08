@@ -76,7 +76,7 @@ public class ExerciseSheetDTO extends NewExerciseSheetDTO {
                 setCloseAutomaticallyAtGivenTime(isCloseAutomaticallyProperty.getBoolean());
 
         var deadlineProperty = resource.getProperty(ETutorVocabulary.hasDeadline);
-        if(isCloseAutomaticallyProperty != null)
+        if(deadlineProperty != null)
             setDeadline(
                 DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT
                     .parse(deadlineProperty.getString())
