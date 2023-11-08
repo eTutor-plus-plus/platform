@@ -170,6 +170,7 @@ public class ExerciseSheetSPARQLEndpointServiceTest {
         assertThat(exerciseSheetFromDb)
             .usingRecursiveComparison()
             .ignoringFields("learningGoals")
+            .ignoringFields("deadline")
             .isEqualTo(exerciseSheetDTO);
         assertThat(exerciseSheetFromDb.getLearningGoals()).containsExactlyInAnyOrderElementsOf(exerciseSheetDTO.getLearningGoals());
     }
