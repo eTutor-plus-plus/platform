@@ -17,6 +17,8 @@ import at.jku.dke.etutor.service.dto.courseinstance.StudentInfoDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.ExerciseSheetDisplayDTO;
 import at.jku.dke.etutor.service.dto.exercisesheet.NewExerciseSheetDTO;
 import at.jku.dke.etutor.service.exception.CourseInstanceNotFoundException;
+
+import java.time.Instant;
 import java.util.*;
 
 import at.jku.dke.etutor.service.exception.CourseNotFoundException;
@@ -282,6 +284,8 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         firstNewExerciseSheet.setName("TestSheet 1");
         firstNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
         firstNewExerciseSheet.setLearningGoals(new ArrayList<>());
+        firstNewExerciseSheet.setDeadline(Instant.now());
+        firstNewExerciseSheet.setCloseAutomaticallyAtGivenTime(true);
 
         var firstExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(firstNewExerciseSheet, "admin");
 
@@ -289,6 +293,8 @@ public class CourseInstanceSPARQLEndpointServiceTest {
         secondNewExerciseSheet.setName("TestSheet 2");
         secondNewExerciseSheet.setDifficultyId(ETutorVocabulary.Medium.getURI());
         secondNewExerciseSheet.setLearningGoals(new ArrayList<>());
+        secondNewExerciseSheet.setDeadline(Instant.now());
+        secondNewExerciseSheet.setCloseAutomaticallyAtGivenTime(true);
 
         var secondExerciseSheet = exerciseSheetSPARQLEndpointService.insertNewExerciseSheet(secondNewExerciseSheet, "admin");
 
