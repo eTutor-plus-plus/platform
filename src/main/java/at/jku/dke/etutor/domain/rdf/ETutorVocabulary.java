@@ -98,6 +98,14 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_SUBMISSION_XML_FILE = "hasSubmissionXMLFile";
     private static final String PROP_HAS_SQL_SOLUTION = "hasSQLSolution";
 
+    private static final String PROP_HAS_DDL_SOLUTION = "hasDDLSolution";
+    private static final String PROP_HAS_DDL_INSERT_STATEMENTS = "hasDDLInsertStatements";
+    private static final String PROP_HAS_TABLE_POINTS = "hasTablePoints";
+    private static final String PROP_HAS_COLUMN_POINTS = "hasColumnPoints";
+    private static final String PROP_HAS_PRIMARY_KEY_POINTS = "hasPrimaryKeyPoints";
+    private static final String PROP_HAS_FOREIGN_KEY_POINTS = "hasForeignKeyPoints";
+    private static final String PROP_HAS_CONSTRAINT_POINTS = "hasConstraintPoints";
+
     private static final String PROP_HAS_FILE_URL = "hasFileURL";
     private static final String PROP_HAS_APRIORI_ID = "hasAprioriID";
     private static final String PROP_HAS_MAX_POINTS = "hasMaxPoints";
@@ -148,6 +156,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
+    private static final String INSTANCE_DDL_TASK = "DDLTask";
     private static final String INSTANCE_RA_TASK = "RATask";
     private static final String INSTANCE_XQ_TASK = "XQTask";
     private static final String INSTANCE_DLG_TASK = "DLGTask";
@@ -381,6 +390,34 @@ public final class ETutorVocabulary {
      * The hasSQLSolution property.
      */
     public static final Property hasSQLSolution = m.createProperty(URI + PROP_HAS_SQL_SOLUTION);
+    /**
+     * The hasDDLSolution property.
+     */
+    public static final Property hasDDLSolution = m.createProperty(URI + PROP_HAS_DDL_SOLUTION);
+    /**
+     * The hasDDLInsertStatements property.
+     */
+    public static final Property hasDDLInsertStatements = m.createProperty(URI + PROP_HAS_DDL_INSERT_STATEMENTS);
+    /**
+     * The hasTablePoints property.
+     */
+    public static final Property hasTablePoints = m.createProperty(URI + PROP_HAS_TABLE_POINTS);
+    /**
+     * The hasColumnPoints property.
+     */
+    public static final Property hasColumnPoints = m.createProperty(URI + PROP_HAS_COLUMN_POINTS);
+    /**
+     * The hasPrimaryKeyPoints property.
+     */
+    public static final Property hasPrimaryKeyPoints = m.createProperty(URI + PROP_HAS_PRIMARY_KEY_POINTS);
+    /**
+     * The hasForeignKeyPoints property.
+     */
+    public static final Property hasForeignKeyPoints = m.createProperty(URI + PROP_HAS_FOREIGN_KEY_POINTS);
+    /**
+     * The hasConstraintPoints property.
+     */
+    public static final Property hasConstraintPoints = m.createProperty(URI + PROP_HAS_CONSTRAINT_POINTS);
     /**
      * The hasFileUrl property.
      */
@@ -676,6 +713,10 @@ public final class ETutorVocabulary {
      * The SQL task assignment type instance.
      */
     public static final Resource SQLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_SQL_TASK);
+    /**
+     * The SQL DDL task assignment type instance.
+     */
+    public static final Resource DDLTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DDL_TASK);
     /***
      * The relational algebra type instance
      */

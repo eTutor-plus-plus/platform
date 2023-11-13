@@ -36,7 +36,14 @@ public class NewTaskAssignmentDTO {
 
     private String taskIdForDispatcher;
     private String sqlSolution;
+    private String ddlSolution;
+    private String ddlInsertStatements;
     private String maxPoints;
+    private String tablePoints;
+    private String columnPoints;
+    private String primaryKeyPoints;
+    private String foreignKeyPoints;
+    private String constraintPoints;
     private String diagnoseLevelWeighting;
     private String xQuerySolution;
     private String xQueryXPathSorting;
@@ -49,10 +56,10 @@ public class NewTaskAssignmentDTO {
     private int maxLogSize;
     private int minLogSize;
     private String configNum;
-    
+
 /** start apriori   */
     private String aprioriDatasetId;
-/** apriori end */  
+/** apriori end */
 
     private String processingTime;
 
@@ -191,6 +198,38 @@ public class NewTaskAssignmentDTO {
     }
 
     /**
+     * Gets the solution for a SQL DDL exercie
+     * @return
+     */
+    public String getDdlSolution() {
+        return ddlSolution;
+    }
+
+    /**
+     * Sets the solution for a SQL DDL exercise
+     * @param ddlSolution
+     */
+    public void setDdlSolution(String ddlSolution) {
+        this.ddlSolution = ddlSolution;
+    }
+
+    /**
+     * Gets the insert statements for a SQL DDL exercise
+     * @return
+     */
+    public String getDdlInsertStatements() {
+        return ddlInsertStatements;
+    }
+
+    /**
+     * Sets the insert statements for a SQL DDL exercise
+     * @param ddlInsertStatements
+     */
+    public void setDdlInsertStatements(String ddlInsertStatements) {
+        this.ddlInsertStatements = ddlInsertStatements;
+    }
+
+    /**
      * Returns the maxPoints
      * @return the maxPoints
      */
@@ -205,6 +244,48 @@ public class NewTaskAssignmentDTO {
     public void setMaxPoints(String maxPoints) {
         this.maxPoints = maxPoints;
     }
+
+    // Getter/Setter for points variables for SQL DDL exercise
+    public String getTablePoints() {
+        return tablePoints;
+    }
+
+    public void setTablePoints(String tablePoints) {
+        this.tablePoints = tablePoints;
+    }
+
+    public String getColumnPoints() {
+        return columnPoints;
+    }
+
+    public void setColumnPoints(String columnPoints) {
+        this.columnPoints = columnPoints;
+    }
+
+    public String getPrimaryKeyPoints() {
+        return primaryKeyPoints;
+    }
+
+    public void setPrimaryKeyPoints(String primaryKeyPoints) {
+        this.primaryKeyPoints = primaryKeyPoints;
+    }
+
+    public String getForeignKeyPoints() {
+        return foreignKeyPoints;
+    }
+
+    public void setForeignKeyPoints(String foreignKeyPoints) {
+        this.foreignKeyPoints = foreignKeyPoints;
+    }
+
+    public String getConstraintPoints() {
+        return constraintPoints;
+    }
+
+    public void setConstraintPoints(String constraintPoints) {
+        this.constraintPoints = constraintPoints;
+    }
+
     /**
      * Returns the weighting for the diagnose level
      * @return the weighting
@@ -499,9 +580,9 @@ public class NewTaskAssignmentDTO {
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
-    
+
 /** start apriori   */
-    
+
     public String getAprioriDatasetId() {
         return aprioriDatasetId;
     }
@@ -509,8 +590,8 @@ public class NewTaskAssignmentDTO {
     public void setAprioriDatasetId(String aprioriDatasetId) {
         this.aprioriDatasetId = aprioriDatasetId;
     }
-    
 
 
-/** apriori end */  
+
+/** apriori end */
 }

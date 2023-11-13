@@ -83,6 +83,22 @@ export interface INewTaskModel {
    */
   xQueryXPathSorting?: string;
   /**
+   * Optional solution for a SQL DDL assignment
+   */
+  ddlSolution?: string;
+  /**
+   * Optional insert statements for a SQL DDL assignment to verify constraints
+   */
+  ddlInsertStatements?: string;
+  /**
+   * Optional dml statements to check constraints in a SQL DDL assignment
+   */
+  ddlCheckStatements?: string;
+  /**
+   * Optional point distribution for SQL DDL assignments
+   */
+  ddlPointDistribution?: string;
+  /**
    * Optional solution for a datalog task
    */
   datalogSolution?: string;
@@ -98,6 +114,26 @@ export interface INewTaskModel {
    * Optional max points
    */
   maxPoints?: string;
+  /**
+   * Optional table points for sql ddl assignments
+   */
+  tablePoints?: string;
+  /**
+   * Optional columns points for sql ddl assignments
+   */
+  columnPoints?: string;
+  /**
+   * Optional primary key points for sql ddl assignments
+   */
+  primaryKeyPoints?: string;
+  /**
+   * Optional foreign key points for sql ddl assignments
+   */
+  foreignKeyPoints?: string;
+  /**
+   * Optional constraint points for sql ddl assignments
+   */
+  constraintPoints?: string;
   /**
    * The optional free text processing time.
    */
@@ -246,6 +282,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.umlTask'
   );
 
+  public static readonly DDLTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DDLTask',
+    'taskManagement.taskTypes.ddlTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -258,6 +299,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
     TaskAssignmentType.UmlTask,
+    TaskAssignmentType.DDLTask,
   ];
 
   private readonly _value: string;
