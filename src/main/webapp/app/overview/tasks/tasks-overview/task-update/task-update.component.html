@@ -355,18 +355,14 @@
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DDLTask.value">
       <label class="form-control-label" for="ddlSolution" jhiTranslate="taskManagement.fields.ddlSolution">SQL DDL: Solution:</label>
-      <ngx-monaco-editor [options]="editorOptionsReadOnly" id="ddlSolution" formControlName="ddlSolution"></ngx-monaco-editor>
+      <ngx-monaco-editor [options]="editorOptions" id="ddlSolution" formControlName="ddlSolution"></ngx-monaco-editor>
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DDLTask.value">
       <label class="form-control-label" for="ddlInsertStatements" jhiTranslate="taskManagement.fields.ddlInsertStatements"
         >SQL DDL: Insert-Into-Statements (for constraints):</label
       >
-      <ngx-monaco-editor
-        [options]="editorOptionsReadOnly"
-        id="ddlInsertStatements"
-        formControlName="ddlInsertStatements"
-      ></ngx-monaco-editor>
+      <ngx-monaco-editor [options]="editorOptions" id="ddlInsertStatements" formControlName="ddlInsertStatements"></ngx-monaco-editor>
     </div>
 
     <div

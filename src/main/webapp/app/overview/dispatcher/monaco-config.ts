@@ -570,6 +570,8 @@ function getLanguageForEditorOptionsForTaskTypeUrl(taskTypeUrl: string): string 
       return 'xquery';
     case TaskAssignmentType.BpmnTask.value:
       return 'bpmn';
+    case TaskAssignmentType.DDLTask.value:
+      return 'ddl';
     default:
       return 'pgsql';
   }
