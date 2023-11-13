@@ -1161,7 +1161,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
                               etutor:refersToTask ?task.
               ?task etutor:hasTaskAssignmentType ?type.
 
-              FILTER (?type IN ( etutor-task-assignment-type:UploadTask, etutor-task-assignment-type:DLGTask, etutor-task-assignment-type:XQTask, etutor-task-assignment-type:SQLTask, etutor-task-assignment-type:CalcTask) )
+              FILTER (?type IN ( etutor-task-assignment-type:UploadTask, etutor-task-assignment-type:DLGTask, etutor-task-assignment-type:XQTask, etutor-task-assignment-type:SQLTask, etutor-task-assignment-type:CalcTask, etutor-task-assignment-type:rtTask) )
             }
             """);
 
@@ -2348,6 +2348,7 @@ public /*non-sealed */class StudentService extends AbstractSPARQLEndpointService
 
         int achievedPoints =  updateAndGetAchievedPointsForIndividualTaskByDispatcherSubmission(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo,
             submission, grading, maxPoints, diagnoseLevelWeighting, highestChosenDiagnoseLevel, isExerciseSheetClosed);
+
 
         if(submission.getPassedAttributes().get("action").equals("submit"))
             markTaskAssignmentAsSubmitted(courseInstanceUUID, exerciseSheetUUID, matriculationNo, taskNo);
