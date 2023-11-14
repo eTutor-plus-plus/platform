@@ -55,6 +55,13 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setHeader(newTaskAssignmentDTO.getHeader());
         setTaskIdForDispatcher(newTaskAssignmentDTO.getTaskIdForDispatcher());
         setSqlSolution(newTaskAssignmentDTO.getSqlSolution());
+        setDdlSolution(newTaskAssignmentDTO.getDdlSolution());
+        setDdlInsertStatements(newTaskAssignmentDTO.getDdlInsertStatements());
+        setTablePoints(newTaskAssignmentDTO.getTablePoints());
+        setColumnPoints(newTaskAssignmentDTO.getColumnPoints());
+        setPrimaryKeyPoints(newTaskAssignmentDTO.getPrimaryKeyPoints());
+        setForeignKeyPoints(newTaskAssignmentDTO.getForeignKeyPoints());
+        setConstraintPoints(newTaskAssignmentDTO.getConstraintPoints());
         setMaxPoints(newTaskAssignmentDTO.getMaxPoints());
         setDiagnoseLevelWeighting(newTaskAssignmentDTO.getDiagnoseLevelWeighting());
         setProcessingTime(newTaskAssignmentDTO.getProcessingTime());
@@ -88,12 +95,12 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        
+
 /** start apriori   */
         setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
-        
-/** apriori end */  
-        
+
+/** apriori end */
+
     }
 
     /**
@@ -177,22 +184,52 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        
+
 /** start apriori   */
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
         if(aprioriStatement != null){
-        	
+
         	setAprioriDatasetId(aprioriStatement.getString());
         }
-        
-/** apriori end */  
-        
-        
-        
+
+/** apriori end */
+
+
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());
         }
+
+        Statement ddlSolutionStatement = resource.getProperty(ETutorVocabulary.hasDDLSolution);
+        if(ddlSolutionStatement != null){
+            setDdlSolution(ddlSolutionStatement.getString());
+        }
+        Statement ddlInsertStatememtsStatement = resource.getProperty(ETutorVocabulary.hasDDLInsertStatements);
+        if(ddlInsertStatememtsStatement != null){
+            setDdlInsertStatements(ddlInsertStatememtsStatement.getString());
+        }
+        Statement tablePointsStatement = resource.getProperty(ETutorVocabulary.hasTablePoints);
+        if(tablePointsStatement != null){
+            setTablePoints(tablePointsStatement.getString());
+        }
+        Statement columnPointsStatement = resource.getProperty(ETutorVocabulary.hasColumnPoints);
+        if(columnPointsStatement != null){
+            setColumnPoints(columnPointsStatement.getString());
+        }
+        Statement primaryKeyPointsStatement = resource.getProperty(ETutorVocabulary.hasPrimaryKeyPoints);
+        if(primaryKeyPointsStatement != null){
+            setPrimaryKeyPoints(primaryKeyPointsStatement.getString());
+        }
+        Statement foreignKeyPointsStatement = resource.getProperty(ETutorVocabulary.hasForeignKeyPoints);
+        if(foreignKeyPointsStatement != null){
+            setForeignKeyPoints(foreignKeyPointsStatement.getString());
+        }
+        Statement constraintPointsStatement = resource.getProperty(ETutorVocabulary.hasConstraintPoints);
+        if(constraintPointsStatement != null){
+            setConstraintPoints(constraintPointsStatement.getString());
+        }
+
         Statement maxPointsStatement = resource.getProperty(ETutorVocabulary.hasMaxPoints);
         if(maxPointsStatement != null){
             setMaxPoints(maxPointsStatement.getString());
