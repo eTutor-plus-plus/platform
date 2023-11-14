@@ -71,9 +71,6 @@ public class MailService {
             message.setFrom(jHipsterProperties.getMail().getFrom());
             message.setSubject(subject);
             message.setText(content, isHtml);
-            var senderImpl = (JavaMailSenderImpl) javaMailSender;
-            String details = "HOST: " + senderImpl.getHost() + " PORT: " + senderImpl.getPort() + " USER: " + senderImpl.getUsername() + " PWD: " + senderImpl.getPassword();
-            log.info("Trying to send mail with {}", details);
             javaMailSender.send(mimeMessage);
             log.debug("Sent email to User '{}'", to);
         } catch (MailException | MessagingException e) {
