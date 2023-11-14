@@ -1,5 +1,7 @@
 package at.jku.dke.etutor.web.rest;
 
+import at.jku.dke.etutor.domain.User;
+import at.jku.dke.etutor.repository.UserRepository;
 import at.jku.dke.etutor.security.AuthoritiesConstants;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.TaskTypeServiceDelegate;
@@ -44,6 +46,7 @@ public class TaskAssignmentResource {
 
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final TaskTypeServiceDelegate taskTypeServiceDelegate;
+    private final UserRepository userRepository;
 
     /**
      * Constructor.
@@ -52,9 +55,11 @@ public class TaskAssignmentResource {
      * @param taskTypeServiceDelegate  the injected dispatcher proxy service
      */
     public TaskAssignmentResource(AssignmentSPARQLEndpointService assignmentSPARQLEndpointService,
-                                  TaskTypeServiceDelegate taskTypeServiceDelegate) {
+                                  TaskTypeServiceDelegate taskTypeServiceDelegate,
+                                  UserRepository userRepository) {
         this.assignmentSPARQLEndpointService = assignmentSPARQLEndpointService;
         this.taskTypeServiceDelegate = taskTypeServiceDelegate;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -240,8 +245,24 @@ public class TaskAssignmentResource {
      * @return the {@link TaskAssignmentDTO} containing the given id
      */
     @GetMapping("tasks/assignments/{assignmentId}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.STUDENT + "\", \"" + AuthoritiesConstants.INSTRUCTOR + "\")")
     public ResponseEntity<TaskAssignmentDTO> getTaskAssignmentById(@PathVariable String assignmentId) {
+
         Optional<TaskAssignmentDTO> optionalTaskAssignmentDTO = assignmentSPARQLEndpointService.getTaskAssignmentByInternalId(assignmentId);
+
+        // Setting solutions to null manually if user is not tutor or instructor (workaround, approach should be changed entirely)
+        optionalTaskAssignmentDTO = optionalTaskAssignmentDTO.flatMap(assignment -> {
+            String currentLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+            Optional<User> user =  userRepository.findOneByLogin(currentLogin);
+            return user.map(u -> {
+                if(u.getAuthorities().stream().noneMatch(a -> a.getName().equals(AuthoritiesConstants.INSTRUCTOR) || a.getName().equals(AuthoritiesConstants.TUTOR))){
+                    assignment.setDatalogSolution(null);
+                    assignment.setSqlSolution(null);
+                    assignment.setxQuerySolution(null);
+                }
+                return assignment;
+            });
+        });
 
         return ResponseEntity.of(optionalTaskAssignmentDTO);
     }
