@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,9 @@ public class MailService {
             message.setFrom(jHipsterProperties.getMail().getFrom());
             message.setSubject(subject);
             message.setText(content, isHtml);
+            var senderImpl = (JavaMailSenderImpl) javaMailSender;
+            String details = "HOST: " + senderImpl.getHost() + " PORT: " + senderImpl.getPort() + " USER: " + senderImpl.getUsername() + " PWD: " + senderImpl.getPassword();
+            log.info("Trying to send mail with {}", details);
             javaMailSender.send(mimeMessage);
             log.debug("Sent email to User '{}'", to);
         } catch (MailException | MessagingException e) {
