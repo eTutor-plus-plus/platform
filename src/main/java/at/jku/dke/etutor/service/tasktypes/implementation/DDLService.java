@@ -45,9 +45,8 @@ public class DDLService implements TaskTypeService {
             return;
         }
 
-        if (StringUtils.isBlank(newTaskAssignmentDTO.getTaskGroupId()) ||
-            StringUtils.isBlank(newTaskAssignmentDTO.getDdlSolution())) {
-            throw new MissingParameterException("Either the task group id or the solution is not set");
+        if (StringUtils.isBlank(newTaskAssignmentDTO.getDdlSolution())) {
+            throw new MissingParameterException("The solution is not set");
         }
 
         // Create task
@@ -70,13 +69,14 @@ public class DDLService implements TaskTypeService {
             String solution = taskAssignmentDTO.getDdlSolution();
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
             String insertStatements = taskAssignmentDTO.getDdlInsertStatements();
+            String maxPoints = taskAssignmentDTO.getMaxPoints();
             String tablePoints = taskAssignmentDTO.getTablePoints();
             String columnPoints = taskAssignmentDTO.getColumnPoints();
             String primaryKeyPoints = taskAssignmentDTO.getPrimaryKeyPoints();
             String foreignKeyPoints = taskAssignmentDTO.getForeignKeyPoints();
             String constraintPoints = taskAssignmentDTO.getConstraintPoints();
 
-            ddlClient.updateDDLExercise(id, solution, insertStatements, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
+            ddlClient.updateDDLExercise(id, solution, insertStatements, maxPoints, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
         }else{
             throw new MissingParameterException("DDLSolution is missing");
         }
@@ -107,11 +107,11 @@ public class DDLService implements TaskTypeService {
      */
     private Optional<Integer> handleTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getDdlSolution());
-        Objects.requireNonNull(newTaskAssignmentDTO.getTaskGroupId());
 
         // Get solution required by the dispatcher to create the task
         String solution = newTaskAssignmentDTO.getDdlSolution();
         String insertStatements = newTaskAssignmentDTO.getDdlInsertStatements();
+        String maxPoints = newTaskAssignmentDTO.getMaxPoints();
         String tablePoints = newTaskAssignmentDTO.getTablePoints();
         String columnPoints = newTaskAssignmentDTO.getColumnPoints();
         String primaryKeyPoints = newTaskAssignmentDTO.getPrimaryKeyPoints();
@@ -119,7 +119,7 @@ public class DDLService implements TaskTypeService {
         String constraintPoints = newTaskAssignmentDTO.getConstraintPoints();
 
         // Proxy request to dispatcher
-        var response = ddlClient.createDDLExercise(solution, insertStatements, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
+        var response = ddlClient.createDDLExercise(solution, insertStatements, maxPoints, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
 
         // Return dispatcher-id of the exercise
         return Optional.of(response);
