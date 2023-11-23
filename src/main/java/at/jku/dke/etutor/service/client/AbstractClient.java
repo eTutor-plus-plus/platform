@@ -124,7 +124,7 @@ public abstract class AbstractClient {
         try {
             HttpResponse<T> response = CLIENT.send(request, handler);
             if (Arrays.stream(ignoredStatusCodes).filter(i -> i == response.statusCode()).findAny().isEmpty())
-                throw new DispatcherRequestFailedException("Expected status codes " + Arrays.toString(ignoredStatusCodes) + " but got " + response.statusCode() + " instead.");
+                throw new DispatcherRequestFailedException("Expected status codes " + Arrays.toString(ignoredStatusCodes) + " but got " + response.statusCode() + " instead." + response.body());
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

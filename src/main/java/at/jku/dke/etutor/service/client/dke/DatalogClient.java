@@ -38,7 +38,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
         } catch (JsonProcessingException e) {
             throw new DispatcherRequestFailedException("Could not serialize the task group.");
         }
-        var response = sendRequest(request, stringHandler);
+        var response = sendRequest(request, stringHandler, 200);
 
         if(response.getBody() == null)
             throw new DispatcherRequestFailedException("No id has been returned by the dispatcher.");
@@ -125,7 +125,7 @@ public non-sealed class DatalogClient extends AbstractDispatcherClient {
 
     public ResponseEntity<Resource> getDLGFactsAsInputStream(int id) throws DispatcherRequestFailedException {
         var request = getGetRequest("/datalog/taskgroup/"+id+"/raw");
-        var response = sendRequest(request, stringHandler);
+        var response = sendRequest(request, stringHandler, 200);
         var facts = response.getBody();
 
         if(facts != null && response.getStatusCodeValue() == 200){
