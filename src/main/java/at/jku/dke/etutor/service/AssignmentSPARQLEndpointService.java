@@ -384,6 +384,24 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.appendLiteral(taskAssignment.getWriterInstructionFileId());
             query.append(".\n");
 
+            query.append("?assignment etutor:hasDroolsClasses ");
+            query.appendLiteral(taskAssignment.getDroolsClasses());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasDroolsObjectsFileId ");
+            query.appendLiteral(taskAssignment.getDroolsObjectsFileId());
+            query.append(".\n");
+
+            query.append("?assignment etutor:hasCalcInstructionFileId ");
+            query.appendLiteral(taskAssignment.getCalcInstructionFileId());
+            query.append(".\n");
+
+            if (StringUtils.isNotBlank(taskAssignment.getDroolsSolution())) {
+                query.append("?assignment etutor:hasDroolsSolution ");
+                query.appendLiteral(taskAssignment.getDroolsSolution().trim());
+                query.append(".\n");
+            }
+
             if (taskAssignment.getStartTime() != null) {
                 query.append("?assignment etutor:hasStartTime ");
                 query.appendLiteral(taskAssignment.getStartTime().toString());
@@ -1708,6 +1726,11 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
 
 /** apriori end */
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsSolution() )) {
+            resource.addProperty(ETutorVocabulary.hasDroolsSolution, newTaskAssignmentDTO.getDroolsSolution().trim());
+        }
+
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
         }

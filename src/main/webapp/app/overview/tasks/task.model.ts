@@ -160,6 +160,13 @@ export interface INewTaskModel {
   aprioriDatasetId?: string;
 
   /** apriori start */
+
+  /** Drools*/
+  droolsSolution?: string;
+
+  droolsClasses?: string;
+
+  droolsObjectsFileId?: number;
 }
 
 /**
@@ -246,6 +253,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.umlTask'
   );
 
+  public static readonly DroolsTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#DroolsTask',
+    'taskManagement.taskTypes.droolsTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -258,6 +270,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
     TaskAssignmentType.UmlTask,
+    TaskAssignmentType.DroolsTask,
   ];
 
   private readonly _value: string;

@@ -17,6 +17,8 @@
     "xqueryXMLInfo": "XMLs can only be defined on the task-group-level and referenced using the drop-down at the end of the form.",
     "xqFileUrlInfo": "The file URL can be used in the doc() function of the query to reference the corresponding XML-Files",
     "fileUploadInfo": "The uploaded file can be downloaded by students who working on the task",
+    "droolsSolutionInfo": "Here the rules that represent the solution can be defined.",
+    "droolsClassesInfo": "Here the classes that are required can be defined in JSON format.",
 
     "datasetInfo": "If you want to create a new data set or task configuration, or use an existing task configuration, please press the appropriate buttons. The task configuration ID must be copied from the apriori extension into the corresponding input field.",
 
@@ -44,7 +46,8 @@
       "dlgTask": "Datalog task",
       "aprioriTask": "Apriori Task",
       "umlTask": "UML task",
-      "pmTask": "ProcessMining task"
+      "pmTask": "ProcessMining task",
+      "droolsTask": "Drools task"
     },
     "fields": {
       "header": "Header:",
@@ -84,7 +87,9 @@
       "datasetApriori": "Apriori task configuration ID: ",
       "create": "Create task configuration",
       "load": "Load task configuration",
-      "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field"
+      "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field",
+      "droolsSolution": "Drools rules solution.",
+      "droolsClasses": "Drools classes as JSON"
     },
     "error": {
       "required": "This field is required!",

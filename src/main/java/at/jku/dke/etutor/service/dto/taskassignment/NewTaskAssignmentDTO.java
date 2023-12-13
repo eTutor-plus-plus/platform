@@ -34,6 +34,11 @@ public class NewTaskAssignmentDTO {
     private Timestamp startTime;
     private Timestamp endTime;
 
+    // Drools related fields
+    private String droolsSolution;
+    private String droolsClasses;
+    private int droolsObjectsFileId;
+
     private String taskIdForDispatcher;
     private String sqlSolution;
     private String maxPoints;
@@ -49,10 +54,10 @@ public class NewTaskAssignmentDTO {
     private int maxLogSize;
     private int minLogSize;
     private String configNum;
-    
+
 /** start apriori   */
     private String aprioriDatasetId;
-/** apriori end */  
+/** apriori end */
 
     private String processingTime;
 
@@ -499,9 +504,9 @@ public class NewTaskAssignmentDTO {
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
-    
+
 /** start apriori   */
-    
+
     public String getAprioriDatasetId() {
         return aprioriDatasetId;
     }
@@ -509,8 +514,34 @@ public class NewTaskAssignmentDTO {
     public void setAprioriDatasetId(String aprioriDatasetId) {
         this.aprioriDatasetId = aprioriDatasetId;
     }
-    
+/** apriori end */
+
+/** getter and setter for Drools Tasks */
+    public String getDroolsSolution() {
+        return droolsSolution;
+    }
+
+    public void setDroolsSolution(String droolsSolution) {
+        this.droolsSolution = droolsSolution;
+    }
+
+    public int getDroolsObjectsFileId() {
+        return droolsObjectsFileId;
+    }
+
+    public void setDroolsObjectsFileId(int droolsObjectsFileId) {
+        this.droolsObjectsFileId = droolsObjectsFileId;
+    }
+
+    public String getDroolsClasses() {
+        return droolsClasses;
+    }
+
+    public void setDroolsClasses(String droolsClasses) {
+        this.droolsClasses = droolsClasses;
+    }
+
+    /** end region */
 
 
-/** apriori end */  
 }

@@ -32,6 +32,7 @@ export class TaskUpdateComponent implements OnInit {
   public editorOptionsXMLReadOnly = { theme: 'vs-light', language: 'xml', readOnly: true };
   public editorOptionsDLG = { theme: 'datalog-light', language: 'datalog' };
   public editorOptionsDLGReadOnly = { theme: 'datalog-light', language: 'datalog', readOnly: true };
+  public editorOptionsDrools = { theme: 'vs-light', language: 'drools' };
   public selectedTaskAssignmentType = '';
   public taskGroups: ITaskGroupDisplayDTO[] = [];
   public uploadFileId = -1;
@@ -40,6 +41,7 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
+  public droolsObjectsFileId = -1;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -76,6 +78,8 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
+    droolsSolution: [''],
+    droolsClasses: [''],
 
     /** apriori start */
     aprioriDatasetId: [''],
@@ -86,6 +90,7 @@ export class TaskUpdateComponent implements OnInit {
   /** apriori start */
   private aprioriConfig!: AprioriConfig;
   /** apriori end */
+
   /**
    * Constructor.
    *
@@ -247,6 +252,17 @@ export class TaskUpdateComponent implements OnInit {
       newTask.configNum = configNum;
     }
 
+    //Drools section
+    const droolsSolution: string | null = this.updateForm.get('droolsSolution')!.value;
+    if (droolsSolution) {
+      newTask.droolsSolution = droolsSolution;
+    }
+
+    const droolsClasses: string | null = this.updateForm.get('droolsClasses')!.value;
+    if (droolsClasses) {
+      newTask.droolsClasses = droolsClasses;
+    }
+
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -293,6 +309,9 @@ export class TaskUpdateComponent implements OnInit {
         calcInstructionFileId: this.calcInstructionFileId,
         startTime: newTask.startTime,
         endTime: newTask.endTime,
+        droolsSolution: newTask.droolsSolution,
+        droolsClasses: newTask.droolsSolution,
+        droolsObjectsFileId: this.droolsObjectsFileId,
 
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
@@ -351,6 +370,10 @@ export class TaskUpdateComponent implements OnInit {
       const minLogSize: string = (value.minLogSize ?? '').toString();
       const configNum = value.configNum;
 
+      //Drools
+      const droolsSolution: string = (value.droolsSolution ?? '').toString();
+      const droolsClasses: string = (value.droolsClasses ?? '').toString();
+
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
       /** apriori end */
@@ -388,6 +411,10 @@ export class TaskUpdateComponent implements OnInit {
         minLogSize,
         configNum,
 
+        //Drools
+        droolsSolution,
+        droolsClasses,
+
         /** apriori start */
         aprioriDatasetId,
         /** apriori end */
@@ -397,6 +424,7 @@ export class TaskUpdateComponent implements OnInit {
       this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
       this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
+      this.droolsObjectsFileId = value.droolsObjectsFileId ?? -1;
     }
   }
 
@@ -466,6 +494,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value) {
+      this.setMaxPointsRequired();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -503,7 +533,7 @@ export class TaskUpdateComponent implements OnInit {
       subm = this.updateForm.get(['xQuerySolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
-    }
+    } //TODO: Solution submission 20231204 LKN
     (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
       isSubmitted: false,
@@ -576,7 +606,7 @@ export class TaskUpdateComponent implements OnInit {
         this.writerInstructionFileId = -2;
       }
     });
-  }
+  } //TODO: Drools hier nachziehen LK 20231312
 
   /**
    * Removes the writer instruction file (calc task).
@@ -778,6 +808,10 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.get('minLogSize')!.clearValidators();
     this.updateForm.get('minLogSize')!.updateValueAndValidity();
+    this.updateForm.get('droolsSolution')!.clearValidators();
+    this.updateForm.get('droolsSolution')!.updateValueAndValidity();
+    this.updateForm.get('droolsClasses')!.clearValidators();
+    this.updateForm.get('droolsClasses')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 

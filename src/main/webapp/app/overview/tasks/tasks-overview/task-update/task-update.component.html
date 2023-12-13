@@ -137,7 +137,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value
       "
     >
       <!-- APRIORI element end -->
@@ -203,7 +204,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.XQueryTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.DatalogTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value
       "
     >
       <label class="form-control-label" for="diagnoseLevelWeighting">
@@ -229,6 +231,7 @@
         </small>
       </div>
     </div>
+
     <div
       class="form-group"
       *ngIf="
@@ -298,6 +301,37 @@
       <label class="form-control-label" for="datalogFacts" jhiTranslate="taskManagement.fields.datalogFacts">Datalog Facts</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.datalogFactsInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDLGReadOnly" id="datalogFacts" formControlName="datalogFacts"></ngx-monaco-editor>
+    </div>
+
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
+      <label class="form-control-label" for="droolsSolution" jhiTranslate="taskManagement.fields.droolsSolution">Drools Solution</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsSolutionInfo' | translate }}" placement="right"></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsSolution" formControlName="droolsSolution"></ngx-monaco-editor>
+    </div>
+
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
+      <label class="form-control-label" for="droolsClasses" jhiTranslate="taskManagement.fields.droolsClasses"
+        >Drools Classes as JSON</label
+      >
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsClassesInfo' | translate }}" placement="right"></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsClasses" formControlName="droolsClasses"></ngx-monaco-editor>
+    </div>
+
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
+      <label class="form-control-label" for="droolsObjectsFileId">Upload Objects as CSV-File: </label>
+      <jhi-file-upload
+        id="droolsObjectsFileId"
+        [fileId]="droolsObjectsFileId"
+        (fileAdded)="handleWriterInstructionFileAdded($event)"
+        (fileRemoved)="handleWriterInstructionFileRemoved($event)"
+        (fileModified)="handleWriterInstructionFileMoved($event[0], $event[1])"
+      >
+      </jhi-file-upload>
+      <div *ngIf="droolsObjectsFileId == -2">
+        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
+          Please upload the correct content type of the file!
+        </small>
+      </div>
     </div>
 
     <div

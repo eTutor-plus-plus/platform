@@ -113,6 +113,9 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DLG_QUERY = "hasDLGQuery";
     private static final String PROP_HAS_BPMN_CONFIG = "hasBpmnConfig";
     private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
+    private static final String PROP_HAS_DROOLS_SOLUTION = "hasDroolsSolution";
+    private static final String PROP_HAS_DROOLS_CLASSES = "hasDroolsClasses";
+    private static final String PROP_HAS_DROOLS_OBJECTS_FILE_ID = "hasDroolsObjectsFileId";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -157,6 +160,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
+    private static final String INSTANCE_DROOLS_TASK = "DroolsTask";
 
 
 /** start apriori   */
@@ -612,6 +616,19 @@ public final class ETutorVocabulary {
      * The hasTaskGroupChangeDate property.
      */
     public static final Property hasTaskGroupChangeDate = m.createProperty(URI + PROP_HAS_TASK_GROUP_CHANGE_DATE);
+    /**
+     * The hasDroolsSolution property
+     */
+    public static final Property hasDroolsSolution = m.createProperty(URI + PROP_HAS_DROOLS_SOLUTION);
+
+    /**
+     * The hasDroolsObjectsFileId property
+     */
+    public static final Property hasDroolsClasses = m.createProperty(URI + PROP_HAS_DROOLS_CLASSES);
+    /**
+     * The hasDroolsObjectsFileId property
+     */
+    public static final Property hasDroolsObjectsFileId = m.createProperty(URI + PROP_HAS_DROOLS_OBJECTS_FILE_ID);
 
     /**
      * The goal resource.
@@ -710,6 +727,12 @@ public final class ETutorVocabulary {
      * The Pm type instance
      */
     public static final Resource PmTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_PM_TASK);
+
+    /**
+     * The Drools instance
+     */
+    public static final Resource DroolsTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_DROOLS_TASK);
+
 
 /** start apriori   */
     /**
