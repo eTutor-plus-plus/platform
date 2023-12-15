@@ -20,19 +20,19 @@ public non-sealed class DDLClient extends AbstractDispatcherClient {
 
     /**
      * Function to send the PUT-request for creating a SQL DDL exercise to the dispatcher
-     * @param solution
-     * @param insertStatements
-     * @param tablePoints
-     * @param columnPoints
-     * @param primaryKeyPoints
-     * @param foreignKeyPoints
-     * @param constraintPoints
-     * @return
-     * @throws DispatcherRequestFailedException
+     * @param solution Specifies the solution for the exercise
+     * @param insertStatements Specifies the insert statements for the exercise
+     * @param tablePoints Specifies the points for the tables
+     * @param columnPoints Specifies the points for the columns
+     * @param primaryKeyPoints Specifies the points for the primary keys
+     * @param foreignKeyPoints Specifies the points for the foreign keys
+     * @param constraintPoints Specifies the points for the constraints
+     * @return Returns the exercise id from the dispatcher
+     * @throws DispatcherRequestFailedException when the exercise could not be serialized
      */
     public Integer createDDLExercise(String solution, String insertStatements, String maxPoints, String tablePoints, String columnPoints, String primaryKeyPoints, String foreignKeyPoints, String constraintPoints) throws DispatcherRequestFailedException {
         DDLExerciseDTO exerciseDTO = new DDLExerciseDTO(solution, insertStatements, maxPoints, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
-        HttpRequest request = null;
+        HttpRequest request;
         try {
             request = getPutRequestWithBody("/ddl/exercise", serialize(exerciseDTO));
             return Integer.parseInt(Objects.requireNonNull(sendRequest(request, stringHandler, 200).getBody()));
@@ -58,7 +58,7 @@ public non-sealed class DDLClient extends AbstractDispatcherClient {
      */
     public void updateDDLExercise(int id, String newSolution, String insertStatements, String maxPoints, String tablePoints, String columnPoints, String primaryKeyPoints, String foreignKeyPoints, String constraintPoints) throws DispatcherRequestFailedException {
         var exerciseDTO = new DDLExerciseDTO(newSolution, insertStatements, maxPoints, tablePoints, columnPoints, primaryKeyPoints, foreignKeyPoints, constraintPoints);
-        HttpRequest request = null;
+        HttpRequest request;
         try {
             request = getPostRequestWithBody("/ddl/exercise/"+id, serialize(exerciseDTO)).build();
         } catch (JsonProcessingException e) {

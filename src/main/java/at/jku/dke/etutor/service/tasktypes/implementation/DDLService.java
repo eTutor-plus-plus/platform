@@ -22,9 +22,11 @@ import java.util.*;
  */
 @Service
 public class DDLService implements TaskTypeService {
+    //region Fields
     private final DDLClient ddlClient;
     private final AssignmentSPARQLEndpointService assignmentSPARQLEndpointService;
     private final ApplicationProperties properties;
+    //endregion
 
     public DDLService(DDLClient ddlClient, AssignmentSPARQLEndpointService assignmentSPARQLEndpointService, ApplicationProperties properties) {
         this.ddlClient = ddlClient;
@@ -84,7 +86,7 @@ public class DDLService implements TaskTypeService {
 
     /**
      * Delete a SQL DDL task by sending a request to the dispatcher
-     * @param taskAssignmentDTO
+     * @param taskAssignmentDTO Specifies the task assignment
      * @throws TaskTypeSpecificOperationFailedException
      */
     @Override
