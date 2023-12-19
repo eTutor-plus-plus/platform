@@ -153,6 +153,7 @@ export class TaskUpdateComponent implements OnInit {
       writerInstructionFileId: this.writerInstructionFileId,
       calcSolutionFileId: this.calcSolutionFileId,
       calcInstructionFileId: this.calcInstructionFileId,
+      droolsObjectsFileId: this.droolsObjectsFileId,
     };
 
     const urlStr: string | null = this.updateForm.get('url')!.value;
@@ -593,6 +594,50 @@ export class TaskUpdateComponent implements OnInit {
     inputElement.setSelectionRange(0, 0);
   }
 
+  //drools region
+
+  /**
+   * Sets the writer instruction id (drools task).
+   *
+   * @param fileId the file to add
+   */
+  public handleDroolsObjectsFileAdded(fileId: number): void {
+    this.fileService.getFileMetaData(fileId).subscribe(data => {
+      if (data.contentType === 'text/csv') {
+        this.droolsObjectsFileId = fileId;
+      } else {
+        this.droolsObjectsFileId = -2;
+      }
+    });
+  }
+
+  /**
+   * Removes the writer instruction file (drools task).
+   *
+   * @param fileId the file to remove
+   */
+  public handleDroolsObjectsFileRemoved(fileId: number): void {
+    this.droolsObjectsFileId = -1;
+  }
+
+  /**
+   * Sets a modified  writer instruction file (drools task).
+   *
+   * @param oldFileId the file's old id
+   * @param newFileId the file's new id
+   */
+  public handleDroolsObjectsFileMoved(oldFileId: number, newFileId: number): void {
+    this.fileService.getFileMetaData(newFileId).subscribe(data => {
+      if (data.contentType === 'text/csv') {
+        this.droolsObjectsFileId = newFileId;
+      } else {
+        this.droolsObjectsFileId = -2;
+      }
+    });
+  }
+
+  //end region
+
   /**
    * Sets the writer instruction id (calc task).
    *
@@ -606,7 +651,7 @@ export class TaskUpdateComponent implements OnInit {
         this.writerInstructionFileId = -2;
       }
     });
-  } //TODO: Drools hier nachziehen LK 20231312
+  }
 
   /**
    * Removes the writer instruction file (calc task).

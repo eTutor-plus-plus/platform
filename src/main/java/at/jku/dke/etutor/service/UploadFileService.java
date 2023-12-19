@@ -68,6 +68,29 @@ public class UploadFileService {
     }
 
 
+    /**
+     * Uploads a file
+     *
+     * @param file the multipart file to upload
+     * @param fileName the optional file name
+     * @return
+     * @throws IOException
+     */
+    @Transactional
+    public long uploadFile(MultipartFile file, String fileName) throws IOException {
+        Objects.requireNonNull(file);
+
+        String fileNameStr = fileName;
+
+        if (ObjectUtils.isEmpty(fileNameStr)) {
+            fileNameStr = file.getOriginalFilename();
+        }
+        String name = StringUtils.cleanPath(Objects.requireNonNull(fileNameStr));
+        return fileRepository.uploadFile(name, file.getContentType(),
+            file.getBytes(), file.getSize());
+    }
+
+
 
     /**
      * @param calcInstructionFileId id of the calc instruction

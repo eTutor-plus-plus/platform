@@ -318,18 +318,18 @@
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
-      <label class="form-control-label" for="droolsObjectsFileId">Upload Objects as CSV-File: </label>
+      <label class="form-control-label" for="droolsObjectsFileId">Upload Object-File as CSV-File: </label>
       <jhi-file-upload
         id="droolsObjectsFileId"
         [fileId]="droolsObjectsFileId"
-        (fileAdded)="handleWriterInstructionFileAdded($event)"
-        (fileRemoved)="handleWriterInstructionFileRemoved($event)"
-        (fileModified)="handleWriterInstructionFileMoved($event[0], $event[1])"
+        (fileAdded)="handleDroolsObjectsFileAdded($event)"
+        (fileRemoved)="handleDroolsObjectsFileRemoved($event)"
+        (fileModified)="handleDroolsObjectsFileMoved($event[0], $event[1])"
       >
       </jhi-file-upload>
       <div *ngIf="droolsObjectsFileId == -2">
         <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
-          Please upload the correct content type of the file!
+          Please upload the correct content type of the file! (.csv)
         </small>
       </div>
     </div>

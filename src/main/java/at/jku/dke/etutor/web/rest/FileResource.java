@@ -87,8 +87,12 @@ public class FileResource {
             throw new EmptyFileNotAllowedException();
         }
 
+
+
         try {
-            long id = uploadFileService.uploadFile(matriculationNumber, file, fileName);
+            long id;
+            if(matriculationNumber.equals("admin")) id = uploadFileService.uploadFile(file,fileName);
+            else id = uploadFileService.uploadFile(matriculationNumber, file, fileName);
 
             return ResponseEntity.ok(id);
         } catch (at.jku.dke.etutor.service.exception.StudentNotExistsException e) {
@@ -97,6 +101,7 @@ public class FileResource {
             throw new FileStorageException();
         }
     }
+
 
     /**
      * REST endpoint for retrieving files.
