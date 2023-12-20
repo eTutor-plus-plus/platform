@@ -242,6 +242,11 @@ export class TaskUpdateComponent implements OnInit {
     const constraintPoints: string | null = this.updateForm.get('constraintPoints')!.value;
     if (constraintPoints) {
       newTask.constraintPoints = constraintPoints;
+
+      // Calculate max points and set it
+      // @ts-ignore
+      var temp: number = +tablePoints + +columnPoints + +primaryKeyPoints + +foreignKeyPoints + +constraintPoints;
+      newTask.maxPoints = temp + '';
     }
 
     const startTime: string | null = this.updateForm.get('startTime')!.value;
@@ -530,7 +535,6 @@ export class TaskUpdateComponent implements OnInit {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DDLTask.value) {
-      this.setMaxPointsRequired();
       this.setDiagnoseLevelWeightingRequired();
       this.setTablePointsRequired();
       this.setColumnPointsRequired();
