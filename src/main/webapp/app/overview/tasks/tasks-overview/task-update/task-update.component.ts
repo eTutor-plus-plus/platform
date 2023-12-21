@@ -41,7 +41,6 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
-  public droolsObjectsFileId = -1;
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -80,6 +79,7 @@ export class TaskUpdateComponent implements OnInit {
     configNum: [''],
     droolsSolution: [''],
     droolsClasses: [''],
+    droolsObjects: [''],
 
     /** apriori start */
     aprioriDatasetId: [''],
@@ -153,7 +153,6 @@ export class TaskUpdateComponent implements OnInit {
       writerInstructionFileId: this.writerInstructionFileId,
       calcSolutionFileId: this.calcSolutionFileId,
       calcInstructionFileId: this.calcInstructionFileId,
-      droolsObjectsFileId: this.droolsObjectsFileId,
     };
 
     const urlStr: string | null = this.updateForm.get('url')!.value;
@@ -264,6 +263,11 @@ export class TaskUpdateComponent implements OnInit {
       newTask.droolsClasses = droolsClasses;
     }
 
+    const droolsObjects: string | null = this.updateForm.get('droolsObjects')!.value;
+    if (droolsObjects) {
+      newTask.droolsObjects = droolsObjects;
+    }
+
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -312,7 +316,7 @@ export class TaskUpdateComponent implements OnInit {
         endTime: newTask.endTime,
         droolsSolution: newTask.droolsSolution,
         droolsClasses: newTask.droolsSolution,
-        droolsObjectsFileId: this.droolsObjectsFileId,
+        droolsObjects: newTask.droolsObjects,
 
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
@@ -374,6 +378,7 @@ export class TaskUpdateComponent implements OnInit {
       //Drools
       const droolsSolution: string = (value.droolsSolution ?? '').toString();
       const droolsClasses: string = (value.droolsClasses ?? '').toString();
+      const droolsObjects: string = (value.droolsObjects ?? '').toString();
 
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
@@ -415,6 +420,7 @@ export class TaskUpdateComponent implements OnInit {
         //Drools
         droolsSolution,
         droolsClasses,
+        droolsObjects,
 
         /** apriori start */
         aprioriDatasetId,
@@ -425,7 +431,6 @@ export class TaskUpdateComponent implements OnInit {
       this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
       this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
-      this.droolsObjectsFileId = value.droolsObjectsFileId ?? -1;
     }
   }
 
@@ -593,50 +598,6 @@ export class TaskUpdateComponent implements OnInit {
     document.execCommand('copy');
     inputElement.setSelectionRange(0, 0);
   }
-
-  //drools region
-
-  /**
-   * Sets the writer instruction id (drools task).
-   *
-   * @param fileId the file to add
-   */
-  public handleDroolsObjectsFileAdded(fileId: number): void {
-    this.fileService.getFileMetaData(fileId).subscribe(data => {
-      if (data.contentType === 'text/csv') {
-        this.droolsObjectsFileId = fileId;
-      } else {
-        this.droolsObjectsFileId = -2;
-      }
-    });
-  }
-
-  /**
-   * Removes the writer instruction file (drools task).
-   *
-   * @param fileId the file to remove
-   */
-  public handleDroolsObjectsFileRemoved(fileId: number): void {
-    this.droolsObjectsFileId = -1;
-  }
-
-  /**
-   * Sets a modified  writer instruction file (drools task).
-   *
-   * @param oldFileId the file's old id
-   * @param newFileId the file's new id
-   */
-  public handleDroolsObjectsFileMoved(oldFileId: number, newFileId: number): void {
-    this.fileService.getFileMetaData(newFileId).subscribe(data => {
-      if (data.contentType === 'text/csv') {
-        this.droolsObjectsFileId = newFileId;
-      } else {
-        this.droolsObjectsFileId = -2;
-      }
-    });
-  }
-
-  //end region
 
   /**
    * Sets the writer instruction id (calc task).
@@ -857,6 +818,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('droolsSolution')!.updateValueAndValidity();
     this.updateForm.get('droolsClasses')!.clearValidators();
     this.updateForm.get('droolsClasses')!.updateValueAndValidity();
+    this.updateForm.get('droolsObjects')!.clearValidators();
+    this.updateForm.get('droolsObjects')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 

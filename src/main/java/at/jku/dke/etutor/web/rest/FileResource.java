@@ -87,8 +87,6 @@ public class FileResource {
             throw new EmptyFileNotAllowedException();
         }
 
-
-
         try {
             long id;
             if(matriculationNumber.equals("admin")) id = uploadFileService.uploadFile(file,fileName);

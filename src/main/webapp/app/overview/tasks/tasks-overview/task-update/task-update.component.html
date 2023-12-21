@@ -310,28 +310,17 @@
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
-      <label class="form-control-label" for="droolsClasses" jhiTranslate="taskManagement.fields.droolsClasses"
-        >Drools Classes as JSON</label
-      >
+      <label class="form-control-label" for="droolsClasses" jhiTranslate="taskManagement.fields.droolsClasses">
+        Drools Classes as JSON
+      </label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsClassesInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsClasses" formControlName="droolsClasses"></ngx-monaco-editor>
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
-      <label class="form-control-label" for="droolsObjectsFileId">Upload Object-File as CSV-File: </label>
-      <jhi-file-upload
-        id="droolsObjectsFileId"
-        [fileId]="droolsObjectsFileId"
-        (fileAdded)="handleDroolsObjectsFileAdded($event)"
-        (fileRemoved)="handleDroolsObjectsFileRemoved($event)"
-        (fileModified)="handleDroolsObjectsFileMoved($event[0], $event[1])"
-      >
-      </jhi-file-upload>
-      <div *ngIf="droolsObjectsFileId == -2">
-        <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
-          Please upload the correct content type of the file! (.csv)
-        </small>
-      </div>
+      <label class="form-control-label" for="droolsObjects" jhiTranslate="taskManagement.fields.droolsClasses">Drools Objects as CSV</label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsObjectsInfo' | translate }}" placement="right"></fa-icon>
+      <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsObjects" formControlName="droolsObjects"></ngx-monaco-editor>
     </div>
 
     <div
@@ -539,7 +528,7 @@
       <label class="form-control-label" for="instruction" jhiTranslate="taskManagement.fields.instruction">Instructions:</label>
       <quill-editor [placeholder]="''" id="instruction" formControlName="instruction"> </quill-editor>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType !== TaskAssignmentType.DroolsTask.value">
       <label class="form-control-label" for="taskGroup" jhiTranslate="taskManagement.fields.taskGroup">Task group:</label>
       <select class="form-control" name="taskGroup" (change)="taskGroupChanged()" id="taskGroup" formControlName="taskGroup">
         <option value="">{{ 'taskManagement.fields.taskGroupPlaceHolder' | translate }}</option>
@@ -547,7 +536,7 @@
       </select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType !== TaskAssignmentType.DroolsTask.value">
       <label class="form-control-label" for="fileUpload">Upload: </label>
       <!--      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.fileUploadInfo' | translate }}" placement="right"></fa-icon>-->
       <jhi-file-upload

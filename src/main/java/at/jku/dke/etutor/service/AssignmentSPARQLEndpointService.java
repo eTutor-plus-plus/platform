@@ -384,17 +384,21 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.appendLiteral(taskAssignment.getWriterInstructionFileId());
             query.append(".\n");
 
-            query.append("?assignment etutor:hasDroolsClasses ");
-            query.appendLiteral(taskAssignment.getDroolsClasses());
-            query.append(".\n");
-
-            query.append("?assignment etutor:hasDroolsObjectsFileId ");
-            query.appendLiteral(taskAssignment.getDroolsObjectsFileId());
-            query.append(".\n");
-
             query.append("?assignment etutor:hasCalcInstructionFileId ");
             query.appendLiteral(taskAssignment.getCalcInstructionFileId());
             query.append(".\n");
+
+            if (StringUtils.isNotBlank(taskAssignment.getDroolsClasses())) {
+                query.append("?assignment etutor:hasDroolsClasses ");
+                query.appendLiteral(taskAssignment.getDroolsClasses().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getDroolsObjects())) {
+                query.append("?assignment etutor:hasDroolsObjects ");
+                query.appendLiteral(taskAssignment.getDroolsObjects().trim());
+                query.append(".\n");
+            }
 
             if (StringUtils.isNotBlank(taskAssignment.getDroolsSolution())) {
                 query.append("?assignment etutor:hasDroolsSolution ");
@@ -1729,6 +1733,14 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsSolution() )) {
             resource.addProperty(ETutorVocabulary.hasDroolsSolution, newTaskAssignmentDTO.getDroolsSolution().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsClasses() )) {
+            resource.addProperty(ETutorVocabulary.hasDroolsClasses, newTaskAssignmentDTO.getDroolsClasses().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsObjects() )) {
+            resource.addProperty(ETutorVocabulary.hasDroolsObjects, newTaskAssignmentDTO.getDroolsObjects().trim());
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {

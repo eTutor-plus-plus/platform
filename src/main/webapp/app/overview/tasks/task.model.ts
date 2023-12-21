@@ -166,7 +166,7 @@ export interface INewTaskModel {
 
   droolsClasses?: string;
 
-  droolsObjectsFileId?: number;
+  droolsObjects?: string;
 }
 
 /**

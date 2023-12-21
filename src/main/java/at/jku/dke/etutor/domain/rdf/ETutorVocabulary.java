@@ -115,7 +115,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_UNCHECKED_DLG_TERM = "hasUncheckedDLGTerms";
     private static final String PROP_HAS_DROOLS_SOLUTION = "hasDroolsSolution";
     private static final String PROP_HAS_DROOLS_CLASSES = "hasDroolsClasses";
-    private static final String PROP_HAS_DROOLS_OBJECTS_FILE_ID = "hasDroolsObjectsFileId";
+    private static final String PROP_HAS_DROOLS_OBJECTS = "hasDroolsObjects";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -622,13 +622,13 @@ public final class ETutorVocabulary {
     public static final Property hasDroolsSolution = m.createProperty(URI + PROP_HAS_DROOLS_SOLUTION);
 
     /**
-     * The hasDroolsObjectsFileId property
+     * The hasDroolsClasses property
      */
     public static final Property hasDroolsClasses = m.createProperty(URI + PROP_HAS_DROOLS_CLASSES);
     /**
-     * The hasDroolsObjectsFileId property
+     * The hasDroolsObjects property
      */
-    public static final Property hasDroolsObjectsFileId = m.createProperty(URI + PROP_HAS_DROOLS_OBJECTS_FILE_ID);
+    public static final Property hasDroolsObjects = m.createProperty(URI + PROP_HAS_DROOLS_OBJECTS);
 
     /**
      * The goal resource.

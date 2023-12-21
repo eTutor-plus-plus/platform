@@ -19,6 +19,7 @@
     "fileUploadInfo": "The uploaded file can be downloaded by students who working on the task",
     "droolsSolutionInfo": "Here the rules that represent the solution can be defined.",
     "droolsClassesInfo": "Here the classes that are required can be defined in JSON format.",
+    "droolsObjectsInfo": "Here the java-drools-objects that are required for a drools-task can be defined in CSV format.",
 
     "datasetInfo": "If you want to create a new data set or task configuration, or use an existing task configuration, please press the appropriate buttons. The task configuration ID must be copied from the apriori extension into the corresponding input field.",
 
@@ -89,7 +90,8 @@
       "load": "Load task configuration",
       "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field",
       "droolsSolution": "Drools rules solution.",
-      "droolsClasses": "Drools classes as JSON"
+      "droolsClasses": "Drools classes as JSON",
+      "droolsObjects": "Java-Drools objects as CSV"
     },
     "error": {
       "required": "This field is required!",

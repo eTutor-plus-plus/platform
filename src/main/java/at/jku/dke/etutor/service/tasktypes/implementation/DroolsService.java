@@ -3,8 +3,6 @@ package at.jku.dke.etutor.service.tasktypes.implementation;
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.domain.FileEntity;
 import at.jku.dke.etutor.domain.rdf.ETutorVocabulary;
-import at.jku.dke.etutor.objects.dispatcher.sql.SQLSchemaInfoDTO;
-import at.jku.dke.etutor.objects.dispatcher.sql.SqlDataDefinitionDTO;
 import at.jku.dke.etutor.repository.FileRepository;
 import at.jku.dke.etutor.service.AssignmentSPARQLEndpointService;
 import at.jku.dke.etutor.service.client.dke.DroolsClient;
@@ -13,7 +11,6 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
-import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Service that handles all SQL task-type specific operations.
+ * Service that handles all Drools task-type specific operations.
  */
 @Service
 public class DroolsService implements TaskTypeService {
@@ -41,7 +38,7 @@ public class DroolsService implements TaskTypeService {
 
 
     /**
-     * Creates an Drools task by sending a request to the dispatcher.
+     * Creates a Drools task by sending a request to the dispatcher.
      * If the request was successful, the id received from the dispatcher is set for the passed object.
      * @param newTaskAssignmentDTO the task assignment to be created
      * @throws MissingParameterException if the task solution is not set
@@ -61,8 +58,8 @@ public class DroolsService implements TaskTypeService {
             throw new MissingParameterException("No classes set for this task");
         }
 
-        if (!(newTaskAssignmentDTO.getDroolsObjectsFileId() >= 0)) {
-            throw new MissingParameterException("No object-file id set");
+        if (StringUtils.isBlank(newTaskAssignmentDTO.getDroolsObjects())) {
+            throw new MissingParameterException("No objects set for this task");
         }
 
         // Create task
@@ -76,7 +73,7 @@ public class DroolsService implements TaskTypeService {
 
 
     /**
-     * Updates an SQL task by sending a request to the dispatcher.
+     * Updates a Drools task by sending a request to the dispatcher.
      *
      * @param taskAssignmentDTO the task assignment to be updated
      * @throws MissingParameterException if the solution is not set
@@ -94,7 +91,7 @@ public class DroolsService implements TaskTypeService {
     }
 
     /**
-     * Deletes an Drools task by sending a request to the dispatcher.
+     * Deletes a Drools task by sending a request to the dispatcher.
      *
      * @param taskAssignmentDTO the task assignment to be deleted
      */
@@ -102,7 +99,7 @@ public class DroolsService implements TaskTypeService {
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO)  {
         try{
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            droolsClient.deleteSQLExercise(id);
+            droolsClient.deleteDroolsExercise(id);
         }catch(NumberFormatException | DispatcherRequestFailedException ignore){
             // we ignore it if deletion is not successful
         }
@@ -121,17 +118,17 @@ public class DroolsService implements TaskTypeService {
     private Optional<Integer> handleTaskCreation(NewTaskAssignmentDTO newTaskAssignmentDTO) throws DispatcherRequestFailedException {
         Objects.requireNonNull(newTaskAssignmentDTO.getDroolsSolution());
         Objects.requireNonNull(newTaskAssignmentDTO.getDroolsClasses());
-        FileEntity objectFile = fileRepository.findById((long) newTaskAssignmentDTO.getDroolsObjectsFileId()).orElse(new FileEntity());
+        Objects.requireNonNull(newTaskAssignmentDTO.getDroolsObjects());
 
 
         // Get solution, classes and objects required by the dispatcher to create the task
         String solution = newTaskAssignmentDTO.getDroolsSolution();
         String classes = newTaskAssignmentDTO.getDroolsClasses();
-        String objectsFileContent = new String(objectFile.getContent(), StandardCharsets.UTF_8);
+        String objects = newTaskAssignmentDTO.getDroolsObjects();
         int maxPoints = Integer.parseInt(newTaskAssignmentDTO.getMaxPoints());
 
         // Proxy request to dispatcher
-        var response = droolsClient.createDroolsExercise(solution, maxPoints, classes, objectsFileContent);
+        var response = droolsClient.createDroolsExercise(solution, maxPoints, classes, objects);
 
         // Return dispatcher-id of the exercise
         return Optional.of(response);

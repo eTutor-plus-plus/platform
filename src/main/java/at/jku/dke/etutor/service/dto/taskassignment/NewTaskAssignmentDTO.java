@@ -37,7 +37,7 @@ public class NewTaskAssignmentDTO {
     // Drools related fields
     private String droolsSolution;
     private String droolsClasses;
-    private int droolsObjectsFileId;
+    private String droolsObjects;
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -520,17 +520,16 @@ public class NewTaskAssignmentDTO {
     public String getDroolsSolution() {
         return droolsSolution;
     }
-
     public void setDroolsSolution(String droolsSolution) {
         this.droolsSolution = droolsSolution;
     }
 
-    public int getDroolsObjectsFileId() {
-        return droolsObjectsFileId;
+    public String getDroolsObjects() {
+        return droolsObjects;
     }
 
-    public void setDroolsObjectsFileId(int droolsObjectsFileId) {
-        this.droolsObjectsFileId = droolsObjectsFileId;
+    public void setDroolsObjects(String droolsObjects) {
+        this.droolsObjects = droolsObjects;
     }
 
     public String getDroolsClasses() {

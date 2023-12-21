@@ -88,7 +88,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         //Drools section
         setDroolsSolution(newTaskAssignmentDTO.getDroolsSolution());
         setDroolsClasses(newTaskAssignmentDTO.getDroolsClasses());
-        setDroolsObjectsFileId(newTaskAssignmentDTO.getDroolsObjectsFileId());
+        setDroolsObjects(newTaskAssignmentDTO.getDroolsObjects());
 
         setId(id);
         setCreationDate(creationDate);
@@ -275,9 +275,9 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setDroolsClasses(droolsClassesStatement.getString());
         }
 
-        Statement droolsObjectIdStatement = resource.getProperty(ETutorVocabulary.hasDroolsObjectsFileId);
-        if(droolsObjectIdStatement != null){
-            setDroolsObjectsFileId(droolsObjectIdStatement.getInt());
+        Statement droolsObjectsStatement = resource.getProperty(ETutorVocabulary.hasDroolsObjects);
+        if(droolsObjectsStatement != null){
+            setDroolsObjects(droolsObjectsStatement.getString());
         }
 
 

@@ -11,7 +11,7 @@ import java.net.http.HttpRequest;
 import java.util.Objects;
 
 /**
- * Client for interacting with the sql endpoint of the dispatcher.
+ * Client for interacting with the drools endpoint of the dispatcher.
  */
 @Service
 public non-sealed class DroolsClient extends AbstractDispatcherClient {
@@ -36,11 +36,11 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
     }
 
     /**
-     * Sends the GET-request for retrieving the solution for an SQL-exercise to the dispatcher
+     * Sends the GET-request for retrieving the solution for a Drools-exercise to the dispatcher
      * @return a ResponseEntity
      */
     public String getSQLSolution(int id) throws DispatcherRequestFailedException {
-        var request = getGetRequest("/sql/exercise/"+id+"/solution");
+        var request = getGetRequest("/sql/exercise/"+id+"/solution"); //TODO LK
 
         return sendRequest(request, stringHandler, 200).getBody();
     }
@@ -51,7 +51,7 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
      * @param newSolution the new solution
      */
     public void updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
-        var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build();
+        var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build(); //TODO: LK
 
         sendRequest(request, stringHandler, 200);
     }
@@ -68,7 +68,7 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
 
 
     /**
-     * Sends the reuqest for deleting a connection associated with a given schema to the dispatcher
+     * Sends the request for deleting a connection associated with a given schema to the dispatcher
      *
      * @param schemaName the schema
      */
@@ -82,7 +82,7 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
      *
      * @param id the exercise-id
      */
-    public void deleteSQLExercise(int id) throws DispatcherRequestFailedException {
+    public void deleteDroolsExercise(int id) throws DispatcherRequestFailedException {
         var request = getDeleteRequest("/sql/exercise/"+id);
         sendRequest(request, stringHandler, 200);
     }
