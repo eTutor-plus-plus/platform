@@ -25,14 +25,33 @@ public class RTService implements TaskTypeService {
     }
 
     @Override
-    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException {
-        Integer id = rtClient.createRTTask(newTaskAssignmentDTO.getRtSolution(), newTaskAssignmentDTO.getMaxPoints());
-        newTaskAssignmentDTO.setTaskIdForDispatcher(id.toString());
+    public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, DispatcherRequestFailedException {
+        Integer createTask = rtClient.createRTTask(newTaskAssignmentDTO.getRtSolution(), newTaskAssignmentDTO.getMaxPoints());
+        if (createTask == -1){
+            throw new DispatcherRequestFailedException("Syntax Error: Cannot parse your solution to a Json-object!");
+        }
+        if (createTask == -2){
+            throw new DispatcherRequestFailedException("Syntax Error: The provided sample solution is incorrect!");
+        }
+        if (createTask == -3){
+            throw new DispatcherRequestFailedException("Semantik Error: The sum of the weighted points are higher than the total points");
+        }
+        newTaskAssignmentDTO.setTaskIdForDispatcher(createTask.toString());
     }
 
     @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
-        rtClient.editRTTask(taskAssignmentDTO.getRtSolution(), taskAssignmentDTO.getMaxPoints(), taskAssignmentDTO.getTaskIdForDispatcher());
+        int updateTask = rtClient.editRTTask(taskAssignmentDTO.getRtSolution(), taskAssignmentDTO.getMaxPoints(), taskAssignmentDTO.getTaskIdForDispatcher());
+        if (updateTask == -1){
+            throw new DispatcherRequestFailedException("Syntax Error: Cannot parse your solution to a Json-object!");
+        }
+        if (updateTask == -2){
+            throw new DispatcherRequestFailedException("Syntax Error: The provided sample solution is incorrect!");
+        }
+        if (updateTask == -3){
+            throw new DispatcherRequestFailedException("Semantik Error: The sum of the weighted points are higher than the total points");
+        }
+
     }
 
     @Override

@@ -42,7 +42,8 @@ public non-sealed class RTClient extends AbstractDispatcherClient{
         return id;
     }
 
-    public void editRTTask(String solution, String maxPoints, String id){
+    public Integer editRTTask(String solution, String maxPoints, String id){
+        Integer idError = 0;
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("solution",solution);
         jsonObject.put("maxPoints", maxPoints);
@@ -54,9 +55,11 @@ public non-sealed class RTClient extends AbstractDispatcherClient{
             .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            idError = Integer.parseInt(response.body().toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return idError;
     }
 
     public void deleteRTTask(String id){
