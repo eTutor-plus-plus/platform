@@ -20,8 +20,8 @@
     "droolsSolutionInfo": "Hier können die Drools-Regeln, welche die Lösung repräsentieren, definiert werden.",
     "droolsClassesInfo": "Hier können die Drools-Klassen, welche in der Drools Anwendung benötigt werden, als JSON definiert werden.",
     "droolsObjectsInfo": "Hier können die Java-Drools-Objekte, welche in der Drools Anwendung benötigt werden, als CSV definiert werden.",
-    "droolsValidationClassnameInfo": "Hier kann die Klasse über den full_classname definiert werden, deren Objekte für die Kontrolle der Regeln verglichen werden soll.",
-    "droolsErrorWeighting": "Prozent der maximalen Punkte pro fehlenden/inkorrekten/zusätzlichen Fakt in der Ausgabe, die abgezogen werden. Ein Wert von 100 bedeutet, dass jeder Fehler zu 0 Punkten führt. Minimum je Aufgabe sind 0 Punkte.",
+    "droolsValidationClassnameInfo": "Hier kann die Klasse über den full_classname definiert werden, deren Objekte für die Kontrolle der Regeln verglichen werden soll. (Keine Eingabe = Alle Ergebnisobjekte werden geprüft)",
+    "droolsErrorWeightingInfo": "Prozent der maximalen Punkte pro fehlenden/inkorrekten/zusätzlichen Fakt in der Ausgabe, die abgezogen werden. Ein Wert von 100 bedeutet, dass jeder Fehler zu 0 Punkten führt. Minimum je Aufgabe sind 0 Punkte.",
 
     "datasetInfo": "Wenn sie ein neues Data set oder eine neue Aufgabenkonfiguration erstellen  möchten oder eine vorhandene Aufgabenkonfiguration verwenden möchten, drücken sie bitte die entsprechenden Schaltflächen. Die ID der Aufganebkonfiguration muss aus der Apriori-Extension in das entsprechnde Eingabefeld kopiert werden.",
 
@@ -95,8 +95,8 @@
       "droolsSolution": "Drools-Regeln Musterlösung",
       "droolsClasses": "Drools-Klassen im JSON Format",
       "droolsObjects": "Java-Drools-Objekte im CSV Format",
-      "droolsValidationClassname": "Name der Klasse, die überprüft werden soll",
-      "droolsErrorWeighting": "Gewichtung eines Fehlers bei der Punkteberechnung"
+      "droolsValidationClassname": "Optional: Name der Klasse, die überprüft werden soll. (Keine Eingabe = Alle Ergebnisobjekte werden geprüft)",
+      "droolsErrorWeighting": "Gewichtung eines Fehlers bei der Punkteberechnung [0-100%]"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",
