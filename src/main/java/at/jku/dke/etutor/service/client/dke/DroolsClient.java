@@ -24,8 +24,10 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
      * @param solution the solution for the exercise
      * @return a ResponseEntity
      */
-    public Integer createDroolsExercise(String solution, int maxPoints, String classes, String objects) throws DispatcherRequestFailedException {
-        var exerciseDTO = new DroolsTaskDTO(solution, maxPoints, classes, objects);
+    public Integer createDroolsExercise(String solution, int maxPoints, String classes, String objects,
+                                        int errorWeighting, String validationClassname)
+        throws DispatcherRequestFailedException {
+        var exerciseDTO = new DroolsTaskDTO(solution, maxPoints, classes, objects, errorWeighting, validationClassname);
         HttpRequest request = null;
         try {
             request = getPostRequestWithBody("/drools/task/addTask", serialize(exerciseDTO)).build();
@@ -39,53 +41,23 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
      * Sends the GET-request for retrieving the solution for a Drools-exercise to the dispatcher
      * @return a ResponseEntity
      */
-    public String getSQLSolution(int id) throws DispatcherRequestFailedException {
-        var request = getGetRequest("/sql/exercise/"+id+"/solution"); //TODO LK
+    public String getDroolsSolution(int id) throws DispatcherRequestFailedException {
+        var request = getGetRequest("/drools/task/getSolution/"+id); //TODO LK
 
         return sendRequest(request, stringHandler, 200).getBody();
     }
 
-    /**
-     * Sends the request to update the solution of an existing exercise to the dispatcher
-     * @param id the id
-     * @param newSolution the new solution
-     */
-    public void updateSQLExerciseSolution(int id, String newSolution) throws DispatcherRequestFailedException {
-        var request = getPostRequestWithBody("/sql/exercise/"+id+"/solution", newSolution).build(); //TODO: LK
-
-        sendRequest(request, stringHandler, 200);
-    }
 
     /**
-     * Sends the request to delete a schema to the dispatcher
+     * Sends the request to delete a task to the dispatcher
      *
-     * @param schemaName the schema
-     */
-    public void deleteSQLSchema(String schemaName) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName));
-        sendRequest(request, stringHandler, 200);
-    }
-
-
-    /**
-     * Sends the request for deleting a connection associated with a given schema to the dispatcher
-     *
-     * @param schemaName the schema
-     */
-    public void deleteSQLConnection(String schemaName) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest("/sql/schema/"+encodeValue(schemaName)+"/connection");
-        sendRequest(request, stringHandler, 200);
-    }
-
-    /**
-     * Sends the request to delete an exercise to the dispatcher
-     *
-     * @param id the exercise-id
+     * @param id the task-id
      */
     public void deleteDroolsExercise(int id) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest("/sql/exercise/"+id);
+        var request = getDeleteRequest("/drools/task/deleteTask"+id);
         sendRequest(request, stringHandler, 200);
     }
+
     // Method called by controller returns response entity
     public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
         String url = "/sql/table/"+encodeValue(tableName);

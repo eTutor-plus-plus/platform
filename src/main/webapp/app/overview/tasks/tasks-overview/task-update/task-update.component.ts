@@ -77,9 +77,13 @@ export class TaskUpdateComponent implements OnInit {
     maxLogSize: [''],
     minLogSize: [''],
     configNum: [''],
+
+    // Drools related variables:
     droolsSolution: [''],
     droolsClasses: [''],
     droolsObjects: [''],
+    droolsValidationClassname: [''],
+    droolsErrorWeighting: [''],
 
     /** apriori start */
     aprioriDatasetId: [''],
@@ -268,6 +272,16 @@ export class TaskUpdateComponent implements OnInit {
       newTask.droolsObjects = droolsObjects;
     }
 
+    const droolsValidationClassname: string | null = this.updateForm.get('droolsValidationClassname')!.value;
+    if (droolsValidationClassname) {
+      newTask.droolsValidationClassname = droolsValidationClassname;
+    }
+
+    const droolsErrorWeighting: string | null = this.updateForm.get('droolsErrorWeighting')!.value;
+    if (droolsErrorWeighting) {
+      newTask.droolsErrorWeighting = parseInt(droolsErrorWeighting);
+    }
+
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -317,6 +331,8 @@ export class TaskUpdateComponent implements OnInit {
         droolsSolution: newTask.droolsSolution,
         droolsClasses: newTask.droolsSolution,
         droolsObjects: newTask.droolsObjects,
+        droolsErrorWeighting: newTask.droolsErrorWeighting,
+        droolsValidationClassname: newTask.droolsValidationClassname,
 
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
@@ -379,6 +395,8 @@ export class TaskUpdateComponent implements OnInit {
       const droolsSolution: string = (value.droolsSolution ?? '').toString();
       const droolsClasses: string = (value.droolsClasses ?? '').toString();
       const droolsObjects: string = (value.droolsObjects ?? '').toString();
+      const droolsValidationClassname: string = (value.droolsValidationClassname ?? '').toString();
+      const droolsErrorWeighting: string = (value.droolsErrorWeighting ?? '').toString();
 
       /** apriori start */
       const aprioriDatasetId = value.aprioriDatasetId;
@@ -421,6 +439,8 @@ export class TaskUpdateComponent implements OnInit {
         droolsSolution,
         droolsClasses,
         droolsObjects,
+        droolsErrorWeighting,
+        droolsValidationClassname,
 
         /** apriori start */
         aprioriDatasetId,
@@ -820,6 +840,10 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('droolsClasses')!.updateValueAndValidity();
     this.updateForm.get('droolsObjects')!.clearValidators();
     this.updateForm.get('droolsObjects')!.updateValueAndValidity();
+    this.updateForm.get('droolsErrorWeighting')!.clearValidators();
+    this.updateForm.get('droolsErrorWeighting')!.updateValueAndValidity();
+    this.updateForm.get('droolsValidationClassname')!.clearValidators();
+    this.updateForm.get('droolsValidationClassname')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 

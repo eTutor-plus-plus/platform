@@ -304,6 +304,32 @@
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
+      <label class="form-control-label" for="droolsErrorWeighting" jhiTranslate="taskManagement.fields.droolsErrorWeighting"
+        >Error Weighting:</label
+      >
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsErrorWeightingInfo' | translate }}" placement="right"></fa-icon>
+      <input
+        type="number"
+        min="0"
+        step="1"
+        class="form-control"
+        name="droolsErrorWeighting"
+        id="droolsErrorWeighting"
+        formControlName="droolsErrorWeighting"
+        pattern="^[0-9]*$"
+      />
+      <div *ngIf="updateForm.get('droolsErrorWeighting')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('droolsErrorWeighting')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
       <label class="form-control-label" for="droolsSolution" jhiTranslate="taskManagement.fields.droolsSolution">Drools Solution</label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsSolutionInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsSolution" formControlName="droolsSolution"></ngx-monaco-editor>
@@ -315,6 +341,20 @@
       </label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsClassesInfo' | translate }}" placement="right"></fa-icon>
       <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsClasses" formControlName="droolsClasses"></ngx-monaco-editor>
+    </div>
+
+    <div class="form-group">
+      <label class="form-control-label" for="droolsValidationClassname" jhiTranslate="taskManagement.fields.droolsValidationClassname">
+        Validation Classname:
+      </label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.droolsValidationClassnameInfo' | translate }}" placement="right"></fa-icon>
+      <input
+        type="text"
+        class="form-control"
+        name="droolsValidationClassname"
+        id="droolsValidationClassname"
+        formControlName="droolsValidationClassname"
+      />
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">

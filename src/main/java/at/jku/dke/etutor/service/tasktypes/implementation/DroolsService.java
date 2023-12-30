@@ -84,7 +84,8 @@ public class DroolsService implements TaskTypeService {
         if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
             String solution = taskAssignmentDTO.getSqlSolution();
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-            droolsClient.updateSQLExerciseSolution(id, solution);
+//            droolsClient.updateSQLExerciseSolution(id, solution);
+            //TODO: update Task machen Knogler
         }else{
             throw new MissingParameterException("Drools solution is missing");
         }
@@ -125,10 +126,12 @@ public class DroolsService implements TaskTypeService {
         String solution = newTaskAssignmentDTO.getDroolsSolution();
         String classes = newTaskAssignmentDTO.getDroolsClasses();
         String objects = newTaskAssignmentDTO.getDroolsObjects();
+        int errorWeighting = newTaskAssignmentDTO.getDroolsErrorWeighting();
+        String validationClassname = newTaskAssignmentDTO.getDroolsValidationClassname();
         int maxPoints = Integer.parseInt(newTaskAssignmentDTO.getMaxPoints());
 
         // Proxy request to dispatcher
-        var response = droolsClient.createDroolsExercise(solution, maxPoints, classes, objects);
+        var response = droolsClient.createDroolsExercise(solution, maxPoints, classes, objects, errorWeighting, validationClassname);
 
         // Return dispatcher-id of the exercise
         return Optional.of(response);

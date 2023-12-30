@@ -116,6 +116,8 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DROOLS_SOLUTION = "hasDroolsSolution";
     private static final String PROP_HAS_DROOLS_CLASSES = "hasDroolsClasses";
     private static final String PROP_HAS_DROOLS_OBJECTS = "hasDroolsObjects";
+    private static final String PROP_HAS_DROOLS_ERROR_WEIGHTING = "hasDroolsErrorWeighting";
+    private static final String PROP_HAS_DROOLS_VALIDATION_CLASSNAME = "hasDroolsValidationClassname";
 
     private static final String PROP_HAS_TYPICAL_PROCESSING_TIME = "hasTypicalProcessingTime";
     private static final String PROP_HAS_TASK_DIFFICULTY = "hasTaskDifficulty";
@@ -629,6 +631,14 @@ public final class ETutorVocabulary {
      * The hasDroolsObjects property
      */
     public static final Property hasDroolsObjects = m.createProperty(URI + PROP_HAS_DROOLS_OBJECTS);
+    /**
+     * The hasDroolsErrorWeighting property
+     */
+    public static final Property hasDroolsErrorWeighting = m.createProperty(URI + PROP_HAS_DROOLS_ERROR_WEIGHTING);
+    /**
+     * The hasDroolsValidationClassname property
+     */
+    public static final Property hasDroolsValidationClassname = m.createProperty(URI + PROP_HAS_DROOLS_VALIDATION_CLASSNAME);
 
     /**
      * The goal resource.

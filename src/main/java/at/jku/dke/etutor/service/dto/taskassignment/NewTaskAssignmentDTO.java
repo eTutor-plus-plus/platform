@@ -38,6 +38,8 @@ public class NewTaskAssignmentDTO {
     private String droolsSolution;
     private String droolsClasses;
     private String droolsObjects;
+    private int droolsErrorWeighting;
+    private String droolsValidationClassname;
 
     private String taskIdForDispatcher;
     private String sqlSolution;
@@ -538,6 +540,22 @@ public class NewTaskAssignmentDTO {
 
     public void setDroolsClasses(String droolsClasses) {
         this.droolsClasses = droolsClasses;
+    }
+
+    public int getDroolsErrorWeighting() {
+        return droolsErrorWeighting;
+    }
+
+    public void setDroolsErrorWeighting(int droolsErrorWeighting) {
+        this.droolsErrorWeighting = droolsErrorWeighting;
+    }
+
+    public String getDroolsValidationClassname() {
+        return droolsValidationClassname;
+    }
+
+    public void setDroolsValidationClassname(String droolsValidationClassname) {
+        this.droolsValidationClassname = droolsValidationClassname;
     }
 
     /** end region */

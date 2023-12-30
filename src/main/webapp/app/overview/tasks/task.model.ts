@@ -167,6 +167,10 @@ export interface INewTaskModel {
   droolsClasses?: string;
 
   droolsObjects?: string;
+
+  droolsErrorWeighting?: number;
+
+  droolsValidationClassname?: string;
 }
 
 /**

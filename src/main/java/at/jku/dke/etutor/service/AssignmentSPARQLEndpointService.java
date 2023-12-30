@@ -388,6 +388,10 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             query.appendLiteral(taskAssignment.getCalcInstructionFileId());
             query.append(".\n");
 
+            query.append("?assignment etutor:hasDroolsErrorWeighting ");
+            query.appendLiteral(taskAssignment.getDroolsErrorWeighting());
+            query.append(".\n");
+
             if (StringUtils.isNotBlank(taskAssignment.getDroolsClasses())) {
                 query.append("?assignment etutor:hasDroolsClasses ");
                 query.appendLiteral(taskAssignment.getDroolsClasses().trim());
@@ -403,6 +407,12 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
             if (StringUtils.isNotBlank(taskAssignment.getDroolsSolution())) {
                 query.append("?assignment etutor:hasDroolsSolution ");
                 query.appendLiteral(taskAssignment.getDroolsSolution().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getDroolsValidationClassname())) {
+                query.append("?assignment etutor:hasDroolsValidationClassname ");
+                query.appendLiteral(taskAssignment.getDroolsValidationClassname().trim());
                 query.append(".\n");
             }
 
@@ -1741,6 +1751,14 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsObjects() )) {
             resource.addProperty(ETutorVocabulary.hasDroolsObjects, newTaskAssignmentDTO.getDroolsObjects().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDroolsValidationClassname() )) {
+            resource.addProperty(ETutorVocabulary.hasDroolsValidationClassname, newTaskAssignmentDTO.getDroolsValidationClassname().trim());
+        }
+
+        if(newTaskAssignmentDTO.getDroolsErrorWeighting() !=0){
+            resource.addProperty(ETutorVocabulary.hasDroolsErrorWeighting,Integer.toString(newTaskAssignmentDTO.getDroolsErrorWeighting()), XSDDatatype.XSDinteger);
         }
 
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
