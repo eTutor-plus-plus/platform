@@ -101,6 +101,7 @@ export class DispatcherAssignmentComponent {
   public isXQueryTask = false;
   public isDatalogTask = false;
   public isBpmnTask = false;
+  public isDroolsTask = false;
 
   /**
    *
@@ -217,6 +218,7 @@ export class DispatcherAssignmentComponent {
     this.isXQueryTask = this._task_type === TaskAssignmentType.XQueryTask.value;
     this.isDatalogTask = this._task_type === TaskAssignmentType.DatalogTask.value;
     this.isBpmnTask = this._task_type === TaskAssignmentType.BpmnTask.value;
+    this.isDroolsTask = this.task_type === TaskAssignmentType.DroolsTask.value;
   }
 
   private alertUserAboutPossibleDeductionsForDiagnoseLevel(action: string): boolean {
