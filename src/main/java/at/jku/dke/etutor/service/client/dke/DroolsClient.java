@@ -37,16 +37,6 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
         }
     }
 
-    /**
-     * Sends the GET-request for retrieving the solution for a Drools-exercise to the dispatcher
-     * @return a ResponseEntity
-     */
-    public String getDroolsSolution(int id) throws DispatcherRequestFailedException {
-        var request = getGetRequest("/drools/task/getSolution/"+id); //TODO LK
-
-        return sendRequest(request, stringHandler, 200).getBody();
-    }
-
 
     /**
      * Sends the request to delete a task to the dispatcher
