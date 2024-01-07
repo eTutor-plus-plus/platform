@@ -89,6 +89,8 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setDroolsSolution(newTaskAssignmentDTO.getDroolsSolution());
         setDroolsClasses(newTaskAssignmentDTO.getDroolsClasses());
         setDroolsObjects(newTaskAssignmentDTO.getDroolsObjects());
+        setDroolsErrorWeighting(newTaskAssignmentDTO.getDroolsErrorWeighting());
+        setDroolsValidationClassname(newTaskAssignmentDTO.getDroolsValidationClassname());
 
         setId(id);
         setCreationDate(creationDate);
@@ -265,6 +267,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
             setConfigNum(configNum.getString());
         }
 
+        //Drools section
         Statement droolsSolutionStatement = resource.getProperty(ETutorVocabulary.hasDroolsSolution);
         if(droolsSolutionStatement != null){
             setDroolsSolution(droolsSolutionStatement.getString());
@@ -278,6 +281,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         Statement droolsObjectsStatement = resource.getProperty(ETutorVocabulary.hasDroolsObjects);
         if(droolsObjectsStatement != null){
             setDroolsObjects(droolsObjectsStatement.getString());
+        }
+
+        Statement droolsErrorStatement = resource.getProperty(ETutorVocabulary.hasDroolsErrorWeighting);
+        if(droolsErrorStatement != null){
+            setDroolsErrorWeighting(droolsErrorStatement.getInt());
+        }else{
+            setDroolsErrorWeighting(100);
+        }
+
+        Statement droolsClassNameStatement = resource.getProperty(ETutorVocabulary.hasDroolsValidationClassname);
+        if(droolsClassNameStatement != null){
+            setDroolsValidationClassname(droolsClassNameStatement.getString());
         }
 
 

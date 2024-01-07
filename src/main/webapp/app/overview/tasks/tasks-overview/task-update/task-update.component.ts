@@ -559,7 +559,7 @@ export class TaskUpdateComponent implements OnInit {
       subm = this.updateForm.get(['xQuerySolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
-    } //TODO: Solution submission 20231204 LKN
+    }
     (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
       isSubmitted: false,

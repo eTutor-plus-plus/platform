@@ -344,7 +344,7 @@
       <ngx-monaco-editor [options]="editorOptionsDrools" id="droolsClasses" formControlName="droolsClasses"></ngx-monaco-editor>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.DroolsTask.value">
       <label class="form-control-label" for="droolsValidationClassname" jhiTranslate="taskManagement.fields.droolsValidationClassname">
         Validation Classname:
       </label>

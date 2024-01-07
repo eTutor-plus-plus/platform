@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public class CSVHelper {
 
-    public static final String CSV_FILE_FORMAT = "text/csv"; //TODO: Lukas Knogler so wird csv geprüft
+    public static final String CSV_FILE_FORMAT = "text/csv";
 
     public static final String COL_MATRICULATION_NUMBER = "MATRIKELNR";
     public static final String COL_FIRST_NAME = "VORNAME";
