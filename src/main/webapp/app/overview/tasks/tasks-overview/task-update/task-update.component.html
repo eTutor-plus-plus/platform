@@ -137,7 +137,8 @@
         selectedTaskAssignmentType === TaskAssignmentType.BpmnTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.PmTask.value ||
         selectedTaskAssignmentType === TaskAssignmentType.UmlTask.value ||
-        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value
+        selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value ||
+        selectedTaskAssignmentType === TaskAssignmentType.NfTask.value
       "
     >
       <!-- APRIORI element end -->
@@ -484,6 +485,502 @@
         <small class="form-text text-danger" jhiTranslate="taskManagement.error.contentType">
           Please upload the correct content type of the file!
         </small>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.NfTask.value">
+      <label class="form-control-label" for="nfBaseRelationAttributes" jhiTranslate="taskManagement.fields.baseRelationAttributes">
+        Attributes of base relation:
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        name="nfBaseRelationAttributes"
+        id="nfBaseRelationAttributes"
+        formControlName="nfBaseRelationAttributes"
+      />
+
+      <label class="form-control-label" for="nfBaseRelationDependencies" jhiTranslate="taskManagement.fields.baseRelationDependencies">
+        Functional dependencies of base relation:
+      </label>
+      <input
+        type="text"
+        class="form-control"
+        name="nfBaseRelationDependencies"
+        id="nfBaseRelationDependencies"
+        formControlName="nfBaseRelationDependencies"
+      />
+
+      <label class="form-control-label" for="nfTaskSubtype" jhiTranslate="taskManagement.fields.nfTaskSubtype">NF task subtype:</label>
+      <select
+        class="form-control"
+        name="nfTaskSubtype"
+        id="nfTaskSubtype"
+        formControlName="nfTaskSubtype"
+        (change)="nfTaskSubtypeChanged()"
+      >
+        <option *ngFor="let nfTaskSubtype of nfTaskSubtypes" [ngValue]="nfTaskSubtype">{{ nfTaskSubtype.text | translate }}</option>
+      </select>
+
+      <div class="form-group" *ngIf="selectedNfTaskSubtype === NFTaskSubtype.KeysDeterminationTask.value">
+        <label
+          class="form-control-label"
+          for="nfKeysDeterminationPenaltyPerMissingKey"
+          jhiTranslate="taskManagement.fields.nfKeysDeterminationPenaltyPerMissingKey"
+        >
+          Points deducted per missing key:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfKeysDeterminationPenaltyPerMissingKey"
+          id="nfKeysDeterminationPenaltyPerMissingKey"
+          formControlName="nfKeysDeterminationPenaltyPerMissingKey"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfKeysDeterminationPenaltyPerIncorrectKey"
+          jhiTranslate="taskManagement.fields.nfKeysDeterminationPenaltyPerIncorrectKey"
+        >
+          Points deducted per missing key:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfKeysDeterminationPenaltyPerIncorrectKey"
+          id="nfKeysDeterminationPenaltyPerIncorrectKey"
+          formControlName="nfKeysDeterminationPenaltyPerIncorrectKey"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="selectedNfTaskSubtype === NFTaskSubtype.AttributeClosureTask.value">
+        <label
+          class="form-control-label"
+          for="nfAttributeClosureBaseAttributes"
+          jhiTranslate="taskManagement.fields.nfAttributeClosureBaseAttributes"
+        >
+          Base attributes for attribute closure:
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          name="nfAttributeClosureBaseAttributes"
+          id="nfAttributeClosureBaseAttributes"
+          formControlName="nfAttributeClosureBaseAttributes"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfAttributeClosurePenaltyPerMissingAttribute"
+          jhiTranslate="taskManagement.fields.nfAttributeClosurePenaltyPerMissingAttribute"
+        >
+          Points deducted per missing attribute:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfAttributeClosurePenaltyPerMissingAttribute"
+          id="nfAttributeClosurePenaltyPerMissingAttribute"
+          formControlName="nfAttributeClosurePenaltyPerMissingAttribute"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfAttributeClosurePenaltyPerIncorrectAttribute"
+          jhiTranslate="taskManagement.fields.nfAttributeClosurePenaltyPerIncorrectAttribute"
+        >
+          Points deducted per incorrect attribute:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfAttributeClosurePenaltyPerIncorrectAttribute"
+          id="nfAttributeClosurePenaltyPerIncorrectAttribute"
+          formControlName="nfAttributeClosurePenaltyPerIncorrectAttribute"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="selectedNfTaskSubtype === NFTaskSubtype.MinimalCoverTask.value">
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerNonCanonicalDependency"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerNonCanonicalDependency"
+        >
+          Points deducted per non-canonical functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerNonCanonicalDependency"
+          id="nfMinimalCoverPenaltyPerNonCanonicalDependency"
+          formControlName="nfMinimalCoverPenaltyPerNonCanonicalDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerTrivialDependency"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerTrivialDependency"
+        >
+          Points deducted per trivial functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerTrivialDependency"
+          id="nfMinimalCoverPenaltyPerTrivialDependency"
+          formControlName="nfMinimalCoverPenaltyPerTrivialDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerExtraneousAttribute"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerExtraneousAttribute"
+        >
+          Points deducted per extraneous attribute on the left-hand side of a functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerExtraneousAttribute"
+          id="nfMinimalCoverPenaltyPerExtraneousAttribute"
+          formControlName="nfMinimalCoverPenaltyPerExtraneousAttribute"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerRedundantDependency"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerRedundantDependency"
+        >
+          Points deducted per redundant functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerRedundantDependency"
+          id="nfMinimalCoverPenaltyPerRedundantDependency"
+          formControlName="nfMinimalCoverPenaltyPerRedundantDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerMissingDependencyVsSolution"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerMissingDependencyVsSolution"
+        >
+          Points deducted per missing dependency (as compared to the correct solution):
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerMissingDependencyVsSolution"
+          id="nfMinimalCoverPenaltyPerMissingDependencyVsSolution"
+          formControlName="nfMinimalCoverPenaltyPerMissingDependencyVsSolution"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution"
+          jhiTranslate="taskManagement.fields.nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution"
+        >
+          Points deducted per incorrect dependency (as compared to the correct solution):
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution"
+          id="nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution"
+          formControlName="nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="selectedNfTaskSubtype === NFTaskSubtype.NormalformDeterminationTask.value">
+        <label
+          class="form-control-label"
+          for="nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform"
+          jhiTranslate="taskManagement.fields.nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform"
+        >
+          Points deducted for incorrect normal form overall:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform"
+          id="nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform"
+          formControlName="nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform"
+          jhiTranslate="taskManagement.fields.nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform"
+        >
+          Points deducted per incorrect normal form on a functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform"
+          id="nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform"
+          formControlName="nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform"
+        />
+      </div>
+
+      <div class="form-group" *ngIf="selectedNfTaskSubtype === NFTaskSubtype.NormalizationTask.value">
+        <label class="form-control-label" for="nfNormalizationTargetLevel" jhiTranslate="taskManagement.fields.nfNormalizationTargetLevel">
+          Target normal form:
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          name="nfNormalizationTargetLevel"
+          id="nfNormalizationTargetLevel"
+          formControlName="nfNormalizationTargetLevel"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationMaxLostDependencies"
+          jhiTranslate="taskManagement.fields.nfNormalizationMaxLostDependencies"
+        >
+          Maximum number of lost functional dependencies:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationMaxLostDependencies"
+          id="nfNormalizationMaxLostDependencies"
+          formControlName="nfNormalizationMaxLostDependencies"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerLostAttribute"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerLostAttribute"
+        >
+          Points deducted per lost attribute of the base relation:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerLostAttribute"
+          id="nfNormalizationPenaltyPerLostAttribute"
+          formControlName="nfNormalizationPenaltyPerLostAttribute"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyForLossyDecomposition"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyForLossyDecomposition"
+        >
+          Points deducted for lossy decomposition:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyForLossyDecomposition"
+          id="nfNormalizationPenaltyForLossyDecomposition"
+          formControlName="nfNormalizationPenaltyForLossyDecomposition"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerNonCanonicalDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerNonCanonicalDependency"
+        >
+          Points deducted per non-canonical functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerNonCanonicalDependency"
+          id="nfNormalizationPenaltyPerNonCanonicalDependency"
+          formControlName="nfNormalizationPenaltyPerNonCanonicalDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerTrivialDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerTrivialDependency"
+        >
+          Points deducted per trivial functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerTrivialDependency"
+          id="nfNormalizationPenaltyPerTrivialDependency"
+          formControlName="nfNormalizationPenaltyPerTrivialDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerExtraneousAttributeInDependencies"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerExtraneousAttributeInDependencies"
+        >
+          Points deducted per extraneous attribute on the left-hand side of functional dependencies:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerExtraneousAttributeInDependencies"
+          id="nfNormalizationPenaltyPerExtraneousAttributeInDependencies"
+          formControlName="nfNormalizationPenaltyPerExtraneousAttributeInDependencies"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerRedundantDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerRedundantDependency"
+        >
+          Points deducted per redundant functional dependency:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerRedundantDependency"
+          id="nfNormalizationPenaltyPerRedundantDependency"
+          formControlName="nfNormalizationPenaltyPerRedundantDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerExcessiveLostDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerExcessiveLostDependency"
+        >
+          Points deducted per lost functional dependency above the allowed number:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerExcessiveLostDependency"
+          id="nfNormalizationPenaltyPerExcessiveLostDependency"
+          formControlName="nfNormalizationPenaltyPerExcessiveLostDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerMissingNewDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerMissingNewDependency"
+        >
+          Points deducted per functional dependency that is necessitated by decomposition yet missing:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerMissingNewDependency"
+          id="nfNormalizationPenaltyPerMissingNewDependency"
+          formControlName="nfNormalizationPenaltyPerMissingNewDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerIncorrectNewDependency"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerIncorrectNewDependency"
+        >
+          Points deducted per incorrect functional dependency present in the decomposed relations:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerIncorrectNewDependency"
+          id="nfNormalizationPenaltyPerIncorrectNewDependency"
+          formControlName="nfNormalizationPenaltyPerIncorrectNewDependency"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerMissingKey"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerMissingKey"
+        >
+          Points deducted per missing key in the decomposed relations:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerMissingKey"
+          id="nfNormalizationPenaltyPerMissingKey"
+          formControlName="nfNormalizationPenaltyPerMissingKey"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerIncorrectKey"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerIncorrectKey"
+        >
+          Points deducted per incorrect key in the decomposed relations:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerIncorrectKey"
+          id="nfNormalizationPenaltyPerIncorrectKey"
+          formControlName="nfNormalizationPenaltyPerIncorrectKey"
+        />
+
+        <label
+          class="form-control-label"
+          for="nfNormalizationPenaltyPerIncorrectNFRelation"
+          jhiTranslate="taskManagement.fields.nfNormalizationPenaltyPerIncorrectNFRelation"
+        >
+          Points deducted per decomposed relation that is not in the correct normal form:
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          class="form-control"
+          name="nfNormalizationPenaltyPerIncorrectNFRelation"
+          id="nfNormalizationPenaltyPerIncorrectNFRelation"
+          formControlName="nfNormalizationPenaltyPerIncorrectNFRelation"
+        />
       </div>
     </div>
 

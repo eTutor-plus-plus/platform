@@ -114,7 +114,8 @@ export class StudentTaskComponent implements OnInit, OnDestroy {
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.XQueryTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.BpmnTask.value ||
           this._taskModel.taskAssignmentTypeId === TaskAssignmentType.DatalogTask.value ||
-          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UmlTask.value;
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.UmlTask.value ||
+          this._taskModel.taskAssignmentTypeId === TaskAssignmentType.NfTask.value;
 
         this.isPmTask = this._taskModel.taskAssignmentTypeId === TaskAssignmentType.PmTask.value;
 

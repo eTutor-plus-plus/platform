@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AprioriConfig, TasksService } from '../../tasks.service';
-import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty } from '../../task.model';
+import { INewTaskModel, ITaskModel, TaskAssignmentType, TaskDifficulty, NFTaskSubtype } from '../../task.model';
 import { CustomValidators } from 'app/shared/validators/custom-validators';
 import { URL_OR_EMPTY_PATTERN } from 'app/config/input.constants';
 import { EventManager } from 'app/core/util/event-manager.service';
@@ -40,6 +40,11 @@ export class TaskUpdateComponent implements OnInit {
   public calcInstructionFileId = -1;
   public startTime = null;
   public endTime = null;
+
+  // NF start
+  public readonly nfTaskSubtypes = NFTaskSubtype.Values;
+  public selectedNfTaskSubtype = '';
+  // NF end
 
   public readonly updateForm = this.fb.group({
     header: ['', [CustomValidators.required]],
@@ -80,6 +85,39 @@ export class TaskUpdateComponent implements OnInit {
     /** apriori start */
     aprioriDatasetId: [''],
     /** apriori end */
+
+    // NF start
+    nfBaseRelationAttributes: [''],
+    nfBaseRelationDependencies: [''],
+    nfTaskSubtype: [this.nfTaskSubtypes[0], [Validators.required]],
+    nfKeysDeterminationPenaltyPerMissingKey: [0],
+    nfKeysDeterminationPenaltyPerIncorrectKey: [0],
+    nfAttributeClosureBaseAttributes: [''],
+    nfAttributeClosurePenaltyPerMissingAttribute: [0],
+    nfAttributeClosurePenaltyPerIncorrectAttribute: [0],
+    nfMinimalCoverPenaltyPerNonCanonicalDependency: [0],
+    nfMinimalCoverPenaltyPerTrivialDependency: [0],
+    nfMinimalCoverPenaltyPerExtraneousAttribute: [0],
+    nfMinimalCoverPenaltyPerRedundantDependency: [0],
+    nfMinimalCoverPenaltyPerMissingDependencyVsSolution: [0],
+    nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution: [0],
+    nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform: [0],
+    nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform: [0],
+    nfNormalizationMaxLostDependencies: [0],
+    nfNormalizationTargetLevel: [''],
+    nfNormalizationPenaltyPerLostAttribute: [0],
+    nfNormalizationPenaltyForLossyDecomposition: [0],
+    nfNormalizationPenaltyPerNonCanonicalDependency: [0],
+    nfNormalizationPenaltyPerTrivialDependency: [0],
+    nfNormalizationPenaltyPerExtraneousAttributeInDependencies: [0],
+    nfNormalizationPenaltyPerRedundantDependency: [0],
+    nfNormalizationPenaltyPerExcessiveLostDependency: [0],
+    nfNormalizationPenaltyPerMissingNewDependency: [0],
+    nfNormalizationPenaltyPerIncorrectNewDependency: [0],
+    nfNormalizationPenaltyPerMissingKey: [0],
+    nfNormalizationPenaltyPerIncorrectKey: [0],
+    nfNormalizationPenaltyPerIncorrectNFRelation: [0],
+    // NF end
   });
 
   private _taskModel?: ITaskModel;
@@ -247,6 +285,121 @@ export class TaskUpdateComponent implements OnInit {
       newTask.configNum = configNum;
     }
 
+    // NF start
+    const nfBaseRelationAttributes: string | null = this.updateForm.get('nfBaseRelationAttributes')!.value;
+    if (nfBaseRelationAttributes) {
+      newTask.nfBaseAttributes = nfBaseRelationAttributes;
+    }
+
+    const nfBaseRelationDependencies: string | null = this.updateForm.get('nfBaseRelationDependencies')!.value;
+    if (nfBaseRelationDependencies) {
+      newTask.nfBaseDependencies = nfBaseRelationDependencies;
+    }
+
+    const nfTaskSubtypeId: string | null = (this.updateForm.get('nfTaskSubtype')!.value as NFTaskSubtype).value;
+    if (nfTaskSubtypeId) {
+      newTask.nfTaskSubtypeId = nfTaskSubtypeId;
+    }
+
+    const nfKeysDeterminationPenaltyPerMissingKey: number | null = this.updateForm.get('nfKeysDeterminationPenaltyPerMissingKey')!.value;
+    if (nfKeysDeterminationPenaltyPerMissingKey) {
+      newTask.nfKeysDeterminationPenaltyPerMissingKey = nfKeysDeterminationPenaltyPerMissingKey;
+    }
+
+    const nfKeysDeterminationPenaltyPerIncorrectKey: number | null = this.updateForm.get(
+      'nfKeysDeterminationPenaltyPerIncorrectKey'
+    )!.value;
+    if (nfKeysDeterminationPenaltyPerIncorrectKey) {
+      newTask.nfKeysDeterminationPenaltyPerIncorrectKey = nfKeysDeterminationPenaltyPerIncorrectKey;
+    }
+
+    const nfAttributeClosureBaseAttributes: string | null = this.updateForm.get('nfAttributeClosureBaseAttributes')!.value;
+    if (nfAttributeClosureBaseAttributes) {
+      newTask.nfAttributeClosureBaseAttributes = nfAttributeClosureBaseAttributes;
+    }
+
+    const nfAttributeClosurePenaltyPerMissingAttribute: number | null = this.updateForm.get(
+      'nfAttributeClosurePenaltyPerMissingAttribute'
+    )!.value;
+    if (nfAttributeClosurePenaltyPerMissingAttribute) {
+      newTask.nfAttributeClosurePenaltyPerMissingAttribute = nfAttributeClosurePenaltyPerMissingAttribute;
+    }
+
+    const nfAttributeClosurePenaltyPerIncorrectAttribute: number | null = this.updateForm.get(
+      'nfAttributeClosurePenaltyPerIncorrectAttribute'
+    )!.value;
+    if (nfAttributeClosurePenaltyPerIncorrectAttribute) {
+      newTask.nfAttributeClosurePenaltyPerIncorrectAttribute = nfAttributeClosurePenaltyPerIncorrectAttribute;
+    }
+
+    const nfMinimalCoverPenaltyPerNonCanonicalDependency: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerNonCanonicalDependency'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerNonCanonicalDependency) {
+      newTask.nfMinimalCoverPenaltyPerNonCanonicalDependency = nfMinimalCoverPenaltyPerNonCanonicalDependency;
+    }
+
+    const nfMinimalCoverPenaltyPerTrivialDependency: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerTrivialDependency'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerTrivialDependency) {
+      newTask.nfMinimalCoverPenaltyPerTrivialDependency = nfMinimalCoverPenaltyPerTrivialDependency;
+    }
+
+    const nfMinimalCoverPenaltyPerExtraneousAttribute: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerExtraneousAttribute'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerExtraneousAttribute) {
+      newTask.nfMinimalCoverPenaltyPerExtraneousAttribute = nfMinimalCoverPenaltyPerExtraneousAttribute;
+    }
+
+    const nfMinimalCoverPenaltyPerRedundantDependency: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerRedundantDependency'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerRedundantDependency) {
+      newTask.nfMinimalCoverPenaltyPerRedundantDependency = nfMinimalCoverPenaltyPerRedundantDependency;
+    }
+
+    const nfMinimalCoverPenaltyPerMissingDependencyVsSolution: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerMissingDependencyVsSolution'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerMissingDependencyVsSolution) {
+      newTask.nfMinimalCoverPenaltyPerMissingDependencyVsSolution = nfMinimalCoverPenaltyPerMissingDependencyVsSolution;
+    }
+
+    const nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution: number | null = this.updateForm.get(
+      'nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution'
+    )!.value;
+    if (nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution) {
+      newTask.nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution = nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution;
+    }
+
+    const nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform: number | null = this.updateForm.get(
+      'nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform'
+    )!.value;
+    if (nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform) {
+      newTask.nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform = nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform;
+    }
+
+    const nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform: number | null = this.updateForm.get(
+      'nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform'
+    )!.value;
+    if (nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform) {
+      newTask.nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform =
+        nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform;
+    }
+
+    const nfNormalizationTargetLevel: string | null = this.updateForm.get('nfNormalizationTargetLevel')!.value;
+    if (nfNormalizationTargetLevel) {
+      newTask.nfNormalizationTargetLevel = nfNormalizationTargetLevel;
+    }
+
+    const nfNormalizationMaxLostDependencies: number | null = this.updateForm.get('nfNormalizationMaxLostDependencies')!.value;
+    if (nfNormalizationMaxLostDependencies) {
+      newTask.nfNormalizationMaxLostDependencies = nfNormalizationMaxLostDependencies;
+    }
+    // NF end
+
     if (this.isNew) {
       this.tasksService.saveNewTask(newTask).subscribe(
         () => {
@@ -297,6 +450,41 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori start */
         aprioriDatasetId: newTask.aprioriDatasetId,
         /** apriori end */
+
+        // NF start
+        nfBaseAttributes: newTask.nfBaseAttributes,
+        nfBaseDependencies: newTask.nfBaseDependencies,
+        nfTaskSubtypeId: newTask.nfTaskSubtypeId,
+        nfKeysDeterminationPenaltyPerMissingKey: newTask.nfKeysDeterminationPenaltyPerMissingKey,
+        nfKeysDeterminationPenaltyPerIncorrectKey: newTask.nfKeysDeterminationPenaltyPerIncorrectKey,
+        nfAttributeClosureBaseAttributes: newTask.nfAttributeClosureBaseAttributes,
+        nfAttributeClosurePenaltyPerMissingAttribute: newTask.nfAttributeClosurePenaltyPerMissingAttribute,
+        nfAttributeClosurePenaltyPerIncorrectAttribute: newTask.nfAttributeClosurePenaltyPerIncorrectAttribute,
+        nfMinimalCoverPenaltyPerNonCanonicalDependency: newTask.nfMinimalCoverPenaltyPerNonCanonicalDependency,
+        nfMinimalCoverPenaltyPerTrivialDependency: newTask.nfMinimalCoverPenaltyPerTrivialDependency,
+        nfMinimalCoverPenaltyPerExtraneousAttribute: newTask.nfMinimalCoverPenaltyPerExtraneousAttribute,
+        nfMinimalCoverPenaltyPerRedundantDependency: newTask.nfMinimalCoverPenaltyPerRedundantDependency,
+        nfMinimalCoverPenaltyPerMissingDependencyVsSolution: newTask.nfMinimalCoverPenaltyPerMissingDependencyVsSolution,
+        nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution: newTask.nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution,
+        nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform:
+          newTask.nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform,
+        nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform:
+          newTask.nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform,
+        nfNormalizationTargetLevel: newTask.nfNormalizationTargetLevel,
+        nfNormalizationMaxLostDependencies: newTask.nfNormalizationMaxLostDependencies,
+        nfNormalizationPenaltyPerLostAttribute: newTask.nfNormalizationPenaltyPerLostAttribute,
+        nfNormalizationPenaltyForLossyDecomposition: newTask.nfNormalizationPenaltyForLossyDecomposition,
+        nfNormalizationPenaltyPerNonCanonicalDependency: newTask.nfNormalizationPenaltyPerNonCanonicalDependency,
+        nfNormalizationPenaltyPerTrivialDependency: newTask.nfNormalizationPenaltyPerTrivialDependency,
+        nfNormalizationPenaltyPerExtraneousAttributeInDependencies: newTask.nfNormalizationPenaltyPerExtraneousAttributeInDependencies,
+        nfNormalizationPenaltyPerRedundantDependency: newTask.nfNormalizationPenaltyPerRedundantDependency,
+        nfNormalizationPenaltyPerExcessiveLostDependency: newTask.nfNormalizationPenaltyPerExcessiveLostDependency,
+        nfNormalizationPenaltyPerMissingNewDependency: newTask.nfNormalizationPenaltyPerMissingNewDependency,
+        nfNormalizationPenaltyPerIncorrectNewDependency: newTask.nfNormalizationPenaltyPerIncorrectNewDependency,
+        nfNormalizationPenaltyPerMissingKey: newTask.nfNormalizationPenaltyPerMissingKey,
+        nfNormalizationPenaltyPerIncorrectKey: newTask.nfNormalizationPenaltyPerIncorrectKey,
+        nfNormalizationPenaltyPerIncorrectNFRelation: newTask.nfNormalizationPenaltyPerIncorrectNFRelation,
+        // NF end
       };
 
       this.tasksService.saveEditedTask(editedTask).subscribe(
@@ -355,6 +543,43 @@ export class TaskUpdateComponent implements OnInit {
       const aprioriDatasetId = value.aprioriDatasetId;
       /** apriori end */
 
+      // NF start
+      const nfBaseRelationAttributes: string = (value.nfBaseAttributes ?? '').toString();
+      const nfBaseRelationDependencies: string = (value.nfBaseDependencies ?? '').toString();
+      const nfTaskSubtype = this.nfTaskSubtypes.find(x => x.value === value.nfTaskSubtypeId);
+      const nfKeysDeterminationPenaltyPerMissingKey: number = value.nfKeysDeterminationPenaltyPerMissingKey ?? 0;
+      const nfKeysDeterminationPenaltyPerIncorrectKey: number = value.nfKeysDeterminationPenaltyPerIncorrectKey ?? 0;
+      const nfAttributeClosureBaseAttributes: string = (value.nfAttributeClosureBaseAttributes ?? '').toString();
+      const nfAttributeClosurePenaltyPerMissingAttribute: number = value.nfAttributeClosurePenaltyPerMissingAttribute ?? 0;
+      const nfAttributeClosurePenaltyPerIncorrectAttribute: number = value.nfAttributeClosurePenaltyPerIncorrectAttribute ?? 0;
+      const nfMinimalCoverPenaltyPerNonCanonicalDependency: number = value.nfMinimalCoverPenaltyPerNonCanonicalDependency ?? 0;
+      const nfMinimalCoverPenaltyPerTrivialDependency: number = value.nfMinimalCoverPenaltyPerTrivialDependency ?? 0;
+      const nfMinimalCoverPenaltyPerExtraneousAttribute: number = value.nfMinimalCoverPenaltyPerExtraneousAttribute ?? 0;
+      const nfMinimalCoverPenaltyPerRedundantDependency: number = value.nfMinimalCoverPenaltyPerRedundantDependency ?? 0;
+      const nfMinimalCoverPenaltyPerMissingDependencyVsSolution: number = value.nfMinimalCoverPenaltyPerMissingDependencyVsSolution ?? 0;
+      const nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution: number =
+        value.nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution ?? 0;
+      const nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform: number =
+        value.nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform ?? 0;
+      const nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform: number =
+        value.nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform ?? 0;
+      const nfNormalizationTargetLevel: string = (value.nfNormalizationTargetLevel ?? '').toString();
+      const nfNormalizationMaxLostDependencies: number = value.nfNormalizationMaxLostDependencies ?? 0;
+      const nfNormalizationPenaltyPerLostAttribute: number = value.nfNormalizationPenaltyPerLostAttribute ?? 0;
+      const nfNormalizationPenaltyForLossyDecomposition: number = value.nfNormalizationPenaltyForLossyDecomposition ?? 0;
+      const nfNormalizationPenaltyPerNonCanonicalDependency: number = value.nfNormalizationPenaltyPerNonCanonicalDependency ?? 0;
+      const nfNormalizationPenaltyPerTrivialDependency: number = value.nfNormalizationPenaltyPerTrivialDependency ?? 0;
+      const nfNormalizationPenaltyPerExtraneousAttributeInDependencies: number =
+        value.nfNormalizationPenaltyPerExtraneousAttributeInDependencies ?? 0;
+      const nfNormalizationPenaltyPerRedundantDependency: number = value.nfNormalizationPenaltyPerRedundantDependency ?? 0;
+      const nfNormalizationPenaltyPerExcessiveLostDependency: number = value.nfNormalizationPenaltyPerExcessiveLostDependency ?? 0;
+      const nfNormalizationPenaltyPerMissingNewDependency: number = value.nfNormalizationPenaltyPerMissingNewDependency ?? 0;
+      const nfNormalizationPenaltyPerIncorrectNewDependency: number = value.nfNormalizationPenaltyPerIncorrectNewDependency ?? 0;
+      const nfNormalizationPenaltyPerMissingKey: number = value.nfNormalizationPenaltyPerMissingKey ?? 0;
+      const nfNormalizationPenaltyPerIncorrectKey: number = value.nfNormalizationPenaltyPerIncorrectKey ?? 0;
+      const nfNormalizationPenaltyPerIncorrectNFRelation: number = value.nfNormalizationPenaltyPerIncorrectNFRelation ?? 0;
+      // NF end
+
       this.updateForm.get('xQueryFileURL')!.disable();
 
       this.patchDispatcherValues(taskAssignmentTypeId, taskGroupId);
@@ -391,6 +616,40 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori start */
         aprioriDatasetId,
         /** apriori end */
+
+        // NF start
+        nfBaseRelationAttributes,
+        nfBaseRelationDependencies,
+        nfTaskSubtype,
+        nfKeysDeterminationPenaltyPerMissingKey: nfKeysDeterminationPenaltyPerMissingKey,
+        nfKeysDeterminationPenaltyPerIncorrectKey: nfKeysDeterminationPenaltyPerIncorrectKey,
+        nfAttributeClosureBaseAttributes: nfAttributeClosureBaseAttributes,
+        nfAttributeClosurePenaltyPerMissingAttribute: nfAttributeClosurePenaltyPerMissingAttribute,
+        nfAttributeClosurePenaltyPerIncorrectAttribute: nfAttributeClosurePenaltyPerIncorrectAttribute,
+        nfMinimalCoverPenaltyPerNonCanonicalDependency: nfMinimalCoverPenaltyPerNonCanonicalDependency,
+        nfMinimalCoverPenaltyPerTrivialDependency: nfMinimalCoverPenaltyPerTrivialDependency,
+        nfMinimalCoverPenaltyPerExtraneousAttribute: nfMinimalCoverPenaltyPerExtraneousAttribute,
+        nfMinimalCoverPenaltyPerRedundantDependency: nfMinimalCoverPenaltyPerRedundantDependency,
+        nfMinimalCoverPenaltyPerMissingDependencyVsSolution: nfMinimalCoverPenaltyPerMissingDependencyVsSolution,
+        nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution: nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution,
+        nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform: nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform,
+        nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform: nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform,
+        nfNormalizationTargetLevel: nfNormalizationTargetLevel,
+        nfNormalizationMaxLostDependencies: nfNormalizationMaxLostDependencies,
+        nfNormalizationPenaltyPerLostAttribute: nfNormalizationPenaltyPerLostAttribute,
+        nfNormalizationPenaltyForLossyDecomposition: nfNormalizationPenaltyForLossyDecomposition,
+        nfNormalizationPenaltyPerNonCanonicalDependency: nfNormalizationPenaltyPerNonCanonicalDependency,
+        nfNormalizationPenaltyPerTrivialDependency: nfNormalizationPenaltyPerTrivialDependency,
+        nfNormalizationPenaltyPerExtraneousAttributeInDependencies: nfNormalizationPenaltyPerExtraneousAttributeInDependencies,
+        nfNormalizationPenaltyPerRedundantDependency: nfNormalizationPenaltyPerRedundantDependency,
+        nfNormalizationPenaltyPerExcessiveLostDependency: nfNormalizationPenaltyPerExcessiveLostDependency,
+        nfNormalizationPenaltyPerMissingNewDependency: nfNormalizationPenaltyPerMissingNewDependency,
+        nfNormalizationPenaltyPerIncorrectNewDependency: nfNormalizationPenaltyPerIncorrectNewDependency,
+        nfNormalizationPenaltyPerMissingKey: nfNormalizationPenaltyPerMissingKey,
+        nfNormalizationPenaltyPerIncorrectKey: nfNormalizationPenaltyPerIncorrectKey,
+        nfNormalizationPenaltyPerIncorrectNFRelation: nfNormalizationPenaltyPerIncorrectNFRelation,
+
+        // NF end
       });
       this.taskTypeChanged();
       this.uploadFileId = value.uploadFileId ?? -1;
@@ -466,6 +725,8 @@ export class TaskUpdateComponent implements OnInit {
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.NfTask.value) {
+      this.setMaxPointsRequired();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -852,5 +1113,13 @@ export class TaskUpdateComponent implements OnInit {
   }
 
   /** apriori end */
+
+  // NF start
+  public nfTaskSubtypeChanged() {
+    this.selectedNfTaskSubtype = (this.updateForm.get(['nfTaskSubtype'])!.value as NFTaskSubtype).value;
+  }
+  protected readonly NFTaskSubtype = NFTaskSubtype;
+  // NF end
+
   protected readonly TaskAssignmentType = TaskAssignmentType;
 }

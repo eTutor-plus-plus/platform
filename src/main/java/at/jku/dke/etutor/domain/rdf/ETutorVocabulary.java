@@ -145,6 +145,39 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_TASK_GROUP = "hasTaskGroup";
     private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
+    // NF start
+    private static final String PROP_HAS_NF_BASE_ATTRIBUTES = "hasNfBaseAttributes";
+    private static final String PROP_HAS_NF_BASE_DEPENDENCIES = "hasNfBaseDependencies";
+    private static final String PROP_HAS_NF_TASK_SUBTYPE_ID = "hasNfTaskSubtypeId";
+    private static final String PROP_HAS_NF_KEYS_DETERMINATION_PENALTY_PER_MISSING_KEY = "hasNfKeysDeterminationPenaltyPerMissingKey";
+    private static final String PROP_HAS_NF_KEYS_DETERMINATION_PENALTY_PER_INCORRECT_KEY = "hasNfKeysDeterminationPenaltyPerIncorrectKey";
+    private static final String PROP_HAS_NF_ATTRIBUTE_CLOSURE_BASE_ATTRIBUTES = "hasNfAttributeClosureBaseAttributes";
+    private static final String PROP_HAS_NF_ATTRIBUTE_CLOSURE_PENALTY_PER_MISSING_ATTRIBUTES = "hasNfAttributeClosurePenaltyPerMissingAttribute";
+    private static final String PROP_HAS_NF_ATTRIBUTE_CLOSURE_PENALTY_PER_INCORRECT_ATTRIBUTES = "hasNfAttributeClosurePenaltyPerIncorrectAttribute";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_NON_CANONICAL_DEPENDENCY = "hasNfMinimalCoverPenaltyPerNonCanonicalDependency";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_TRIVIAL_DEPENDENCY = "hasNfMinimalCoverPenaltyPerTrivialDependency";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_EXTRANEOUS_ATTRIBUTE = "hasNfMinimalCoverPenaltyPerExtraneousAttribute";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_REDUNDANT_DEPENDENCY = "hasNfMinimalCoverPenaltyPerRedundantDependency";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_MISSING_DEPENDENCY_VS_SOLUTION = "hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution";
+    private static final String PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_INCORRECT_DEPENDENCY_VS_SOLUTION = "hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution";
+    private static final String PROP_HAS_NF_NORMAL_FORM_DETERMINATION_PENALTY_FOR_INCORRECT_OVERALL_NORMAL_FORM = "hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform";
+    private static final String PROP_HAS_NF_NORMAL_FORM_DETERMINATION_PENALTY_PER_INCORRECT_DEPENDENCY_NORMAL_FORM = "hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform";
+    private static final String PROP_HAS_NF_NORMALIZATION_TARGET_LEVEL = "hasNfNormalizationTargetLevel";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_MAX_LOST_DEPENDENCIES = "hasNfNormalizationMaxLostDependencies";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_LOST_ATTRIBUTE = "hasNfNormalizationPenaltyPerLostAttribute";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_FOR_LOSSY_DECOMPOSITION = "hasNfNormalizationPenaltyForLossyDecomposition";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_NON_CANONICAL_DEPENDENCY = "hasNfNormalizationPenaltyPerNonCanonicalDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_TRIVIAL_DEPENDENCY = "hasNfNormalizationPenaltyPerTrivialDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_EXTRANEOUS_ATTRIBUTE_IN_DEPENDENCIES = "hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_REDUNDANT_DEPENDENCY = "hasNfNormalizationPenaltyPerRedundantDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_EXCESSIVE_LOST_DEPENDENCY = "hasNfNormalizationPenaltyPerExcessiveLostDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_MISSING_NEW_DEPENDENCY = "hasNfNormalizationPenaltyPerMissingNewDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_NEW_DEPENDENCY = "hasNfNormalizationPenaltyPerIncorrectNewDependency";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_MISSING_KEY = "hasNfNormalizationPenaltyPerMissingKey";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_KEY = "hasNfNormalizationPenaltyPerIncorrectKey";
+    private static final String PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_NF_RELATION = "hasNfNormalizationPenaltyPerIncorrectNFRelation";
+    // NF end
+
     private static final String INSTANCE_UPLOAD_TASK = "UploadTask";
     private static final String INSTANCE_NO_TYPE = "NoType";
     private static final String INSTANCE_SQL_TASK = "SQLTask";
@@ -155,6 +188,7 @@ public final class ETutorVocabulary {
     private static final String INSTANCE_PM_TASK = "PmTask";
     private static final String INSTANCE_BPMN_TASK = "BpmnTask";
     private static final String INSTANCE_CALC_TASK = "CalcTask";
+    private static final String INSTANCE_NF_TASK = "NFTask";
 
 
 /** start apriori   */
@@ -590,6 +624,129 @@ public final class ETutorVocabulary {
      */
     public static final Property hasDatalogFacts = m.createProperty(URI+PROP_HAS_DATALOG_FACTS);
 
+    // NF start
+    /**
+     * The hasNfBaseAttributes property
+     */
+    public static final Property hasNfBaseAttributes = m.createProperty(URI + PROP_HAS_NF_BASE_ATTRIBUTES);
+    /**
+     * The hasNfBaseDependencies property
+     */
+    public static final Property hasNfBaseDependencies = m.createProperty(URI + PROP_HAS_NF_BASE_DEPENDENCIES);
+    /**
+     * The hasNfTaskSubtypeId property
+     */
+    public static final Property hasNfTaskSubtypeId = m.createProperty(URI + PROP_HAS_NF_TASK_SUBTYPE_ID);
+    /**
+     * The hasNfKeysDeterminationPenaltyPerMissingKey property
+     */
+    public static final Property hasNfKeysDeterminationPenaltyPerMissingKey = m.createProperty(URI + PROP_HAS_NF_KEYS_DETERMINATION_PENALTY_PER_MISSING_KEY);
+    /**
+     * The hasNfKeysDeterminationPenaltyPerIncorrectKey property
+     */
+    public static final Property hasNfKeysDeterminationPenaltyPerIncorrectKey = m.createProperty(URI + PROP_HAS_NF_KEYS_DETERMINATION_PENALTY_PER_INCORRECT_KEY);
+    /**
+     * The hasNfAttributeClosureBaseAttributes property
+     */
+    public static final Property hasNfAttributeClosureBaseAttributes = m.createProperty(URI + PROP_HAS_NF_ATTRIBUTE_CLOSURE_BASE_ATTRIBUTES);
+    /**
+     * The hasNfAttributeClosurePenaltyPerMissingAttribute property
+     */
+    public static final Property hasNfAttributeClosurePenaltyPerMissingAttribute = m.createProperty(URI + PROP_HAS_NF_ATTRIBUTE_CLOSURE_PENALTY_PER_MISSING_ATTRIBUTES);
+    /**
+     * The hasNfAttributeClosurePenaltyPerIncorrectAttribute property
+     */
+    public static final Property hasNfAttributeClosurePenaltyPerIncorrectAttribute = m.createProperty(URI + PROP_HAS_NF_ATTRIBUTE_CLOSURE_PENALTY_PER_INCORRECT_ATTRIBUTES);
+    /**
+     * The hasNfMinimalCoverPenaltyPerNonCanonicalDependency property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerNonCanonicalDependency = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_NON_CANONICAL_DEPENDENCY);
+    /**
+     * The hasNfMinimalCoverPenaltyPerTrivialDependency property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerTrivialDependency = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_TRIVIAL_DEPENDENCY);
+    /**
+     * The hasNfMinimalCoverPenaltyPerExtraneousAttribute property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerExtraneousAttribute = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_EXTRANEOUS_ATTRIBUTE);
+    /**
+     * The hasNfMinimalCoverPenaltyPerRedundantDependency property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerRedundantDependency = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_REDUNDANT_DEPENDENCY);
+    /**
+     * The hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_MISSING_DEPENDENCY_VS_SOLUTION);
+    /**
+     * The hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution property
+     */
+    public static final Property hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution = m.createProperty(URI + PROP_HAS_NF_MINIMAL_COVER_PENALTY_PER_INCORRECT_DEPENDENCY_VS_SOLUTION);
+    /**
+     * The hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform property
+     */
+    public static final Property hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform = m.createProperty(URI + PROP_HAS_NF_NORMAL_FORM_DETERMINATION_PENALTY_FOR_INCORRECT_OVERALL_NORMAL_FORM);
+    /**
+     * The hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform property
+     */
+    public static final Property hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform = m.createProperty(URI + PROP_HAS_NF_NORMAL_FORM_DETERMINATION_PENALTY_PER_INCORRECT_DEPENDENCY_NORMAL_FORM);
+    /**
+     * The hasNfNormalizationTargetLevel property
+     */
+    public static final Property hasNfNormalizationTargetLevel = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_TARGET_LEVEL);
+    /**
+     * The hasNfNormalizationMaxLostDependencies property
+     */
+    public static final Property hasNfNormalizationMaxLostDependencies = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_MAX_LOST_DEPENDENCIES);
+    /**
+     * The hasNfNormalizationPenaltyPerLostAttribute property
+     */
+    public static final Property hasNfNormalizationPenaltyPerLostAttribute = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_LOST_ATTRIBUTE);
+    /**
+     * The hasNfNormalizationPenaltyForLossyDecomposition property
+     */
+    public static final Property hasNfNormalizationPenaltyForLossyDecomposition = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_FOR_LOSSY_DECOMPOSITION);
+    /**
+     * The hasNfNormalizationPenaltyPerNonCanonicalDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerNonCanonicalDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_NON_CANONICAL_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerTrivialDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerTrivialDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_TRIVIAL_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies property
+     */
+    public static final Property hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_EXTRANEOUS_ATTRIBUTE_IN_DEPENDENCIES);
+    /**
+     * The hasNfNormalizationPenaltyPerRedundantDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerRedundantDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_REDUNDANT_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerExcessiveLostDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerExcessiveLostDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_EXCESSIVE_LOST_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerMissingNewDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerMissingNewDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_MISSING_NEW_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerIncorrectNewDependency property
+     */
+    public static final Property hasNfNormalizationPenaltyPerIncorrectNewDependency = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_NEW_DEPENDENCY);
+    /**
+     * The hasNfNormalizationPenaltyPerMissingKey property
+     */
+    public static final Property hasNfNormalizationPenaltyPerMissingKey = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_MISSING_KEY);
+    /**
+     * The hasNfNormalizationPenaltyPerIncorrectKey property
+     */
+    public static final Property hasNfNormalizationPenaltyPerIncorrectKey = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_KEY);
+    /**
+     * The hasNfNormalizationPenaltyPerIncorrectNFRelation property
+     */
+    public static final Property hasNfNormalizationPenaltyPerIncorrectNFRelation = m.createProperty(URI + PROP_HAS_NF_NORMALIZATION_PENALTY_PER_INCORRECT_NF_RELATION);
+    // NF end
+
     /**
      * The hasTask property.
      */
@@ -717,6 +874,13 @@ public final class ETutorVocabulary {
     public static final Resource AprioriTypeTaskGroup = m.createResource(TASK_GROUP_TYPE_TURI+INSTANCE_APRIORI_TYPE_TASK_GROUP);
 
 /** apriori end */
+
+    // NF start
+    /**
+     * The NF type instance
+     */
+    public static final Resource NfTask = m.createResource(TASK_ASSIGNMENT_TYPE_URI + INSTANCE_NF_TASK);
+    // NF end
 
     /**
      * The no type task group type
