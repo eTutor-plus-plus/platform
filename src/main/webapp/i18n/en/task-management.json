@@ -22,7 +22,7 @@
 
     "nfSyntaxInfoAttributeSet": "Attribute names must start with letters. They can contain letters, numbers and \"_\". Separate multiple attributes with commas.",
     "nfSyntaxInfoFunctionalDependencySet": "Use the attribute set syntax on either side of the functional dependency and separate both sides with \"->\" (without quotes).",
-    "nfSyntaxInfoNormalForm": "Please enter (without quotes) \"1NF\", \"2NF\", \"3NF\" or \"BCNF\".",
+    "nfSyntaxInfoNormalForm": "Enter (without quotes) \"1NF\", \"2NF\", \"3NF\" or \"BCNF\".",
 
     "textAprioriLinks": {
       "create": "Create new Apriori-Dataset",
