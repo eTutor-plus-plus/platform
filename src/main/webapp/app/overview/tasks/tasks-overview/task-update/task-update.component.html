@@ -500,6 +500,15 @@
         id="nfBaseRelationAttributes"
         formControlName="nfBaseRelationAttributes"
       />
+      <div *ngIf="updateForm.get('nfBaseRelationAttributes')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('nfBaseRelationAttributes')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
 
       <label class="form-control-label" for="nfBaseRelationDependencies" jhiTranslate="taskManagement.fields.baseRelationDependencies">
         Functional dependencies of base relation:
@@ -516,6 +525,15 @@
         id="nfBaseRelationDependencies"
         formControlName="nfBaseRelationDependencies"
       />
+      <div *ngIf="updateForm.get('nfBaseRelationDependencies')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('nfBaseRelationDependencies')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
 
       <label class="form-control-label" for="nfTaskSubtype" jhiTranslate="taskManagement.fields.nfTaskSubtype">NF task subtype:</label>
       <select
@@ -580,6 +598,15 @@
           id="nfAttributeClosureBaseAttributes"
           formControlName="nfAttributeClosureBaseAttributes"
         />
+        <div *ngIf="updateForm.get('nfAttributeClosureBaseAttributes')!.invalid">
+          <small
+            class="form-text text-danger"
+            *ngIf="updateForm.get('nfAttributeClosureBaseAttributes')?.errors?.required"
+            jhiTranslate="taskManagement.error.required"
+          >
+            This field is required!
+          </small>
+        </div>
 
         <label
           class="form-control-label"
@@ -768,6 +795,15 @@
           id="nfNormalizationTargetLevel"
           formControlName="nfNormalizationTargetLevel"
         />
+        <div *ngIf="updateForm.get('nfNormalizationTargetLevel')!.invalid">
+          <small
+            class="form-text text-danger"
+            *ngIf="updateForm.get('nfNormalizationTargetLevel')?.errors?.required"
+            jhiTranslate="taskManagement.error.required"
+          >
+            This field is required!
+          </small>
+        </div>
 
         <label
           class="form-control-label"

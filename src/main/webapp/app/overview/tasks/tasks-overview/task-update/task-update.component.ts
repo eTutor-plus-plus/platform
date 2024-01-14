@@ -726,7 +726,7 @@ export class TaskUpdateComponent implements OnInit {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.NfTask.value) {
-      this.setMaxPointsRequired();
+      this.setNFValidators();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -1039,6 +1039,14 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.get('minLogSize')!.clearValidators();
     this.updateForm.get('minLogSize')!.updateValueAndValidity();
+    this.updateForm.get('nfBaseRelationAttributes')!.clearValidators();
+    this.updateForm.get('nfBaseRelationAttributes')!.updateValueAndValidity();
+    this.updateForm.get('nfBaseRelationDependencies')!.clearValidators();
+    this.updateForm.get('nfBaseRelationDependencies')!.updateValueAndValidity();
+    this.updateForm.get('nfAttributeClosureBaseAttributes')!.clearValidators();
+    this.updateForm.get('nfAttributeClosureBaseAttributes')!.updateValueAndValidity();
+    this.updateForm.get('nfNormalizationTargetLevel')!.clearValidators();
+    this.updateForm.get('nfNormalizationTargetLevel')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
@@ -1079,6 +1087,15 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('minLogSize')!.updateValueAndValidity();
     this.updateForm.get('configNum')!.setValidators(Validators.required);
     this.updateForm.get('configNum')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setNFValidators() {
+    this.setMaxPointsRequired();
+    this.updateForm.get('nfBaseRelationAttributes')!.setValidators(Validators.required);
+    this.updateForm.get('nfBaseRelationDependencies')!.setValidators(Validators.required);
+    this.updateForm.get('nfAttributeClosureBaseAttributes')!.setValidators(Validators.required);
+    this.updateForm.get('nfNormalizationTargetLevel')!.setValidators(Validators.required);
     this.updateForm.updateValueAndValidity();
   }
 
