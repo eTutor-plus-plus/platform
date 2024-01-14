@@ -245,45 +245,100 @@ export interface INewTaskModel {
   // Normal form determination
 
   /**
-   * NF-specific variable: Number of points deducted for an incorrect total normalform in a normalform determination
+   * NF-specific variable: Number of points deducted for an incorrect total normal form in a normal form determination
    * task
    */
   nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform?: number;
 
   /**
-   * NF-specific variable: Number of points deducted per incorrectly determined normalform of a functional dependency in
-   * a normalform determination task
+   * NF-specific variable: Number of points deducted per incorrectly determined normal form of a functional dependency
+   * in a normal form determination task
    */
   nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform?: number;
 
   // Normalization
 
+  /**
+   * NF-specific variable: The minimum normal form level which the resulting relations must have in a normalization
+   * task
+   */
   nfNormalizationTargetLevel?: string;
 
+  /**
+   * NF-specific variable: The maximum number of functional dependencies that is permitted to be lost in the
+   * decomposition process before points are deducted in a normalization task
+   */
   nfNormalizationMaxLostDependencies?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every attribute of the base relation that is not present in any of the
+   * resulting relations in a normalization task
+   */
   nfNormalizationPenaltyPerLostAttribute?: number;
 
+  /**
+   * NF-specific variable: Points deducted if the resulting relations cannot be re-combined into the base relation in
+   * a normalization task
+   */
   nfNormalizationPenaltyForLossyDecomposition?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every non-canonical functional dependency in a resulting relation in
+   * a normalization task
+   */
   nfNormalizationPenaltyPerNonCanonicalDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every trivial functional dependency in a resulting relation in
+   * a normalization task
+   */
   nfNormalizationPenaltyPerTrivialDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every extraneous attribute on the left-hand side of a functional
+   * dependency in a resulting relation in a normalization task
+   */
   nfNormalizationPenaltyPerExtraneousAttributeInDependencies?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every redundant functional dependency in a resulting relation in
+   * a normalization task
+   */
   nfNormalizationPenaltyPerRedundantDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that was lost during the decomposition
+   * process and exceeds the maximum permitted number of lost functional dependencies in a normalization task
+   */
   nfNormalizationPenaltyPerExcessiveLostDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that would have to exist in a resulting
+   * relation due to the decomposition process but does not in a normalization task
+   */
   nfNormalizationPenaltyPerMissingNewDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that exists in a resulting relation, even
+   * though it is not supposed to (due to the decomposition process, more specifically the RBR algorithm) in a
+   * normalization task
+   */
   nfNormalizationPenaltyPerIncorrectNewDependency?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every missing key in a resulting relation in a normalization task
+   */
   nfNormalizationPenaltyPerMissingKey?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every incorrect key in a resulting relation in a normalization task
+   */
   nfNormalizationPenaltyPerIncorrectKey?: number;
 
+  /**
+   * NF-specific variable: Points deducted for every resulting relation that does not match or exceed the required
+   * normal form in a normalization task
+   */
   nfNormalizationPenaltyPerIncorrectNFRelation?: number;
   // NF end
 }

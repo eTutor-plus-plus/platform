@@ -59,7 +59,6 @@ public class NewTaskAssignmentDTO {
     private String bpmnTestConfig;
 
     // NF start
-
     /**
      * NF-specific variable: attributes of base relation
      */
@@ -70,72 +69,173 @@ public class NewTaskAssignmentDTO {
      */
     private String nfBaseDependencies;
 
+    /**
+     * NF-specific variable: the id of the NF task subtype
+     */
     private String nfTaskSubtypeId;
 
     // Keys determination
 
+    /**
+     * NF-specific variable: Number of points deducted per missing key in a keys determination task
+     */
     private int nfKeysDeterminationPenaltyPerMissingKey;
 
+    /**
+     * NF-specific variable: Number of points deducted per incorrect key in a keys determination task
+     */
     private int nfKeysDeterminationPenaltyPerIncorrectKey;
 
     // Attribute closure
 
+    /**
+     * NF-specific variable: base attributes for closure in an attribute closure task
+     */
     private String nfAttributeClosureBaseAttributes;
 
+    /**
+     * NF-specific variable: Number of points deducted per missing attribute an attribute closure task
+     */
     private int nfAttributeClosurePenaltyPerMissingAttribute;
 
+    /**
+     * NF-specific variable: Number of points deducted per incorrect attribute in an attribute closure task
+     */
     private int nfAttributeClosurePenaltyPerIncorrectAttribute;
 
     // Minimal cover
 
+    /**
+     * NF-specific variable: Number of points deducted per non-canonical functional dependency in a minimal cover task
+     */
     private int nfMinimalCoverPenaltyPerNonCanonicalDependency;
 
+    /**
+     * NF-specific variable: Number of points deducted per trivial functional dependency in a minimal cover task
+     */
     private int nfMinimalCoverPenaltyPerTrivialDependency;
 
+    /**
+     * NF-specific variable: Number of points deducted per extraneous attribute on the left-hand side of a functional
+     * dependency in a minimal cover task
+     */
     private int nfMinimalCoverPenaltyPerExtraneousAttribute;
 
+    /**
+     * NF-specific variable: Number of points deducted per redundant functional dependency in a minimal cover task
+     */
     private int nfMinimalCoverPenaltyPerRedundantDependency;
 
+    /**
+     * NF-specific variable: Number of points deducted per missing functional dependency in a minimal cover task
+     * (compared to the correct solution)
+     */
     private int nfMinimalCoverPenaltyPerMissingDependencyVsSolution;
 
+    /**
+     * NF-specific variable: Number of points deducted per incorrect functional dependency in a minimal cover task
+     * (compared to the correct solution)
+     */
     private int nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution;
 
     // Normal form determination
 
+    /**
+     * NF-specific variable: Number of points deducted for an incorrect total normal form in a normal form determination
+     * task
+     */
     private int nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform;
 
+    /**
+     * NF-specific variable: Number of points deducted per incorrectly determined normal form of a functional dependency
+     * in a normal form determination task
+     */
     private int nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform;
 
     // Normalization
 
+    /**
+     * NF-specific variable: The minimum normal form level which the resulting relations must have in a normalization
+     * task
+     */
     private String nfNormalizationTargetLevel;
 
+    /**
+     * NF-specific variable: The maximum number of functional dependencies that is permitted to be lost in the
+     * decomposition process before points are deducted in a normalization task
+     */
     private int nfNormalizationMaxLostDependencies;
 
+    /**
+     * NF-specific variable: Points deducted for every attribute of the base relation that is not present in any of the
+     * resulting relations in a normalization task
+     */
     private int nfNormalizationPenaltyPerLostAttribute;
 
+    /**
+     * NF-specific variable: Points deducted if the resulting relations cannot be re-combined into the base relation in
+     * a normalization task
+     */
     private int nfNormalizationPenaltyForLossyDecomposition;
 
+    /**
+     * NF-specific variable: Points deducted for every non-canonical functional dependency in a resulting relation in
+     * a normalization task
+     */
     private int nfNormalizationPenaltyPerNonCanonicalDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every trivial functional dependency in a resulting relation in
+     * a normalization task
+     */
     private int nfNormalizationPenaltyPerTrivialDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every extraneous attribute on the left-hand side of a functional
+     * dependency in a resulting relation in a normalization task
+     */
     private int nfNormalizationPenaltyPerExtraneousAttributeInDependencies;
 
+    /**
+     * NF-specific variable: Points deducted for every redundant functional dependency in a resulting relation in
+     * a normalization task
+     */
     private int nfNormalizationPenaltyPerRedundantDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every functional dependency that was lost during the decomposition
+     * process and exceeds the maximum permitted number of lost functional dependencies in a normalization task
+     */
     private int nfNormalizationPenaltyPerExcessiveLostDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every functional dependency that would have to exist in a resulting
+     * relation due to the decomposition process but does not in a normalization task
+     */
     private int nfNormalizationPenaltyPerMissingNewDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every functional dependency that exists in a resulting relation, even
+     * though it is not supposed to (due to the decomposition process, more specifically the RBR algorithm) in a
+     * normalization task
+     */
     private int nfNormalizationPenaltyPerIncorrectNewDependency;
 
+    /**
+     * NF-specific variable: Points deducted for every missing key in a resulting relation in a normalization task
+     */
     private int nfNormalizationPenaltyPerMissingKey;
 
+    /**
+     * NF-specific variable: Points deducted for every incorrect key in a resulting relation in a normalization task
+     */
     private int nfNormalizationPenaltyPerIncorrectKey;
 
+    /**
+     * NF-specific variable: Points deducted for every resulting relation that does not match or exceed the required
+     * normal form in a normalization task
+     */
     private int nfNormalizationPenaltyPerIncorrectNFRelation;
-
     // NF end
 
     @NotBlank

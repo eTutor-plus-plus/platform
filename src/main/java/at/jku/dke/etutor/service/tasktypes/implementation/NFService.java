@@ -12,6 +12,9 @@ import at.jku.dke.etutor.service.tasktypes.TaskTypeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for handling the nf-type specific exercise management
+ */
 @Service
 public class NFService implements TaskTypeService {
 
@@ -21,6 +24,13 @@ public class NFService implements TaskTypeService {
         this.nfClient = nfClient;
     }
 
+    /**
+     * Creates a new exercise from the supplied <code>NewTaskAssignmentDTO</code>. If no assignment text is specified,
+     * an auto-generated one is requested from the dispatcher.
+     * @param newTaskAssignmentDTO The <code>NewTaskAssignmentDTO</code> with the content of the new exercise
+     * @throws TaskTypeSpecificOperationFailedException If the creation of the exercise failed
+     * @throws NotAValidTaskGroupException Never, because the NF module currently does not support task groups.
+     */
     @Override
     public void createTask(NewTaskAssignmentDTO newTaskAssignmentDTO) throws TaskTypeSpecificOperationFailedException, NotAValidTaskGroupException {
         try{
@@ -42,6 +52,11 @@ public class NFService implements TaskTypeService {
         }
     }
 
+    /**
+     * Replaces the specified exercise with one specified in the supplied <code>TaskAssignmentDTO</code>.
+     * @param taskAssignmentDTO The <code>TaskAssignmentDTO</code> whose content is to replace the existing exercise
+     * @throws TaskTypeSpecificOperationFailedException If the replacement of the exercise failed
+     */
     @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         try{
@@ -54,6 +69,11 @@ public class NFService implements TaskTypeService {
         }
     }
 
+    /**
+     * Deletes the exercise with the specified id.
+     * @param taskAssignmentDTO The <code>TaskAssignmentDTO</code> describing the exercise to be deleted
+     * @throws TaskTypeSpecificOperationFailedException If the deletion of the exercise failed
+     */
     @Override
     public void deleteTask(TaskAssignmentDTO taskAssignmentDTO) throws TaskTypeSpecificOperationFailedException {
         try{
@@ -64,6 +84,11 @@ public class NFService implements TaskTypeService {
         }
     }
 
+    /**
+     * Converts the supplied <code>NewTaskAssignmentDTO</code> into an <code>NFExerciseDTO</code>.
+     * @param taskAssignmentDTO The <code>NewTaskAssignmentDTO</code> to be converted into an <code>NFExerciseDTO</code>
+     * @return The <code>NFExerciseDTO</code> generated from the supplied <code>NewTaskAssignmentDTO</code>
+     */
     private NFExerciseDTO convertToNfExerciseDTO(NewTaskAssignmentDTO taskAssignmentDTO) {
         NFExerciseDTO nfExerciseDTO = new NFExerciseDTO();
 
