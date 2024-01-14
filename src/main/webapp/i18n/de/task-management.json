@@ -20,6 +20,10 @@
 
     "datasetInfo": "Wenn sie ein neues Data set oder eine neue Aufgbenkonfiguration erstellen  möchten oder eine vorhandene Aufgabenkonfiguration verwenden möchten, drücken sie bitte die entsprechenden Schaltflächen. Die ID der Aufganebkonfiguration muss aus der Apriori-Extension in das entsprechnde Eingabefeld kopiert werden.",
 
+    "nfSyntaxInfoAttributeSet": "Attributnamen müssen mit Buchstaben beginnen. Sie können Buchstaben, Ziffern und \"_\" enthalten. Trennen Sie mehrere Attribute mit Beistrichen.",
+    "nfSyntaxInfoFunctionalDependencySet": "Nutzen Sie die Syntax für Attributmengen auf beiden Seiten der funktionalen Abhängigkeit und trennen Sie beide Seiten mit \"->\" (ohne Anführungszeichen).",
+    "nfSyntaxInfoNormalForm": "Geben Sie (ohne Anführungszeichen) \"1NF\", \"2NF\", \"3NF\" oder \"BCNF\" ein.",
+
     "textAprioriLinks": {
       "create": "Neuen Apriori-Datensatz erzeugen",
       "stored": "vorhandenen Apriori-Datensatz auswählen",

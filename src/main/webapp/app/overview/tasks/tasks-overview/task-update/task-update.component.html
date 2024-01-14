@@ -492,6 +492,7 @@
       <label class="form-control-label" for="nfBaseRelationAttributes" jhiTranslate="taskManagement.fields.baseRelationAttributes">
         Attributes of base relation:
       </label>
+      <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.nfSyntaxInfoAttributeSet' | translate }}" placement="right"></fa-icon>
       <input
         type="text"
         class="form-control"
@@ -503,6 +504,11 @@
       <label class="form-control-label" for="nfBaseRelationDependencies" jhiTranslate="taskManagement.fields.baseRelationDependencies">
         Functional dependencies of base relation:
       </label>
+      <fa-icon
+        icon="info-circle"
+        ngbTooltip="{{ 'taskManagement.nfSyntaxInfoFunctionalDependencySet' | translate }}"
+        placement="right"
+      ></fa-icon>
       <input
         type="text"
         class="form-control"
@@ -566,6 +572,7 @@
         >
           Base attributes for attribute closure:
         </label>
+        <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.nfSyntaxInfoAttributeSet' | translate }}" placement="right"></fa-icon>
         <input
           type="text"
           class="form-control"
@@ -753,6 +760,7 @@
         <label class="form-control-label" for="nfNormalizationTargetLevel" jhiTranslate="taskManagement.fields.nfNormalizationTargetLevel">
           Target normal form:
         </label>
+        <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.nfSyntaxInfoNormalForm' | translate }}" placement="right"></fa-icon>
         <input
           type="text"
           class="form-control"
