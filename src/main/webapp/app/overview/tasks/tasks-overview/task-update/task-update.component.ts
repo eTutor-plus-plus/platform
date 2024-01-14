@@ -1090,14 +1090,24 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.updateValueAndValidity();
   }
 
+  // NF start
   private setNFValidators() {
     this.setMaxPointsRequired();
     this.updateForm.get('nfBaseRelationAttributes')!.setValidators(Validators.required);
     this.updateForm.get('nfBaseRelationDependencies')!.setValidators(Validators.required);
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setNFAttributeClosureBaseAttributesRequired() {
     this.updateForm.get('nfAttributeClosureBaseAttributes')!.setValidators(Validators.required);
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setNFNormalizationTargetLevelRequired() {
     this.updateForm.get('nfNormalizationTargetLevel')!.setValidators(Validators.required);
     this.updateForm.updateValueAndValidity();
   }
+  // NF end
 
   /**
    * for creating initial parameter for apriori task creation
@@ -1137,6 +1147,22 @@ export class TaskUpdateComponent implements OnInit {
    */
   public nfTaskSubtypeChanged() {
     this.selectedNfTaskSubtype = (this.updateForm.get(['nfTaskSubtype'])!.value as NFTaskSubtype).value;
+
+    if (this.selectedNfTaskSubtype === NFTaskSubtype.AttributeClosureTask.value) {
+      this.setNFAttributeClosureBaseAttributesRequired();
+    } else {
+      this.updateForm.get('nfAttributeClosureBaseAttributes')!.clearValidators();
+      this.updateForm.get('nfAttributeClosureBaseAttributes')!.updateValueAndValidity();
+    }
+
+    if (this.selectedNfTaskSubtype === NFTaskSubtype.NormalizationTask.value) {
+      this.setNFNormalizationTargetLevelRequired();
+    } else {
+      this.updateForm.get('nfNormalizationTargetLevel')!.clearValidators();
+      this.updateForm.get('nfNormalizationTargetLevel')!.updateValueAndValidity();
+    }
+
+    this.updateForm.updateValueAndValidity();
   }
   protected readonly NFTaskSubtype = NFTaskSubtype;
   // NF end
