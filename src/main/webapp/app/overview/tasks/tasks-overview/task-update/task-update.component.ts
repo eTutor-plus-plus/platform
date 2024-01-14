@@ -43,7 +43,7 @@ export class TaskUpdateComponent implements OnInit {
 
   // NF start
   public readonly nfTaskSubtypes = NFTaskSubtype.Values;
-  public selectedNfTaskSubtype = '';
+  public selectedNfTaskSubtype = this.nfTaskSubtypes[0].value;
   // NF end
 
   public readonly updateForm = this.fb.group({
@@ -1132,6 +1132,9 @@ export class TaskUpdateComponent implements OnInit {
   /** apriori end */
 
   // NF start
+  /**
+   * Reacts when the NF task subtype is changed in the form
+   */
   public nfTaskSubtypeChanged() {
     this.selectedNfTaskSubtype = (this.updateForm.get(['nfTaskSubtype'])!.value as NFTaskSubtype).value;
   }
