@@ -37,6 +37,9 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
             HttpRequest putRequest = getPutRequestWithBody(BASE_URL, objectWriter.writeValueAsString(exerciseDTO));
             ResponseEntity<String> response = Objects.requireNonNull(sendRequest(putRequest, stringHandler));
             String responseBody = Objects.requireNonNull(response.getBody());
+            if(response.getStatusCodeValue() != 200) {
+                throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
+            }
             return Integer.parseInt(responseBody);
         } catch (JsonProcessingException j) {
             throw new DispatcherRequestFailedException("Could not serialize NF exercise because : " + j);
@@ -55,9 +58,10 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
         ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {
             HttpRequest postRequest = getPostRequestWithBody(BASE_URL + "/" + id, objectWriter.writeValueAsString(exerciseDTO)).build();
-            String response = Objects.requireNonNull(sendRequest(postRequest, stringHandler).getBody());
-            if(!Boolean.parseBoolean(response)) {
-                throw new DispatcherRequestFailedException("Could not modify NF exercise.");
+            ResponseEntity<String> response = Objects.requireNonNull(sendRequest(postRequest, stringHandler));
+            String responseBody = Objects.requireNonNull(response.getBody());
+            if(response.getStatusCodeValue() != 200) {
+                throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
             }
         } catch (JsonProcessingException j) {
             throw new DispatcherRequestFailedException("Could not serialize NF exercise because : " + j);
@@ -71,9 +75,10 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
      */
     public void deleteExercise(int id) throws DispatcherRequestFailedException {
         HttpRequest deleteRequest = getDeleteRequest(BASE_URL + "/" + id);
-        String response = Objects.requireNonNull(sendRequest(deleteRequest, stringHandler).getBody());
-        if(!Boolean.parseBoolean(response)) {
-            throw new DispatcherRequestFailedException("Could not delete NF exercise.");
+        ResponseEntity<String> response = Objects.requireNonNull(sendRequest(deleteRequest, stringHandler));
+        String responseBody = Objects.requireNonNull(response.getBody());
+        if(response.getStatusCodeValue() != 200) {
+            throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
         }
     }
 
