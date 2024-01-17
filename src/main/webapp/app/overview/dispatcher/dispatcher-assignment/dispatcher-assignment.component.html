@@ -53,6 +53,7 @@
       [(ngModel)]="submission"
     ></ngx-monaco-editor>
   </div>
+
   <div *ngIf="showSubmitButton">
     <form class="add-form" (ngSubmit)="processSubmission('submit')">
       <input type="submit" value="Submit" class="btn btn-block" />
@@ -65,7 +66,7 @@
     </form>
   </div>
 
-  <div>
+  <div *ngIf="!isDroolsTask">
     <strong>
       <label *ngIf="gradingReceived && !hasErrors" jhiTranslate="dispatcherAssignment.assignment.congratulation"
         >Congratulation, your solution is correct!</label
@@ -73,6 +74,16 @@
       <label *ngIf="gradingReceived && hasErrors" jhiTranslate="dispatcherAssignment.assignment.notCorrect"
         >Your solution is not correct!</label
       >
+    </strong>
+  </div>
+  <div *ngIf="isDroolsTask">
+    <strong>
+      <label *ngIf="gradingReceived && !hasErrors" jhiTranslate="dispatcherAssignment.assignment.congratulation"
+        >Congratulation, your solution is correct!</label
+      >
+      <label *ngIf="gradingReceived && hasErrors" jhiTranslate="dispatcherAssignment.assignment.notCorrectDrools"
+        >Your solution is not entirely correct!
+      </label>
     </strong>
   </div>
 

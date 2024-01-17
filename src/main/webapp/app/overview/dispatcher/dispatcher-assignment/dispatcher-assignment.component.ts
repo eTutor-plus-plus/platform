@@ -101,6 +101,8 @@ export class DispatcherAssignmentComponent {
   public isXQueryTask = false;
   public isDatalogTask = false;
   public isBpmnTask = false;
+  public isDroolsTask = false;
+  public isLoading = false;
 
   /**
    *
@@ -133,6 +135,8 @@ export class DispatcherAssignmentComponent {
    *
    */
   public processSubmission(action = 'diagnose'): void {
+    this.isLoading = true;
+    console.log('is loading');
     if (this.diagnoseLevels.includes(this.diagnoseLevelText)) {
       const confirmedByUser = this.alertUserAboutPossibleDeductionsForDiagnoseLevel(action);
       if (!confirmedByUser) {
@@ -150,6 +154,7 @@ export class DispatcherAssignmentComponent {
       this.submissionDto.submissionId = submissionId.submissionId;
       this.getGrading();
     });
+    this.isLoading = false;
   }
 
   public switchEditorMode(): void {
@@ -217,6 +222,7 @@ export class DispatcherAssignmentComponent {
     this.isXQueryTask = this._task_type === TaskAssignmentType.XQueryTask.value;
     this.isDatalogTask = this._task_type === TaskAssignmentType.DatalogTask.value;
     this.isBpmnTask = this._task_type === TaskAssignmentType.BpmnTask.value;
+    this.isDroolsTask = this._task_type === TaskAssignmentType.DroolsTask.value;
   }
 
   private alertUserAboutPossibleDeductionsForDiagnoseLevel(action: string): boolean {

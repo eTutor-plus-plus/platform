@@ -2,6 +2,7 @@ package at.jku.dke.etutor.service.client.dke;
 
 import at.jku.dke.etutor.config.ApplicationProperties;
 import at.jku.dke.etutor.objects.dispatcher.drools.DroolsTaskDTO;
+import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.exception.DispatcherRequestFailedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
@@ -37,30 +38,34 @@ public non-sealed class DroolsClient extends AbstractDispatcherClient {
         }
     }
 
-
     /**
      * Sends the request to delete a task to the dispatcher
      *
      * @param id the task-id
      */
     public void deleteDroolsExercise(int id) throws DispatcherRequestFailedException {
-        var request = getDeleteRequest("/drools/task/deleteTask"+id);
+        var request = getDeleteRequest("/drools/task/deleteTask/"+id);
         sendRequest(request, stringHandler, 200);
     }
 
-    // Method called by controller returns response entity
-    public ResponseEntity<String> getHTMLTableForSQL(String tableName, int connId, int exerciseId, String taskGroup) throws DispatcherRequestFailedException {
-        String url = "/sql/table/"+encodeValue(tableName);
-        // Table names are only unique in the namespace of a task group, which can be identified in the dispatcher by the connection-id, the exercise-id, or the taskgroup-name
-        if(connId != -1){
-            url += "?connId="+connId;
-        } else if(exerciseId != -1){
-            url += "?exerciseId="+exerciseId;
-        }else if(!taskGroup.equalsIgnoreCase("")){
-            url+="?taskGroup="+taskGroup;
-        }
-        var request = getGetRequest(url);
+    public void updateDroolsExercise(TaskAssignmentDTO taskAssignmentDTO) throws DispatcherRequestFailedException {
+        String id = taskAssignmentDTO.getTaskIdForDispatcher();
+        String solution = taskAssignmentDTO.getDroolsSolution();
+        int maxPoints = Integer.parseInt(taskAssignmentDTO.getMaxPoints());
+        String classes = taskAssignmentDTO.getDroolsClasses();
+        String objects = taskAssignmentDTO.getDroolsObjects();
+        int errorWeighting = taskAssignmentDTO.getDroolsErrorWeighting();
+        String validationClassname = taskAssignmentDTO.getDroolsValidationClassname();
 
-        return sendRequest(request, stringHandler, 200);
+        var droolsTaskDTO = new DroolsTaskDTO(solution, maxPoints, classes, objects, errorWeighting, validationClassname);
+        HttpRequest request = null;
+        try{
+            request = getPutRequestWithBody("/drools/task/updateTask/"+id, serialize(droolsTaskDTO));
+            sendRequest(request, stringHandler, 200);
+        }catch (JsonProcessingException e) {
+            throw new DispatcherRequestFailedException("Could not serialize the exercise");
+        }
+
     }
+
 }

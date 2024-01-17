@@ -81,14 +81,23 @@ public class DroolsService implements TaskTypeService {
      */
     @Override
     public void updateTask(TaskAssignmentDTO taskAssignmentDTO) throws MissingParameterException, DispatcherRequestFailedException {
-        if(StringUtils.isNotBlank(taskAssignmentDTO.getSqlSolution())){
-            String solution = taskAssignmentDTO.getSqlSolution();
-            int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
-//            droolsClient.updateSQLExerciseSolution(id, solution);
-            //TODO: update Task machen Knogler
-        }else{
-            throw new MissingParameterException("Drools solution is missing");
+        Objects.requireNonNull(taskAssignmentDTO);
+        if(!taskAssignmentDTO.getTaskAssignmentTypeId().equals(ETutorVocabulary.DroolsTask.toString()))
+            return;
+
+        if (StringUtils.isBlank(taskAssignmentDTO.getDroolsSolution())) {
+            throw new MissingParameterException("The task solution is not set");
         }
+
+        if (StringUtils.isBlank(taskAssignmentDTO.getDroolsClasses())) {
+            throw new MissingParameterException("No classes set for this task");
+        }
+
+        if (StringUtils.isBlank(taskAssignmentDTO.getDroolsObjects())) {
+            throw new MissingParameterException("No objects set for this task");
+        }
+        droolsClient.updateDroolsExercise(taskAssignmentDTO);
+
     }
 
     /**

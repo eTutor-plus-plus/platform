@@ -3,6 +3,7 @@
     "assignment": {
       "congratulation": "Glückwunsch, Ihre Lösung ist korrekt!",
       "notCorrect": "Ihre Lösung ist leider nicht korrekt!",
+      "notCorrectDrools": "Ihre Lösung ist leider nicht vollständig korrekt!",
       "diagnoseLevelPlaceholder": "Wählen Sie das Feedback-Level:",
       "yourSolution": "Ihre Lösung:",
       "yourAlphaSolution": "Ihre Lösung für den Alpha Algorithmus:",

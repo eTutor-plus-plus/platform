@@ -329,7 +329,7 @@ export class TaskUpdateComponent implements OnInit {
         startTime: newTask.startTime,
         endTime: newTask.endTime,
         droolsSolution: newTask.droolsSolution,
-        droolsClasses: newTask.droolsSolution,
+        droolsClasses: newTask.droolsClasses,
         droolsObjects: newTask.droolsObjects,
         droolsErrorWeighting: newTask.droolsErrorWeighting,
         droolsValidationClassname: newTask.droolsValidationClassname,
