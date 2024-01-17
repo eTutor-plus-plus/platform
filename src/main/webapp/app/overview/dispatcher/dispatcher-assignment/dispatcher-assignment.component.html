@@ -66,7 +66,7 @@
     </form>
   </div>
 
-  <div *ngIf="!isDroolsTask">
+  <div>
     <strong>
       <label *ngIf="gradingReceived && !hasErrors" jhiTranslate="dispatcherAssignment.assignment.congratulation"
         >Congratulation, your solution is correct!</label
@@ -74,16 +74,6 @@
       <label *ngIf="gradingReceived && hasErrors" jhiTranslate="dispatcherAssignment.assignment.notCorrect"
         >Your solution is not correct!</label
       >
-    </strong>
-  </div>
-  <div *ngIf="isDroolsTask">
-    <strong>
-      <label *ngIf="gradingReceived && !hasErrors" jhiTranslate="dispatcherAssignment.assignment.congratulation"
-        >Congratulation, your solution is correct!</label
-      >
-      <label *ngIf="gradingReceived && hasErrors" jhiTranslate="dispatcherAssignment.assignment.notCorrectDrools"
-        >Your solution is not entirely correct!
-      </label>
     </strong>
   </div>
 
