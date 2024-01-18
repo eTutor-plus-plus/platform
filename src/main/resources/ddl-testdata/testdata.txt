@@ -1,0 +1,214 @@
+Musterlösung:
+
+DDL-Statement:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT NULL,
+    Geburtsdatum DATE
+);
+
+CREATE TABLE Bücher (
+    BuchID INTEGER PRIMARY KEY,
+    Titel VARCHAR(100) NOT NULL,
+    AutorID INTEGER,
+    Veröffentlichungsjahr INTEGER,
+    ISBN VARCHAR(13) UNIQUE,
+    Verfügbar BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (AutorID) REFERENCES Autoren(AutorID) ON DELETE CASCADE
+);
+
+CREATE TABLE Ausleihen (
+    AusleihID INTEGER PRIMARY KEY,
+    BuchID INTEGER,
+    Ausleihdatum DATE NOT NULL,
+    Rückgabedatum DATE,
+    CHECK (Rückgabedatum IS NULL OR Rückgabedatum >= Ausleihdatum),
+    FOREIGN KEY (BuchID) REFERENCES Bücher(BuchID) ON DELETE SET NULL
+);
+
+CREATE TABLE Person (
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50),
+    Geburtsdatum DATE,
+    AusleihID INTEGER DEFAULT NULL,
+    PRIMARY KEY(Nachname, Geburtsdatum),
+    FOREIGN KEY (AusleihID) REFERENCES Ausleihen(AusleihID) ON DELETE SET NULL
+);
+
+Insert-Statements:
+INSERT INTO Autoren (AutorID, Vorname, Nachname, Geburtsdatum) VALUES (1, 'John', 'Doe', '1980-01-15');
+INSERT INTO Autoren (AutorID, Vorname, Nachname, Geburtsdatum) VALUES (2, 'Jane', 'Smith', '1975-05-22');
+
+INSERT INTO Bücher (BuchID, Titel, AutorID, Veröffentlichungsjahr, ISBN) VALUES (1, 'Das Buch 1', 1, 2020, '1234567890123');
+INSERT INTO Bücher (BuchID, Titel, AutorID, Veröffentlichungsjahr, ISBN) VALUES (2, 'Das Buch 2', 2, 2015, '2345678901234');
+INSERT INTO Bücher (BuchID, Titel, AutorID, Veröffentlichungsjahr, ISBN) VALUES (3, 'Das Buch 3', 2, 2023, '7456123587895');
+
+INSERT INTO Ausleihen (AusleihID, BuchID, Ausleihdatum, Rückgabedatum) VALUES (1, 1, '2023-01-01', '2023-02-01');
+INSERT INTO Ausleihen (AusleihID, BuchID, Ausleihdatum, Rückgabedatum) VALUES (2, 2, '2023-03-01', NULL);
+INSERT INTO Ausleihen (AusleihID, BuchID, Ausleihdatum, Rückgabedatum) VALUES (3, 2, '2023-03-01', '2023-02-01');
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Syntax-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT,
+    Geburtsdatum DATE
+);
+
+
+Tabellen-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT NULL,
+    Geburtsdatum DATE
+);
+
+
+Spalten-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Nachname VARCHAR(100) NOT NULL,
+    Geburtsdatum VARCHAR(50)
+);
+
+CREATE TABLE Bücher (
+    BuchID INTEGER PRIMARY KEY,
+    Titel VARCHAR(100),
+    AutorID INTEGER,
+    Veröffentlichungsjahr INTEGER,
+    ISBN VARCHAR(13) UNIQUE NOT NULL,
+    Verfügbar BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (AutorID) REFERENCES Autoren(AutorID) ON DELETE CASCADE
+);
+
+CREATE TABLE Ausleihen (
+    AusleihID INTEGER PRIMARY KEY,
+    BuchID INTEGER,
+    Ausleihdatum DATE NOT NULL,
+    Rückgabedatum DATE,
+    FOREIGN KEY (BuchID) REFERENCES Bücher(BuchID) ON DELETE SET NULL
+);
+
+CREATE TABLE Person (
+    Nachname INTEGER,
+    SVNR VARCHAR(10),
+    Geburtsdatum DATE DEFAULT '1980-01-15',
+    AusleihID INTEGER DEFAULT 1,
+    PRIMARY KEY(Nachname, Geburtsdatum),
+    FOREIGN KEY (AusleihID) REFERENCES Ausleihen(AusleihID) ON DELETE SET NULL
+);
+
+
+Primärschlüssel-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT NULL,
+    Geburtsdatum DATE
+);
+
+CREATE TABLE Bücher (
+    BuchID INTEGER PRIMARY KEY,
+    Titel VARCHAR(100) NOT NULL,
+    AutorID INTEGER,
+    Veröffentlichungsjahr INTEGER,
+    ISBN VARCHAR(13) UNIQUE,
+    Verfügbar BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (AutorID) REFERENCES Autoren(AutorID) ON DELETE CASCADE
+);
+
+CREATE TABLE Ausleihen (
+    AusleihID INTEGER UNIQUE,
+    BuchID INTEGER,
+    Ausleihdatum DATE NOT NULL,
+    Rückgabedatum DATE,
+    PRIMARY KEY(AusleihID, BuchID),
+    FOREIGN KEY (BuchID) REFERENCES Bücher(BuchID) ON DELETE SET NULL
+);
+
+CREATE TABLE Person (
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) PRIMARY KEY,
+    Geburtsdatum DATE,
+    AusleihID INTEGER DEFAULT NULL,
+    FOREIGN KEY (AusleihID) REFERENCES Ausleihen(AusleihID) ON DELETE SET NULL
+);
+
+
+Fremdschlüssel-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT NULL,
+    Geburtsdatum DATE
+);
+
+CREATE TABLE Bücher (
+    BuchID INTEGER PRIMARY KEY,
+    Titel VARCHAR(100) NOT NULL,
+    AutorID INTEGER,
+    Veröffentlichungsjahr INTEGER,
+    ISBN VARCHAR(13) UNIQUE,
+    Verfügbar BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (AutorID) REFERENCES Autoren(AutorID)
+       ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE Ausleihen (
+    AusleihID INTEGER PRIMARY KEY,
+    BuchID INTEGER,
+    Ausleihdatum DATE NOT NULL,
+    Rückgabedatum DATE,
+    CHECK (Rückgabedatum IS NULL OR Rückgabedatum >= Ausleihdatum),
+    FOREIGN KEY (BuchID) REFERENCES Bücher(BuchID) ON DELETE CASCADE
+);
+
+CREATE TABLE Person (
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50),
+    Geburtsdatum DATE,
+    AusleihID INTEGER DEFAULT NULL,
+    PRIMARY KEY(Nachname, Geburtsdatum)
+);
+
+
+Constraint-Fehler:
+CREATE TABLE Autoren (
+    AutorID INTEGER PRIMARY KEY,
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50) NOT NULL,
+    Geburtsdatum DATE
+);
+
+CREATE TABLE Bücher (
+    BuchID INTEGER PRIMARY KEY,
+    Titel VARCHAR(100) NOT NULL,
+    AutorID INTEGER,
+    Veröffentlichungsjahr INTEGER,
+    ISBN VARCHAR(13),
+    Verfügbar BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (AutorID) REFERENCES Autoren(AutorID) ON DELETE CASCADE
+);
+
+CREATE TABLE Ausleihen (
+    AusleihID INTEGER PRIMARY KEY,
+    BuchID INTEGER,
+    Ausleihdatum DATE NOT NULL,
+    Rückgabedatum DATE,
+    CHECK (Rückgabedatum IS NULL OR Rückgabedatum < Ausleihdatum),
+    FOREIGN KEY (BuchID) REFERENCES Bücher(BuchID) ON DELETE SET NULL
+);
+
+CREATE TABLE Person (
+    Vorname VARCHAR(50),
+    Nachname VARCHAR(50),
+    Geburtsdatum DATE,
+    AusleihID INTEGER DEFAULT NULL,
+    PRIMARY KEY(Nachname, Geburtsdatum),
+    FOREIGN KEY (AusleihID) REFERENCES Ausleihen(AusleihID) ON DELETE SET NULL
+);
+
