@@ -189,7 +189,8 @@ export class LecturerGradeAssignmentComponent {
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.SQLTask.value ||
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.RATask.value ||
       this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.XQueryTask.value ||
-      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.DatalogTask.value
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.DatalogTask.value ||
+      this._selectedGradingInfo?.taskTypeId === TaskAssignmentType.DDLTask.value
     );
   }
   /**

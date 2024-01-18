@@ -44,6 +44,7 @@
       "dlgTask": "Datalog task",
       "aprioriTask": "Apriori Task",
       "umlTask": "UML task",
+      "ddlTask": "SQL DDL task",
       "pmTask": "ProcessMining task"
     },
     "fields": {
@@ -58,7 +59,14 @@
       "sqlInsertStatementsSubmission": "SQL: Insert-Into-Statements (Submission):",
       "sqlInsertStatementsDiagnose": "SQL: Insert-Into-Statements (Diagnose):",
       "sqlSolution": "SQL: Solution:",
+      "ddlSolution": "SQL DDL: Solution:",
+      "ddlInsertStatements": "SQL DDL: Insert-Into-Statements (for constraints):",
       "maxPoints": "Maximum Points:",
+      "tablePoints": "Points for correct tables:",
+      "columnPoints": "Points for correct columns:",
+      "primaryKeyPoints": "Points for correct primary keys:",
+      "foreignKeyPoints": "Points for correct foreign keys:",
+      "constraintPoints": "Points for correct constraints:",
       "diagnoseLevelWeighting": "Weighting of the diagnose-level:",
       "processingTime": "Processing time:",
       "url": "Url:",

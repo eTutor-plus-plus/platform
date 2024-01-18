@@ -326,6 +326,47 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
                 query.append(".\n");
             }
 
+            if (StringUtils.isNotBlank(taskAssignment.getDdlSolution())) {
+                query.append("?assignment etutor:hasDDLSolution ");
+                query.appendLiteral(taskAssignment.getDdlSolution().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getDdlInsertStatements())) {
+                query.append("?assignment etutor:hasDDLInsertStatement ");
+                query.appendLiteral(taskAssignment.getDdlInsertStatements().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getTablePoints())) {
+                query.append("?assignment etutor:hasTablePoints ");
+                query.appendLiteral(taskAssignment.getTablePoints().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getColumnPoints())) {
+                query.append("?assignment etutor:hasColumnPoints ");
+                query.appendLiteral(taskAssignment.getColumnPoints().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getPrimaryKeyPoints())) {
+                query.append("?assignment etutor:hasPrimaryKeyPoints ");
+                query.appendLiteral(taskAssignment.getPrimaryKeyPoints().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getForeignKeyPoints())) {
+                query.append("?assignment etutor:hasForeignKeyPoints ");
+                query.appendLiteral(taskAssignment.getForeignKeyPoints().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getConstraintPoints())) {
+                query.append("?assignment etutor:hasConstraintPoints ");
+                query.appendLiteral(taskAssignment.getConstraintPoints().trim());
+                query.append(".\n");
+            }
 /** start apriori   */
 
             if (StringUtils.isNotBlank(taskAssignment.getAprioriDatasetId())) {
@@ -1710,6 +1751,34 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 /** apriori end */
         if (StringUtils.isNotBlank(newTaskAssignmentDTO.getSqlSolution())) {
             resource.addProperty(ETutorVocabulary.hasSQLSolution, newTaskAssignmentDTO.getSqlSolution().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDdlSolution())) {
+            resource.addProperty(ETutorVocabulary.hasDDLSolution, newTaskAssignmentDTO.getDdlSolution().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getDdlInsertStatements())) {
+            resource.addProperty(ETutorVocabulary.hasDDLInsertStatements, newTaskAssignmentDTO.getDdlInsertStatements().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getTablePoints())) {
+            resource.addProperty(ETutorVocabulary.hasTablePoints, newTaskAssignmentDTO.getTablePoints().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getColumnPoints())) {
+            resource.addProperty(ETutorVocabulary.hasColumnPoints, newTaskAssignmentDTO.getColumnPoints().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getPrimaryKeyPoints())) {
+            resource.addProperty(ETutorVocabulary.hasPrimaryKeyPoints, newTaskAssignmentDTO.getPrimaryKeyPoints().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getForeignKeyPoints())) {
+            resource.addProperty(ETutorVocabulary.hasForeignKeyPoints, newTaskAssignmentDTO.getForeignKeyPoints().trim());
+        }
+
+        if (StringUtils.isNotBlank(newTaskAssignmentDTO.getConstraintPoints())) {
+            resource.addProperty(ETutorVocabulary.hasConstraintPoints, newTaskAssignmentDTO.getConstraintPoints().trim());
         }
 
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getxQuerySolution())){

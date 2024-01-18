@@ -55,6 +55,8 @@ export class TaskUpdateComponent implements OnInit {
     xQuerySubmissionXML: [''],
     xQueryFileURL: [''],
     sqlSolution: [''],
+    ddlSolution: [''],
+    ddlInsertStatements: [''],
     xQuerySolution: [''],
     xQueryXPathSorting: [''],
     datalogFacts: [''],
@@ -62,6 +64,11 @@ export class TaskUpdateComponent implements OnInit {
     datalogQuery: [''],
     datalogUncheckedTerms: [''],
     maxPoints: [''],
+    tablePoints: [''],
+    columnPoints: [''],
+    primaryKeyPoints: [''],
+    foreignKeyPoints: [''],
+    constraintPoints: [''],
     startTime: [''],
     endTime: [''],
     diagnoseLevelWeighting: [''],
@@ -172,6 +179,16 @@ export class TaskUpdateComponent implements OnInit {
       newTask.sqlSolution = sqlSolution;
     }
 
+    const ddlSolution: string | null = this.updateForm.get('ddlSolution')!.value;
+    if (ddlSolution) {
+      newTask.ddlSolution = ddlSolution;
+    }
+
+    const ddlInsertStatements: string | null = this.updateForm.get('ddlInsertStatements')!.value;
+    if (ddlInsertStatements) {
+      newTask.ddlInsertStatements = ddlInsertStatements;
+    }
+
     const xQuerySolution: string | null = this.updateForm.get('xQuerySolution')!.value;
     if (xQuerySolution) {
       newTask.xQuerySolution = xQuerySolution;
@@ -200,6 +217,36 @@ export class TaskUpdateComponent implements OnInit {
     const maxPoints: string | null = this.updateForm.get('maxPoints')!.value;
     if (maxPoints) {
       newTask.maxPoints = maxPoints;
+    }
+
+    const tablePoints: string | null = this.updateForm.get('tablePoints')!.value;
+    if (tablePoints) {
+      newTask.tablePoints = tablePoints;
+    }
+
+    const columnPoints: string | null = this.updateForm.get('columnPoints')!.value;
+    if (columnPoints) {
+      newTask.columnPoints = columnPoints;
+    }
+
+    const primaryKeyPoints: string | null = this.updateForm.get('primaryKeyPoints')!.value;
+    if (primaryKeyPoints) {
+      newTask.primaryKeyPoints = primaryKeyPoints;
+    }
+
+    const foreignKeyPoints: string | null = this.updateForm.get('foreignKeyPoints')!.value;
+    if (foreignKeyPoints) {
+      newTask.foreignKeyPoints = foreignKeyPoints;
+    }
+
+    const constraintPoints: string | null = this.updateForm.get('constraintPoints')!.value;
+    if (constraintPoints) {
+      newTask.constraintPoints = constraintPoints;
+
+      // Calculate max points and set it
+      // @ts-ignore
+      var temp: number = +tablePoints + +columnPoints + +primaryKeyPoints + +foreignKeyPoints + +constraintPoints;
+      newTask.maxPoints = temp + '';
     }
 
     const startTime: string | null = this.updateForm.get('startTime')!.value;
@@ -264,12 +311,19 @@ export class TaskUpdateComponent implements OnInit {
         taskDifficultyId: newTask.taskDifficultyId,
         taskIdForDispatcher: this.taskModel!.taskIdForDispatcher,
         sqlSolution: newTask.sqlSolution,
+        ddlSolution: newTask.ddlSolution,
+        ddlInsertStatements: newTask.ddlInsertStatements,
         xQuerySolution: newTask.xQuerySolution,
         xQueryXPathSorting: newTask.xQueryXPathSorting,
         datalogSolution: newTask.datalogSolution,
         datalogQuery: newTask.datalogQuery,
         datalogUncheckedTerms: newTask.datalogUncheckedTerms,
         maxPoints: newTask.maxPoints,
+        tablePoints: newTask.tablePoints,
+        columnPoints: newTask.columnPoints,
+        primaryKeyPoints: newTask.primaryKeyPoints,
+        foreignKeyPoints: newTask.foreignKeyPoints,
+        constraintPoints: newTask.constraintPoints,
         diagnoseLevelWeighting: newTask.diagnoseLevelWeighting,
         processingTime: newTask.processingTime,
         bpmnTestConfig: newTask.bpmnTestConfig,
@@ -330,12 +384,19 @@ export class TaskUpdateComponent implements OnInit {
       const taskAssignmentType = this.taskTypes.find(x => x.value === value.taskAssignmentTypeId);
       const bpmnTestConfig = value.bpmnTestConfig ?? '';
       const sqlSolution = value.sqlSolution;
+      const ddlSolution = value.ddlSolution;
+      const ddlInsertStatements = value.ddlInsertStatements;
       const xQuerySolution = value.xQuerySolution;
       const xQueryXPathSorting = value.xQueryXPathSorting;
       const datalogSolution = value.datalogSolution;
       const datalogQuery = value.datalogQuery;
       const datalogUncheckedTerms = value.datalogUncheckedTerms;
       const maxPoints = value.maxPoints ?? '';
+      const tablePoints = value.tablePoints;
+      const columnPoints = value.columnPoints;
+      const primaryKeyPoints = value.primaryKeyPoints;
+      const foreignKeyPoints = value.foreignKeyPoints;
+      const constraintPoints = value.constraintPoints;
       const startTime = value.startTime ?? '';
       const endTime = value.endTime ?? '';
       const diagnoseLevelWeighting = value.diagnoseLevelWeighting ?? '';
@@ -367,12 +428,19 @@ export class TaskUpdateComponent implements OnInit {
         taskDifficulty,
         taskAssignmentType,
         sqlSolution,
+        ddlSolution,
+        ddlInsertStatements,
         xQuerySolution,
         xQueryXPathSorting,
         datalogSolution,
         datalogQuery,
         datalogUncheckedTerms,
         maxPoints,
+        tablePoints,
+        columnPoints,
+        primaryKeyPoints,
+        foreignKeyPoints,
+        constraintPoints,
         startTime,
         endTime,
         diagnoseLevelWeighting,
@@ -466,6 +534,13 @@ export class TaskUpdateComponent implements OnInit {
     } else if (this.selectedTaskAssignmentType === TaskAssignmentType.AprioriTask.value) {
       this.setMaxPointsRequired();
       this.setAprioriDatasetIdRequired();
+    } else if (this.selectedTaskAssignmentType === TaskAssignmentType.DDLTask.value) {
+      this.setDiagnoseLevelWeightingRequired();
+      this.setTablePointsRequired();
+      this.setColumnPointsRequired();
+      this.setPrimaryKeyPointsRequired();
+      this.setForeignKeyPointsRequired();
+      this.setConstraintPointsRequired();
     }
     this.updateForm.updateValueAndValidity();
   }
@@ -503,6 +578,8 @@ export class TaskUpdateComponent implements OnInit {
       subm = this.updateForm.get(['xQuerySolution'])?.value ?? '';
     } else if (taskT === TaskAssignmentType.DatalogTask.value) {
       subm = this.updateForm.get(['datalogSolution'])?.value ?? '';
+    } else if (taskT === TaskAssignmentType.DDLTask.value) {
+      subm = this.updateForm.get(['ddlSolution'])?.value ?? '';
     }
     (modalRef.componentInstance as DispatcherAssignmentModalComponent).submissionEntry = {
       hasBeenSolved: false,
@@ -764,6 +841,16 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('taskGroup')!.updateValueAndValidity();
     this.updateForm.get('maxPoints')!.clearValidators();
     this.updateForm.get('maxPoints')!.updateValueAndValidity();
+    this.updateForm.get('tablePoints')!.clearValidators();
+    this.updateForm.get('tablePoints')!.updateValueAndValidity();
+    this.updateForm.get('columnPoints')!.clearValidators();
+    this.updateForm.get('columnPoints')!.updateValueAndValidity();
+    this.updateForm.get('primaryKeyPoints')!.clearValidators();
+    this.updateForm.get('primaryKeyPoints')!.updateValueAndValidity();
+    this.updateForm.get('foreignKeyPoints')!.clearValidators();
+    this.updateForm.get('foreignKeyPoints')!.updateValueAndValidity();
+    this.updateForm.get('constraintPoints')!.clearValidators();
+    this.updateForm.get('constraintPoints')!.updateValueAndValidity();
     this.updateForm.get('diagnoseLevelWeighting')!.clearValidators();
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
     this.updateForm.get('aprioriDatasetId')!.clearValidators();
@@ -790,6 +877,36 @@ export class TaskUpdateComponent implements OnInit {
   private setDiagnoseLevelWeightingRequired(): void {
     this.updateForm.get('diagnoseLevelWeighting')!.setValidators(Validators.required);
     this.updateForm.get('diagnoseLevelWeighting')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setTablePointsRequired(): void {
+    this.updateForm.get('tablePoints')!.setValidators(Validators.required);
+    this.updateForm.get('tablePoints')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setColumnPointsRequired(): void {
+    this.updateForm.get('columnPoints')!.setValidators(Validators.required);
+    this.updateForm.get('columnPoints')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setPrimaryKeyPointsRequired(): void {
+    this.updateForm.get('primaryKeyPoints')!.setValidators(Validators.required);
+    this.updateForm.get('primaryKeyPoints')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setForeignKeyPointsRequired(): void {
+    this.updateForm.get('foreignKeyPoints')!.setValidators(Validators.required);
+    this.updateForm.get('foreignKeyPoints')!.updateValueAndValidity();
+    this.updateForm.updateValueAndValidity();
+  }
+
+  private setConstraintPointsRequired(): void {
+    this.updateForm.get('constraintPoints')!.setValidators(Validators.required);
+    this.updateForm.get('constraintPoints')!.updateValueAndValidity();
     this.updateForm.updateValueAndValidity();
   }
 
