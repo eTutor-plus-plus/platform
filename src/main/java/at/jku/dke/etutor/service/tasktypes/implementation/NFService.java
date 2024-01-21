@@ -48,7 +48,7 @@ public class NFService implements TaskTypeService {
                 newTaskAssignmentDTO.setInstruction(nfClient.getAssignmentText(id));
             }
         } catch(NumberFormatException | DispatcherRequestFailedException e) {
-            throw new NFException("Could not create NF exercise because: " + e.getMessage());
+            throw new NFException(e.getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ public class NFService implements TaskTypeService {
 
             nfClient.modifyExercise(id, nfExerciseDTO);
         } catch(NumberFormatException | DispatcherRequestFailedException e){
-            throw new NFException("Could not update NF exercise because: " + e.getMessage());
+            throw new NFException(e.getMessage());
         }
     }
 
@@ -80,7 +80,7 @@ public class NFService implements TaskTypeService {
             int id = Integer.parseInt(taskAssignmentDTO.getTaskIdForDispatcher());
             nfClient.deleteExercise(id);
         } catch(NumberFormatException | DispatcherRequestFailedException e){
-            throw new NFException("Could not delete NF exercise because: " + e.getMessage());
+            throw new NFException(e.getMessage());
         }
     }
 
@@ -92,6 +92,7 @@ public class NFService implements TaskTypeService {
     private NFExerciseDTO convertToNfExerciseDTO(NewTaskAssignmentDTO taskAssignmentDTO) {
         NFExerciseDTO nfExerciseDTO = new NFExerciseDTO();
 
+        nfExerciseDTO.setNfBaseRelationName(taskAssignmentDTO.getNfBaseRelationName());
         nfExerciseDTO.setNfBaseAttributes(taskAssignmentDTO.getNfBaseAttributes());
         nfExerciseDTO.setNfBaseDependencies(taskAssignmentDTO.getNfBaseDependencies());
         nfExerciseDTO.setNfTaskSubtypeId(taskAssignmentDTO.getNfTaskSubtypeId());

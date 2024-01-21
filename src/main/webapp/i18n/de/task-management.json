@@ -98,8 +98,9 @@
       "load": "Bestehende Aufgabenkonfiguration laden",
       "taskIdApriori": "Bitte kopieren sie die Task Configuration ID aus der Extension und fügens es in das Feld ein",
 
-      "baseRelationAttributes": "Attribute der Basisrelation:",
-      "baseRelationDependencies": "Funktionale Abhängigkeiten der Basisrelation:",
+      "nfBaseRelationName": "Name der Basisrelation",
+      "nfBaseRelationAttributes": "Attribute der Basisrelation:",
+      "nfBaseRelationDependencies": "Funktionale Abhängigkeiten der Basisrelation:",
       "nfTaskSubtype": "Untertyp der Normalisierungsaufgabe:",
       "nfKeysDeterminationPenaltyPerMissingKey": "Punkteabzug pro fehlendem Schlüssel:",
       "nfKeysDeterminationPenaltyPerIncorrectKey": "Punkteabzug pro falschem Schlüssel:",

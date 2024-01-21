@@ -87,6 +87,7 @@ export class TaskUpdateComponent implements OnInit {
     /** apriori end */
 
     // NF start
+    nfBaseRelationName: [''],
     nfBaseRelationAttributes: [''],
     nfBaseRelationDependencies: [''],
     nfTaskSubtype: [this.nfTaskSubtypes[0], [Validators.required]],
@@ -286,6 +287,11 @@ export class TaskUpdateComponent implements OnInit {
     }
 
     // NF start
+    const nfBaseRelationName: string | null = this.updateForm.get('nfBaseRelationName')!.value;
+    if (nfBaseRelationName) {
+      newTask.nfBaseRelationName = nfBaseRelationName;
+    }
+
     const nfBaseRelationAttributes: string | null = this.updateForm.get('nfBaseRelationAttributes')!.value;
     if (nfBaseRelationAttributes) {
       newTask.nfBaseAttributes = nfBaseRelationAttributes;
@@ -452,6 +458,7 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori end */
 
         // NF start
+        nfBaseRelationName: newTask.nfBaseRelationName,
         nfBaseAttributes: newTask.nfBaseAttributes,
         nfBaseDependencies: newTask.nfBaseDependencies,
         nfTaskSubtypeId: newTask.nfTaskSubtypeId,
@@ -544,6 +551,7 @@ export class TaskUpdateComponent implements OnInit {
       /** apriori end */
 
       // NF start
+      const nfBaseRelationName: string = (value.nfBaseRelationName ?? '').toString();
       const nfBaseRelationAttributes: string = (value.nfBaseAttributes ?? '').toString();
       const nfBaseRelationDependencies: string = (value.nfBaseDependencies ?? '').toString();
       const nfTaskSubtype = this.nfTaskSubtypes.find(x => x.value === value.nfTaskSubtypeId);
@@ -618,9 +626,10 @@ export class TaskUpdateComponent implements OnInit {
         /** apriori end */
 
         // NF start
-        nfBaseRelationAttributes,
-        nfBaseRelationDependencies,
-        nfTaskSubtype,
+        nfBaseRelationName: nfBaseRelationName,
+        nfBaseRelationAttributes: nfBaseRelationAttributes,
+        nfBaseRelationDependencies: nfBaseRelationDependencies,
+        nfTaskSubtype: nfTaskSubtype,
         nfKeysDeterminationPenaltyPerMissingKey: nfKeysDeterminationPenaltyPerMissingKey,
         nfKeysDeterminationPenaltyPerIncorrectKey: nfKeysDeterminationPenaltyPerIncorrectKey,
         nfAttributeClosureBaseAttributes: nfAttributeClosureBaseAttributes,
@@ -656,6 +665,10 @@ export class TaskUpdateComponent implements OnInit {
       this.writerInstructionFileId = value.writerInstructionFileId ?? -1;
       this.calcSolutionFileId = value.calcSolutionFileId ?? -1;
       this.calcInstructionFileId = value.calcInstructionFileId ?? -1;
+
+      // NF start
+      this.nfTaskSubtypeChanged();
+      // NF end
     }
   }
 
@@ -1039,6 +1052,8 @@ export class TaskUpdateComponent implements OnInit {
     this.updateForm.get('configNum')!.updateValueAndValidity();
     this.updateForm.get('minLogSize')!.clearValidators();
     this.updateForm.get('minLogSize')!.updateValueAndValidity();
+    this.updateForm.get('nfBaseRelationName')!.clearValidators();
+    this.updateForm.get('nfBaseRelationName')!.updateValueAndValidity();
     this.updateForm.get('nfBaseRelationAttributes')!.clearValidators();
     this.updateForm.get('nfBaseRelationAttributes')!.updateValueAndValidity();
     this.updateForm.get('nfBaseRelationDependencies')!.clearValidators();
@@ -1093,6 +1108,7 @@ export class TaskUpdateComponent implements OnInit {
   // NF start
   private setNFValidators() {
     this.setMaxPointsRequired();
+    this.updateForm.get('nfBaseRelationName')!.setValidators(Validators.required);
     this.updateForm.get('nfBaseRelationAttributes')!.setValidators(Validators.required);
     this.updateForm.get('nfBaseRelationDependencies')!.setValidators(Validators.required);
     this.updateForm.updateValueAndValidity();

@@ -146,6 +146,7 @@ public final class ETutorVocabulary {
     private static final String PROP_HAS_DATALOG_FACTS = "hasDatalogFacts";
 
     // NF start
+    private static final String PROP_HAS_NF_BASE_RELATION_NAME = "hasNfBaseRelationName";
     private static final String PROP_HAS_NF_BASE_ATTRIBUTES = "hasNfBaseAttributes";
     private static final String PROP_HAS_NF_BASE_DEPENDENCIES = "hasNfBaseDependencies";
     private static final String PROP_HAS_NF_TASK_SUBTYPE_ID = "hasNfTaskSubtypeId";
@@ -625,6 +626,10 @@ public final class ETutorVocabulary {
     public static final Property hasDatalogFacts = m.createProperty(URI+PROP_HAS_DATALOG_FACTS);
 
     // NF start
+    /**
+     * The hasNfBaseRelationName property
+     */
+    public static final Property hasNfBaseRelationName = m.createProperty(URI + PROP_HAS_NF_BASE_RELATION_NAME);
     /**
      * The hasNfBaseAttributes property
      */

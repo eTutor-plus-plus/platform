@@ -337,6 +337,12 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 /** apriori end */
 
             // NF start
+            if(StringUtils.isNotBlank(taskAssignment.getNfBaseRelationName())) {
+                query.append("?assignment etutor:hasNfBaseRelationName ");
+                query.appendLiteral(taskAssignment.getNfBaseRelationName().trim());
+                query.append(".\n");
+            }
+
             if (StringUtils.isNotBlank(taskAssignment.getNfBaseAttributes())) {
                 query.append("?assignment etutor:hasNfBaseAttributes ");
                 query.appendLiteral(taskAssignment.getNfBaseAttributes().trim());
@@ -1923,6 +1929,10 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         }
 
         // NF start
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfBaseRelationName())) {
+            resource.addProperty(ETutorVocabulary.hasNfBaseRelationName, newTaskAssignmentDTO.getNfBaseRelationName());
+        }
+
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfBaseAttributes())){
             resource.addProperty(ETutorVocabulary.hasNfBaseAttributes, newTaskAssignmentDTO.getNfBaseAttributes());
         }

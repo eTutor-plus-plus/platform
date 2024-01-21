@@ -489,7 +489,21 @@
     </div>
 
     <div class="form-group" *ngIf="selectedTaskAssignmentType === TaskAssignmentType.NfTask.value">
-      <label class="form-control-label" for="nfBaseRelationAttributes" jhiTranslate="taskManagement.fields.baseRelationAttributes">
+      <label class="form-control-label" for="nfBaseRelationName" jhiTranslate="taskManagement.fields.nfBaseRelationName">
+        Name of base relation:
+      </label>
+      <input type="text" class="form-control" name="nfBaseRelationName" id="nfBaseRelationName" formControlName="nfBaseRelationName" />
+      <div *ngIf="updateForm.get('nfBaseRelationName')!.invalid">
+        <small
+          class="form-text text-danger"
+          *ngIf="updateForm.get('nfBaseRelationName')?.errors?.required"
+          jhiTranslate="taskManagement.error.required"
+        >
+          This field is required!
+        </small>
+      </div>
+
+      <label class="form-control-label" for="nfBaseRelationAttributes" jhiTranslate="taskManagement.fields.nfBaseRelationAttributes">
         Attributes of base relation:
       </label>
       <fa-icon icon="info-circle" ngbTooltip="{{ 'taskManagement.nfSyntaxInfoAttributeSet' | translate }}" placement="right"></fa-icon>
@@ -510,7 +524,7 @@
         </small>
       </div>
 
-      <label class="form-control-label" for="nfBaseRelationDependencies" jhiTranslate="taskManagement.fields.baseRelationDependencies">
+      <label class="form-control-label" for="nfBaseRelationDependencies" jhiTranslate="taskManagement.fields.nfBaseRelationDependencies">
         Functional dependencies of base relation:
       </label>
       <fa-icon

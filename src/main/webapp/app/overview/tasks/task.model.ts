@@ -164,6 +164,11 @@ export interface INewTaskModel {
   // NF start
 
   /**
+   * NF-specific variable: name of base relation
+   */
+  nfBaseRelationName?: string;
+
+  /**
    * NF-specific variable: attributes of base relation
    */
   nfBaseAttributes?: string;

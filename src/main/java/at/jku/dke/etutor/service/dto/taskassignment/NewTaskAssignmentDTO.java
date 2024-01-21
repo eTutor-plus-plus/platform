@@ -60,6 +60,11 @@ public class NewTaskAssignmentDTO {
 
     // NF start
     /**
+     * NF-specific variable: name of base relation
+     */
+    private String nfBaseRelationName;
+
+    /**
      * NF-specific variable: attributes of base relation
      */
     private String nfBaseAttributes;
@@ -690,11 +695,17 @@ public class NewTaskAssignmentDTO {
         this.aprioriDatasetId = aprioriDatasetId;
     }
 
-
-
-/** apriori end */
+    /** apriori end */
 
     // NF start
+    public String getNfBaseRelationName() {
+        return nfBaseRelationName;
+    }
+
+    public void setNfBaseRelationName(String nfBaseRelationName) {
+        this.nfBaseRelationName = nfBaseRelationName;
+    }
+
     public String getNfBaseAttributes() {
         return nfBaseAttributes;
     }

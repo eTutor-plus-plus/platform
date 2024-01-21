@@ -84,7 +84,7 @@ public class TaskAssignmentResource {
         } catch (WrongCalcParametersException wcpe) {
             throw new BadRequestAlertException("Calc Parameters not valid", "taskManagement", "wrongCalcFiles");
         } catch (NFException ne) {
-            throw new BadRequestAlertException(ne.getMessage(), "taskManagement", "invalidNFTask");
+            throw new BadRequestAlertException(ne.getMessage(), "taskManagement", ne.getMessage());
         }
         catch (TaskTypeSpecificOperationFailedException e) {
             // Should not happen - all task type specific exceptions should be handled above

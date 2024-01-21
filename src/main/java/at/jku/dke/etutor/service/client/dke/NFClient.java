@@ -38,7 +38,7 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
             ResponseEntity<String> response = Objects.requireNonNull(sendRequest(putRequest, stringHandler));
             String responseBody = Objects.requireNonNull(response.getBody());
             if(response.getStatusCodeValue() != 200) {
-                throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
+                throw new DispatcherRequestFailedException(responseBody);
             }
             return Integer.parseInt(responseBody);
         } catch (JsonProcessingException j) {
@@ -61,7 +61,7 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
             ResponseEntity<String> response = Objects.requireNonNull(sendRequest(postRequest, stringHandler));
             String responseBody = Objects.requireNonNull(response.getBody());
             if(response.getStatusCodeValue() != 200) {
-                throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
+                throw new DispatcherRequestFailedException(responseBody);
             }
         } catch (JsonProcessingException j) {
             throw new DispatcherRequestFailedException("Could not serialize NF exercise because : " + j);
@@ -78,7 +78,7 @@ public non-sealed class NFClient extends AbstractDispatcherClient {
         ResponseEntity<String> response = Objects.requireNonNull(sendRequest(deleteRequest, stringHandler));
         String responseBody = Objects.requireNonNull(response.getBody());
         if(response.getStatusCodeValue() != 200) {
-            throw new DispatcherRequestFailedException("Could not serialize NF exercise because " + responseBody);
+            throw new DispatcherRequestFailedException(responseBody);
         }
     }
 

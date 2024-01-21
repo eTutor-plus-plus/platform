@@ -86,6 +86,7 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setConfigNum(newTaskAssignmentDTO.getConfigNum());
 
         // NF start
+        setNfBaseRelationName(newTaskAssignmentDTO.getNfBaseRelationName());
         setNfBaseAttributes(newTaskAssignmentDTO.getNfBaseAttributes());
         setNfBaseDependencies(newTaskAssignmentDTO.getNfBaseDependencies());
         setNfTaskSubtypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
@@ -300,6 +301,10 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         }
 
         // NF start
+        Statement nfBaseRelationName = resource.getProperty(ETutorVocabulary.hasNfBaseRelationName);
+        if(nfBaseRelationName != null) {
+            setNfBaseRelationName(nfBaseRelationName.getString());
+        }
         Statement nfBaseAttributes = resource.getProperty(ETutorVocabulary.hasNfBaseAttributes);
         if(nfBaseAttributes != null) {
             setNfBaseAttributes(nfBaseAttributes.getString());
