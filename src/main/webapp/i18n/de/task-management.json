@@ -20,6 +20,10 @@
 
     "datasetInfo": "Wenn sie ein neues Data set oder eine neue Aufgbenkonfiguration erstellen  möchten oder eine vorhandene Aufgabenkonfiguration verwenden möchten, drücken sie bitte die entsprechenden Schaltflächen. Die ID der Aufganebkonfiguration muss aus der Apriori-Extension in das entsprechnde Eingabefeld kopiert werden.",
 
+    "nfSyntaxInfoAttributeSet": "Attributnamen müssen mit Buchstaben beginnen. Sie können Buchstaben, Ziffern und \"_\" enthalten. Trennen Sie mehrere Attribute mit Beistrichen.",
+    "nfSyntaxInfoFunctionalDependencySet": "Nutzen Sie die Syntax für Attributmengen auf beiden Seiten der funktionalen Abhängigkeit und trennen Sie beide Seiten mit \"->\" (ohne Anführungszeichen).",
+    "nfSyntaxInfoNormalForm": "Geben Sie (ohne Anführungszeichen) \"1NF\", \"2NF\", \"3NF\" oder \"BCNF\" ein.",
+
     "textAprioriLinks": {
       "create": "Neuen Apriori-Datensatz erzeugen",
       "stored": "vorhandenen Apriori-Datensatz auswählen",
@@ -45,7 +49,13 @@
 
       "aprioriTask": "Apriori Aufgabe",
       "bpmnTask": "Bpmn Aufgabe",
-      "pmTask": "ProcessMining Aufgabe"
+      "pmTask": "ProcessMining Aufgabe",
+      "nfTask": "Normalisierung Aufgabe",
+      "nfTask.keysDeterminationTask": "Schlüsselbestimmung Aufgabe",
+      "nfTask.attributeClosureTask": "Attributhülle Aufgabe",
+      "nfTask.minimalCoverTask": "Minimale Überdeckung Aufgabe",
+      "nfTask.normalformDeterminationTask": "Normalformbestimmung Aufgabe",
+      "nfTask.normalizationTask": "Normalisierung Aufgabe (NF-Unteraufgabe)"
     },
     "fields": {
       "header": "Überschrift:",
@@ -86,7 +96,39 @@
       "datasetApriori": "Apriori Aufgabenkonfigurations ID: ",
       "create": "Aufgabenkonfiguration erzeugen",
       "load": "Bestehende Aufgabenkonfiguration laden",
-      "taskIdApriori": "Bitte kopieren sie die Task Configuration ID aus der Extension und fügens es in das Feld ein"
+      "taskIdApriori": "Bitte kopieren sie die Task Configuration ID aus der Extension und fügens es in das Feld ein",
+
+      "nfBaseRelationName": "Name der Basisrelation:",
+      "nfBaseRelationAttributes": "Attribute der Basisrelation:",
+      "nfBaseRelationDependencies": "Funktionale Abhängigkeiten der Basisrelation:",
+      "nfTaskSubtype": "Untertyp der Normalisierungsaufgabe:",
+      "nfKeysDeterminationPenaltyPerMissingKey": "Punkteabzug pro fehlendem Schlüssel:",
+      "nfKeysDeterminationPenaltyPerIncorrectKey": "Punkteabzug pro falschem Schlüssel:",
+      "nfAttributeClosureBaseAttributes": "Basisattribute für Attributhülle:",
+      "nfAttributeClosurePenaltyPerMissingAttribute": "Punkteabzug pro fehlendem Attribut:",
+      "nfAttributeClosurePenaltyPerIncorrectAttribute": "Punkteabzug pro falschem Attribut:",
+      "nfMinimalCoverPenaltyPerNonCanonicalDependency": "Punkteabzug pro nicht-kanonischer funktionaler Abhängigkeit:",
+      "nfMinimalCoverPenaltyPerTrivialDependency": "Punkteabzug pro trivialer funktionaler Abhängigkeit:",
+      "nfMinimalCoverPenaltyPerExtraneousAttribute": "Punkteabzug pro überflüssigem Attribut auf der linken Seite einer funktionalen Abhängigkeit:",
+      "nfMinimalCoverPenaltyPerRedundantDependency": "Punkteabzug pro redundanter funktionaler Abhängigkeit:",
+      "nfMinimalCoverPenaltyPerMissingDependencyVsSolution": "Punkteabzug pro fehlender funktionaler Abhängigkeit (verglichen mit der Lösung):",
+      "nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution": "Punkteabzug pro falscher funktionaler Abhängigkeit (verglichen mit der Lösung):",
+      "nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform": "Punkteabzug für falsche Normalform insgesamt:",
+      "nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform": "Punkteabzug pro funktionaler Abhängigkeit mit falscher Normalform:",
+      "nfNormalizationTargetLevel": "Ziel-Normalform:",
+      "nfNormalizationMaxLostDependencies": "Maximale Anzahl verlorener funktionaler Abhängigkeiten:",
+      "nfNormalizationPenaltyPerLostAttribute": "Punkteabzug pro verlorenem Attribut der Basisrelation:",
+      "nfNormalizationPenaltyForLossyDecomposition": "Punkteabzug für verlustbehaftete Dekomposition (nur einmal abgezogen):",
+      "nfNormalizationPenaltyPerNonCanonicalDependency": "Punkteabzug pro nicht-kanonischer funktionaler Abhängigkeit:",
+      "nfNormalizationPenaltyPerTrivialDependency": "Punkteabzug pro trivialer funktionaler Abhängigkeit:",
+      "nfNormalizationPenaltyPerExtraneousAttributeInDependencies": "Punkteabzug pro überflüssigem Attribut auf der linken Seite einer funktionalen Abhängigkeit:",
+      "nfNormalizationPenaltyPerRedundantDependency": "Punkteabzug pro redundanter funktionaler Abhängigkeit:",
+      "nfNormalizationPenaltyPerExcessiveLostDependency": "Punkteabzug pro verlorener funktionaler Abhängigkeit über der erlaubten Anzahl:",
+      "nfNormalizationPenaltyPerMissingNewDependency": "Punkteabzug pro funktionaler Abhängigkeit, die wegen Dekomposition nötig ist aber fehlt:",
+      "nfNormalizationPenaltyPerIncorrectNewDependency": "Punkteabzug pro falscher funktionaler Abhängigkeit in den Ergebnisrelationen:",
+      "nfNormalizationPenaltyPerMissingKey": "Punkteabzug pro fehlendem Schlüssel:",
+      "nfNormalizationPenaltyPerIncorrectKey": "Punkteabzug pro falschem Schlüssel:",
+      "nfNormalizationPenaltyPerIncorrectNFRelation": "Punkteabzug pro Ergebnisrelation, die nicht (mindestens) in der richtigen Normalform ist:"
     },
     "error": {
       "required": "Dieses Feld ist erforderlich!",

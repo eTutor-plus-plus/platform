@@ -85,15 +85,55 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         setMinLogSize(newTaskAssignmentDTO.getMinLogSize());
         setConfigNum(newTaskAssignmentDTO.getConfigNum());
 
+        // NF start
+        setNfBaseRelationName(newTaskAssignmentDTO.getNfBaseRelationName());
+        setNfBaseAttributes(newTaskAssignmentDTO.getNfBaseAttributes());
+        setNfBaseDependencies(newTaskAssignmentDTO.getNfBaseDependencies());
+        setNfTaskSubtypeId(newTaskAssignmentDTO.getTaskAssignmentTypeId());
+
+        setNfKeysDeterminationPenaltyPerMissingKey(newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerMissingKey());
+        setNfKeysDeterminationPenaltyPerIncorrectKey(newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerIncorrectKey());
+
+        setNfAttributeClosureBaseAttributes(newTaskAssignmentDTO.getNfAttributeClosureBaseAttributes());
+        setNfAttributeClosurePenaltyPerMissingAttribute(newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerMissingAttribute());
+        setNfAttributeClosurePenaltyPerIncorrectAttribute(newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerIncorrectAttribute());
+
+        setNfMinimalCoverPenaltyPerNonCanonicalDependency(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerNonCanonicalDependency());
+        setNfMinimalCoverPenaltyPerTrivialDependency(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerTrivialDependency());
+        setNfMinimalCoverPenaltyPerExtraneousAttribute(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerExtraneousAttribute());
+        setNfMinimalCoverPenaltyPerRedundantDependency(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerRedundantDependency());
+        setNfMinimalCoverPenaltyPerMissingDependencyVsSolution(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerMissingDependencyVsSolution());
+        setNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution());
+
+        setNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform(newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform());
+        setNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform(newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform());
+
+        setNfNormalizationTargetLevel(newTaskAssignmentDTO.getNfNormalizationTargetLevel());
+        setNfNormalizationMaxLostDependencies(newTaskAssignmentDTO.getNfNormalizationMaxLostDependencies());
+
+        setNfNormalizationPenaltyPerLostAttribute(newTaskAssignmentDTO.getNfNormalizationPenaltyPerLostAttribute());
+        setNfNormalizationPenaltyForLossyDecomposition(newTaskAssignmentDTO.getNfNormalizationPenaltyForLossyDecomposition());
+        setNfNormalizationPenaltyPerNonCanonicalDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerNonCanonicalDependency());
+        setNfNormalizationPenaltyPerTrivialDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerTrivialDependency());
+        setNfNormalizationPenaltyPerExtraneousAttributeInDependencies(newTaskAssignmentDTO.getNfNormalizationPenaltyPerExtraneousAttributeInDependencies());
+        setNfNormalizationPenaltyPerRedundantDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerRedundantDependency());
+        setNfNormalizationPenaltyPerExcessiveLostDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerExcessiveLostDependency());
+        setNfNormalizationPenaltyPerMissingNewDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingNewDependency());
+        setNfNormalizationPenaltyPerIncorrectNewDependency(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNewDependency());
+        setNfNormalizationPenaltyPerMissingKey(newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingKey());
+        setNfNormalizationPenaltyPerIncorrectKey(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectKey());
+        setNfNormalizationPenaltyPerIncorrectNFRelation(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNFRelation());
+        // NF end
+
         setId(id);
         setCreationDate(creationDate);
         setInternalCreator(internalCreator);
-        
+
 /** start apriori   */
         setAprioriDatasetId(newTaskAssignmentDTO.getAprioriDatasetId());
-        
-/** apriori end */  
-        
+
+/** apriori end */
+
     }
 
     /**
@@ -177,18 +217,18 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if (taskIdForDispatcherStatement != null) {
             setTaskIdForDispatcher(taskIdForDispatcherStatement.getString());
         }
-        
+
 /** start apriori   */
         Statement aprioriStatement = resource.getProperty(ETutorVocabulary.hasAprioriID);
         if(aprioriStatement != null){
-        	
+
         	setAprioriDatasetId(aprioriStatement.getString());
         }
-        
-/** apriori end */  
-        
-        
-        
+
+/** apriori end */
+
+
+
         Statement sqlSolutionStatement = resource.getProperty(ETutorVocabulary.hasSQLSolution);
         if(sqlSolutionStatement != null){
             setSqlSolution(sqlSolutionStatement.getString());
@@ -259,6 +299,138 @@ public class TaskAssignmentDTO extends NewTaskAssignmentDTO implements Comparabl
         if(configNum != null){
             setConfigNum(configNum.getString());
         }
+
+        // NF start
+        Statement nfBaseRelationName = resource.getProperty(ETutorVocabulary.hasNfBaseRelationName);
+        if(nfBaseRelationName != null) {
+            setNfBaseRelationName(nfBaseRelationName.getString());
+        }
+        Statement nfBaseAttributes = resource.getProperty(ETutorVocabulary.hasNfBaseAttributes);
+        if(nfBaseAttributes != null) {
+            setNfBaseAttributes(nfBaseAttributes.getString());
+        }
+        Statement nfBaseDependencies = resource.getProperty(ETutorVocabulary.hasNfBaseDependencies);
+        if(nfBaseDependencies != null) {
+            setNfBaseDependencies(nfBaseDependencies.getString());
+        }
+        Statement nfTaskSubtypeId = resource.getProperty(ETutorVocabulary.hasNfTaskSubtypeId);
+        if(nfTaskSubtypeId != null) {
+            setNfTaskSubtypeId(nfTaskSubtypeId.getString());
+        }
+
+        Statement nfKeysDeterminationPenaltyPerMissingKey = resource.getProperty(ETutorVocabulary.hasNfKeysDeterminationPenaltyPerMissingKey);
+        if(nfKeysDeterminationPenaltyPerMissingKey != null) {
+            setNfKeysDeterminationPenaltyPerMissingKey(nfKeysDeterminationPenaltyPerMissingKey.getInt());
+        }
+        Statement nfKeysDeterminationPenaltyPerIncorrectKey = resource.getProperty(ETutorVocabulary.hasNfKeysDeterminationPenaltyPerIncorrectKey);
+        if(nfKeysDeterminationPenaltyPerIncorrectKey != null) {
+            setNfKeysDeterminationPenaltyPerIncorrectKey(nfKeysDeterminationPenaltyPerIncorrectKey.getInt());
+        }
+
+        Statement nfAttributeClosureBaseAttributes = resource.getProperty(ETutorVocabulary.hasNfAttributeClosureBaseAttributes);
+        if(nfAttributeClosureBaseAttributes != null) {
+            setNfAttributeClosureBaseAttributes(nfAttributeClosureBaseAttributes.getString());
+        }
+        Statement nfAttributeClosurePenaltyPerMissingAttribute = resource.getProperty(ETutorVocabulary.hasNfAttributeClosurePenaltyPerMissingAttribute);
+        if(nfAttributeClosurePenaltyPerMissingAttribute != null) {
+            setNfAttributeClosurePenaltyPerMissingAttribute(nfAttributeClosurePenaltyPerMissingAttribute.getInt());
+        }
+        Statement nfAttributeClosurePenaltyPerIncorrectAttribute = resource.getProperty(ETutorVocabulary.hasNfAttributeClosurePenaltyPerIncorrectAttribute);
+        if(nfAttributeClosurePenaltyPerIncorrectAttribute != null) {
+            setNfAttributeClosurePenaltyPerIncorrectAttribute(nfAttributeClosurePenaltyPerIncorrectAttribute.getInt());
+        }
+
+        Statement nfMinimalCoverPenaltyPerNonCanonicalDependency = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerNonCanonicalDependency);
+        if(nfMinimalCoverPenaltyPerNonCanonicalDependency != null) {
+            setNfMinimalCoverPenaltyPerNonCanonicalDependency(nfMinimalCoverPenaltyPerNonCanonicalDependency.getInt());
+        }
+        Statement nfMinimalCoverPenaltyPerTrivialDependency = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerTrivialDependency);
+        if(nfMinimalCoverPenaltyPerTrivialDependency != null) {
+            setNfMinimalCoverPenaltyPerTrivialDependency(nfMinimalCoverPenaltyPerTrivialDependency.getInt());
+        }
+        Statement nfMinimalCoverPenaltyPerExtraneousAttribute = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerExtraneousAttribute);
+        if(nfMinimalCoverPenaltyPerExtraneousAttribute != null) {
+            setNfMinimalCoverPenaltyPerExtraneousAttribute(nfMinimalCoverPenaltyPerExtraneousAttribute.getInt());
+        }
+        Statement nfMinimalCoverPenaltyPerRedundantDependency = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerRedundantDependency);
+        if(nfMinimalCoverPenaltyPerRedundantDependency != null) {
+            setNfMinimalCoverPenaltyPerRedundantDependency(nfMinimalCoverPenaltyPerRedundantDependency.getInt());
+        }
+        Statement nfMinimalCoverPenaltyPerMissingDependencyVsSolution = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution);
+        if(nfMinimalCoverPenaltyPerMissingDependencyVsSolution != null) {
+            setNfMinimalCoverPenaltyPerMissingDependencyVsSolution(nfMinimalCoverPenaltyPerMissingDependencyVsSolution.getInt());
+        }
+        Statement nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution = resource.getProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution);
+        if(nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution != null) {
+            setNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution(nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution.getInt());
+        }
+
+        Statement nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform = resource.getProperty(ETutorVocabulary.hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform);
+        if(nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform != null) {
+            setNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform(nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform.getInt());
+        }
+        Statement nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform = resource.getProperty(ETutorVocabulary.hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform);
+        if(nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform != null) {
+            setNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform(nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform.getInt());
+        }
+
+        Statement nfNormalizationTargetLevel = resource.getProperty(ETutorVocabulary.hasNfNormalizationTargetLevel);
+        if(nfNormalizationTargetLevel != null) {
+            setNfNormalizationTargetLevel(nfNormalizationTargetLevel.getString());
+        }
+        Statement nfNormalizationMaxLostDependencies = resource.getProperty(ETutorVocabulary.hasNfNormalizationMaxLostDependencies);
+        if(nfNormalizationMaxLostDependencies != null) {
+            setNfNormalizationMaxLostDependencies(nfNormalizationMaxLostDependencies.getInt());
+        }
+        Statement nfNormalizationPenaltyPerLostAttribute = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerLostAttribute);
+        if(nfNormalizationPenaltyPerLostAttribute != null) {
+            setNfNormalizationPenaltyPerLostAttribute(nfNormalizationPenaltyPerLostAttribute.getInt());
+        }
+        Statement nfNormalizationPenaltyForLossyDecomposition = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyForLossyDecomposition);
+        if(nfNormalizationPenaltyForLossyDecomposition != null) {
+            setNfNormalizationPenaltyForLossyDecomposition(nfNormalizationPenaltyForLossyDecomposition.getInt());
+        }
+        Statement nfNormalizationPenaltyPerNonCanonicalDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerNonCanonicalDependency);
+        if(nfNormalizationPenaltyPerNonCanonicalDependency != null) {
+            setNfNormalizationPenaltyPerNonCanonicalDependency(nfNormalizationPenaltyPerNonCanonicalDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerTrivialDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerTrivialDependency);
+        if(nfNormalizationPenaltyPerTrivialDependency != null) {
+            setNfNormalizationPenaltyPerTrivialDependency(nfNormalizationPenaltyPerTrivialDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerExtraneousAttributeInDependencies = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies);
+        if(nfNormalizationPenaltyPerExtraneousAttributeInDependencies != null) {
+            setNfNormalizationPenaltyPerExtraneousAttributeInDependencies(nfNormalizationPenaltyPerExtraneousAttributeInDependencies.getInt());
+        }
+        Statement nfNormalizationPenaltyPerRedundantDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerRedundantDependency);
+        if(nfNormalizationPenaltyPerRedundantDependency != null) {
+            setNfNormalizationPenaltyPerRedundantDependency(nfNormalizationPenaltyPerRedundantDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerExcessiveLostDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerExcessiveLostDependency);
+        if(nfNormalizationPenaltyPerExcessiveLostDependency != null) {
+            setNfNormalizationPenaltyPerExcessiveLostDependency(nfNormalizationPenaltyPerExcessiveLostDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerMissingNewDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerMissingNewDependency);
+        if(nfNormalizationPenaltyPerMissingNewDependency != null) {
+            setNfNormalizationPenaltyPerMissingNewDependency(nfNormalizationPenaltyPerMissingNewDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerIncorrectNewDependency = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectNewDependency);
+        if(nfNormalizationPenaltyPerIncorrectNewDependency != null) {
+            setNfNormalizationPenaltyPerIncorrectNewDependency(nfNormalizationPenaltyPerIncorrectNewDependency.getInt());
+        }
+        Statement nfNormalizationPenaltyPerMissingKey = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerMissingKey);
+        if(nfNormalizationPenaltyPerMissingKey != null) {
+            setNfNormalizationPenaltyPerMissingKey(nfNormalizationPenaltyPerMissingKey.getInt());
+        }
+        Statement nfNormalizationPenaltyPerIncorrectKey = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectKey);
+        if(nfNormalizationPenaltyPerIncorrectKey != null) {
+            setNfNormalizationPenaltyPerIncorrectKey(nfNormalizationPenaltyPerIncorrectKey.getInt());
+        }
+        Statement nfNormalizationPenaltyPerIncorrectNFRelation = resource.getProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectNFRelation);
+        if(nfNormalizationPenaltyPerIncorrectNFRelation != null) {
+            setNfNormalizationPenaltyPerIncorrectNFRelation(nfNormalizationPenaltyPerIncorrectNFRelation.getInt());
+        }
+        // NF end
 
 
         setTaskDifficultyId(resource.getProperty(ETutorVocabulary.hasTaskDifficulty).getObject().asResource().getURI());

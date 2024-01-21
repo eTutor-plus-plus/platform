@@ -20,6 +20,10 @@
 
     "datasetInfo": "If you want to create a new data set or task configuration, or use an existing task configuration, please press the appropriate buttons. The task configuration ID must be copied from the apriori extension into the corresponding input field.",
 
+    "nfSyntaxInfoAttributeSet": "Attribute names must start with letters. They can contain letters, numbers and \"_\". Separate multiple attributes with commas.",
+    "nfSyntaxInfoFunctionalDependencySet": "Use the attribute set syntax on either side of the functional dependency and separate both sides with \"->\" (without quotes).",
+    "nfSyntaxInfoNormalForm": "Enter (without quotes) \"1NF\", \"2NF\", \"3NF\" or \"BCNF\".",
+
     "textAprioriLinks": {
       "create": "Create new Apriori-Dataset",
       "stored": "choose an existing Apriori-Dataset",
@@ -44,7 +48,13 @@
       "dlgTask": "Datalog task",
       "aprioriTask": "Apriori Task",
       "umlTask": "UML task",
-      "pmTask": "ProcessMining task"
+      "pmTask": "ProcessMining task",
+      "nfTask": "Normalization task",
+      "nfTask.keysDeterminationTask": "Keys determination task",
+      "nfTask.attributeClosureTask": "Attribute closure task",
+      "nfTask.minimalCoverTask": "Minimal cover task",
+      "nfTask.normalformDeterminationTask": "Normal form determination task",
+      "nfTask.normalizationTask": "Normalization task (NF subtask)"
     },
     "fields": {
       "header": "Header:",
@@ -84,7 +94,39 @@
       "datasetApriori": "Apriori task configuration ID: ",
       "create": "Create task configuration",
       "load": "Load task configuration",
-      "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field"
+      "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field",
+
+      "nfBaseRelationName": "Name of base relation:",
+      "nfBaseRelationAttributes": "Attributes of base relation:",
+      "nfBaseRelationDependencies": "Functional dependencies of base relation:",
+      "nfTaskSubtype": "Normalization task subtype",
+      "nfKeysDeterminationPenaltyPerMissingKey": "Points deducted per missing key:",
+      "nfKeysDeterminationPenaltyPerIncorrectKey": "Points deducted per incorrect key:",
+      "nfAttributeClosureBaseAttributes": "Base attributes for attribute closure:",
+      "nfAttributeClosurePenaltyPerMissingAttribute": "Points deducted per missing attribute:",
+      "nfAttributeClosurePenaltyPerIncorrectAttribute": "Points deducted per incorrect attribute:",
+      "nfMinimalCoverPenaltyPerNonCanonicalDependency": "Points deducted per non-canonical functional dependency:",
+      "nfMinimalCoverPenaltyPerTrivialDependency": "Points deducted per trivial functional dependency:",
+      "nfMinimalCoverPenaltyPerExtraneousAttribute": "Points deducted per extraneous attribute on the left-hand side of a functional dependency:",
+      "nfMinimalCoverPenaltyPerRedundantDependency": "Points deducted per redundant functional dependency:",
+      "nfMinimalCoverPenaltyPerMissingDependencyVsSolution": "Points deducted per missing functional dependency (as compared to the solution):",
+      "nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution": "Points deducted per incorrect functional dependency (as compared to the solution):",
+      "nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform": "Points deducted for incorrect overall normal form:",
+      "nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform": "Points deducted per functional dependency with incorrect normal form:",
+      "nfNormalizationTargetLevel": "Target normal form:",
+      "nfNormalizationMaxLostDependencies": "Maximum number of lost functional dependencies:",
+      "nfNormalizationPenaltyPerLostAttribute": "Points deducted per lost attribute of the base relation:",
+      "nfNormalizationPenaltyForLossyDecomposition": "Points deducted for lossy decomposition (only deducted once):",
+      "nfNormalizationPenaltyPerNonCanonicalDependency": "Points deducted per non-canonical functional dependency:",
+      "nfNormalizationPenaltyPerTrivialDependency": "Points deducted per trivial functional dependency:",
+      "nfNormalizationPenaltyPerExtraneousAttributeInDependencies": "Points deducted per extraneous attribute on the left-hand side of a functional dependency:",
+      "nfNormalizationPenaltyPerRedundantDependency": "Points deducted per redundant functional dependency:",
+      "nfNormalizationPenaltyPerExcessiveLostDependency": "Points deducted per lost functional dependency above the allowed number:",
+      "nfNormalizationPenaltyPerMissingNewDependency": "Points deducted per functional dependency that is necessitated by decomposition yet missing:",
+      "nfNormalizationPenaltyPerIncorrectNewDependency": "Points deducted per incorrect functional dependency present in the decomposed relations:",
+      "nfNormalizationPenaltyPerMissingKey": "Points deducted per missing key:",
+      "nfNormalizationPenaltyPerIncorrectKey": "Points deducted per incorrect key:",
+      "nfNormalizationPenaltyPerIncorrectNFRelation": "Points deducted per decomposed relation that is not in the correct normal form (at least):"
     },
     "error": {
       "required": "This field is required!",

@@ -336,6 +336,194 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
 
 /** apriori end */
 
+            // NF start
+            if(StringUtils.isNotBlank(taskAssignment.getNfBaseRelationName())) {
+                query.append("?assignment etutor:hasNfBaseRelationName ");
+                query.appendLiteral(taskAssignment.getNfBaseRelationName().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getNfBaseAttributes())) {
+                query.append("?assignment etutor:hasNfBaseAttributes ");
+                query.appendLiteral(taskAssignment.getNfBaseAttributes().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getNfBaseDependencies())) {
+                query.append("?assignment etutor:hasNfBaseDependencies ");
+                query.appendLiteral(taskAssignment.getNfBaseDependencies().trim());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getNfTaskSubtypeId())) {
+                query.append("?assignment etutor:hasNfTaskSubtypeId ");
+                query.appendLiteral(taskAssignment.getNfTaskSubtypeId().trim());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfKeysDeterminationPenaltyPerMissingKey() >= 0) {
+                query.append("?assignment etutor:hasNfKeysDeterminationPenaltyPerMissingKey ");
+                query.appendLiteral(taskAssignment.getNfKeysDeterminationPenaltyPerMissingKey());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfKeysDeterminationPenaltyPerIncorrectKey() >= 0) {
+                query.append("?assignment etutor:hasNfKeysDeterminationPenaltyPerIncorrectKey ");
+                query.appendLiteral(taskAssignment.getNfKeysDeterminationPenaltyPerIncorrectKey());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getNfAttributeClosureBaseAttributes())) {
+                query.append("?assignment etutor:hasNfAttributeClosureBaseAttributes ");
+                query.appendLiteral(taskAssignment.getNfAttributeClosureBaseAttributes().trim());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfAttributeClosurePenaltyPerMissingAttribute() >= 0) {
+                query.append("?assignment etutor:hasNfAttributeClosurePenaltyPerMissingAttribute ");
+                query.appendLiteral(taskAssignment.getNfAttributeClosurePenaltyPerMissingAttribute());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfAttributeClosurePenaltyPerIncorrectAttribute() >= 0) {
+                query.append("?assignment etutor:hasNfAttributeClosurePenaltyPerIncorrectAttribute ");
+                query.appendLiteral(taskAssignment.getNfAttributeClosurePenaltyPerIncorrectAttribute());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerNonCanonicalDependency() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerNonCanonicalDependency ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerNonCanonicalDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerTrivialDependency() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerTrivialDependency ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerTrivialDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerExtraneousAttribute() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerExtraneousAttribute ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerExtraneousAttribute());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerRedundantDependency() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerRedundantDependency ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerRedundantDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerMissingDependencyVsSolution() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerMissingDependencyVsSolution());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution() >= 0) {
+                query.append("?assignment etutor:hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution ");
+                query.appendLiteral(taskAssignment.getNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform() >= 0) {
+                query.append("?assignment etutor:hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform ");
+                query.appendLiteral(taskAssignment.getNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform() >= 0) {
+                query.append("?assignment etutor:hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform ");
+                query.appendLiteral(taskAssignment.getNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform());
+                query.append(".\n");
+            }
+
+            if (StringUtils.isNotBlank(taskAssignment.getNfNormalizationTargetLevel())) {
+                query.append("?assignment etutor:hasNfNormalizationTargetLevel ");
+                query.appendLiteral(taskAssignment.getNfNormalizationTargetLevel().trim());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationMaxLostDependencies() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationMaxLostDependencies ");
+                query.appendLiteral(taskAssignment.getNfNormalizationMaxLostDependencies());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerLostAttribute() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerLostAttribute ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerLostAttribute());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyForLossyDecomposition() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyForLossyDecomposition ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyForLossyDecomposition());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerNonCanonicalDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerNonCanonicalDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerNonCanonicalDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerTrivialDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerTrivialDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerTrivialDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerExtraneousAttributeInDependencies() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerExtraneousAttributeInDependencies());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerRedundantDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerRedundantDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerRedundantDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerExcessiveLostDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerExcessiveLostDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerExcessiveLostDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerMissingNewDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerMissingNewDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerMissingNewDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerIncorrectNewDependency() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerIncorrectNewDependency ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerIncorrectNewDependency());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerMissingKey() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerMissingKey ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerMissingKey());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerIncorrectKey() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerIncorrectKey ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerIncorrectKey());
+                query.append(".\n");
+            }
+
+            if (taskAssignment.getNfNormalizationPenaltyPerIncorrectNFRelation() >= 0) {
+                query.append("?assignment etutor:hasNfNormalizationPenaltyPerIncorrectNFRelation ");
+                query.appendLiteral(taskAssignment.getNfNormalizationPenaltyPerIncorrectNFRelation());
+                query.append(".\n");
+            }
+            // NF end
+
             if(StringUtils.isNotBlank(taskAssignment.getMaxPoints())){
                 query.append("?assignment etutor:hasMaxPoints ");
                 query.appendLiteral(taskAssignment.getMaxPoints());
@@ -1739,6 +1927,132 @@ public /*non-sealed*/ class  AssignmentSPARQLEndpointService extends AbstractSPA
         if(StringUtils.isNotBlank(newTaskAssignmentDTO.getMaxPoints())){
             resource.addProperty(ETutorVocabulary.hasMaxPoints, newTaskAssignmentDTO.getMaxPoints());
         }
+
+        // NF start
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfBaseRelationName())) {
+            resource.addProperty(ETutorVocabulary.hasNfBaseRelationName, newTaskAssignmentDTO.getNfBaseRelationName());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfBaseAttributes())){
+            resource.addProperty(ETutorVocabulary.hasNfBaseAttributes, newTaskAssignmentDTO.getNfBaseAttributes());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfBaseDependencies())){
+            resource.addProperty(ETutorVocabulary.hasNfBaseDependencies, newTaskAssignmentDTO.getNfBaseDependencies());
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfTaskSubtypeId())){
+            resource.addProperty(ETutorVocabulary.hasNfTaskSubtypeId, newTaskAssignmentDTO.getNfTaskSubtypeId());
+        }
+
+        if(newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerMissingKey() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfKeysDeterminationPenaltyPerMissingKey, newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerMissingKey() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerIncorrectKey() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfKeysDeterminationPenaltyPerIncorrectKey, newTaskAssignmentDTO.getNfKeysDeterminationPenaltyPerIncorrectKey() + "");
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfAttributeClosureBaseAttributes())){
+            resource.addProperty(ETutorVocabulary.hasNfAttributeClosureBaseAttributes, newTaskAssignmentDTO.getNfAttributeClosureBaseAttributes());
+        }
+
+        if(newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerMissingAttribute() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfAttributeClosurePenaltyPerMissingAttribute, newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerMissingAttribute() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerIncorrectAttribute() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfAttributeClosurePenaltyPerIncorrectAttribute, newTaskAssignmentDTO.getNfAttributeClosurePenaltyPerIncorrectAttribute() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerNonCanonicalDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerNonCanonicalDependency, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerNonCanonicalDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerTrivialDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerTrivialDependency, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerTrivialDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerExtraneousAttribute() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerExtraneousAttribute, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerExtraneousAttribute() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerRedundantDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerRedundantDependency, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerRedundantDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerMissingDependencyVsSolution() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerMissingDependencyVsSolution, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerMissingDependencyVsSolution() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution, newTaskAssignmentDTO.getNfMinimalCoverPenaltyPerIncorrectDependencyVsSolution() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform, newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyForIncorrectOverallNormalform() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform, newTaskAssignmentDTO.getNfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform() + "");
+        }
+
+        if(StringUtils.isNotBlank(newTaskAssignmentDTO.getNfNormalizationTargetLevel())){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationTargetLevel, newTaskAssignmentDTO.getNfNormalizationTargetLevel());
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationMaxLostDependencies() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationMaxLostDependencies, newTaskAssignmentDTO.getNfNormalizationMaxLostDependencies() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerLostAttribute() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerLostAttribute, newTaskAssignmentDTO.getNfNormalizationPenaltyPerLostAttribute() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyForLossyDecomposition() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyForLossyDecomposition, newTaskAssignmentDTO.getNfNormalizationPenaltyForLossyDecomposition() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerNonCanonicalDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerNonCanonicalDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerNonCanonicalDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerTrivialDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerTrivialDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerTrivialDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerExtraneousAttributeInDependencies() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerExtraneousAttributeInDependencies, newTaskAssignmentDTO.getNfNormalizationPenaltyPerExtraneousAttributeInDependencies() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerRedundantDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerRedundantDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerRedundantDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerExcessiveLostDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerExcessiveLostDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerExcessiveLostDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingNewDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerMissingNewDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingNewDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNewDependency() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectNewDependency, newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNewDependency() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingKey() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerMissingKey, newTaskAssignmentDTO.getNfNormalizationPenaltyPerMissingKey() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectKey() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectKey, newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectKey() + "");
+        }
+
+        if(newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNFRelation() > 0){
+            resource.addProperty(ETutorVocabulary.hasNfNormalizationPenaltyPerIncorrectNFRelation, newTaskAssignmentDTO.getNfNormalizationPenaltyPerIncorrectNFRelation() + "");
+        }
+        // NF end
 
         // Pm related variables
         if(newTaskAssignmentDTO.getMaxActivity() !=0){

@@ -12,6 +12,7 @@ import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDTO;
 import at.jku.dke.etutor.service.dto.taskassignment.TaskAssignmentDisplayDTO;
 import at.jku.dke.etutor.service.exception.InternalTaskAssignmentNonexistentException;
 import at.jku.dke.etutor.service.exception.MissingParameterException;
+import at.jku.dke.etutor.service.exception.NFException;
 import at.jku.dke.etutor.service.exception.NotAValidTaskGroupException;
 import at.jku.dke.etutor.service.exception.TaskTypeSpecificOperationFailedException;
 import at.jku.dke.etutor.web.rest.errors.BadRequestAlertException;
@@ -87,7 +88,10 @@ public class TaskAssignmentResource {
             throw new at.jku.dke.etutor.web.rest.errors.NotAValidTaskGroupException();
         } catch (WrongCalcParametersException wcpe) {
             throw new BadRequestAlertException("Calc Parameters not valid", "taskManagement", "wrongCalcFiles");
-        } catch (TaskTypeSpecificOperationFailedException e) {
+        } catch (NFException ne) {
+            throw new BadRequestAlertException(ne.getMessage(), "taskManagement", ne.getMessage());
+        }
+        catch (TaskTypeSpecificOperationFailedException e) {
             // Should not happen - all task type specific exceptions should be handled above
             throw new RuntimeException(e);
         }

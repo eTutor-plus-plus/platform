@@ -159,7 +159,193 @@ export interface INewTaskModel {
    */
   aprioriDatasetId?: string;
 
-  /** apriori start */
+  /** apriori end */
+
+  // NF start
+
+  /**
+   * NF-specific variable: name of base relation
+   */
+  nfBaseRelationName?: string;
+
+  /**
+   * NF-specific variable: attributes of base relation
+   */
+  nfBaseAttributes?: string;
+
+  /**
+   * NF-specific variable: functional dependencies of base relation
+   */
+  nfBaseDependencies?: string;
+
+  /**
+   * NF-specific variable: the id of the NF task subtype
+   */
+  nfTaskSubtypeId?: string;
+
+  // Keys determination
+
+  /**
+   * NF-specific variable: Number of points deducted per missing key in a keys determination task
+   */
+  nfKeysDeterminationPenaltyPerMissingKey?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per incorrect key in a keys determination task
+   */
+  nfKeysDeterminationPenaltyPerIncorrectKey?: number;
+
+  // Attribute closure
+
+  /**
+   * NF-specific variable: base attributes for closure in an attribute closure task
+   */
+  nfAttributeClosureBaseAttributes?: string;
+
+  /**
+   * NF-specific variable: Number of points deducted per missing attribute an attribute closure task
+   */
+  nfAttributeClosurePenaltyPerMissingAttribute?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per incorrect attribute in an attribute closure task
+   */
+  nfAttributeClosurePenaltyPerIncorrectAttribute?: number;
+
+  // Minimal cover
+
+  /**
+   * NF-specific variable: Number of points deducted per non-canonical functional dependency in a minimal cover task
+   */
+  nfMinimalCoverPenaltyPerNonCanonicalDependency?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per trivial functional dependency in a minimal cover task
+   */
+  nfMinimalCoverPenaltyPerTrivialDependency?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per extraneous attribute on the left-hand side of a functional
+   * dependency in a minimal cover task
+   */
+  nfMinimalCoverPenaltyPerExtraneousAttribute?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per redundant functional dependency in a minimal cover task
+   */
+  nfMinimalCoverPenaltyPerRedundantDependency?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per missing functional dependency in a minimal cover task
+   * (compared to the correct solution)
+   */
+  nfMinimalCoverPenaltyPerMissingDependencyVsSolution?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per incorrect functional dependency in a minimal cover task
+   * (compared to the correct solution)
+   */
+  nfMinimalCoverPenaltyPerIncorrectDependencyVsSolution?: number;
+
+  // Normal form determination
+
+  /**
+   * NF-specific variable: Number of points deducted for an incorrect total normal form in a normal form determination
+   * task
+   */
+  nfNormalFormDeterminationPenaltyForIncorrectOverallNormalform?: number;
+
+  /**
+   * NF-specific variable: Number of points deducted per incorrectly determined normal form of a functional dependency
+   * in a normal form determination task
+   */
+  nfNormalFormDeterminationPenaltyPerIncorrectDependencyNormalform?: number;
+
+  // Normalization
+
+  /**
+   * NF-specific variable: The minimum normal form level which the resulting relations must have in a normalization
+   * task
+   */
+  nfNormalizationTargetLevel?: string;
+
+  /**
+   * NF-specific variable: The maximum number of functional dependencies that is permitted to be lost in the
+   * decomposition process before points are deducted in a normalization task
+   */
+  nfNormalizationMaxLostDependencies?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every attribute of the base relation that is not present in any of the
+   * resulting relations in a normalization task
+   */
+  nfNormalizationPenaltyPerLostAttribute?: number;
+
+  /**
+   * NF-specific variable: Points deducted if the resulting relations cannot be re-combined into the base relation in
+   * a normalization task
+   */
+  nfNormalizationPenaltyForLossyDecomposition?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every non-canonical functional dependency in a resulting relation in
+   * a normalization task
+   */
+  nfNormalizationPenaltyPerNonCanonicalDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every trivial functional dependency in a resulting relation in
+   * a normalization task
+   */
+  nfNormalizationPenaltyPerTrivialDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every extraneous attribute on the left-hand side of a functional
+   * dependency in a resulting relation in a normalization task
+   */
+  nfNormalizationPenaltyPerExtraneousAttributeInDependencies?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every redundant functional dependency in a resulting relation in
+   * a normalization task
+   */
+  nfNormalizationPenaltyPerRedundantDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that was lost during the decomposition
+   * process and exceeds the maximum permitted number of lost functional dependencies in a normalization task
+   */
+  nfNormalizationPenaltyPerExcessiveLostDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that would have to exist in a resulting
+   * relation due to the decomposition process but does not in a normalization task
+   */
+  nfNormalizationPenaltyPerMissingNewDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every functional dependency that exists in a resulting relation, even
+   * though it is not supposed to (due to the decomposition process, more specifically the RBR algorithm) in a
+   * normalization task
+   */
+  nfNormalizationPenaltyPerIncorrectNewDependency?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every missing key in a resulting relation in a normalization task
+   */
+  nfNormalizationPenaltyPerMissingKey?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every incorrect key in a resulting relation in a normalization task
+   */
+  nfNormalizationPenaltyPerIncorrectKey?: number;
+
+  /**
+   * NF-specific variable: Points deducted for every resulting relation that does not match or exceed the required
+   * normal form in a normalization task
+   */
+  nfNormalizationPenaltyPerIncorrectNFRelation?: number;
+  // NF end
 }
 
 /**
@@ -246,6 +432,11 @@ export class TaskAssignmentType {
     'taskManagement.taskTypes.umlTask'
   );
 
+  public static readonly NfTask = new TaskAssignmentType(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask',
+    'taskManagement.taskTypes.nfTask'
+  );
+
   public static readonly Values = [
     TaskAssignmentType.NoType,
     TaskAssignmentType.UploadTask,
@@ -258,6 +449,7 @@ export class TaskAssignmentType {
     TaskAssignmentType.PmTask,
     TaskAssignmentType.AprioriTask,
     TaskAssignmentType.UmlTask,
+    TaskAssignmentType.NfTask,
   ];
 
   private readonly _value: string;
@@ -373,3 +565,76 @@ export interface ITaskAssignmentDisplay {
    */
   id: string;
 }
+
+// NF start
+/**
+ * Represents an NF task's subtype.
+ */
+export class NFTaskSubtype {
+  public static readonly KeysDeterminationTask = new NFTaskSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask#KeysDeterminationTask',
+    'taskManagement.taskTypes.nfTask.keysDeterminationTask'
+  );
+
+  public static readonly AttributeClosureTask = new NFTaskSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask#AttributeClosureTask',
+    'taskManagement.taskTypes.nfTask.attributeClosureTask'
+  );
+
+  public static readonly MinimalCoverTask = new NFTaskSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask#MinimalCoverTask',
+    'taskManagement.taskTypes.nfTask.minimalCoverTask'
+  );
+
+  public static readonly NormalformDeterminationTask = new NFTaskSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask#NormalformDeterminationTask',
+    'taskManagement.taskTypes.nfTask.normalformDeterminationTask'
+  );
+
+  public static readonly NormalizationTask = new NFTaskSubtype(
+    'http://www.dke.uni-linz.ac.at/etutorpp/TaskAssignmentType#NFTask#NormalizationTask',
+    'taskManagement.taskTypes.nfTask.normalizationTask'
+  );
+
+  public static readonly Values = [
+    NFTaskSubtype.KeysDeterminationTask,
+    NFTaskSubtype.AttributeClosureTask,
+    NFTaskSubtype.MinimalCoverTask,
+    NFTaskSubtype.NormalformDeterminationTask,
+    NFTaskSubtype.NormalizationTask,
+  ];
+
+  private readonly _value: string;
+  private readonly _text: string;
+
+  /**
+   * Constructor.
+   *
+   * @param value the value
+   * @param text the text
+   */
+  constructor(value: string, text: string) {
+    this._value = value;
+    this._text = text;
+  }
+
+  /**
+   * Returns the value.
+   */
+  public get value(): string {
+    return this._value;
+  }
+
+  /**
+   * Returns the text.
+   */
+  public get text(): string {
+    return this._text;
+  }
+
+  /**
+   * Overridden toString method.
+   */
+  public toString = (): string => this._text;
+}
+// NF end
