@@ -96,7 +96,7 @@
       "load": "Load task configuration",
       "taskIdApriori": "Please copy the Task Configuration ID from the extension and paste it into the field",
 
-      "nfBaseRelationName": "Name of base relation",
+      "nfBaseRelationName": "Name of base relation:",
       "nfBaseRelationAttributes": "Attributes of base relation:",
       "nfBaseRelationDependencies": "Functional dependencies of base relation:",
       "nfTaskSubtype": "Normalization task subtype",
