@@ -75,9 +75,12 @@ export interface INewTaskModel {
    */
   sqlSolution?: string;
   /**
-   * Optional solution for a XQuery-assignment
+   * Optional solution for a RT-assignment
    */
   rtSolution?: string;
+  /**
+  * Optional solution for a XQuery-assignment
+  */
   xQuerySolution?: string;
   /**
    * Optional XPath-expression defining the sorting of an XQuery-assignment
